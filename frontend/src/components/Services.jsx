@@ -4,8 +4,8 @@ import { SERVICES } from '../mock';
 
 export default function Services({ onBook }) {
   return (
-    <section id="services" className="relative bg-black py-24 md:py-32">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="services" className="section-dark-gray relative py-24 md:py-32 border-y border-white/10">
+      <div className="max-w-7xl mx-auto px-6 relative">
         <div className="text-center mb-16">
           <h2 className="font-display text-white text-4xl md:text-5xl font-black tracking-wide">
             OS NOSSOS SERVIÇOS
