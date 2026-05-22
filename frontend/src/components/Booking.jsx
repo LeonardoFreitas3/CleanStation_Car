@@ -11,6 +11,9 @@ function sameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth(
 function fmtDate(d) { return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
 function isoDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
+// NOTE: These helpers use localStorage as MOCK storage for the booking flow.
+// Data stored is non-sensitive (name, phone, car model the user typed). In production
+// (with Google Calendar backend), bookings will be persisted server-side instead.
 function readBookings() {
   try { return JSON.parse(localStorage.getItem(BOOKINGS_KEY) || '[]'); } catch { return []; }
 }
@@ -171,14 +174,15 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 </div>
                 <div className="grid grid-cols-7 gap-1">
                   {cells.map((d, idx) => {
-                    if (!d) return <div key={idx} className="aspect-square" />;
+                    const cellKey = d ? `${y}-${m}-${d.getDate()}` : `empty-${y}-${m}-${idx}`;
+                    if (!d) return <div key={cellKey} className="aspect-square" />;
                     const past = d < today;
                     const blocked = isBlocked(d);
                     const disabled = past || blocked;
                     const selected = selectedDate && sameDay(d, selectedDate);
                     return (
                       <button
-                        key={idx}
+                        key={cellKey}
                         disabled={disabled}
                         onClick={() => { setSelectedDate(d); setSelectedTime(null); }}
                         className={`aspect-square text-sm flex items-center justify-center border transition ${

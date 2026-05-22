@@ -24,7 +24,7 @@ export default function Testimonials() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {visible.map((t, i) => (
             <div
-              key={`${t.name}-${i}`}
+              key={`${t.name}-${(idx + i) % TESTIMONIALS.length}`}
               className="relative rounded-2xl p-8 border border-white/10 hover:border-white/25 transition-all"
               style={{
                 background:
@@ -60,9 +60,9 @@ export default function Testimonials() {
             <ChevronLeft className="w-4 h-4" />
           </button>
           <div className="flex gap-2">
-            {TESTIMONIALS.map((_, i) => (
+            {TESTIMONIALS.map((t, i) => (
               <span
-                key={i}
+                key={t.name}
                 className={`h-1.5 rounded-full transition-all ${
                   i === idx ? 'bg-white w-8' : 'bg-white/30 w-2'
                 }`}
