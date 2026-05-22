@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Anton&family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cinzel:wght@500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,9 +17,16 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Premium serif display font for titles */
 .font-display {
-    font-family: 'Anton', 'Bebas Neue', 'Inter', sans-serif;
+    font-family: 'Cinzel', 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    font-weight: 700;
     letter-spacing: 0.02em;
+}
+
+.font-serif-elegant {
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    font-weight: 500;
 }
 
 ::selection {
@@ -42,33 +49,31 @@ html {
     animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Chrome metallic text effect */
+/* Chrome metallic text effect - subtle silver, not too contrasting */
 .chrome-text {
     background: linear-gradient(
         180deg,
         #ffffff 0%,
-        #e8e8e8 18%,
-        #9a9a9a 38%,
-        #5a5a5a 50%,
-        #2a2a2a 52%,
-        #6a6a6a 60%,
-        #c4c4c4 78%,
-        #ffffff 100%
+        #f0f0f0 30%,
+        #b8b8b8 55%,
+        #d8d8d8 70%,
+        #f5f5f5 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.55));
+    filter: drop-shadow(0 4px 18px rgba(255, 255, 255, 0.08))
+            drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
 }
 
 .chrome-text-thin {
     background: linear-gradient(
         180deg,
-        #d8d8d8 0%,
-        #f5f5f5 30%,
-        #808080 60%,
-        #cfcfcf 100%
+        #e8e8e8 0%,
+        #ffffff 40%,
+        #a8a8a8 75%,
+        #e0e0e0 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -118,7 +123,7 @@ html {
 /* Dark gradient section background (for Processo section) */
 .section-dark-gray {
     background:
-        linear-gradient(180deg, #1c1c1c 0%, #262626 50%, #1a1a1a 100%);
+        radial-gradient(ellipse 80% 65% at 50% 50%, #4a4a4a 0%, #3a3a3a 18%, #2a2a2a 38%, #161616 65%, #050505 90%, #000 100%);
     position: relative;
 }
 .section-dark-gray::before {
@@ -126,10 +131,18 @@ html {
     position: absolute;
     inset: 0;
     background-image:
-        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.04) 1px, transparent 0);
-    background-size: 24px 24px;
+        repeating-linear-gradient(180deg, transparent 0, transparent 2px, rgba(255, 255, 255, 0.015) 2px, rgba(255, 255, 255, 0.015) 3px),
+        radial-gradient(ellipse 70% 50% at 50% 50%, rgba(255, 255, 255, 0.06) 0%, transparent 60%);
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 1;
+}
+.section-dark-gray::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, transparent 18%, transparent 82%, rgba(0, 0, 0, 0.5) 100%);
+    pointer-events: none;
 }
 
 /* Glow used behind car in hero */

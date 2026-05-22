@@ -2,9 +2,9 @@ import React from 'react';
 import { CalendarCheck } from 'lucide-react';
 import { FEATURES, SITE } from '../mock';
 
-// Audi A5 front view with bright LED headlights, dark moody
+// Audi front view with bright LED headlights, dark moody studio
 const HERO_CAR =
-  'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=2400&q=85';
+  'https://images.unsplash.com/photo-1615884363252-983eed162938?auto=format&fit=crop&w=2400&q=88';
 
 export default function Hero({ onBook }) {
   return (
