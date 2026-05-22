@@ -7,8 +7,7 @@ export default function Services({ onBook }) {
     <section id="services" className="relative bg-black py-24 md:py-32">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <p className="text-white/40 text-[10px] tracking-[0.4em] mb-3">SOLUÇÕES PREMIUM</p>
-          <h2 className="font-display text-4xl md:text-5xl font-black tracking-wide chrome-text">
+          <h2 className="font-display text-white text-4xl md:text-5xl font-black tracking-wide">
             OS NOSSOS SERVIÇOS
           </h2>
           <p className="text-white/55 mt-4 max-w-xl mx-auto text-sm">
@@ -22,10 +21,9 @@ export default function Services({ onBook }) {
             return (
               <div
                 key={s.id}
-                className="group relative overflow-hidden bg-gradient-to-b from-zinc-900 to-black border border-white/5 hover:border-white/25 transition-all duration-500 flex flex-col"
+                className="group relative overflow-hidden bg-[#0e0e0e] border border-white/10 hover:border-white/30 transition-all duration-500 flex flex-col rounded-md"
                 style={{ animationDelay: `${i * 0.08}s` }}
               >
-                {/* Image */}
                 <div className="relative h-56 overflow-hidden">
                   <img
                     src={s.image}
@@ -33,27 +31,15 @@ export default function Services({ onBook }) {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-black/40 to-transparent" />
                 </div>
 
-                {/* Icon */}
-                <div className="-mt-7 flex justify-center relative z-10">
-                  <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center"
-                    style={{
-                      background:
-                        'radial-gradient(circle at 30% 25%, #2a2a2a 0%, #0a0a0a 75%)',
-                      border: '1px solid rgba(255,255,255,0.18)',
-                      boxShadow:
-                        'inset 0 1px 0 rgba(255,255,255,0.15), 0 6px 20px rgba(0,0,0,0.6)',
-                    }}
-                  >
-                    <Icon className="w-5 h-5 text-white" />
-                  </div>
+                {/* Simple outline icon, no metallic circle */}
+                <div className="px-6 pt-5 flex justify-center">
+                  <Icon className="w-7 h-7 text-white" strokeWidth={1.4} />
                 </div>
 
-                {/* Content */}
-                <div className="px-6 pt-4 pb-6 text-center flex-1 flex flex-col">
+                <div className="px-6 pt-3 pb-6 text-center flex-1 flex flex-col">
                   <h3 className="font-display text-white text-lg font-bold tracking-wider">
                     {s.title}
                   </h3>
@@ -64,9 +50,7 @@ export default function Services({ onBook }) {
                   <div className="mt-auto pt-5 border-t border-white/10 flex items-center justify-between">
                     <div className="text-left">
                       <span className="text-white/40 text-[9px] tracking-[0.3em]">DESDE</span>
-                      <div className="font-display text-2xl font-bold chrome-text-thin">
-                        {s.price}€
-                      </div>
+                      <div className="text-white font-display text-2xl font-bold">{s.price}€</div>
                     </div>
                     <button
                       onClick={() => onBook(s.id)}

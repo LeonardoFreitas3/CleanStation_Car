@@ -16,8 +16,7 @@ export default function Testimonials() {
     <section id="testimonials" className="bg-black py-24 md:py-32 border-t border-white/5">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-14">
-          <p className="text-white/40 text-[10px] tracking-[0.4em] mb-3">CLIENTES</p>
-          <h2 className="font-display text-3xl md:text-5xl font-black tracking-wide chrome-text">
+          <h2 className="font-display text-white text-3xl md:text-5xl font-black tracking-wide">
             O QUE DIZEM OS NOSSOS CLIENTES
           </h2>
         </div>

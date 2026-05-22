@@ -74,30 +74,30 @@ export const BEFORE_AFTER = [
   {
     label: 'EXTERIOR',
     before:
-      'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=900&q=70&sat=-100&brightness=0.5',
+      'https://images.unsplash.com/photo-1605164599901-db7f68c4b1a2?auto=format&fit=crop&w=700&q=70&sat=-100&brightness=0.45',
     after:
-      'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=700&q=85',
   },
   {
     label: 'INTERIOR',
     before:
-      'https://images.unsplash.com/photo-1612795023384-fc4772af8d87?auto=format&fit=crop&w=900&q=70&sat=-100',
+      'https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=700&q=70&sat=-100&brightness=0.5',
     after:
-      'https://images.unsplash.com/photo-1612795023384-fc4772af8d87?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1633014041037-f5446fb4ce99?auto=format&fit=crop&w=700&q=85',
   },
   {
     label: 'BANCOS',
     before:
-      'https://images.unsplash.com/photo-1633014041037-f5446fb4ce99?auto=format&fit=crop&w=900&q=70&sat=-100&brightness=0.4',
+      'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=700&q=70&sat=-100&brightness=0.45',
     after:
-      'https://images.unsplash.com/photo-1633014041037-f5446fb4ce99?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1612795023384-fc4772af8d87?auto=format&fit=crop&w=700&q=85',
   },
   {
     label: 'JANTES',
     before:
-      'https://images.unsplash.com/photo-1536796423601-e9733a86d257?auto=format&fit=crop&w=900&q=70&sat=-100&brightness=0.45',
+      'https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?auto=format&fit=crop&w=700&q=70&sat=-100&brightness=0.5',
     after:
-      'https://images.unsplash.com/photo-1536796423601-e9733a86d257?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1536796423601-e9733a86d257?auto=format&fit=crop&w=700&q=85',
   },
 ];
 

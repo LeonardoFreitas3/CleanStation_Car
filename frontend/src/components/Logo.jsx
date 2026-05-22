@@ -1,63 +1,42 @@
 import React from 'react';
 
-// Metallic chrome circular logo with sporty car silhouette
-export default function Logo({ size = 56, withText = true, className = '' }) {
+// Outline car silhouette logo (Audi-style sedan), pure white line art
+export default function Logo({ size = 56, withText = true, textColor = 'text-white' }) {
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <div
-        className="relative rounded-full flex items-center justify-center shrink-0"
-        style={{
-          width: size,
-          height: size,
-          background:
-            'radial-gradient(circle at 30% 25%, #ffffff 0%, #c8c8c8 25%, #6a6a6a 55%, #1a1a1a 85%)',
-          boxShadow:
-            'inset 0 1px 2px rgba(255,255,255,0.6), inset 0 -2px 4px rgba(0,0,0,0.6), 0 4px 14px rgba(0,0,0,0.6)',
-          border: '1px solid rgba(255,255,255,0.15)',
-        }}
+    <div className="flex items-center gap-3">
+      <svg
+        viewBox="0 0 120 70"
+        style={{ width: size * 1.45, height: size * 0.85 }}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={`${textColor} shrink-0`}
+        aria-hidden="true"
       >
-        <div
-          className="absolute inset-[3px] rounded-full"
-          style={{
-            background:
-              'linear-gradient(180deg, #2a2a2a 0%, #050505 50%, #1a1a1a 100%)',
-            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.8)',
-          }}
-        />
-        <svg
-          viewBox="0 0 64 64"
-          className="relative z-10"
-          style={{ width: size * 0.62, height: size * 0.62 }}
-        >
-          <defs>
-            <linearGradient id="carGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="55%" stopColor="#9a9a9a" />
-              <stop offset="100%" stopColor="#3a3a3a" />
-            </linearGradient>
-          </defs>
-          {/* Stylized sports car silhouette */}
-          <path
-            fill="url(#carGrad)"
-            d="M6 38c0-1.4 1.2-2.4 2.6-2.4h2.1l3.4-7.6c1.2-2.7 3.9-4.4 6.9-4.4h21.4c2.6 0 5 1.4 6.3 3.6l4.7 8.1 4.5 1.2c2 .5 3.4 2.3 3.4 4.3v3.7c0 .9-.7 1.6-1.6 1.6h-3.6a5.4 5.4 0 0 1-10.6 0H22a5.4 5.4 0 0 1-10.6 0H8c-1.1 0-2-.9-2-2v-6.1zm10.5-2.8h32.7l-3.2-5.5c-.6-1-1.7-1.7-2.9-1.7H21.5c-1.3 0-2.5.8-3 2l-2 5.2zM17.5 44a2.8 2.8 0 1 0 0-5.6 2.8 2.8 0 0 0 0 5.6zm26.6 0a2.8 2.8 0 1 0 0-5.6 2.8 2.8 0 0 0 0 5.6z"
-          />
-        </svg>
-      </div>
+        {/* Car body silhouette */}
+        <path d="M6 50 L14 50 C14 56, 22 56, 22 50 L78 50 C78 56, 86 56, 86 50 L114 50 L114 44 C114 41, 112 39, 109 38 L98 36 L86 22 C82 17, 76 14, 70 14 L44 14 C39 14, 34 16, 30 19 L18 33 L10 36 C8 36, 6 38, 6 41 Z" />
+        {/* Roof line */}
+        <path d="M30 33 L42 19 L70 19 C73 19, 76 21, 78 23 L92 36" />
+        {/* Window split */}
+        <path d="M54 20 L54 33" opacity="0.7" />
+        {/* Front wheel */}
+        <circle cx="18" cy="50" r="6" />
+        <circle cx="18" cy="50" r="2.2" />
+        {/* Rear wheel */}
+        <circle cx="82" cy="50" r="6" />
+        <circle cx="82" cy="50" r="2.2" />
+        {/* Headlight detail */}
+        <path d="M102 38 L110 41" opacity="0.6" />
+      </svg>
+
       {withText && (
-        <div className="leading-tight">
-          <div
-            className="font-display font-bold tracking-[0.18em] text-sm"
-            style={{
-              background:
-                'linear-gradient(180deg, #ffffff 0%, #d4d4d4 45%, #6a6a6a 60%, #cccccc 100%)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
+        <div className={`leading-tight ${textColor}`}>
+          <div className="font-display font-bold tracking-[0.22em] text-[15px]">
             CLEAN STATION
           </div>
-          <div className="font-display tracking-[0.42em] text-white/55 text-[10px] text-center">
+          <div className="font-display tracking-[0.55em] text-[10px] opacity-80 text-center mt-0.5">
             CAR
           </div>
         </div>

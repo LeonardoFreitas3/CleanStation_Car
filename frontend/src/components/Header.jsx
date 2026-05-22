@@ -49,7 +49,7 @@ export default function Header({ onBook }) {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-3 group">
-          <Logo size={44} />
+          <Logo size={32} />
         </a>
 
         <nav className="hidden lg:flex items-center gap-8">
@@ -73,7 +73,7 @@ export default function Header({ onBook }) {
 
         <button
           onClick={onBook}
-          className="btn-chrome hidden lg:inline-flex items-center gap-2 px-6 py-2.5 text-[11px] tracking-[0.22em] font-bold"
+          className="btn-silver hidden lg:inline-flex items-center gap-2 px-6 py-2.5 text-[11px] tracking-[0.22em] font-bold"
         >
           <CalendarCheck className="w-4 h-4" />
           MARCAR AGORA
@@ -110,7 +110,7 @@ export default function Header({ onBook }) {
               setOpen(false);
               onBook();
             }}
-            className="btn-chrome mt-3 px-5 py-3 text-xs tracking-[0.22em] font-bold flex items-center justify-center gap-2"
+            className="btn-silver mt-3 px-5 py-3 text-xs tracking-[0.22em] font-bold flex items-center justify-center gap-2"
           >
             <CalendarCheck className="w-4 h-4" /> MARCAR AGORA
           </button>
