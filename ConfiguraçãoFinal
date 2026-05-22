@@ -1,0 +1,60 @@
+
+📋 Próximos Passos
+OPÇÃO A — Recomendada: Service Account (mais simples, sem login)
+A app faz reservas em TEU calendário automaticamente, sem precisares fazer login a cada uso.
+
+1. Criar projeto no Google Cloud
+Vai a https://console.cloud.google.com/
+Cria um novo projeto: "Clean Station Car"
+Ativa a Google Calendar API (APIs & Services → Library → procurar "Google Calendar API" → Enable)
+2. Criar uma Service Account
+IAM & Admin → Service Accounts → Create Service Account
+Nome: cleanstation-bookings
+Skip os roles opcionais → Done
+Clica na service account criada → aba Keys → Add Key → JSON
+Faz download do ficheiro .json 🔑 (vais enviar-mo)
+3. Criar um calendário dedicado no teu Google
+Em https://calendar.google.com/ → cria um novo calendário: "Clean Station Car - Marcações"
+Vai a Settings → Share with specific people → adiciona o email da service account (algo como cleanstation-bookings@projeto.iam.gserviceaccount.com)
+Permissões: "Make changes to events"
+Copia o Calendar ID (em Settings → Integrate calendar) — algo como xxxxx@group.calendar.google.com
+4. Envia-me:
+📎 O ficheiro JSON da service account
+📋 O Calendar ID
+⏰ Confirma horários de funcionamento (atual: Seg–Sáb 08:00–19:00, domingos fechados ✅)
+🔧 Confirma durações dos serviços:
+Lavagem Detalhada — 2h
+Higienização Interior — 3h
+Polimento — 4h
+Proteção Cerâmica — 1 dia
+OPÇÃO B — OAuth (mais complexo, requer login)
+Se preferires usar a tua conta Google pessoal sem service account:
+
+Cria credenciais OAuth 2.0 no Google Cloud Console
+Envia-me: Client ID, Client Secret e Refresh Token
+(É mais chato porque o refresh token expira se a app for "Testing", precisas pôr em "Production")
+
+🛠️ O que eu vou implementar com isso
+Backend FastAPI + MongoDB:
+
+Endpoints /api/services, /api/availability, /api/bookings (CRUD)
+Integração com Google Calendar API (ler horários ocupados + criar eventos)
+Validação de double-booking
+Cálculo automático de duração por serviço
+Painel admin simples em /admin:
+
+Listar todas as marcações
+Cancelar / reagendar
+Filtrar por data
+Protegido com password simples (envia-me a password que queres usar)
+Substituir o mock localStorage pelo backend real no frontend
+
+Emails de confirmação (opcional — se quiseres, preciso de uma API key SendGrid ou Resend, ou usamos só WhatsApp link)
+
+📦 Resumo do que preciso de ti
+Item	Obrigatório	Notas
+JSON da Service Account	✅	OPÇÃO A
+Calendar ID	✅	OPÇÃO A
+Password do painel admin	✅	Ex: cleanstation2026
+Email para receber notificações	⚪ Opcional	Notificação de novas marcações
+SendGrid/Resend API key	⚪ Opcional	Se quiseres emails automáticos
