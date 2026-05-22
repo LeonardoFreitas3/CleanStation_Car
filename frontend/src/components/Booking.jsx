@@ -1,0 +1,352 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { X, CalendarCheck, ChevronLeft, ChevronRight, Check, Clock, Car, ArrowRight, ArrowLeft, Trash2 } from 'lucide-react';
+import { SERVICES, TIME_SLOTS, BOOKINGS_KEY } from '../mock';
+
+const PT_MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const PT_DAYS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+
+function startOfMonth(y, m) { return new Date(y, m, 1); }
+function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+function sameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function fmtDate(d) { return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
+function isoDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+function readBookings() {
+  try { return JSON.parse(localStorage.getItem(BOOKINGS_KEY) || '[]'); } catch { return []; }
+}
+function writeBookings(list) {
+  localStorage.setItem(BOOKINGS_KEY, JSON.stringify(list));
+}
+
+export default function Booking({ open, onClose, initialServiceId }) {
+  const [step, setStep] = useState(1); // 1 service, 2 date+time, 3 details, 4 confirm
+  const [serviceId, setServiceId] = useState(initialServiceId || SERVICES[0].id);
+  const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d; }, []);
+  const [viewMonth, setViewMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [info, setInfo] = useState({ name:'', phone:'', email:'', car:'', notes:'' });
+  const [confirmation, setConfirmation] = useState(null);
+  const [bookings, setBookings] = useState(() => readBookings());
+
+  const service = useMemo(() => SERVICES.find(s => s.id === serviceId) || SERVICES[0], [serviceId]);
+
+  useEffect(() => {
+    if (open) {
+      setStep(initialServiceId ? 2 : 1);
+      if (initialServiceId) setServiceId(initialServiceId);
+      setSelectedDate(null); setSelectedTime(null); setConfirmation(null);
+      setBookings(readBookings());
+      document.body.style.overflow = 'hidden';
+    } else { document.body.style.overflow = ''; }
+    return () => { document.body.style.overflow = ''; };
+  }, [open, initialServiceId]);
+
+  if (!open) return null;
+
+  // Calendar grid
+  const y = viewMonth.getFullYear();
+  const m = viewMonth.getMonth();
+  const first = startOfMonth(y, m);
+  const dim = daysInMonth(y, m);
+  // Convert Sunday(0)->6, Monday(1)->0
+  const firstWeekday = (first.getDay() + 6) % 7;
+  const cells = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push(null);
+  for (let d = 1; d <= dim; d++) cells.push(new Date(y, m, d));
+
+  const isBlocked = (date) => date.getDay() === 0; // domingos fechados
+
+  const takenSlotsForDate = (date) => {
+    const iso = isoDate(date);
+    return bookings.filter(b => b.date === iso && b.status !== 'cancelled').map(b => b.time);
+  };
+
+  const availableSlots = selectedDate ? TIME_SLOTS.filter(t => !takenSlotsForDate(selectedDate).includes(t)) : [];
+
+  const goPrev = () => setViewMonth(v => new Date(v.getFullYear(), v.getMonth() - 1, 1));
+  const goNext = () => setViewMonth(v => new Date(v.getFullYear(), v.getMonth() + 1, 1));
+
+  const canNext = () => {
+    if (step === 1) return !!serviceId;
+    if (step === 2) return !!selectedDate && !!selectedTime;
+    if (step === 3) return info.name.trim() && info.phone.trim();
+    return true;
+  };
+
+  const submit = () => {
+    const newBooking = {
+      id: `BK-${Date.now().toString(36).toUpperCase()}`,
+      serviceId: service.id,
+      serviceTitle: service.title,
+      price: service.price,
+      durationLabel: service.durationLabel,
+      date: isoDate(selectedDate),
+      dateLabel: fmtDate(selectedDate),
+      time: selectedTime,
+      ...info,
+      status: 'confirmed',
+      createdAt: new Date().toISOString(),
+    };
+    const next = [...bookings, newBooking];
+    writeBookings(next);
+    setBookings(next);
+    setConfirmation(newBooking);
+    setStep(4);
+  };
+
+  const cancelBooking = (id) => {
+    const next = bookings.map(b => b.id === id ? { ...b, status: 'cancelled' } : b);
+    writeBookings(next); setBookings(next);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-stretch md:items-center justify-center bg-black/80 backdrop-blur-sm overflow-y-auto py-0 md:py-8">
+      <div className="relative w-full md:max-w-4xl bg-zinc-950 border border-white/10 text-white min-h-screen md:min-h-0 md:max-h-[92vh] flex flex-col">
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 sticky top-0 bg-zinc-950 z-10">
+          <div className="flex items-center gap-3">
+            <CalendarCheck className="w-5 h-5" />
+            <div>
+              <div className="font-display text-base font-bold tracking-[0.18em]">MARCAÇÃO ONLINE</div>
+              <div className="text-[10px] text-white/40 tracking-[0.25em]">PASSO {step} DE 4</div>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-9 h-9 border border-white/15 hover:bg-white hover:text-black flex items-center justify-center transition">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Stepper */}
+        <div className="px-6 pt-5">
+          <div className="grid grid-cols-4 gap-2">
+            {['Serviço','Data & Hora','Dados','Confirmação'].map((label, i) => (
+              <div key={label} className="flex flex-col gap-2">
+                <div className={`h-[3px] ${i + 1 <= step ? 'bg-white' : 'bg-white/15'}`} />
+                <div className={`text-[10px] tracking-[0.25em] ${i + 1 === step ? 'text-white' : 'text-white/40'}`}>{label.toUpperCase()}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          {step === 1 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {SERVICES.map(s => {
+                const Icon = s.icon;
+                const active = s.id === serviceId;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setServiceId(s.id)}
+                    className={`text-left border p-5 transition ${active ? 'border-white bg-white/[0.05]' : 'border-white/10 hover:border-white/30'}`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="w-10 h-10 border border-white/15 flex items-center justify-center"><Icon className="w-4 h-4" /></div>
+                      {active && <div className="w-6 h-6 bg-white text-black flex items-center justify-center"><Check className="w-3.5 h-3.5"/></div>}
+                    </div>
+                    <div className="mt-4 font-display font-bold tracking-wide">{s.title}</div>
+                    <div className="text-white/55 text-sm mt-1">{s.desc}</div>
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+                      <span className="text-white/60 text-xs inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> {s.durationLabel}</span>
+                      <span className="text-white font-display text-xl font-bold">{s.price}€</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-6">
+              <div className="border border-white/10 p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <button onClick={goPrev} className="w-9 h-9 border border-white/15 hover:bg-white hover:text-black flex items-center justify-center"><ChevronLeft className="w-4 h-4"/></button>
+                  <div className="font-display tracking-wider text-sm">{PT_MONTHS[m]} {y}</div>
+                  <button onClick={goNext} className="w-9 h-9 border border-white/15 hover:bg-white hover:text-black flex items-center justify-center"><ChevronRight className="w-4 h-4"/></button>
+                </div>
+                <div className="grid grid-cols-7 gap-1 text-center text-[10px] tracking-[0.2em] text-white/40 mb-2">
+                  {PT_DAYS.map(d => <div key={d}>{d.toUpperCase()}</div>)}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {cells.map((d, idx) => {
+                    if (!d) return <div key={idx} className="aspect-square" />;
+                    const past = d < today;
+                    const blocked = isBlocked(d);
+                    const disabled = past || blocked;
+                    const selected = selectedDate && sameDay(d, selectedDate);
+                    return (
+                      <button
+                        key={idx}
+                        disabled={disabled}
+                        onClick={() => { setSelectedDate(d); setSelectedTime(null); }}
+                        className={`aspect-square text-sm flex items-center justify-center border transition ${
+                          selected
+                            ? 'bg-white text-black border-white'
+                            : disabled
+                            ? 'text-white/15 border-white/5 cursor-not-allowed line-through'
+                            : 'text-white border-white/10 hover:border-white/60'
+                        }`}
+                      >
+                        {d.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-white/40 text-[11px] mt-4">Domingos encerrado. Horários já ocupados não aparecem.</p>
+              </div>
+
+              <div className="border border-white/10 p-5">
+                <div className="text-white/40 text-[10px] tracking-[0.3em] mb-1">HORÁRIO DISPONÍVEL</div>
+                <div className="font-display tracking-wider">{selectedDate ? fmtDate(selectedDate) : 'Seleciona uma data'}</div>
+                <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {selectedDate && availableSlots.length === 0 && (
+                    <div className="col-span-full text-white/50 text-sm py-4">Sem horários disponíveis.</div>
+                  )}
+                  {selectedDate && availableSlots.map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setSelectedTime(t)}
+                      className={`py-3 text-sm tracking-wider border transition ${
+                        selectedTime === t ? 'bg-white text-black border-white' : 'border-white/15 text-white hover:border-white/50'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-6 p-4 border border-white/10 bg-white/[0.03]">
+                  <div className="text-white/40 text-[10px] tracking-[0.3em] mb-2">RESUMO</div>
+                  <div className="text-sm flex justify-between"><span className="text-white/60">Serviço</span><span className="font-semibold">{service.title}</span></div>
+                  <div className="text-sm flex justify-between mt-1"><span className="text-white/60">Duração</span><span>{service.durationLabel}</span></div>
+                  <div className="text-sm flex justify-between mt-1"><span className="text-white/60">Preço desde</span><span className="font-bold">{service.price}€</span></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                ['name','Nome completo *','text','O teu nome'],
+                ['phone','Telefone *','tel','+351 ...'],
+                ['email','Email','email','email@exemplo.pt'],
+                ['car','Veículo','text','Ex.: BMW Série 3'],
+              ].map(([key,label,type,ph]) => (
+                <div key={key} className="flex flex-col">
+                  <label className="text-white/50 text-[10px] tracking-[0.25em] mb-2">{label.toUpperCase()}</label>
+                  <input
+                    type={type}
+                    value={info[key]}
+                    onChange={e => setInfo(v => ({ ...v, [key]: e.target.value }))}
+                    placeholder={ph}
+                    className="bg-transparent border border-white/15 px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white"
+                  />
+                </div>
+              ))}
+              <div className="md:col-span-2 flex flex-col">
+                <label className="text-white/50 text-[10px] tracking-[0.25em] mb-2">NOTAS</label>
+                <textarea
+                  value={info.notes}
+                  onChange={e => setInfo(v => ({ ...v, notes: e.target.value }))}
+                  rows={3}
+                  placeholder="Detalhes adicionais (opcional)"
+                  className="bg-transparent border border-white/15 px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white resize-none"
+                />
+              </div>
+
+              <div className="md:col-span-2 p-4 border border-white/10 bg-white/[0.03] grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                <div><div className="text-white/40 text-[10px] tracking-[0.25em]">SERVIÇO</div><div className="mt-1 font-semibold">{service.title}</div></div>
+                <div><div className="text-white/40 text-[10px] tracking-[0.25em]">DATA</div><div className="mt-1">{selectedDate ? fmtDate(selectedDate) : '-'}</div></div>
+                <div><div className="text-white/40 text-[10px] tracking-[0.25em]">HORA</div><div className="mt-1">{selectedTime || '-'}</div></div>
+                <div><div className="text-white/40 text-[10px] tracking-[0.25em]">PREÇO</div><div className="mt-1 font-bold">{service.price}€</div></div>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && confirmation && (
+            <div className="text-center max-w-lg mx-auto py-6">
+              <div className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center mx-auto"><Check className="w-8 h-8"/></div>
+              <h3 className="font-display text-3xl font-black tracking-wide mt-6">MARCAÇÃO CONFIRMADA!</h3>
+              <p className="text-white/60 mt-3">Recebemos a tua marcação. Em breve receberás confirmação.</p>
+              <div className="mt-8 border border-white/10 p-5 text-left">
+                <div className="flex items-center justify-between">
+                  <div className="text-white/40 text-[10px] tracking-[0.3em]">REFERÊNCIA</div>
+                  <div className="font-mono text-sm">{confirmation.id}</div>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div><div className="text-white/40 text-[10px] tracking-[0.25em]">SERVIÇO</div><div className="mt-1">{confirmation.serviceTitle}</div></div>
+                  <div><div className="text-white/40 text-[10px] tracking-[0.25em]">VEÍCULO</div><div className="mt-1">{confirmation.car || '-'}</div></div>
+                  <div><div className="text-white/40 text-[10px] tracking-[0.25em]">DATA</div><div className="mt-1">{confirmation.dateLabel}</div></div>
+                  <div><div className="text-white/40 text-[10px] tracking-[0.25em]">HORA</div><div className="mt-1">{confirmation.time}</div></div>
+                  <div><div className="text-white/40 text-[10px] tracking-[0.25em]">DURAÇÃO</div><div className="mt-1">{confirmation.durationLabel}</div></div>
+                  <div><div className="text-white/40 text-[10px] tracking-[0.25em]">PREÇO</div><div className="mt-1 font-bold">{confirmation.price}€</div></div>
+                </div>
+              </div>
+              <button onClick={onClose} className="mt-8 w-full bg-white text-black py-4 text-xs tracking-[0.25em] font-bold">FECHAR</button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {step < 4 && (
+          <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between gap-3 sticky bottom-0 bg-zinc-950">
+            <button
+              onClick={() => setStep(s => Math.max(1, s - 1))}
+              disabled={step === 1}
+              className="inline-flex items-center gap-2 px-5 py-3 text-xs tracking-[0.22em] font-semibold border border-white/15 text-white disabled:opacity-30 hover:bg-white/10"
+            >
+              <ArrowLeft className="w-3.5 h-3.5"/> VOLTAR
+            </button>
+            {step < 3 && (
+              <button
+                onClick={() => canNext() && setStep(s => s + 1)}
+                disabled={!canNext()}
+                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-white text-black disabled:opacity-30"
+              >
+                CONTINUAR <ArrowRight className="w-3.5 h-3.5"/>
+              </button>
+            )}
+            {step === 3 && (
+              <button
+                onClick={() => canNext() && submit()}
+                disabled={!canNext()}
+                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-white text-black disabled:opacity-30"
+              >
+                CONFIRMAR MARCAÇÃO <Check className="w-3.5 h-3.5"/>
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Bookings list (mini admin) on step 1 */}
+        {step === 1 && bookings.length > 0 && (
+          <div className="px-6 pb-6">
+            <div className="mt-4 border border-white/10 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Car className="w-4 h-4" />
+                <div className="text-white/40 text-[10px] tracking-[0.3em]">AS TUAS MARCAÇÕES</div>
+              </div>
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {bookings.slice().reverse().map(b => (
+                  <div key={b.id} className={`flex items-center justify-between gap-3 text-sm border border-white/5 px-3 py-2 ${b.status==='cancelled'?'opacity-40 line-through':''}`}>
+                    <div className="flex-1 min-w-0 truncate">
+                      <span className="text-white/60">{b.dateLabel} · {b.time}</span> <span className="mx-1 text-white/30">|</span> <span>{b.serviceTitle}</span>
+                    </div>
+                    {b.status !== 'cancelled' && (
+                      <button onClick={() => cancelBooking(b.id)} className="text-white/50 hover:text-red-400" title="Cancelar">
+                        <Trash2 className="w-3.5 h-3.5"/>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
