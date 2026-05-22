@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Menu, X, CalendarCheck } from 'lucide-react';
+import Logo from './Logo';
 
 const LINKS = [
   { href: '#home', label: 'INÍCIO' },
@@ -48,15 +49,7 @@ export default function Header({ onBook }) {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center group-hover:border-white transition">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
-              <path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11h.5a1.5 1.5 0 0 1 1.5 1.5v4a1.5 1.5 0 0 1-1.5 1.5H19v1a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H8v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1h-.5A1.5 1.5 0 0 1 3 16.5v-4A1.5 1.5 0 0 1 4.5 11H5zm2.1 0h9.8l-1-3H8.1l-1 3zM7 14a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm10 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
-            </svg>
-          </div>
-          <div className="leading-tight">
-            <div className="font-display tracking-[0.18em] text-white text-sm font-bold">CLEAN STATION</div>
-            <div className="font-display tracking-[0.4em] text-white/60 text-[10px]">CAR</div>
-          </div>
+          <Logo size={44} />
         </a>
 
         <nav className="hidden lg:flex items-center gap-8">
@@ -80,7 +73,7 @@ export default function Header({ onBook }) {
 
         <button
           onClick={onBook}
-          className="hidden lg:inline-flex items-center gap-2 border border-white/90 text-white px-5 py-2.5 text-[11px] tracking-[0.22em] font-semibold hover:bg-white hover:text-black transition-colors"
+          className="btn-chrome hidden lg:inline-flex items-center gap-2 px-6 py-2.5 text-[11px] tracking-[0.22em] font-bold"
         >
           <CalendarCheck className="w-4 h-4" />
           MARCAR AGORA
@@ -117,7 +110,7 @@ export default function Header({ onBook }) {
               setOpen(false);
               onBook();
             }}
-            className="mt-3 border border-white text-white px-5 py-3 text-xs tracking-[0.22em] font-semibold flex items-center justify-center gap-2"
+            className="btn-chrome mt-3 px-5 py-3 text-xs tracking-[0.22em] font-bold flex items-center justify-center gap-2"
           >
             <CalendarCheck className="w-4 h-4" /> MARCAR AGORA
           </button>

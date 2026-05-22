@@ -21,7 +21,7 @@ function Slider({ before, after, label }) {
     <div className="flex flex-col gap-3">
       <div
         ref={ref}
-        className="relative w-full aspect-[4/3] overflow-hidden bg-zinc-900 border border-white/5 select-none cursor-ew-resize group"
+        className="relative w-full aspect-[4/3] overflow-hidden bg-zinc-900 border border-white/10 rounded-2xl select-none cursor-ew-resize group"
         onMouseMove={onMove}
         onMouseDown={start}
         onMouseUp={stop}
@@ -54,11 +54,11 @@ function Slider({ before, after, label }) {
 
 export default function BeforeAfter() {
   return (
-    <section id="before-after" className="bg-zinc-950 py-24 md:py-32">
+    <section id="before-after" className="bg-black py-24 md:py-32 border-t border-white/5">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-14">
           <p className="text-white/40 text-[10px] tracking-[0.4em] mb-3">TRANSFORMAÇÕES</p>
-          <h2 className="font-display text-white text-4xl md:text-5xl font-black tracking-wide">
+          <h2 className="font-display text-4xl md:text-5xl font-black tracking-wide chrome-text">
             ANTES &amp; DEPOIS
           </h2>
           <p className="text-white/55 mt-4 text-sm">Resultados que falam por si.</p>

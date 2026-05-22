@@ -8,7 +8,7 @@ export default function Services({ onBook }) {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <p className="text-white/40 text-[10px] tracking-[0.4em] mb-3">SOLUÇÕES PREMIUM</p>
-          <h2 className="font-display text-white text-4xl md:text-5xl font-black tracking-wide">
+          <h2 className="font-display text-4xl md:text-5xl font-black tracking-wide chrome-text">
             OS NOSSOS SERVIÇOS
           </h2>
           <p className="text-white/55 mt-4 max-w-xl mx-auto text-sm">
@@ -22,30 +22,51 @@ export default function Services({ onBook }) {
             return (
               <div
                 key={s.id}
-                className="group relative overflow-hidden bg-zinc-900 border border-white/5 hover:border-white/20 transition-all duration-500"
+                className="group relative overflow-hidden bg-gradient-to-b from-zinc-900 to-black border border-white/5 hover:border-white/25 transition-all duration-500 flex flex-col"
                 style={{ animationDelay: `${i * 0.08}s` }}
               >
-                <div className="relative h-72 overflow-hidden">
+                {/* Image */}
+                <div className="relative h-56 overflow-hidden">
                   <img
                     src={s.image}
                     alt={s.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                  <div className="absolute top-4 left-4 w-10 h-10 rounded-full bg-black/60 backdrop-blur border border-white/20 flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-white" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+                </div>
+
+                {/* Icon */}
+                <div className="-mt-7 flex justify-center relative z-10">
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center"
+                    style={{
+                      background:
+                        'radial-gradient(circle at 30% 25%, #2a2a2a 0%, #0a0a0a 75%)',
+                      border: '1px solid rgba(255,255,255,0.18)',
+                      boxShadow:
+                        'inset 0 1px 0 rgba(255,255,255,0.15), 0 6px 20px rgba(0,0,0,0.6)',
+                    }}
+                  >
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
                 </div>
 
-                <div className="p-6">
-                  <h3 className="font-display text-white text-lg font-bold tracking-wider">{s.title}</h3>
-                  <p className="text-white/55 text-sm mt-2 min-h-[44px]">{s.desc}</p>
+                {/* Content */}
+                <div className="px-6 pt-4 pb-6 text-center flex-1 flex flex-col">
+                  <h3 className="font-display text-white text-lg font-bold tracking-wider">
+                    {s.title}
+                  </h3>
+                  <p className="text-white/55 text-sm mt-3 leading-relaxed min-h-[60px]">
+                    {s.desc}
+                  </p>
 
-                  <div className="mt-5 pt-5 border-t border-white/10 flex items-center justify-between">
-                    <div>
-                      <span className="text-white/40 text-[10px] tracking-[0.3em]">DESDE</span>
-                      <div className="text-white font-display text-2xl font-bold">{s.price}€</div>
+                  <div className="mt-auto pt-5 border-t border-white/10 flex items-center justify-between">
+                    <div className="text-left">
+                      <span className="text-white/40 text-[9px] tracking-[0.3em]">DESDE</span>
+                      <div className="font-display text-2xl font-bold chrome-text-thin">
+                        {s.price}€
+                      </div>
                     </div>
                     <button
                       onClick={() => onBook(s.id)}
@@ -59,6 +80,15 @@ export default function Services({ onBook }) {
               </div>
             );
           })}
+        </div>
+
+        <div className="text-center mt-12">
+          <button
+            onClick={() => onBook()}
+            className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-3 text-[11px] tracking-[0.25em] font-bold hover:bg-white hover:text-black transition"
+          >
+            VER TODOS OS SERVIÇOS
+          </button>
         </div>
       </div>
     </section>
