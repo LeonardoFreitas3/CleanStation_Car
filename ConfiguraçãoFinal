@@ -58,3 +58,76 @@ Calendar ID	✅	OPÇÃO A
 Password do painel admin	✅	Ex: cleanstation2026
 Email para receber notificações	⚪ Opcional	Notificação de novas marcações
 SendGrid/Resend API key	⚪ Opcional	Se quiseres emails automáticos
+
+
+
+
+
+Correr o projeto
+
+🌐 1. Já está a correr aqui no Emergent (preview)
+O site está live agora mesmo em: 👉 https://station-reserve.preview.emergentagent.com
+
+Não precisas fazer nada — está sempre a correr enquanto trabalhamos. Podes partilhar este link com clientes/amigos para testarem.
+
+💻 2. Correr localmente no teu computador
+Pré-requisitos
+Node.js 18+ (download)
+Python 3.11+ (download)
+MongoDB local ou MongoDB Atlas (free tier)
+Yarn (npm install -g yarn)
+Passos
+a) Clonar / descarregar o código
+No Emergent vai a ⚙️ Settings → Download Code (ou usa o botão GitHub se conectado).
+
+cd /caminho/para/clean-station-car
+b) Backend (FastAPI)
+cd backend
+pip install -r requirements.txt
+
+# Cria .env com:
+echo 'MONGO_URL=mongodb://localhost:27017' > .env
+echo 'DB_NAME=cleanstation' >> .env
+
+# Corre
+uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+c) Frontend (React)
+Em outro terminal:
+
+cd frontend
+yarn install
+
+# Cria .env com:
+echo 'REACT_APP_BACKEND_URL=http://localhost:8001' > .env
+
+# Corre
+yarn start
+d) Abre no browser
+👉 http://localhost:3000
+
+🚀 3. Deploy para produção (quando estiver pronto)
+Tens 3 opções, por ordem de simplicidade:
+
+Opção A — Emergent Deploy (1 clique) ⭐ recomendado
+No topo da app, clica em "Deploy" (botão azul)
+Escolhe um subdomínio: cleanstationcar.emergentagent.com
+Pronto — fica online 24/7 com SSL, MongoDB, tudo incluído
+Custa créditos mensais (vê os planos no teu perfil)
+Opção B — Domínio próprio (cleanstationcar.pt)
+Faz deploy Emergent primeiro (Opção A)
+Compra o domínio em GoDaddy, Namecheap ou Hostinger
+No Emergent → Deploy Settings → Custom Domain → adiciona cleanstationcar.pt
+Configuras os DNS records que o Emergent te dá
+Opção C — Hosting externo (mais barato mas mais trabalho)
+Frontend: Vercel ou Netlify (grátis)
+Backend: Railway ou Render (~$5/mês)
+MongoDB: MongoDB Atlas (grátis até 512MB)
+⚡ Recomendação para ti
+Como o objetivo é profissional para clientes reais:
+
+✅ Primeiro: envias-me os ficheiros do Google Calendar para integrar a marcação real
+✅ Depois: testas tudo aqui no preview (link acima)
+✅ Por fim: clicas em Deploy dentro do Emergent → ligas o teu domínio próprio cleanstationcar.pt
+Tudo gerido a partir do Emergent, sem dores de cabeça com servidores. 🎯
+
+Queres seguir já com o deploy ou preferes primeiro implementarmos a integração com Google Calendar?
