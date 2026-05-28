@@ -1,72 +1,284 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Query
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import httpx
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from pydantic import BaseModel, ConfigDict
+from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
-
+from datetime import datetime, timezone, timedelta
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
-
-# Create the main app without a prefix
 app = FastAPI()
-
-# Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# ─── Google Calendar config ──────────────────────────────────────────────────
+GOOGLE_CLIENT_ID     = os.environ.get('GOOGLE_CLIENT_ID', '')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+GOOGLE_REFRESH_TOKEN = os.environ.get('GOOGLE_REFRESH_TOKEN', '')
+GOOGLE_CALENDAR_ID   = os.environ.get('GOOGLE_CALENDAR_ID', '')
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+SERVICE_DURATIONS = {
+    'lavagem':   120,
+    'interior':  180,
+    'polimento': 240,
+    'ceramica':  480,
+}
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+TIME_SLOTS_LIST = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00']
 
-# Add your routes to the router instead of directly to app
+def _slot_to_min(slot: str) -> int:
+    h, m = map(int, slot.split(':'))
+    return h * 60 + m
+
+def _dt_to_min(dt: datetime) -> int:
+    return dt.hour * 60 + dt.minute
+
+# ─── Google Calendar helpers ─────────────────────────────────────────────────
+
+async def get_access_token() -> str:
+    async with httpx.AsyncClient() as hc:
+        r = await hc.post('https://oauth2.googleapis.com/token', data={
+            'client_id':     GOOGLE_CLIENT_ID,
+            'client_secret': GOOGLE_CLIENT_SECRET,
+            'refresh_token': GOOGLE_REFRESH_TOKEN,
+            'grant_type':    'refresh_token',
+        })
+        r.raise_for_status()
+        return r.json()['access_token']
+
+async def get_events(date_iso: str) -> list:
+    token = await get_access_token()
+    url = f"https://www.googleapis.com/calendar/v3/calendars/{GOOGLE_CALENDAR_ID}/events"
+    async with httpx.AsyncClient() as hc:
+        r = await hc.get(url, headers={'Authorization': f'Bearer {token}'}, params={
+            'timeMin': f"{date_iso}T00:00:00Z",
+            'timeMax': f"{date_iso}T23:59:59Z",
+            'singleEvents': 'true',
+        })
+        r.raise_for_status()
+        return r.json().get('items', [])
+
+async def get_event_ranges(date_iso: str) -> list:
+    """Returns list of (start_min, end_min) for all CSC events on the day."""
+    events = await get_events(date_iso)
+    ranges = []
+    for ev in events:
+        start_str = ev.get('start', {}).get('dateTime', '')
+        end_str   = ev.get('end',   {}).get('dateTime', '')
+        if start_str and end_str:
+            try:
+                s = datetime.fromisoformat(start_str)
+                e = datetime.fromisoformat(end_str)
+                ranges.append((_dt_to_min(s), _dt_to_min(e)))
+            except Exception:
+                pass
+    return ranges
+
+async def get_busy_slots(date_iso: str, new_duration: int = 60) -> List[str]:
+    """Returns slots that would overlap with existing bookings given the new service duration."""
+    ranges = await get_event_ranges(date_iso)
+    busy = []
+    for slot in TIME_SLOTS_LIST:
+        slot_start = _slot_to_min(slot)
+        slot_end   = slot_start + new_duration
+        for (b_start, b_end) in ranges:
+            if slot_start < b_end and slot_end > b_start:
+                busy.append(slot)
+                break
+    return busy
+
+async def create_calendar_event(booking: dict) -> str:
+    token = await get_access_token()
+    duration = SERVICE_DURATIONS.get(booking['serviceId'], 120)
+    start_dt = datetime.fromisoformat(f"{booking['date']}T{booking['time']}:00")
+    end_dt   = start_dt + timedelta(minutes=duration)
+    event = {
+        'summary': f"[CSC] {booking['serviceTitle']} — {booking['name']}",
+        'description': (
+            f"Serviço: {booking['serviceTitle']}\n"
+            f"Veículo: {booking.get('car', '-')}\n"
+            f"Telefone: {booking['phone']}\n"
+            f"Email: {booking.get('email', '-')}\n"
+            f"Notas: {booking.get('notes', '-')}\n"
+            f"Ref: {booking['id']}"
+        ),
+        'start': {'dateTime': start_dt.isoformat(), 'timeZone': 'Europe/Lisbon'},
+        'end':   {'dateTime': end_dt.isoformat(),   'timeZone': 'Europe/Lisbon'},
+        'colorId': '6',
+    }
+    url = f"https://www.googleapis.com/calendar/v3/calendars/{GOOGLE_CALENDAR_ID}/events"
+    async with httpx.AsyncClient() as hc:
+        r = await hc.post(url, headers={'Authorization': f'Bearer {token}'}, json=event)
+        r.raise_for_status()
+        return r.json()['id']
+
+async def delete_calendar_event(event_id: str):
+    token = await get_access_token()
+    url = f"https://www.googleapis.com/calendar/v3/calendars/{GOOGLE_CALENDAR_ID}/events/{event_id}"
+    async with httpx.AsyncClient() as hc:
+        r = await hc.delete(url, headers={'Authorization': f'Bearer {token}'})
+        if r.status_code not in (200, 204, 404):
+            r.raise_for_status()
+
+async def list_all_bookings() -> list:
+    """Lê todos os eventos futuros do calendário e converte em marcações."""
+    token = await get_access_token()
+    url = f"https://www.googleapis.com/calendar/v3/calendars/{GOOGLE_CALENDAR_ID}/events"
+    now = datetime.now(timezone.utc).isoformat()
+    async with httpx.AsyncClient() as hc:
+        r = await hc.get(url, headers={'Authorization': f'Bearer {token}'}, params={
+            'timeMin': now,
+            'singleEvents': 'true',
+            'orderBy': 'startTime',
+            'maxResults': 250,
+        })
+        r.raise_for_status()
+        events = r.json().get('items', [])
+
+    bookings = []
+    for ev in events:
+        desc = ev.get('description', '')
+        start = ev.get('start', {}).get('dateTime', '')
+        if not start or '[CSC]' not in ev.get('summary', ''):
+            continue
+        try:
+            dt = datetime.fromisoformat(start)
+            date_iso = dt.strftime('%Y-%m-%d')
+            time_str = dt.strftime('%H:%M')
+            date_label = dt.strftime('%d/%m/%Y')
+            # Parse description
+            lines = {l.split(':')[0].strip(): ':'.join(l.split(':')[1:]).strip() for l in desc.split('\n') if ':' in l}
+            bookings.append({
+                'id': lines.get('Ref', ev['id']),
+                'calendarEventId': ev['id'],
+                'serviceTitle': lines.get('Serviço', ''),
+                'serviceId': '',
+                'car': lines.get('Veículo', ''),
+                'phone': lines.get('Telefone', ''),
+                'email': lines.get('Email', ''),
+                'notes': lines.get('Notas', ''),
+                'name': ev.get('summary', '').replace('[CSC] ', '').split(' — ')[-1] if ' — ' in ev.get('summary','') else '',
+                'date': date_iso,
+                'dateLabel': date_label,
+                'time': time_str,
+                'price': 0,
+                'durationLabel': '',
+                'status': 'confirmed',
+                'createdAt': ev.get('created', ''),
+            })
+        except Exception:
+            continue
+    return bookings
+
+# ─── Modelos ─────────────────────────────────────────────────────────────────
+
+class BookingCreate(BaseModel):
+    serviceId:     str
+    serviceTitle:  str
+    price:         float
+    durationLabel: str
+    date:          str
+    time:          str
+    name:          str
+    phone:         str
+    email:         Optional[str] = ''
+    car:           Optional[str] = ''
+    notes:         Optional[str] = ''
+
+class Booking(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id:              str
+    calendarEventId: Optional[str] = None
+    serviceId:       str
+    serviceTitle:    str
+    price:           float
+    durationLabel:   str
+    date:            str
+    dateLabel:       str
+    time:            str
+    name:            str
+    phone:           str
+    email:           Optional[str] = ''
+    car:             Optional[str] = ''
+    notes:           Optional[str] = ''
+    status:          str = 'confirmed'
+    createdAt:       str = ''
+
+# ─── Endpoints ───────────────────────────────────────────────────────────────
+
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Clean Station Car API — só Google Calendar"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+@api_router.get("/availability/{date}")
+async def get_availability(date: str, service_id: str = Query(default=None)):
+    try:
+        duration = SERVICE_DURATIONS.get(service_id, 60) if service_id else 60
+        busy = await get_busy_slots(date, duration)
+    except Exception as e:
+        logger.error(f"Erro disponibilidade: {e}")
+        busy = []
+    return {"date": date, "busySlots": busy}
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+@api_router.post("/bookings", response_model=Booking)
+async def create_booking(data: BookingCreate):
+    # Verificar sobreposição com marcações existentes
+    try:
+        duration = SERVICE_DURATIONS.get(data.serviceId, 120)
+        ranges   = await get_event_ranges(data.date)
+        new_start = _slot_to_min(data.time)
+        new_end   = new_start + duration
+        for (b_start, b_end) in ranges:
+            if new_start < b_end and new_end > b_start:
+                raise HTTPException(status_code=409, detail="Horário já ocupado.")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erro ao verificar disponibilidade: {e}")
 
-# Include the router in the main app
+    parts = data.date.split('-')
+    date_label = f"{parts[2]}/{parts[1]}/{parts[0]}" if len(parts) == 3 else data.date
+
+    booking_dict = data.model_dump()
+    booking_dict['id']        = f"BK-{str(uuid.uuid4())[:8].upper()}"
+    booking_dict['dateLabel'] = date_label
+    booking_dict['status']    = 'confirmed'
+    booking_dict['createdAt'] = datetime.now(timezone.utc).isoformat()
+    booking_dict['calendarEventId'] = None
+
+    try:
+        event_id = await create_calendar_event(booking_dict)
+        booking_dict['calendarEventId'] = event_id
+    except Exception as e:
+        logger.error(f"Erro ao criar evento: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao criar evento no Google Calendar: {str(e)}")
+
+    return Booking(**booking_dict)
+
+@api_router.get("/bookings", response_model=List[Booking])
+async def list_bookings():
+    try:
+        return await list_all_bookings()
+    except Exception as e:
+        logger.error(f"Erro ao listar: {e}")
+        return []
+
+@api_router.delete("/bookings/{event_id}")
+async def cancel_booking(event_id: str):
+    try:
+        await delete_calendar_event(event_id)
+    except Exception as e:
+        logger.error(f"Erro ao cancelar: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao cancelar no Google Calendar.")
+    return {"ok": True}
+
+# ─── App setup ───────────────────────────────────────────────────────────────
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -77,13 +289,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()

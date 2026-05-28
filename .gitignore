@@ -53,6 +53,7 @@ venv/
 .venv/
 
 # Development tools
+.claude/
 chainlit.md
 .chainlit
 .ipynb_checkpoints/
