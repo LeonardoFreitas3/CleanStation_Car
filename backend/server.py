@@ -5,9 +5,7 @@ import os
 import logging
 import httpx
 import asyncio
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import resend
 from pathlib import Path
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
@@ -27,8 +25,8 @@ GOOGLE_REFRESH_TOKEN = os.environ.get('GOOGLE_REFRESH_TOKEN', '')
 GOOGLE_CALENDAR_ID   = os.environ.get('GOOGLE_CALENDAR_ID', '')
 
 # ─── Email config ────────────────────────────────────────────────────────────
-SMTP_USER = os.environ.get('SMTP_USER', '')
-SMTP_PASS = os.environ.get('SMTP_PASS', '')
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+resend.api_key = RESEND_API_KEY
 
 # ─── Email helpers ────────────────────────────────────────────────────────────
 
@@ -77,25 +75,22 @@ def _build_confirmation_html(b: dict) -> str:
 </body>
 </html>"""
 
-def _send_email_sync(to_email: str, html: str):
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Confirmação de Marcação – Clean Station Car'
-    msg['From']    = f'Clean Station Car <{SMTP_USER}>'
-    msg['To']      = to_email
-    msg.attach(MIMEText(html, 'html'))
-    with smtplib.SMTP('smtp.gmail.com', 587, timeout=10) as smtp:
-        smtp.starttls()
-        smtp.login(SMTP_USER, SMTP_PASS)
-        smtp.send_message(msg)
-
 async def send_confirmation_email(booking: dict):
     email = (booking.get('email') or '').strip()
-    if not email or not SMTP_USER or not SMTP_PASS:
+    if not email or not RESEND_API_KEY:
         return
     try:
         html = _build_confirmation_html(booking)
-        await asyncio.to_thread(_send_email_sync, email, html)
-        logger.info(f"Email de confirmação enviado para {email}")
+        await asyncio.to_thread(
+            resend.Emails.send,
+            {
+                "from": "Clean Station Car <onboarding@resend.dev>",
+                "to": [email],
+                "subject": "Confirmação de Marcação – Clean Station Car",
+                "html": html,
+            }
+        )
+        logger.info(f"Email enviado para {email}")
     except Exception as e:
         logger.error(f"Erro ao enviar email: {e}")
 
