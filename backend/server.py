@@ -5,7 +5,6 @@ import os
 import logging
 import httpx
 import asyncio
-import resend
 from pathlib import Path
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
@@ -25,8 +24,9 @@ GOOGLE_REFRESH_TOKEN = os.environ.get('GOOGLE_REFRESH_TOKEN', '')
 GOOGLE_CALENDAR_ID   = os.environ.get('GOOGLE_CALENDAR_ID', '')
 
 # ─── Email config ────────────────────────────────────────────────────────────
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
-resend.api_key = RESEND_API_KEY
+BREVO_API_KEY     = os.environ.get('BREVO_API_KEY', '')
+BREVO_FROM_EMAIL  = os.environ.get('BREVO_FROM_EMAIL', 'cleanstationcar@gmail.com')
+BREVO_FROM_NAME   = 'Clean Station Car'
 
 # ─── Email helpers ────────────────────────────────────────────────────────────
 
@@ -77,19 +77,22 @@ def _build_confirmation_html(b: dict) -> str:
 
 async def send_confirmation_email(booking: dict):
     email = (booking.get('email') or '').strip()
-    if not email or not RESEND_API_KEY:
+    if not email or not BREVO_API_KEY:
         return
     try:
         html = _build_confirmation_html(booking)
-        await asyncio.to_thread(
-            resend.Emails.send,
-            {
-                "from": "Clean Station Car <onboarding@resend.dev>",
-                "to": [email],
-                "subject": "Confirmação de Marcação – Clean Station Car",
-                "html": html,
-            }
-        )
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.post(
+                'https://api.brevo.com/v3/smtp/email',
+                headers={'api-key': BREVO_API_KEY, 'content-type': 'application/json'},
+                json={
+                    'sender':      {'name': BREVO_FROM_NAME, 'email': BREVO_FROM_EMAIL},
+                    'to':          [{'email': email}],
+                    'subject':     'Confirmação de Marcação – Clean Station Car',
+                    'htmlContent': html,
+                }
+            )
+            r.raise_for_status()
         logger.info(f"Email enviado para {email}")
     except Exception as e:
         logger.error(f"Erro ao enviar email: {e}")
