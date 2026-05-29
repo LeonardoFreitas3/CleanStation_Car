@@ -83,7 +83,7 @@ def _send_email_sync(to_email: str, html: str):
     msg['From']    = f'Clean Station Car <{SMTP_USER}>'
     msg['To']      = to_email
     msg.attach(MIMEText(html, 'html'))
-    with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+    with smtplib.SMTP('smtp.gmail.com', 587, timeout=10) as smtp:
         smtp.starttls()
         smtp.login(SMTP_USER, SMTP_PASS)
         smtp.send_message(msg)
@@ -335,7 +335,7 @@ async def create_booking(data: BookingCreate):
         logger.error(f"Erro ao criar evento: {e}")
         raise HTTPException(status_code=500, detail=f"Erro ao criar evento no Google Calendar: {str(e)}")
 
-    await send_confirmation_email(booking_dict)
+    asyncio.create_task(send_confirmation_email(booking_dict))
 
     return Booking(**booking_dict)
 
