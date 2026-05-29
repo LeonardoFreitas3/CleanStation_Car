@@ -4,6 +4,10 @@ from starlette.middleware.cors import CORSMiddleware
 import os
 import logging
 import httpx
+import asyncio
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
@@ -21,6 +25,79 @@ GOOGLE_CLIENT_ID     = os.environ.get('GOOGLE_CLIENT_ID', '')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 GOOGLE_REFRESH_TOKEN = os.environ.get('GOOGLE_REFRESH_TOKEN', '')
 GOOGLE_CALENDAR_ID   = os.environ.get('GOOGLE_CALENDAR_ID', '')
+
+# ─── Email config ────────────────────────────────────────────────────────────
+SMTP_USER = os.environ.get('SMTP_USER', '')
+SMTP_PASS = os.environ.get('SMTP_PASS', '')
+
+# ─── Email helpers ────────────────────────────────────────────────────────────
+
+def _build_confirmation_html(b: dict) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="utf-8"></head>
+<body style="background:#0a0a0a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:40px 20px;margin:0">
+  <div style="max-width:520px;margin:0 auto">
+
+    <div style="text-align:center;margin-bottom:32px">
+      <h1 style="font-size:20px;letter-spacing:.22em;margin:0;font-weight:700">CLEAN STATION CAR</h1>
+      <p style="color:#666;font-size:11px;letter-spacing:.3em;margin:6px 0 0">LAVAGEM DETALHADA PREMIUM · BRAGA</p>
+    </div>
+
+    <div style="border:1px solid #222;padding:32px;margin-bottom:24px">
+      <h2 style="font-size:16px;letter-spacing:.18em;margin:0 0 6px">MARCAÇÃO CONFIRMADA ✓</h2>
+      <p style="color:#888;font-size:14px;margin:0 0 28px">Olá {b.get('name','')}, a tua marcação foi registada com sucesso.</p>
+
+      <table style="width:100%;font-size:14px;border-collapse:collapse">
+        <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Referência</td>
+            <td style="text-align:right;font-family:monospace;color:#aaa">{b.get('id','')}</td></tr>
+        <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Serviço</td>
+            <td style="text-align:right">{b.get('serviceTitle','')}</td></tr>
+        <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Data</td>
+            <td style="text-align:right">{b.get('dateLabel','')}</td></tr>
+        <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Hora</td>
+            <td style="text-align:right">{b.get('time','')}</td></tr>
+        <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Duração</td>
+            <td style="text-align:right">{b.get('durationLabel','')}</td></tr>
+        <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Veículo</td>
+            <td style="text-align:right">{b.get('car','') or '—'}</td></tr>
+        <tr><td style="color:#fff;padding:14px 0 6px;border-top:1px solid #333;font-weight:600">Total</td>
+            <td style="text-align:right;font-size:20px;font-weight:700;padding-top:14px;border-top:1px solid #333">{b.get('price','')}€</td></tr>
+      </table>
+    </div>
+
+    <p style="color:#444;font-size:12px;text-align:center;line-height:1.8">
+      Para cancelar ou alterar a marcação contacta-nos:<br>
+      <a href="tel:+351934177308" style="color:#777;text-decoration:none">+351 934 177 308</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:geral@cleanstationcar.pt" style="color:#777;text-decoration:none">geral@cleanstationcar.pt</a>
+    </p>
+
+  </div>
+</body>
+</html>"""
+
+def _send_email_sync(to_email: str, html: str):
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = 'Confirmação de Marcação – Clean Station Car'
+    msg['From']    = f'Clean Station Car <{SMTP_USER}>'
+    msg['To']      = to_email
+    msg.attach(MIMEText(html, 'html'))
+    with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+        smtp.starttls()
+        smtp.login(SMTP_USER, SMTP_PASS)
+        smtp.send_message(msg)
+
+async def send_confirmation_email(booking: dict):
+    email = (booking.get('email') or '').strip()
+    if not email or not SMTP_USER or not SMTP_PASS:
+        return
+    try:
+        html = _build_confirmation_html(booking)
+        await asyncio.to_thread(_send_email_sync, email, html)
+        logger.info(f"Email de confirmação enviado para {email}")
+    except Exception as e:
+        logger.error(f"Erro ao enviar email: {e}")
 
 SERVICE_DURATIONS = {
     'lavagem':   120,
@@ -186,7 +263,7 @@ class BookingCreate(BaseModel):
     time:          str
     name:          str
     phone:         str
-    email:         Optional[str] = ''
+    email:         str
     car:           Optional[str] = ''
     notes:         Optional[str] = ''
 
@@ -257,6 +334,8 @@ async def create_booking(data: BookingCreate):
     except Exception as e:
         logger.error(f"Erro ao criar evento: {e}")
         raise HTTPException(status_code=500, detail=f"Erro ao criar evento no Google Calendar: {str(e)}")
+
+    await send_confirmation_email(booking_dict)
 
     return Booking(**booking_dict)
 

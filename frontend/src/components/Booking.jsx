@@ -154,7 +154,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
   const canNext = () => {
     if (step === 1) return !!serviceId;
     if (step === 2) return !!selectedDate && !!selectedTime;
-    if (step === 3) return info.name.trim() && info.phone.trim();
+    if (step === 3) return info.name.trim() && info.phone.trim() && info.email.trim();
     return true;
   };
 
@@ -432,7 +432,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               {[
                 ["name", "Nome completo *", "text", "O teu nome"],
                 ["phone", "Telefone *", "tel", "+351 ..."],
-                ["email", "Email", "email", "email@exemplo.pt"],
+                ["email", "Email *", "email", "email@exemplo.pt"],
                 ["car", "Veículo", "text", "Ex.: BMW Série 3"],
               ].map(([key, label, type, ph]) => (
                 <div key={key} className="flex flex-col">
