@@ -19,7 +19,7 @@ export default function ContactMap({ onBook }) {
                 href={SITE.mapsShareUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-white text-base hover:underline"
+                className="text-white text-base hover:text-blue-400 transition-colors"
               >
                 {SITE.address}
               </a>
@@ -28,7 +28,7 @@ export default function ContactMap({ onBook }) {
               <Phone className="w-5 h-5 text-white shrink-0 mt-0.5" strokeWidth={1.5} />
               <a
                 href={`tel:${SITE.phoneRaw}`}
-                className="text-white text-base hover:underline"
+                className="text-white text-base hover:text-blue-400 transition-colors"
               >
                 {SITE.phone}
               </a>
@@ -60,7 +60,7 @@ export default function ContactMap({ onBook }) {
           <iframe
             title="Mapa Clean Station Car"
             src={SITE.mapsEmbed}
-            className="absolute inset-0 w-full h-full grayscale contrast-[1.2] brightness-[0.55]"
+            className="absolute inset-0 w-full h-full"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />

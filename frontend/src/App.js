@@ -12,10 +12,15 @@ import ContactMap from './components/ContactMap';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import Booking from './components/Booking';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsConditions from './components/TermsConditions';
+import CookiePolicy from './components/CookiePolicy';
+import CookieBanner from './components/CookieBanner';
 
 function Home() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [initialService, setInitialService] = useState(null);
+  const [legalOpen, setLegalOpen] = useState(null); // 'privacy' | 'terms' | 'cookies'
 
   const openBooking = useCallback((serviceId) => {
     setInitialService(typeof serviceId === 'string' ? serviceId : null);
@@ -67,13 +72,17 @@ function Home() {
         <Testimonials />
         <ContactMap onBook={openBooking} />
       </main>
-      <Footer />
+      <Footer onLegal={setLegalOpen} />
       <WhatsAppButton />
       <Booking
         open={bookingOpen}
         initialServiceId={initialService}
         onClose={() => setBookingOpen(false)}
       />
+      <PrivacyPolicy open={legalOpen === 'privacy'} onClose={() => setLegalOpen(null)} />
+      <TermsConditions open={legalOpen === 'terms'} onClose={() => setLegalOpen(null)} />
+      <CookiePolicy open={legalOpen === 'cookies'} onClose={() => setLegalOpen(null)} />
+      <CookieBanner onOpenPolicy={() => setLegalOpen('cookies')} />
     </div>
   );
 }

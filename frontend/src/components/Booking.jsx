@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { SERVICES, TIME_SLOTS } from "../mock";
+import Logo from "./Logo";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
 
@@ -206,26 +207,23 @@ export default function Booking({ open, onClose, initialServiceId }) {
 
   return (
     <div className="fixed inset-0 z-[80] flex items-stretch md:items-center justify-center bg-black/80 backdrop-blur-sm overflow-y-auto py-0 md:py-8">
-      <div className="relative w-full md:max-w-4xl bg-zinc-950 border border-white/10 text-white min-h-screen md:min-h-0 md:max-h-[92vh] flex flex-col">
+      <div className="relative w-full md:max-w-4xl bg-zinc-900 border border-white/10 text-white min-h-screen md:min-h-0 md:max-h-[92vh] flex flex-col">
         {/* Top bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 sticky top-0 bg-zinc-950 z-10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 sticky top-0 bg-zinc-900 z-10">
+          <Logo size={52} />
           <div className="flex items-center gap-3">
-            <CalendarCheck className="w-5 h-5" />
-            <div>
-              <div className="font-display text-base font-bold tracking-[0.18em]">
-                MARCAÇÃO ONLINE
-              </div>
+            <div className="text-right hidden sm:block">
               <div className="text-[10px] text-white/40 tracking-[0.25em]">
                 PASSO {step} DE 4
               </div>
             </div>
+            <button
+              onClick={onClose}
+              className="w-9 h-9 border border-white/15 hover:border-blue-500 hover:bg-blue-900/30 hover:text-blue-400 flex items-center justify-center transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="w-9 h-9 border border-white/15 hover:bg-white hover:text-black flex items-center justify-center transition"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
 
         {/* Stepper */}
@@ -235,7 +233,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               (label, i) => (
                 <div key={label} className="flex flex-col gap-2">
                   <div
-                    className={`h-[3px] ${i + 1 <= step ? "bg-white" : "bg-white/15"}`}
+                    className={`h-[3px] ${i + 1 <= step ? "bg-blue-700" : "bg-white/15"}`}
                   />
                   <div
                     className={`text-[10px] tracking-[0.25em] ${i + 1 === step ? "text-white" : "text-white/40"}`}
@@ -267,14 +265,14 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   <button
                     key={s.id}
                     onClick={() => setServiceId(s.id)}
-                    className={`text-left border p-5 transition ${active ? "border-white bg-white/[0.05]" : "border-white/10 hover:border-white/30"}`}
+                    className={`text-left border p-5 transition ${active ? "border-blue-600 bg-blue-900/20" : "border-white/15 bg-white/[0.03] hover:border-blue-700/60 hover:bg-blue-900/10"}`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="w-10 h-10 border border-white/15 flex items-center justify-center">
                         <Icon className="w-4 h-4" />
                       </div>
                       {active && (
-                        <div className="w-6 h-6 bg-white text-black flex items-center justify-center">
+                        <div className="w-6 h-6 bg-blue-600 text-white flex items-center justify-center">
                           <Check className="w-3.5 h-3.5" />
                         </div>
                       )}
@@ -304,7 +302,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 <div className="flex items-center justify-between mb-4">
                   <button
                     onClick={goPrev}
-                    className="w-9 h-9 border border-white/15 hover:bg-white hover:text-black flex items-center justify-center"
+                    className="w-9 h-9 border border-white/15 hover:border-blue-500 hover:bg-blue-900/30 hover:text-blue-400 flex items-center justify-center transition"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -313,7 +311,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   </div>
                   <button
                     onClick={goNext}
-                    className="w-9 h-9 border border-white/15 hover:bg-white hover:text-black flex items-center justify-center"
+                    className="w-9 h-9 border border-white/15 hover:border-blue-500 hover:bg-blue-900/30 hover:text-blue-400 flex items-center justify-center transition"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -344,10 +342,10 @@ export default function Booking({ open, onClose, initialServiceId }) {
                         }}
                         className={`aspect-square text-sm flex items-center justify-center border transition ${
                           selected
-                            ? "bg-white text-black border-white"
+                            ? "bg-blue-700 text-white border-blue-600"
                             : disabled
                               ? "text-white/15 border-white/5 cursor-not-allowed line-through"
-                              : "text-white border-white/10 hover:border-white/60"
+                              : "text-white border-white/10 hover:border-blue-600/60 hover:text-blue-300"
                         }`}
                       >
                         {d.getDate()}
@@ -393,10 +391,10 @@ export default function Booking({ open, onClose, initialServiceId }) {
                           title={busy ? "Horário ocupado" : undefined}
                           className={`py-3 text-sm tracking-wider border transition ${
                             selectedTime === t
-                              ? "bg-white text-black border-white"
+                              ? "bg-blue-700 text-white border-blue-600"
                               : busy
                                 ? "border-white/5 text-white/20 line-through cursor-not-allowed"
-                                : "border-white/15 text-white hover:border-white/50"
+                                : "border-white/15 text-white hover:border-blue-600/60 hover:text-blue-300"
                           }`}
                         >
                           {t}
@@ -446,7 +444,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                       setInfo((v) => ({ ...v, [key]: e.target.value }))
                     }
                     placeholder={ph}
-                    className="bg-transparent border border-white/15 px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white"
+                    className="bg-white/[0.06] border border-white/20 px-4 py-3 text-white placeholder:text-white/35 focus:outline-none focus:border-white/70 focus:bg-white/[0.09]"
                   />
                 </div>
               ))}
@@ -461,7 +459,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   }
                   rows={3}
                   placeholder="Detalhes adicionais (opcional)"
-                  className="bg-transparent border border-white/15 px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white resize-none"
+                  className="bg-white/[0.06] border border-white/20 px-4 py-3 text-white placeholder:text-white/35 focus:outline-none focus:border-white/70 focus:bg-white/[0.09] resize-none"
                 />
               </div>
               <div className="md:col-span-2 p-4 border border-white/10 bg-white/[0.03] grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
@@ -498,7 +496,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
           {/* STEP 4 — Confirmação */}
           {step === 4 && confirmation && (
             <div className="text-center max-w-lg mx-auto py-6">
-              <div className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-full bg-blue-700 text-white flex items-center justify-center mx-auto">
                 <Check className="w-8 h-8" />
               </div>
               <h3 className="font-display text-3xl font-black tracking-wide mt-6">
@@ -555,7 +553,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               </div>
               <button
                 onClick={onClose}
-                className="mt-8 w-full bg-white text-black py-4 text-xs tracking-[0.25em] font-bold"
+                className="mt-8 w-full bg-blue-700 hover:bg-blue-600 text-white py-4 text-xs tracking-[0.25em] font-bold transition-colors"
               >
                 FECHAR
               </button>
@@ -565,11 +563,11 @@ export default function Booking({ open, onClose, initialServiceId }) {
 
         {/* Footer navegação */}
         {step < 4 && (
-          <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between gap-3 sticky bottom-0 bg-zinc-950">
+          <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between gap-3 sticky bottom-0 bg-zinc-900">
             <button
               onClick={() => setStep((s) => Math.max(1, s - 1))}
               disabled={step === 1}
-              className="inline-flex items-center gap-2 px-5 py-3 text-xs tracking-[0.22em] font-semibold border border-white/15 text-white disabled:opacity-30 hover:bg-white/10"
+              className="inline-flex items-center gap-2 px-5 py-3 text-xs tracking-[0.22em] font-semibold border border-white/15 text-white disabled:opacity-30 hover:border-blue-500 hover:bg-blue-900/20 hover:text-blue-400 transition"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> VOLTAR
             </button>
@@ -577,7 +575,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               <button
                 onClick={() => canNext() && setStep((s) => s + 1)}
                 disabled={!canNext()}
-                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-white text-black disabled:opacity-30"
+                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-30 transition-colors"
               >
                 CONTINUAR <ArrowRight className="w-3.5 h-3.5" />
               </button>
@@ -586,7 +584,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               <button
                 onClick={() => canNext() && submit()}
                 disabled={!canNext() || submitting}
-                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-white text-black disabled:opacity-30"
+                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-30 transition-colors"
               >
                 {submitting ? (
                   <>

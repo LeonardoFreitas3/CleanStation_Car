@@ -25,7 +25,7 @@ export default function Testimonials() {
           {visible.map((t, i) => (
             <div
               key={`${t.name}-${(idx + i) % TESTIMONIALS.length}`}
-              className="relative rounded-2xl p-8 border border-white/10 hover:border-white/25 transition-all"
+              className="relative rounded-2xl p-8 border border-white/10 hover:border-blue-700/60 transition-all"
               style={{
                 background:
                   'linear-gradient(180deg, rgba(28,28,28,0.9) 0%, rgba(10,10,10,0.95) 100%)',
@@ -55,7 +55,7 @@ export default function Testimonials() {
         <div className="flex justify-center items-center gap-4 mt-10">
           <button
             onClick={() => setIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-            className="w-10 h-10 rounded-full border border-white/20 text-white hover:bg-white hover:text-black flex items-center justify-center transition"
+            className="w-10 h-10 rounded-full border border-white/20 text-white hover:border-blue-500 hover:bg-blue-900/30 hover:text-blue-400 flex items-center justify-center transition"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -71,7 +71,7 @@ export default function Testimonials() {
           </div>
           <button
             onClick={() => setIdx(i => (i + 1) % TESTIMONIALS.length)}
-            className="w-10 h-10 rounded-full border border-white/20 text-white hover:bg-white hover:text-black flex items-center justify-center transition"
+            className="w-10 h-10 rounded-full border border-white/20 text-white hover:border-blue-500 hover:bg-blue-900/30 hover:text-blue-400 flex items-center justify-center transition"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

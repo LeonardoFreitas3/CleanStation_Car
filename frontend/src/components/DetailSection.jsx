@@ -1,9 +1,7 @@
 import React from 'react';
 import { CalendarCheck } from 'lucide-react';
 
-// Wheel with water splash - dramatic side image
-const SPLASH_IMAGE =
-  'https://images.unsplash.com/photo-1605587030346-8e0fbb8c6abe?auto=format&fit=crop&w=2000&q=85';
+const SPLASH_IMAGE = '/img/detail.jpg';
 
 export default function DetailSection({ onBook }) {
   return (
@@ -11,22 +9,19 @@ export default function DetailSection({ onBook }) {
       id="about"
       className="relative py-24 md:py-36 overflow-hidden bg-black border-t border-white/5"
     >
-      {/* Right-side splash image */}
+      {/* Full background image */}
       <div className="absolute inset-0">
-        <div className="absolute inset-y-0 right-0 w-full md:w-2/3 lg:w-3/5">
-          <img
-            src={SPLASH_IMAGE}
-            alt="Roda com splash de água"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: 'center' }}
-            loading="lazy"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70" />
+        <img
+          src={SPLASH_IMAGE}
+          alt="Roda com splash de água"
+          className="w-full h-full object-cover object-center"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-black/90 via-black/60 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6">
+      <div className="relative max-w-7xl mx-auto px-6 flex justify-end">
         <div className="max-w-xl">
           <h2
             className="font-display text-white font-black leading-[0.95] tracking-tight"
@@ -42,9 +37,27 @@ export default function DetailSection({ onBook }) {
           </p>
           <button
             onClick={onBook}
-            className="btn-silver mt-10 inline-flex items-center gap-2 px-8 py-4 text-xs tracking-[0.25em] font-bold"
+            className="group mt-10 inline-flex items-center gap-3 px-10 py-5 text-xs tracking-[0.3em] font-bold text-black relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #ffffff 0%, #d4d4d4 50%, #a8a8a8 100%)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.9)',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.5), 0 16px 48px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.9)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.3), 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.9)';
+            }}
           >
-            <CalendarCheck className="w-4 h-4" /> MARCAR AGORA
+            <CalendarCheck className="w-4 h-4 shrink-0" />
+            MARCAR AGORA
+            <span
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 60%)' }}
+            />
           </button>
         </div>
       </div>

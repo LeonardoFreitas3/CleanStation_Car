@@ -80,7 +80,7 @@ export default function BeforeAfter() {
 
         <div className="text-center mt-12">
           <button
-            className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-3 text-[11px] tracking-[0.25em] font-bold hover:bg-white hover:text-black transition"
+            className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-3 text-[11px] tracking-[0.25em] font-bold hover:border-blue-600 hover:text-blue-400 transition"
           >
             VER MAIS RESULTADOS
           </button>

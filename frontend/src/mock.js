@@ -7,12 +7,12 @@ export const SITE = {
   subtitle: 'O detalhe que o teu carro merece.',
   phone: '+351 934 177 308',
   phoneRaw: '351934177308',
-  email: 'geral@cleanstationcar.pt',
-  address: 'Braga, Portugal',
+  email: 'cleanstationcar@gmail.com',
+  address: 'R. Conselheiro Lobato 533, 4705-089 Braga',
   hours: 'Segunda a Sábado · 08:00 – 19:00',
-  mapsShareUrl: 'https://share.google/SwUsUmGYcqFvPOh6h',
+  mapsShareUrl: 'https://maps.google.com/?q=R.+Conselheiro+Lobato+533,+4705-089+Braga',
   mapsEmbed:
-    'https://www.google.com/maps?q=Braga,Portugal&output=embed',
+    'https://www.google.com/maps?q=R.+Conselheiro+Lobato+533,+4705-089+Braga&output=embed',
 };
 
 export const FEATURES = [
@@ -31,8 +31,7 @@ export const SERVICES = [
     duration: 120, // minutes
     durationLabel: '2 horas',
     icon: Car,
-    image:
-      'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=1200&q=80',
+    image: '/img/lavagem.jpg',
   },
   {
     id: 'interior',
@@ -42,8 +41,7 @@ export const SERVICES = [
     duration: 180,
     durationLabel: '3 horas',
     icon: Brush,
-    image:
-      'https://images.unsplash.com/photo-1633014041037-f5446fb4ce99?auto=format&fit=crop&w=1200&q=80',
+    image: '/img/interior.jpg',
   },
   {
     id: 'polimento',
@@ -53,8 +51,7 @@ export const SERVICES = [
     duration: 240,
     durationLabel: '4 horas',
     icon: Disc3,
-    image:
-      'https://images.pexels.com/photos/33615347/pexels-photo-33615347.jpeg?auto=compress&w=1200&q=80',
+    image: '/img/polimento.jpg',
   },
   {
     id: 'ceramica',
@@ -65,40 +62,15 @@ export const SERVICES = [
     durationLabel: '1 dia',
     fullDay: true,
     icon: ShieldCheck,
-    image:
-      'https://images.unsplash.com/photo-1606664914460-b667528c1acc?auto=format&fit=crop&w=1200&q=80',
+    image: '/img/proteção.jpg',
   },
 ];
 
 export const BEFORE_AFTER = [
-  {
-    label: 'EXTERIOR',
-    before:
-      'https://images.unsplash.com/photo-1605164599901-db7f68c4b1a2?auto=format&fit=crop&w=700&q=70&sat=-100&brightness=0.45',
-    after:
-      'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=700&q=85',
-  },
-  {
-    label: 'INTERIOR',
-    before:
-      'https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=700&q=70&sat=-100&brightness=0.5',
-    after:
-      'https://images.unsplash.com/photo-1633014041037-f5446fb4ce99?auto=format&fit=crop&w=700&q=85',
-  },
-  {
-    label: 'BANCOS',
-    before:
-      'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=700&q=70&sat=-100&brightness=0.45',
-    after:
-      'https://images.unsplash.com/photo-1612795023384-fc4772af8d87?auto=format&fit=crop&w=700&q=85',
-  },
-  {
-    label: 'JANTES',
-    before:
-      'https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?auto=format&fit=crop&w=700&q=70&sat=-100&brightness=0.5',
-    after:
-      'https://images.unsplash.com/photo-1536796423601-e9733a86d257?auto=format&fit=crop&w=700&q=85',
-  },
+  { label: 'EXTERIOR', before: '/img/antes_ex.png', after: '/img/depois_ex.png' },
+  { label: 'INTERIOR', before: '/img/antes_in.png', after: '/img/depois_in.png' },
+  { label: 'BANCOS',   before: '/img/antes_ba.png', after: '/img/depois_ba.png' },
+  { label: 'JANTES',  before: '/img/antes_ja.png', after: '/img/depois_ja.png' },
 ];
 
 export const PROCESS = [
@@ -139,8 +111,6 @@ export const TIME_SLOTS = [
 // LocalStorage key for mocked bookings
 export const BOOKINGS_KEY = 'csc_bookings_mock_v1';
 
-export const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1549064233-945d7063292f?auto=format&fit=crop&w=2000&q=80';
+export const HERO_IMAGE = '/img/banner.png';
 
-export const DETAIL_IMAGE =
-  'https://images.unsplash.com/photo-1708805282695-ef186db20192?auto=format&fit=crop&w=2000&q=80';
+export const DETAIL_IMAGE = '/img/detail.jpg';

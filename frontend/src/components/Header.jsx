@@ -49,7 +49,7 @@ export default function Header({ onBook }) {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-3 group">
-          <Logo size={32} />
+          <Logo size={52} />
         </a>
 
         <nav className="hidden lg:flex items-center gap-8">
@@ -58,12 +58,12 @@ export default function Header({ onBook }) {
               key={l.href}
               href={l.href}
               className={`text-[12px] tracking-[0.18em] font-medium transition relative pb-1 ${
-                active === l.href ? 'text-white' : 'text-white/65 hover:text-white'
+                active === l.href ? 'text-white' : 'text-white/65 hover:text-blue-400'
               }`}
             >
               {l.label}
               <span
-                className={`absolute left-0 right-0 -bottom-0.5 h-[2px] bg-white transition-all ${
+                className={`absolute left-0 right-0 -bottom-0.5 h-[2px] bg-blue-600 transition-all ${
                   active === l.href ? 'opacity-100' : 'opacity-0'
                 }`}
               />

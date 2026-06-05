@@ -21,7 +21,7 @@ export default function Services({ onBook }) {
             return (
               <div
                 key={s.id}
-                className="group relative overflow-hidden bg-[#0e0e0e] border border-white/10 hover:border-white/30 transition-all duration-500 flex flex-col rounded-md"
+                className="group relative overflow-hidden bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition-all duration-500 flex flex-col rounded-md"
                 style={{ animationDelay: `${i * 0.08}s` }}
               >
                 <div className="relative h-56 overflow-hidden">
@@ -54,7 +54,7 @@ export default function Services({ onBook }) {
                     </div>
                     <button
                       onClick={() => onBook(s.id)}
-                      className="group/btn inline-flex items-center gap-1.5 text-white/70 hover:text-white text-[11px] tracking-[0.22em] font-semibold"
+                      className="group/btn inline-flex items-center gap-1.5 text-white/70 hover:text-blue-400 text-[11px] tracking-[0.22em] font-semibold transition-colors"
                     >
                       MARCAR
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
@@ -69,7 +69,7 @@ export default function Services({ onBook }) {
         <div className="text-center mt-12">
           <button
             onClick={() => onBook()}
-            className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-3 text-[11px] tracking-[0.25em] font-bold hover:bg-white hover:text-black transition"
+            className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-3 text-[11px] tracking-[0.25em] font-bold hover:border-blue-600 hover:text-blue-400 transition"
           >
             VER TODOS OS SERVIÇOS
           </button>
