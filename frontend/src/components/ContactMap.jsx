@@ -11,10 +11,11 @@ export default function ContactMap({ onBook }) {
           <h3 className="font-display text-white text-2xl md:text-3xl font-black tracking-wide">
             ONDE ESTAMOS
           </h3>
+          <span className="accent-bar-left mt-4" />
 
           <div className="mt-8 space-y-6">
             <div className="flex items-start gap-4">
-              <MapPin className="w-5 h-5 text-white shrink-0 mt-0.5" strokeWidth={1.5} />
+              <MapPin className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" strokeWidth={1.5} />
               <a
                 href={SITE.mapsShareUrl}
                 target="_blank"
@@ -25,7 +26,7 @@ export default function ContactMap({ onBook }) {
               </a>
             </div>
             <div className="flex items-start gap-4">
-              <Phone className="w-5 h-5 text-white shrink-0 mt-0.5" strokeWidth={1.5} />
+              <Phone className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" strokeWidth={1.5} />
               <a
                 href={`tel:${SITE.phoneRaw}`}
                 className="text-white text-base hover:text-blue-400 transition-colors"
@@ -34,7 +35,7 @@ export default function ContactMap({ onBook }) {
               </a>
             </div>
             <div className="flex items-start gap-4">
-              <Mail className="w-5 h-5 text-white shrink-0 mt-0.5" strokeWidth={1.5} />
+              <Mail className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" strokeWidth={1.5} />
               <a
                 href={`mailto:${SITE.email}`}
                 className="text-white text-base hover:underline break-all"
@@ -43,7 +44,7 @@ export default function ContactMap({ onBook }) {
               </a>
             </div>
             <div className="flex items-start gap-4">
-              <Clock className="w-5 h-5 text-white shrink-0 mt-0.5" strokeWidth={1.5} />
+              <Clock className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" strokeWidth={1.5} />
               <div className="text-white text-base">
                 Segunda a Sábado
                 <div className="text-white/70 text-sm mt-1">08:00 – 19:00</div>

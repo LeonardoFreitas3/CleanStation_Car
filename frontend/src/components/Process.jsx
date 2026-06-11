@@ -9,6 +9,7 @@ export default function Process() {
           <h2 className="font-display text-white text-4xl md:text-5xl font-black tracking-wide">
             O NOSSO PROCESSO
           </h2>
+          <span className="accent-bar mx-auto mt-5" />
           <p className="text-white/65 mt-4 text-sm">Cada detalhe importa.</p>
         </div>
 
@@ -24,9 +25,9 @@ export default function Process() {
                   i % 2 === 0 ? 'md:border-r md:border-white/15 lg:border-r' : ''
                 }`}
               >
-                <Icon className="w-10 h-10 text-white mb-6" strokeWidth={1.2} />
+                <Icon className="w-10 h-10 text-blue-400 mb-6" strokeWidth={1.2} />
 
-                <div className="text-white/55 text-[11px] tracking-[0.45em] font-semibold">
+                <div className="text-blue-500 text-[11px] tracking-[0.45em] font-semibold">
                   {p.n}
                 </div>
                 <h3 className="font-display text-white text-xl font-bold tracking-[0.18em] mt-2">

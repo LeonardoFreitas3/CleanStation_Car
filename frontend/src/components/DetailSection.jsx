@@ -31,6 +31,7 @@ export default function DetailSection({ onBook }) {
             <span className="block text-[clamp(2.4rem,6vw,4.2rem)]">O TEU CARRO</span>
             <span className="block text-[clamp(2.4rem,6vw,4.2rem)]">MERECE</span>
           </h2>
+          <span className="accent-bar-left mt-6" />
           <p className="text-white/75 mt-8 max-w-lg leading-relaxed">
             Na Clean Station Car, cada veículo recebe o cuidado e a atenção que
             merece. Qualidade, paixão e perfeição em cada detalhe.

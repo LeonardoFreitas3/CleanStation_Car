@@ -19,6 +19,7 @@ export default function Testimonials() {
           <h2 className="font-display text-white text-3xl md:text-5xl font-black tracking-wide">
             O QUE DIZEM OS NOSSOS CLIENTES
           </h2>
+          <span className="accent-bar mx-auto mt-5" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -33,7 +34,7 @@ export default function Testimonials() {
                   'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 36px rgba(0,0,0,0.4)',
               }}
             >
-              <Quote className="absolute top-5 right-5 w-8 h-8 text-white/8" strokeWidth={1} />
+              <Quote className="absolute top-5 right-5 w-8 h-8 text-blue-500/25" strokeWidth={1} />
               <div className="flex gap-1 mb-5">
                 {Array.from({ length: 5 }).map((_, k) => (
                   <Star key={k} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -64,7 +65,7 @@ export default function Testimonials() {
               <span
                 key={t.name}
                 className={`h-1.5 rounded-full transition-all ${
-                  i === idx ? 'bg-white w-8' : 'bg-white/30 w-2'
+                  i === idx ? 'bg-blue-500 w-8' : 'bg-white/30 w-2'
                 }`}
               />
             ))}

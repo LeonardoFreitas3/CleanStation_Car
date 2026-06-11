@@ -24,7 +24,7 @@ function Card({ item }) {
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
           />
-          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 text-[10px] tracking-[0.3em] bg-white text-black">
+          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 text-[10px] tracking-[0.3em] bg-blue-600 text-white">
             DEPOIS
           </span>
         </div>
@@ -49,6 +49,7 @@ export default function BeforeAfter() {
           <h2 className="font-display text-white text-4xl md:text-5xl font-black tracking-wide">
             ANTES &amp; DEPOIS
           </h2>
+          <span className="accent-bar mx-auto mt-5" />
           <p className="text-white/55 mt-4 text-sm">Resultados que falam por si.</p>
         </div>
 

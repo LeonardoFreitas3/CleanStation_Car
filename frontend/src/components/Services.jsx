@@ -10,6 +10,7 @@ export default function Services({ onBook }) {
           <h2 className="font-display text-white text-4xl md:text-5xl font-black tracking-wide">
             OS NOSSOS SERVIÇOS
           </h2>
+          <span className="accent-bar mx-auto mt-5" />
           <p className="text-white/55 mt-4 max-w-xl mx-auto text-sm">
             Soluções completas para cuidar do teu carro ao mais alto nível.
           </p>
@@ -36,7 +37,7 @@ export default function Services({ onBook }) {
 
                 {/* Simple outline icon, no metallic circle */}
                 <div className="px-6 pt-5 flex justify-center">
-                  <Icon className="w-7 h-7 text-white" strokeWidth={1.4} />
+                  <Icon className="w-7 h-7 text-blue-400" strokeWidth={1.4} />
                 </div>
 
                 <div className="px-6 pt-3 pb-6 text-center flex-1 flex flex-col">
@@ -49,7 +50,7 @@ export default function Services({ onBook }) {
 
                   <div className="mt-auto pt-5 border-t border-white/10 flex items-center justify-between">
                     <div className="text-left">
-                      <span className="text-white/40 text-[9px] tracking-[0.3em]">DESDE</span>
+                      <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">DESDE</span>
                       <div className="text-white font-display text-2xl font-bold">{s.price}€</div>
                     </div>
                     <button

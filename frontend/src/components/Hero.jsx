@@ -35,12 +35,12 @@ export default function Hero({ onBook }) {
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-black/20" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_60%,_transparent_0%,_rgba(0,0,0,0.55)_70%,_#000_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black to-transparent" />
-          {/* Mist/fog at the bottom */}
+          {/* Mist/fog at the bottom — cool blue tint */}
           <div
             className="absolute inset-x-0 bottom-0 h-2/5 opacity-50 pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse at 60% 100%, rgba(255,255,255,0.18) 0%, transparent 55%)",
+                "radial-gradient(ellipse at 60% 100%, rgba(147,197,253,0.20) 0%, rgba(59,130,246,0.08) 35%, transparent 55%)",
               filter: "blur(30px)",
             }}
           />
@@ -68,11 +68,11 @@ export default function Hero({ onBook }) {
                   style={{ animationDelay: "0.16s" }}
                 >
                   <span className="inline-flex items-center gap-5">
-                    <span className="h-px w-16 bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+                    <span className="h-px w-16 bg-gradient-to-r from-transparent via-blue-500/90 to-transparent" />
                     <span className="chrome-text-thin font-light tracking-[0.55em] text-[clamp(1.4rem,3.2vw,2.5rem)]">
                       CAR
                     </span>
-                    <span className="h-px w-16 bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+                    <span className="h-px w-16 bg-gradient-to-r from-transparent via-blue-500/90 to-transparent" />
                   </span>
                 </span>
               </h1>
@@ -81,10 +81,10 @@ export default function Hero({ onBook }) {
                 className="mt-10 fade-up"
                 style={{ animationDelay: "0.28s" }}
               >
-                <p className="text-white text-xs sm:text-sm tracking-[0.42em] font-semibold">
+                <p className="text-blue-400 text-xs sm:text-sm tracking-[0.42em] font-semibold">
                   LAVAGEM DETALHADA PREMIUM
                 </p>
-                <p className="text-white text-xs sm:text-sm tracking-[0.42em] font-semibold mt-1">
+                <p className="text-blue-400 text-xs sm:text-sm tracking-[0.42em] font-semibold mt-1">
                   EM BRAGA
                 </p>
                 <p className="text-white/70 text-base mt-5">{SITE.subtitle}</p>
@@ -113,7 +113,8 @@ export default function Hero({ onBook }) {
         </div>
 
         {/* Feature strip - flat icons, no circles */}
-        <div className="relative z-10 border-t border-white/10 bg-black/70 backdrop-blur-sm">
+        <div className="relative z-10 bg-black/70 backdrop-blur-sm">
+          <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4">
             {FEATURES.map((f, i) => {
               const Icon = f.icon;
@@ -129,7 +130,7 @@ export default function Hero({ onBook }) {
                   }`}
                 >
                   <Icon
-                    className="ml-4 w-5 h-5 text-white/75 shrink-0"
+                    className="ml-4 w-5 h-5 text-blue-400 shrink-0"
                     strokeWidth={1.4}
                   />
                   <span className="text-white/85 text-[10px] sm:text-[11px] tracking-[0.22em] font-semibold">

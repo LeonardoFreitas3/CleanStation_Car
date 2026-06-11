@@ -203,7 +203,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               (label, i) => (
                 <div key={label} className="flex flex-col gap-2">
                   <div
-                    className={`h-[3px] ${i + 1 <= step ? "bg-blue-700" : "bg-white/15"}`}
+                    className={`h-[3px] ${i + 1 <= step ? "bg-gradient-to-r from-blue-700 to-blue-400" : "bg-white/15"}`}
                   />
                   <div
                     className={`text-[10px] tracking-[0.25em] ${i + 1 === step ? "text-white" : "text-white/40"}`}
@@ -466,7 +466,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
           {/* STEP 4 — Confirmação */}
           {step === 4 && confirmation && (
             <div className="text-center max-w-lg mx-auto py-6">
-              <div className="w-16 h-16 rounded-full bg-blue-700 text-white flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-800 text-white flex items-center justify-center mx-auto shadow-[0_0_32px_rgba(59,130,246,0.45)]">
                 <Check className="w-8 h-8" />
               </div>
               <h3 className="font-display text-3xl font-black tracking-wide mt-6">
@@ -523,7 +523,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               </div>
               <button
                 onClick={onClose}
-                className="mt-8 w-full bg-blue-700 hover:bg-blue-600 text-white py-4 text-xs tracking-[0.25em] font-bold transition-colors"
+                className="mt-8 w-full bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 hover:from-blue-700 hover:via-blue-500 hover:to-blue-700 text-white py-4 text-xs tracking-[0.25em] font-bold transition-all"
               >
                 FECHAR
               </button>
@@ -545,7 +545,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               <button
                 onClick={() => canNext() && setStep((s) => s + 1)}
                 disabled={!canNext()}
-                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-30 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 hover:from-blue-700 hover:via-blue-500 hover:to-blue-700 text-white disabled:opacity-30 transition-all"
               >
                 CONTINUAR <ArrowRight className="w-3.5 h-3.5" />
               </button>
@@ -554,7 +554,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               <button
                 onClick={() => canNext() && submit()}
                 disabled={!canNext() || submitting}
-                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-30 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 hover:from-blue-700 hover:via-blue-500 hover:to-blue-700 text-white disabled:opacity-30 transition-all"
               >
                 {submitting ? (
                   <>
