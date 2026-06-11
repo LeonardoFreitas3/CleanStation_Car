@@ -1,12 +1,15 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query
+from fastapi import FastAPI, APIRouter, HTTPException, Query, Header, Request, Depends
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 import os
+import re
+import html
 import logging
 import httpx
 import asyncio
 from pathlib import Path
-from pydantic import BaseModel, ConfigDict
+from collections import defaultdict, deque
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone, timedelta
@@ -28,9 +31,21 @@ BREVO_API_KEY     = os.environ.get('BREVO_API_KEY', '')
 BREVO_FROM_EMAIL  = os.environ.get('BREVO_FROM_EMAIL', 'cleanstationcar@gmail.com')
 BREVO_FROM_NAME   = 'Clean Station Car'
 
+# ─── Admin config ────────────────────────────────────────────────────────────
+# Os endpoints de listagem/cancelamento só funcionam com esta chave no header
+# X-Admin-Key. Sem ADMIN_API_KEY definido, ficam bloqueados.
+ADMIN_API_KEY = os.environ.get('ADMIN_API_KEY', '')
+
+def require_admin(x_admin_key: str = Header(default='')):
+    if not ADMIN_API_KEY or x_admin_key != ADMIN_API_KEY:
+        raise HTTPException(status_code=403, detail="Acesso não autorizado.")
+
 # ─── Email helpers ────────────────────────────────────────────────────────────
 
 def _build_confirmation_html(b: dict) -> str:
+    # Tudo o que vem do utilizador é escapado antes de entrar no HTML.
+    e = {k: html.escape(str(b.get(k, '') or '')) for k in
+         ('name', 'id', 'serviceTitle', 'dateLabel', 'time', 'durationLabel', 'car', 'price')}
     return f"""<!DOCTYPE html>
 <html lang="pt">
 <head><meta charset="utf-8"></head>
@@ -44,23 +59,23 @@ def _build_confirmation_html(b: dict) -> str:
 
     <div style="border:1px solid #222;padding:32px;margin-bottom:24px">
       <h2 style="font-size:16px;letter-spacing:.18em;margin:0 0 6px">MARCAÇÃO CONFIRMADA ✓</h2>
-      <p style="color:#888;font-size:14px;margin:0 0 28px">Olá {b.get('name','')}, a tua marcação foi registada com sucesso.</p>
+      <p style="color:#888;font-size:14px;margin:0 0 28px">Olá {e['name']}, a tua marcação foi registada com sucesso.</p>
 
       <table style="width:100%;font-size:14px;border-collapse:collapse">
         <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Referência</td>
-            <td style="text-align:right;font-family:monospace;color:#aaa">{b.get('id','')}</td></tr>
+            <td style="text-align:right;font-family:monospace;color:#aaa">{e['id']}</td></tr>
         <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Serviço</td>
-            <td style="text-align:right">{b.get('serviceTitle','')}</td></tr>
+            <td style="text-align:right">{e['serviceTitle']}</td></tr>
         <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Data</td>
-            <td style="text-align:right">{b.get('dateLabel','')}</td></tr>
+            <td style="text-align:right">{e['dateLabel']}</td></tr>
         <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Hora</td>
-            <td style="text-align:right">{b.get('time','')}</td></tr>
+            <td style="text-align:right">{e['time']}</td></tr>
         <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Duração</td>
-            <td style="text-align:right">{b.get('durationLabel','')}</td></tr>
+            <td style="text-align:right">{e['durationLabel']}</td></tr>
         <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Veículo</td>
-            <td style="text-align:right">{b.get('car','') or '—'}</td></tr>
+            <td style="text-align:right">{e['car'] or '—'}</td></tr>
         <tr><td style="color:#fff;padding:14px 0 6px;border-top:1px solid #333;font-weight:600">Total</td>
-            <td style="text-align:right;font-size:20px;font-weight:700;padding-top:14px;border-top:1px solid #333">{b.get('price','')}€</td></tr>
+            <td style="text-align:right;font-size:20px;font-weight:700;padding-top:14px;border-top:1px solid #333">{e['price']}€</td></tr>
       </table>
     </div>
 
@@ -97,14 +112,20 @@ async def send_confirmation_email(booking: dict):
     except Exception as e:
         logger.error(f"Erro ao enviar email: {e}")
 
-SERVICE_DURATIONS = {
-    'lavagem':   120,
-    'interior':  180,
-    'polimento': 240,
-    'ceramica':  480,
+# Catálogo autoritativo — preço, título e duração nunca vêm do cliente.
+SERVICES_CATALOG = {
+    'lavagem':   {'title': 'LAVAGEM DETALHADA',     'price': 25.0,  'duration': 120, 'durationLabel': '2 horas'},
+    'interior':  {'title': 'HIGIENIZAÇÃO INTERIOR', 'price': 40.0,  'duration': 180, 'durationLabel': '3 horas'},
+    'polimento': {'title': 'POLIMENTO',             'price': 80.0,  'duration': 240, 'durationLabel': '4 horas'},
+    'ceramica':  {'title': 'PROTEÇÃO CERÂMICA',     'price': 120.0, 'duration': 480, 'durationLabel': '1 dia'},
 }
 
+SERVICE_DURATIONS = {k: v['duration'] for k, v in SERVICES_CATALOG.items()}
+
 TIME_SLOTS_LIST = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00']
+
+DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+MAX_DAYS_AHEAD = 180
 
 def _slot_to_min(slot: str) -> int:
     h, m = map(int, slot.split(':'))
@@ -253,17 +274,17 @@ async def list_all_bookings() -> list:
 # ─── Modelos ─────────────────────────────────────────────────────────────────
 
 class BookingCreate(BaseModel):
-    serviceId:     str
-    serviceTitle:  str
-    price:         float
-    durationLabel: str
-    date:          str
-    time:          str
-    name:          str
-    phone:         str
-    email:         str
-    car:           Optional[str] = ''
-    notes:         Optional[str] = ''
+    # Campos extra (price, serviceTitle, ...) enviados pelo cliente são ignorados;
+    # o catálogo do servidor é a única fonte de preço/título/duração.
+    model_config = ConfigDict(extra="ignore")
+    serviceId: str
+    date:      str
+    time:      str
+    name:      str = Field(min_length=1, max_length=100)
+    phone:     str = Field(min_length=3, max_length=30)
+    email:     str = Field(min_length=5, max_length=120)
+    car:       Optional[str] = Field(default='', max_length=100)
+    notes:     Optional[str] = Field(default='', max_length=1000)
 
 class Booking(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -284,6 +305,61 @@ class Booking(BaseModel):
     status:          str = 'confirmed'
     createdAt:       str = ''
 
+# ─── Rate limiting (em memória, por IP) ──────────────────────────────────────
+
+RATE_LIMITS = {'bookings': (5, 3600)}  # 5 marcações por hora por IP
+_rate_buckets: dict = defaultdict(deque)
+
+def _client_ip(request: Request) -> str:
+    # No Render a app está atrás de proxy; o primeiro IP do X-Forwarded-For é o real.
+    fwd = request.headers.get('x-forwarded-for', '')
+    if fwd:
+        return fwd.split(',')[0].strip()
+    return request.client.host if request.client else 'unknown'
+
+def check_rate_limit(request: Request, bucket: str):
+    max_calls, window = RATE_LIMITS[bucket]
+    now = datetime.now(timezone.utc).timestamp()
+    q = _rate_buckets[(bucket, _client_ip(request))]
+    while q and now - q[0] > window:
+        q.popleft()
+    if len(q) >= max_calls:
+        raise HTTPException(status_code=429, detail="Demasiados pedidos. Tenta novamente mais tarde.")
+    q.append(now)
+
+# ─── Validação de marcações ──────────────────────────────────────────────────
+
+EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+
+def validate_booking_input(data: 'BookingCreate') -> dict:
+    """Valida serviceId/date/time/email e devolve o serviço do catálogo."""
+    service = SERVICES_CATALOG.get(data.serviceId)
+    if not service:
+        raise HTTPException(status_code=400, detail="Serviço inválido.")
+
+    if not DATE_RE.match(data.date):
+        raise HTTPException(status_code=400, detail="Data inválida.")
+    try:
+        booking_date = datetime.strptime(data.date, '%Y-%m-%d').date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Data inválida.")
+
+    today = datetime.now(timezone.utc).date()
+    if booking_date < today:
+        raise HTTPException(status_code=400, detail="A data já passou.")
+    if (booking_date - today).days > MAX_DAYS_AHEAD:
+        raise HTTPException(status_code=400, detail="Data demasiado distante.")
+    if booking_date.weekday() == 6:
+        raise HTTPException(status_code=400, detail="Domingos encerrado.")
+
+    if data.time not in TIME_SLOTS_LIST:
+        raise HTTPException(status_code=400, detail="Horário inválido.")
+
+    if not EMAIL_RE.match(data.email.strip()):
+        raise HTTPException(status_code=400, detail="Email inválido.")
+
+    return service
+
 # ─── Endpoints ───────────────────────────────────────────────────────────────
 
 @api_router.get("/")
@@ -301,11 +377,14 @@ async def get_availability(date: str, service_id: str = Query(default=None)):
     return {"date": date, "busySlots": busy}
 
 @api_router.post("/bookings", response_model=Booking)
-async def create_booking(data: BookingCreate):
+async def create_booking(data: BookingCreate, request: Request):
+    check_rate_limit(request, 'bookings')
+    service = validate_booking_input(data)
+
     # Verificar sobreposição com marcações existentes
     try:
-        duration = SERVICE_DURATIONS.get(data.serviceId, 120)
-        ranges   = await get_event_ranges(data.date)
+        duration  = service['duration']
+        ranges    = await get_event_ranges(data.date)
         new_start = _slot_to_min(data.time)
         new_end   = new_start + duration
         for (b_start, b_end) in ranges:
@@ -317,9 +396,12 @@ async def create_booking(data: BookingCreate):
         logger.error(f"Erro ao verificar disponibilidade: {e}")
 
     parts = data.date.split('-')
-    date_label = f"{parts[2]}/{parts[1]}/{parts[0]}" if len(parts) == 3 else data.date
+    date_label = f"{parts[2]}/{parts[1]}/{parts[0]}"
 
     booking_dict = data.model_dump()
+    booking_dict['serviceTitle']  = service['title']
+    booking_dict['price']         = service['price']
+    booking_dict['durationLabel'] = service['durationLabel']
     booking_dict['id']        = f"BK-{str(uuid.uuid4())[:8].upper()}"
     booking_dict['dateLabel'] = date_label
     booking_dict['status']    = 'confirmed'
@@ -337,8 +419,10 @@ async def create_booking(data: BookingCreate):
 
     return Booking(**booking_dict)
 
+EVENT_ID_RE = re.compile(r'^[A-Za-z0-9_-]+$')
+
 @api_router.get("/bookings", response_model=List[Booking])
-async def list_bookings():
+async def list_bookings(_=Depends(require_admin)):
     try:
         return await list_all_bookings()
     except Exception as e:
@@ -346,7 +430,9 @@ async def list_bookings():
         return []
 
 @api_router.delete("/bookings/{event_id}")
-async def cancel_booking(event_id: str):
+async def cancel_booking(event_id: str, _=Depends(require_admin)):
+    if not EVENT_ID_RE.match(event_id):
+        raise HTTPException(status_code=400, detail="ID inválido.")
     try:
         await delete_calendar_event(event_id)
     except Exception as e:
@@ -358,12 +444,20 @@ async def cancel_booking(event_id: str):
 
 app.include_router(api_router)
 
+# Sem wildcard: só as origens explicitamente permitidas chamam a API.
+DEFAULT_CORS_ORIGINS = 'https://cleanstationcar.pt,https://www.cleanstationcar.pt'
+CORS_ORIGINS = [
+    o.strip()
+    for o in os.environ.get('CORS_ORIGINS', DEFAULT_CORS_ORIGINS).split(',')
+    if o.strip() and o.strip() != '*'
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_credentials=False,
+    allow_origins=CORS_ORIGINS,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type", "X-Admin-Key"],
 )
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

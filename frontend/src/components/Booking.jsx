@@ -1,15 +1,12 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   X,
-  CalendarCheck,
   ChevronLeft,
   ChevronRight,
   Check,
   Clock,
-  Car,
   ArrowRight,
   ArrowLeft,
-  Trash2,
   Loader2,
 } from "lucide-react";
 import { SERVICES, TIME_SLOTS } from "../mock";
@@ -82,25 +79,11 @@ export default function Booking({ open, onClose, initialServiceId }) {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [bookings, setBookings] = useState([]);
-  const [loadingBookings, setLoadingBookings] = useState(false);
 
   const service = useMemo(
     () => SERVICES.find((s) => s.id === serviceId) || SERVICES[0],
     [serviceId],
   );
-
-  // Buscar marcações existentes (mini admin no step 1)
-  const fetchBookings = useCallback(async () => {
-    setLoadingBookings(true);
-    try {
-      const r = await fetch(`${BACKEND_URL}/api/bookings`);
-      if (r.ok) setBookings(await r.json());
-    } catch {
-      /* ignora */
-    }
-    setLoadingBookings(false);
-  }, []);
 
   useEffect(() => {
     if (open) {
@@ -110,7 +93,6 @@ export default function Booking({ open, onClose, initialServiceId }) {
       setSelectedTime(null);
       setConfirmation(null);
       setSubmitError("");
-      fetchBookings();
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -118,7 +100,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open, initialServiceId, fetchBookings]);
+  }, [open, initialServiceId]);
 
   // Buscar slots ocupados quando muda a data ou o serviço selecionado
   useEffect(() => {
@@ -163,11 +145,9 @@ export default function Booking({ open, onClose, initialServiceId }) {
     setSubmitting(true);
     setSubmitError("");
     try {
+      // Preço, título e duração são determinados pelo servidor a partir do serviceId.
       const payload = {
         serviceId: service.id,
-        serviceTitle: service.title,
-        price: service.price,
-        durationLabel: service.durationLabel,
         date: isoDate(selectedDate),
         time: selectedTime,
         ...info,
@@ -188,20 +168,10 @@ export default function Booking({ open, onClose, initialServiceId }) {
       const booking = await r.json();
       setConfirmation(booking);
       setStep(4);
-      fetchBookings();
     } catch {
       setSubmitError("Não foi possível confirmar a marcação. Tenta novamente.");
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const cancelBooking = async (id) => {
-    try {
-      await fetch(`${BACKEND_URL}/api/bookings/${id}`, { method: "DELETE" });
-      fetchBookings();
-    } catch {
-      /* ignora */
     }
   };
 
@@ -597,55 +567,6 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   </>
                 )}
               </button>
-            )}
-          </div>
-        )}
-
-        {/* Mini lista de marcações no step 1 */}
-        {step === 1 && (
-          <div className="px-6 pb-6">
-            {loadingBookings && (
-              <div className="text-white/30 text-xs text-center py-2">
-                A carregar marcações...
-              </div>
-            )}
-            {!loadingBookings && bookings.length > 0 && (
-              <div className="mt-4 border border-white/10 p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Car className="w-4 h-4" />
-                  <div className="text-white/40 text-[10px] tracking-[0.3em]">
-                    AS TUAS MARCAÇÕES
-                  </div>
-                </div>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {bookings
-                    .slice()
-                    .reverse()
-                    .map((b) => (
-                      <div
-                        key={b.id}
-                        className={`flex items-center justify-between gap-3 text-sm border border-white/5 px-3 py-2 ${b.status === "cancelled" ? "opacity-40 line-through" : ""}`}
-                      >
-                        <div className="flex-1 min-w-0 truncate">
-                          <span className="text-white/60">
-                            {b.dateLabel} · {b.time}
-                          </span>{" "}
-                          <span className="mx-1 text-white/30">|</span>{" "}
-                          <span>{b.serviceTitle}</span>
-                        </div>
-                        {b.status !== "cancelled" && (
-                          <button
-                            onClick={() => cancelBooking(b.id)}
-                            className="text-white/50 hover:text-red-400"
-                            title="Cancelar"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                </div>
-              </div>
             )}
           </div>
         )}
