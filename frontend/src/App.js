@@ -16,6 +16,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsConditions from './components/TermsConditions';
 import CookiePolicy from './components/CookiePolicy';
 import CookieBanner from './components/CookieBanner';
+import { initAnalytics } from './analytics';
 
 function Home() {
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -26,6 +27,9 @@ function Home() {
     setInitialService(typeof serviceId === 'string' ? serviceId : null);
     setBookingOpen(true);
   }, []);
+
+  // Analytics — carrega GA se já houve consentimento
+  useEffect(() => { initAnalytics(); }, []);
 
   // SEO + schema
   useEffect(() => {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Cookie, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { applyConsent } from '../analytics';
 
 const CONSENT_KEY = 'csc_cookie_consent';
 
@@ -14,12 +15,14 @@ export default function CookieBanner({ onOpenPolicy }) {
   }, []);
 
   const save = (acceptAll) => {
+    const analyticsAccepted = acceptAll ? true : analytics;
     const consent = {
       necessary: true,
-      analytics: acceptAll ? true : analytics,
+      analytics: analyticsAccepted,
       date: new Date().toISOString(),
     };
     localStorage.setItem(CONSENT_KEY, JSON.stringify(consent));
+    applyConsent(analyticsAccepted);
     setVisible(false);
   };
 
