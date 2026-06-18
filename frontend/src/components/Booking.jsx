@@ -52,9 +52,7 @@ function isoDate(d) {
 
 export default function Booking({ open, onClose, initialServiceId }) {
   const [step, setStep] = useState(1);
-  const [serviceId, setServiceId] = useState(
-    initialServiceId || SERVICES[0].id,
-  );
+  const [serviceId, setServiceId] = useState(initialServiceId || null);
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -81,14 +79,19 @@ export default function Booking({ open, onClose, initialServiceId }) {
   const [submitError, setSubmitError] = useState("");
 
   const service = useMemo(
-    () => SERVICES.find((s) => s.id === serviceId) || SERVICES[0],
+    () => SERVICES.find((s) => s.id === serviceId) || null,
     [serviceId],
   );
 
   useEffect(() => {
     if (open) {
-      setStep(initialServiceId ? 2 : 1);
-      if (initialServiceId) setServiceId(initialServiceId);
+      if (initialServiceId) {
+        setServiceId(initialServiceId);
+        setStep(2);
+      } else {
+        setServiceId(null);
+        setStep(1);
+      }
       setSelectedDate(null);
       setSelectedTime(null);
       setConfirmation(null);
@@ -137,7 +140,8 @@ export default function Booking({ open, onClose, initialServiceId }) {
   const canNext = () => {
     if (step === 1) return !!serviceId;
     if (step === 2) return !!selectedDate && !!selectedTime;
-    if (step === 3) return info.name.trim() && info.phone.trim() && info.email.trim();
+    if (step === 3)
+      return info.name.trim() && info.phone.trim() && info.email.trim();
     return true;
   };
 
@@ -227,7 +231,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
         <div className="flex-1 overflow-y-auto px-6 py-6">
           {/* STEP 1 — Serviço */}
           {step === 1 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {SERVICES.map((s) => {
                 const Icon = s.icon;
                 const active = s.id === serviceId;
@@ -256,6 +260,9 @@ export default function Booking({ open, onClose, initialServiceId }) {
                         <Clock className="w-3.5 h-3.5" /> {s.durationLabel}
                       </span>
                       <span className="text-white font-display text-xl font-bold">
+                        <span className="text-white/50 text-xs font-normal tracking-wider">
+                          desde{" "}
+                        </span>
                         {s.price}€
                       </span>
                     </div>
@@ -379,15 +386,15 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   </div>
                   <div className="text-sm flex justify-between">
                     <span className="text-white/60">Serviço</span>
-                    <span className="font-semibold">{service.title}</span>
+                    <span className="font-semibold"> {service?.title}</span>
                   </div>
                   <div className="text-sm flex justify-between mt-1">
                     <span className="text-white/60">Duração</span>
-                    <span>{service.durationLabel}</span>
+                    <span>{service?.durationLabel}</span>
                   </div>
                   <div className="text-sm flex justify-between mt-1">
                     <span className="text-white/60">Preço desde</span>
-                    <span className="font-bold">{service.price}€</span>
+                    <span className="font-bold">{service?.price}€</span>
                   </div>
                 </div>
               </div>
@@ -437,7 +444,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   <div className="text-white/40 text-[10px] tracking-[0.25em]">
                     SERVIÇO
                   </div>
-                  <div className="mt-1 font-semibold">{service.title}</div>
+                  <div className="mt-1 font-semibold">{service?.title}</div>
                 </div>
                 <div>
                   <div className="text-white/40 text-[10px] tracking-[0.25em]">
@@ -455,9 +462,9 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 </div>
                 <div>
                   <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                    PREÇO
+                    PREÇO DESDE
                   </div>
-                  <div className="mt-1 font-bold">{service.price}€</div>
+                  <div className="mt-1 font-bold">{service?.price}€</div>
                 </div>
               </div>
             </div>
@@ -515,7 +522,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   </div>
                   <div>
                     <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                      PREÇO
+                      PREÇO DESDE
                     </div>
                     <div className="mt-1 font-bold">{confirmation.price}€</div>
                   </div>

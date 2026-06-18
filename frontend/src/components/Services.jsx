@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { SERVICES } from '../mock';
+import ServiceDetail from './ServiceDetail';
 
 export default function Services({ onBook }) {
+  const [detailService, setDetailService] = useState(null);
+
   return (
     <section id="services" className="section-dark-gray relative py-24 md:py-32 border-y border-white/10">
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -16,14 +19,15 @@ export default function Services({ onBook }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {SERVICES.map((s, i) => {
             const Icon = s.icon;
             return (
               <div
                 key={s.id}
-                className="group relative overflow-hidden bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition-all duration-500 flex flex-col rounded-md"
+                className="group relative overflow-hidden bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition-all duration-500 flex flex-col rounded-md cursor-pointer"
                 style={{ animationDelay: `${i * 0.08}s` }}
+                onClick={() => setDetailService(s)}
               >
                 <div className="relative h-56 overflow-hidden">
                   <img
@@ -35,7 +39,6 @@ export default function Services({ onBook }) {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-black/40 to-transparent" />
                 </div>
 
-                {/* Simple outline icon, no metallic circle */}
                 <div className="px-6 pt-5 flex justify-center">
                   <Icon className="w-7 h-7 text-blue-400" strokeWidth={1.4} />
                 </div>
@@ -54,7 +57,10 @@ export default function Services({ onBook }) {
                       <div className="text-white font-display text-2xl font-bold">{s.price}€</div>
                     </div>
                     <button
-                      onClick={() => onBook(s.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onBook(s.id);
+                      }}
                       className="group/btn inline-flex items-center gap-1.5 text-white/70 hover:text-blue-400 text-[11px] tracking-[0.22em] font-semibold transition-colors"
                     >
                       MARCAR
@@ -72,10 +78,17 @@ export default function Services({ onBook }) {
             onClick={() => onBook()}
             className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-3 text-[11px] tracking-[0.25em] font-bold hover:border-blue-600 hover:text-blue-400 transition"
           >
-            VER TODOS OS SERVIÇOS
+            FAZER MARCAÇÃO
           </button>
         </div>
       </div>
+
+      <ServiceDetail
+        service={detailService}
+        open={!!detailService}
+        onClose={() => setDetailService(null)}
+        onBook={onBook}
+      />
     </section>
   );
 }

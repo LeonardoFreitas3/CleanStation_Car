@@ -114,10 +114,15 @@ async def send_confirmation_email(booking: dict):
 
 # Catálogo autoritativo — preço, título e duração nunca vêm do cliente.
 SERVICES_CATALOG = {
-    'lavagem':   {'title': 'LAVAGEM DETALHADA',     'price': 25.0,  'duration': 120, 'durationLabel': '2 horas'},
-    'interior':  {'title': 'HIGIENIZAÇÃO INTERIOR', 'price': 40.0,  'duration': 180, 'durationLabel': '3 horas'},
-    'polimento': {'title': 'POLIMENTO',             'price': 80.0,  'duration': 240, 'durationLabel': '4 horas'},
-    'ceramica':  {'title': 'PROTEÇÃO CERÂMICA',     'price': 120.0, 'duration': 480, 'durationLabel': '1 dia'},
+    'lavagem-ceramica':          {'title': 'LAVAGEM COM PROTEÇÃO CERÂMICA',                   'price': 37.0,  'duration': 120, 'durationLabel': '2 horas'},
+    'lavagem-ceramica-longa':    {'title': 'LAVAGEM C/ PROTEÇÃO CERÂMICA LONGA DURAÇÃO',      'price': 52.0,  'duration': 180, 'durationLabel': '3 horas'},
+    'detalhada-completa':        {'title': 'LAVAGEM DETALHADA INTERIOR/EXTERIOR',              'price': 150.0, 'duration': 480, 'durationLabel': '1 dia'},
+    'detalhada-interior':        {'title': 'LAVAGEM DETALHADA INTERIOR',                       'price': 80.0,  'duration': 180, 'durationLabel': '3 horas'},
+    'detalhada-exterior':        {'title': 'LAVAGEM DETALHADA EXTERIOR',                       'price': 90.0,  'duration': 180, 'durationLabel': '3 horas'},
+    'higienizacao-estofos':      {'title': 'HIGIENIZAÇÃO DE ESTOFOS',                          'price': 80.0,  'duration': 180, 'durationLabel': '3 horas'},
+    'descontaminacao-vidros':    {'title': 'DESCONTAMINAÇÃO DE VIDROS',                        'price': 50.0,  'duration': 60,  'durationLabel': '1 hora'},
+    'polimento-farois-dianteiros': {'title': 'POLIMENTO FARÓIS DIANTEIROS (PAR)',              'price': 70.0,  'duration': 90,  'durationLabel': '1h30'},
+    'polimento-farois-traseiros':  {'title': 'POLIMENTO FARÓIS TRASEIROS (PAR)',               'price': 50.0,  'duration': 60,  'durationLabel': '1 hora'},
 }
 
 SERVICE_DURATIONS = {k: v['duration'] for k, v in SERVICES_CATALOG.items()}
@@ -136,7 +141,12 @@ def _dt_to_min(dt: datetime) -> int:
 
 # ─── Google Calendar helpers ─────────────────────────────────────────────────
 
+_token_cache: dict = {'token': '', 'expires_at': 0.0}
+
 async def get_access_token() -> str:
+    now = datetime.now(timezone.utc).timestamp()
+    if _token_cache['token'] and now < _token_cache['expires_at']:
+        return _token_cache['token']
     async with httpx.AsyncClient() as hc:
         r = await hc.post('https://oauth2.googleapis.com/token', data={
             'client_id':     GOOGLE_CLIENT_ID,
@@ -145,7 +155,10 @@ async def get_access_token() -> str:
             'grant_type':    'refresh_token',
         })
         r.raise_for_status()
-        return r.json()['access_token']
+        data = r.json()
+        _token_cache['token'] = data['access_token']
+        _token_cache['expires_at'] = now + data.get('expires_in', 3600) - 120
+        return data['access_token']
 
 async def get_events(date_iso: str) -> list:
     token = await get_access_token()
