@@ -1,5 +1,11 @@
 // Mock data for Clean Station Car
-import { Sparkles, Brush, Disc3, ShieldCheck, Car, Wrench, Gem, SprayCan, ShieldPlus, Droplets, Lightbulb, CircleDot } from 'lucide-react';
+import {
+  Sparkles, Brush, Disc3, ShieldCheck, Car, Wrench, Gem, SprayCan, ShieldPlus,
+  Droplets, Lightbulb, CircleDot,
+  // Calculadora de orçamento
+  Trash2, Wind, Footprints, Droplet, PawPrint, CloudFog, Package, Bug, Square,
+  Waves, Layers, Scissors, AlertTriangle, Plus,
+} from 'lucide-react';
 
 export const SITE = {
   name: 'Clean Station Car',
@@ -242,3 +248,89 @@ export const BOOKINGS_KEY = 'csc_bookings_mock_v1';
 export const HERO_IMAGE = '/img/banner.png';
 
 export const DETAIL_IMAGE = '/img/detail.jpg';
+
+// ─── Calculadora de orçamento ────────────────────────────────────────────────
+// IMPORTANTE: os preços dos extras e os multiplicadores de grau estão
+// duplicados (autoritativos) no backend (server.py → EXTRAS_CATALOG / grade_for).
+// Se alterares valores aqui, atualiza também o backend para manter a coerência.
+
+// Problemas do INTERIOR — cada um conta 1 para o grau de sujidade.
+export const INTERIOR_PROBLEMS = [
+  { id: 'lixo',            label: 'Lixo acumulado',          icon: Trash2 },
+  { id: 'areia',           label: 'Areia ou terra excessiva', icon: Wind },
+  { id: 'tapetes',         label: 'Tapetes muito sujos',      icon: Footprints },
+  { id: 'manchas-estofos', label: 'Manchas em estofos',       icon: Droplet },
+  { id: 'manchas-dificeis',label: 'Manchas difíceis',         icon: Droplets },
+  { id: 'pelos',           label: 'Pelos de animais',         icon: PawPrint },
+  { id: 'odor',            label: 'Odor desagradável',        icon: CloudFog },
+  { id: 'bagageira',       label: 'Bagageira muito suja',     icon: Package },
+];
+
+// Problemas do EXTERIOR — cada um conta 1 para o grau de sujidade.
+export const EXTERIOR_PROBLEMS = [
+  { id: 'insetos',   label: 'Insetos incrustados',        icon: Bug },
+  { id: 'jantes',    label: 'Jantes muito contaminadas',  icon: Disc3 },
+  { id: 'resina',    label: 'Resina ou alcatrão',         icon: Droplet },
+  { id: 'vidros',    label: 'Vidros contaminados',        icon: Square },
+  { id: 'pintura',   label: 'Pintura muito contaminada',  icon: SprayCan },
+  { id: 'lama',      label: 'Excesso de lama',            icon: Waves },
+  { id: 'plasticos', label: 'Plásticos exteriores degradados', icon: Layers },
+];
+
+export const ALL_PROBLEMS = [...INTERIOR_PROBLEMS, ...EXTERIOR_PROBLEMS];
+export const PROBLEM_LABEL = Object.fromEntries(ALL_PROBLEMS.map((p) => [p.id, p.label]));
+
+// Extras opcionais — valor configurável por extra.
+export const EXTRAS = [
+  { id: 'pelos-intensivo',    label: 'Remoção intensiva de pelos', price: 20, icon: Scissors },
+  { id: 'odores',             label: 'Tratamento de odores',       price: 25, icon: Wind },
+  { id: 'polimento-localizado', label: 'Polimento localizado',     price: 30, icon: Sparkles },
+  { id: 'recup-plasticos',    label: 'Recuperação de plásticos',   price: 20, icon: Layers },
+  { id: 'vomito',             label: 'Limpeza de vómito',          price: 40, icon: AlertTriangle },
+  { id: 'derrames',           label: 'Limpeza de derrames',        price: 25, icon: Droplets },
+  { id: 'outro',              label: 'Outro (sob consulta)',       price: 0,  icon: Plus, custom: true },
+];
+
+export const EXTRA_BY_ID = Object.fromEntries(EXTRAS.map((e) => [e.id, e]));
+
+// Graus de sujidade determinados automaticamente pelo nº de problemas.
+export const GRADES = [
+  { grade: 1, label: 'Sujidade Normal',  min: 0, max: 1,        multiplier: 1.0,  pct: 0  },
+  { grade: 2, label: 'Sujidade Elevada', min: 2, max: 3,        multiplier: 1.3,  pct: 30 },
+  { grade: 3, label: 'Sujidade Extrema', min: 4, max: Infinity, multiplier: 1.75, pct: 75 },
+];
+
+export function gradeForCount(count) {
+  return GRADES.find((g) => count >= g.min && count <= g.max) || GRADES[0];
+}
+
+// Formata um valor em euros (vírgula decimal PT, sem decimais quando inteiro).
+export function eur(n) {
+  const v = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+  return (Number.isInteger(v) ? String(v) : v.toFixed(2).replace('.', ',')) + ' €';
+}
+
+// Cálculo do orçamento em tempo real.
+//   Subtotal   = Preço Base × Multiplicador (grau)
+//   Preço Final = Subtotal + Extras
+export function computeQuote(service, problemIds = [], extraIds = []) {
+  const base = service?.price || 0;
+  const count = problemIds.length;
+  const g = gradeForCount(count);
+  const subtotal = base * g.multiplier;
+  const chosenExtras = EXTRAS.filter((e) => extraIds.includes(e.id));
+  const extrasTotal = chosenExtras.reduce((s, e) => s + e.price, 0);
+  const total = subtotal + extrasTotal;
+  return {
+    base,
+    count,
+    grade: g.grade,
+    gradeLabel: g.label,
+    multiplier: g.multiplier,
+    pct: g.pct,
+    subtotal,
+    extrasTotal,
+    total,
+    chosenExtras,
+  };
+}

@@ -46,6 +46,27 @@ def _build_confirmation_html(b: dict) -> str:
     # Tudo o que vem do utilizador é escapado antes de entrar no HTML.
     e = {k: html.escape(str(b.get(k, '') or '')) for k in
          ('name', 'id', 'serviceTitle', 'dateLabel', 'time', 'durationLabel', 'car', 'price')}
+
+    # Linhas do detalhe do orçamento (grau + extras), construídas só quando aplicável.
+    detail_rows = ''
+    if b.get('gradeLabel'):
+        grade_txt = html.escape(f"{b['gradeLabel']} (+{b.get('pct', 0)}%)")
+        detail_rows += (
+            "<tr><td style=\"color:#555;padding:7px 0;border-top:1px solid #1a1a1a\">Grau de sujidade</td>"
+            f"<td style=\"text-align:right\">{grade_txt}</td></tr>"
+        )
+    if b.get('basePrice') is not None:
+        detail_rows += (
+            "<tr><td style=\"color:#555;padding:7px 0;border-top:1px solid #1a1a1a\">Preço base</td>"
+            f"<td style=\"text-align:right\">{html.escape(str(b['basePrice']))}€</td></tr>"
+        )
+    if b.get('extrasTotal'):
+        extras_lbl = html.escape(', '.join(b.get('extrasLabels') or []) or 'Extras')
+        detail_rows += (
+            f"<tr><td style=\"color:#555;padding:7px 0;border-top:1px solid #1a1a1a\">{extras_lbl}</td>"
+            f"<td style=\"text-align:right\">+{html.escape(str(b['extrasTotal']))}€</td></tr>"
+        )
+
     return f"""<!DOCTYPE html>
 <html lang="pt">
 <head><meta charset="utf-8"></head>
@@ -74,7 +95,8 @@ def _build_confirmation_html(b: dict) -> str:
             <td style="text-align:right">{e['durationLabel']}</td></tr>
         <tr><td style="color:#555;padding:7px 0;border-top:1px solid #1a1a1a">Veículo</td>
             <td style="text-align:right">{e['car'] or '—'}</td></tr>
-        <tr><td style="color:#fff;padding:14px 0 6px;border-top:1px solid #333;font-weight:600">Total</td>
+        {detail_rows}
+        <tr><td style="color:#fff;padding:14px 0 6px;border-top:1px solid #333;font-weight:600">Total estimado</td>
             <td style="text-align:right;font-size:20px;font-weight:700;padding-top:14px;border-top:1px solid #333">{e['price']}€</td></tr>
       </table>
     </div>
@@ -126,6 +148,49 @@ SERVICES_CATALOG = {
 }
 
 SERVICE_DURATIONS = {k: v['duration'] for k, v in SERVICES_CATALOG.items()}
+
+# Catálogo autoritativo de extras — o preço NUNCA vem do cliente, só o id.
+# Mantém em sincronia com o frontend (mock.js → EXTRAS).
+EXTRAS_CATALOG = {
+    'pelos-intensivo':      {'label': 'Remoção intensiva de pelos', 'price': 20.0},
+    'odores':               {'label': 'Tratamento de odores',       'price': 25.0},
+    'polimento-localizado': {'label': 'Polimento localizado',       'price': 30.0},
+    'recup-plasticos':      {'label': 'Recuperação de plásticos',   'price': 20.0},
+    'vomito':               {'label': 'Limpeza de vómito',          'price': 40.0},
+    'derrames':             {'label': 'Limpeza de derrames',        'price': 25.0},
+    'outro':                {'label': 'Outro (sob consulta)',       'price': 0.0},
+}
+
+def grade_for(count: int):
+    """Determina o grau de sujidade automaticamente pelo nº de problemas.
+    Devolve (grau, multiplicador, percentagem, etiqueta)."""
+    if count >= 4:
+        return (3, 1.75, 75, 'Sujidade Extrema')
+    if count >= 2:
+        return (2, 1.30, 30, 'Sujidade Elevada')
+    return (1, 1.00, 0, 'Sujidade Normal')
+
+def compute_price(service: dict, problem_count: int, extra_ids: list):
+    """Calcula o preço final autoritativamente.
+    Subtotal = base × multiplicador; Final = subtotal + extras."""
+    grade, mult, pct, grade_label = grade_for(problem_count)
+    base = service['price']
+    subtotal = base * mult
+    chosen = [(EXTRAS_CATALOG[e]['label'], EXTRAS_CATALOG[e]['price'])
+              for e in extra_ids if e in EXTRAS_CATALOG]
+    extras_total = sum(p for _, p in chosen)
+    final = round(subtotal + extras_total, 2)
+    return {
+        'basePrice':    base,
+        'grade':        grade,
+        'gradeLabel':   grade_label,
+        'multiplier':   mult,
+        'pct':          pct,
+        'subtotal':     round(subtotal, 2),
+        'extrasTotal':  round(extras_total, 2),
+        'extrasLabels': [lbl for lbl, _ in chosen],
+        'price':        final,
+    }
 
 TIME_SLOTS_LIST = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00']
 
@@ -206,6 +271,15 @@ async def create_calendar_event(booking: dict) -> str:
     duration = SERVICE_DURATIONS.get(booking['serviceId'], 120)
     start_dt = datetime.fromisoformat(f"{booking['date']}T{booking['time']}:00")
     end_dt   = start_dt + timedelta(minutes=duration)
+    problems = booking.get('problems') or []
+    extras_labels = booking.get('extrasLabels') or []
+    other_note = (booking.get('otherNote') or '').strip()
+    if other_note:
+        extras_labels = extras_labels + [f"Outro: {other_note}"]
+    grade_line = (
+        f"{booking.get('gradeLabel', '-')} (+{booking.get('pct', 0)}% · "
+        f"x{booking.get('multiplier', 1)}) — {booking.get('problemCount', 0)} problema(s)"
+    )
     event = {
         'summary': f"[CSC] {booking['serviceTitle']} — {booking['name']}",
         'description': (
@@ -214,6 +288,12 @@ async def create_calendar_event(booking: dict) -> str:
             f"Telefone: {booking['phone']}\n"
             f"Email: {booking.get('email', '-')}\n"
             f"Notas: {booking.get('notes', '-')}\n"
+            f"Grau: {grade_line}\n"
+            f"Problemas: {', '.join(problems) if problems else '-'}\n"
+            f"Extras: {', '.join(extras_labels) if extras_labels else '-'}\n"
+            f"Preço base: {booking.get('basePrice', '-')} EUR\n"
+            f"Extras: {booking.get('extrasTotal', 0)} EUR\n"
+            f"Total: {booking['price']} EUR\n"
             f"Ref: {booking['id']}"
         ),
         'start': {'dateTime': start_dt.isoformat(), 'timeZone': 'Europe/Lisbon'},
@@ -298,6 +378,11 @@ class BookingCreate(BaseModel):
     email:     str = Field(min_length=5, max_length=120)
     car:       Optional[str] = Field(default='', max_length=100)
     notes:     Optional[str] = Field(default='', max_length=1000)
+    # Calculadora de orçamento
+    problemCount: int = Field(default=0, ge=0, le=50)
+    problems:     List[str] = Field(default_factory=list, max_length=30)
+    extras:       List[str] = Field(default_factory=list, max_length=20)
+    otherNote:    Optional[str] = Field(default='', max_length=200)
 
 class Booking(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -307,6 +392,13 @@ class Booking(BaseModel):
     serviceTitle:    str
     price:           float
     durationLabel:   str
+    # Detalhe do orçamento (opcionais — ausentes em marcações antigas)
+    basePrice:       Optional[float] = None
+    grade:           Optional[int]   = None
+    gradeLabel:      Optional[str]   = ''
+    multiplier:      Optional[float] = None
+    pct:             Optional[int]   = None
+    extrasTotal:     Optional[float] = None
     date:            str
     dateLabel:       str
     time:            str
@@ -411,10 +503,22 @@ async def create_booking(data: BookingCreate, request: Request):
     parts = data.date.split('-')
     date_label = f"{parts[2]}/{parts[1]}/{parts[0]}"
 
+    # Preço final autoritativo: base × grau (nº de problemas) + extras.
+    pricing = compute_price(service, data.problemCount, data.extras)
+
     booking_dict = data.model_dump()
+    # Os rótulos de problemas são texto livre do cliente — limita o tamanho.
+    booking_dict['problems'] = [str(p)[:60] for p in (booking_dict.get('problems') or [])][:30]
     booking_dict['serviceTitle']  = service['title']
-    booking_dict['price']         = service['price']
     booking_dict['durationLabel'] = service['durationLabel']
+    booking_dict['basePrice']     = pricing['basePrice']
+    booking_dict['grade']         = pricing['grade']
+    booking_dict['gradeLabel']    = pricing['gradeLabel']
+    booking_dict['multiplier']    = pricing['multiplier']
+    booking_dict['pct']           = pricing['pct']
+    booking_dict['extrasTotal']   = pricing['extrasTotal']
+    booking_dict['extrasLabels']  = pricing['extrasLabels']
+    booking_dict['price']         = pricing['price']
     booking_dict['id']        = f"BK-{str(uuid.uuid4())[:8].upper()}"
     booking_dict['dateLabel'] = date_label
     booking_dict['status']    = 'confirmed'

@@ -9,10 +9,14 @@ import {
   ArrowLeft,
   Loader2,
 } from "lucide-react";
-import { SERVICES, TIME_SLOTS } from "../mock";
+import { SERVICES, TIME_SLOTS, computeQuote, eur, PROBLEM_LABEL } from "../mock";
+import QuoteStep from "./QuoteStep";
 import Logo from "./Logo";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
+
+const STEP_LABELS = ["Serviço", "Orçamento", "Data & Hora", "Dados", "Confirmação"];
+const TOTAL_STEPS = STEP_LABELS.length;
 
 const PT_MONTHS = [
   "Janeiro",
@@ -72,6 +76,11 @@ export default function Booking({ open, onClose, initialServiceId }) {
   });
   const [confirmation, setConfirmation] = useState(null);
 
+  // Orçamento (calculadora)
+  const [problems, setProblems] = useState([]);
+  const [extras, setExtras] = useState([]);
+  const [otherNote, setOtherNote] = useState("");
+
   // Estado API
   const [busySlots, setBusySlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -82,6 +91,16 @@ export default function Booking({ open, onClose, initialServiceId }) {
     () => SERVICES.find((s) => s.id === serviceId) || null,
     [serviceId],
   );
+
+  const quote = useMemo(
+    () => (service ? computeQuote(service, problems, extras) : null),
+    [service, problems, extras],
+  );
+
+  const toggleProblem = (id) =>
+    setProblems((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  const toggleExtra = (id) =>
+    setExtras((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
 
   useEffect(() => {
     if (open) {
@@ -94,6 +113,9 @@ export default function Booking({ open, onClose, initialServiceId }) {
       }
       setSelectedDate(null);
       setSelectedTime(null);
+      setProblems([]);
+      setExtras([]);
+      setOtherNote("");
       setConfirmation(null);
       setSubmitError("");
       document.body.style.overflow = "hidden";
@@ -139,8 +161,9 @@ export default function Booking({ open, onClose, initialServiceId }) {
 
   const canNext = () => {
     if (step === 1) return !!serviceId;
-    if (step === 2) return !!selectedDate && !!selectedTime;
-    if (step === 3)
+    if (step === 2) return true; // orçamento — problemas são opcionais
+    if (step === 3) return !!selectedDate && !!selectedTime;
+    if (step === 4)
       return info.name.trim() && info.phone.trim() && info.email.trim();
     return true;
   };
@@ -149,11 +172,16 @@ export default function Booking({ open, onClose, initialServiceId }) {
     setSubmitting(true);
     setSubmitError("");
     try {
-      // Preço, título e duração são determinados pelo servidor a partir do serviceId.
+      // Preço, título e duração são determinados pelo servidor a partir do
+      // serviceId + grau (nº de problemas) + extras selecionados.
       const payload = {
         serviceId: service.id,
         date: isoDate(selectedDate),
         time: selectedTime,
+        problemCount: problems.length,
+        problems: problems.map((id) => PROBLEM_LABEL[id]).filter(Boolean),
+        extras,
+        otherNote: extras.includes("outro") ? otherNote : "",
         ...info,
       };
       const r = await fetch(`${BACKEND_URL}/api/bookings`, {
@@ -165,13 +193,13 @@ export default function Booking({ open, onClose, initialServiceId }) {
         setSubmitError(
           "Este horário já foi reservado. Por favor escolhe outro.",
         );
-        setStep(2);
+        setStep(3);
         return;
       }
       if (!r.ok) throw new Error("Erro do servidor");
       const booking = await r.json();
       setConfirmation(booking);
-      setStep(4);
+      setStep(5);
     } catch {
       setSubmitError("Não foi possível confirmar a marcação. Tenta novamente.");
     } finally {
@@ -188,7 +216,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <div className="text-[10px] text-white/40 tracking-[0.25em]">
-                PASSO {step} DE 4
+                PASSO {step} DE {TOTAL_STEPS}
               </div>
             </div>
             <button
@@ -202,21 +230,19 @@ export default function Booking({ open, onClose, initialServiceId }) {
 
         {/* Stepper */}
         <div className="px-6 pt-5">
-          <div className="grid grid-cols-4 gap-2">
-            {["Serviço", "Data & Hora", "Dados", "Confirmação"].map(
-              (label, i) => (
-                <div key={label} className="flex flex-col gap-2">
-                  <div
-                    className={`h-[3px] ${i + 1 <= step ? "bg-gradient-to-r from-blue-700 to-blue-400" : "bg-white/15"}`}
-                  />
-                  <div
-                    className={`text-[10px] tracking-[0.25em] ${i + 1 === step ? "text-white" : "text-white/40"}`}
-                  >
-                    {label.toUpperCase()}
-                  </div>
+          <div className="grid grid-cols-5 gap-2">
+            {STEP_LABELS.map((label, i) => (
+              <div key={label} className="flex flex-col gap-2">
+                <div
+                  className={`h-[3px] ${i + 1 <= step ? "bg-gradient-to-r from-blue-700 to-blue-400" : "bg-white/15"}`}
+                />
+                <div
+                  className={`text-[9px] sm:text-[10px] tracking-[0.18em] ${i + 1 === step ? "text-white" : "text-white/40"}`}
+                >
+                  {label.toUpperCase()}
                 </div>
-              ),
-            )}
+              </div>
+            ))}
           </div>
         </div>
 
@@ -272,8 +298,22 @@ export default function Booking({ open, onClose, initialServiceId }) {
             </div>
           )}
 
-          {/* STEP 2 — Data & Hora */}
-          {step === 2 && (
+          {/* STEP 2 — Orçamento (calculadora) */}
+          {step === 2 && service && (
+            <QuoteStep
+              service={service}
+              problems={problems}
+              onToggleProblem={toggleProblem}
+              extras={extras}
+              onToggleExtra={toggleExtra}
+              otherNote={otherNote}
+              setOtherNote={setOtherNote}
+              quote={quote}
+            />
+          )}
+
+          {/* STEP 3 — Data & Hora */}
+          {step === 3 && (
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-6">
               <div className="border border-white/10 p-5">
                 <div className="flex items-center justify-between mb-4">
@@ -393,16 +433,22 @@ export default function Booking({ open, onClose, initialServiceId }) {
                     <span>{service?.durationLabel}</span>
                   </div>
                   <div className="text-sm flex justify-between mt-1">
-                    <span className="text-white/60">Preço desde</span>
-                    <span className="font-bold">{service?.price}€</span>
+                    <span className="text-white/60">
+                      Grau {quote?.grade} · {quote?.gradeLabel}
+                    </span>
+                    <span>+{quote?.pct}%</span>
+                  </div>
+                  <div className="text-sm flex justify-between mt-2 pt-2 border-t border-white/10">
+                    <span className="text-white/60">Total estimado</span>
+                    <span className="font-bold">{quote && eur(quote.total)}</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* STEP 3 — Dados */}
-          {step === 3 && (
+          {/* STEP 4 — Dados */}
+          {step === 4 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 ["name", "Nome completo *", "text", "O teu nome"],
@@ -462,16 +508,16 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 </div>
                 <div>
                   <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                    PREÇO DESDE
+                    TOTAL ESTIMADO
                   </div>
-                  <div className="mt-1 font-bold">{service?.price}€</div>
+                  <div className="mt-1 font-bold">{quote && eur(quote.total)}</div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* STEP 4 — Confirmação */}
-          {step === 4 && confirmation && (
+          {/* STEP 5 — Confirmação */}
+          {step === 5 && confirmation && (
             <div className="text-center max-w-lg mx-auto py-6">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-800 text-white flex items-center justify-center mx-auto shadow-[0_0_32px_rgba(59,130,246,0.45)]">
                 <Check className="w-8 h-8" />
@@ -522,9 +568,38 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   </div>
                   <div>
                     <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                      PREÇO DESDE
+                      GRAU
                     </div>
-                    <div className="mt-1 font-bold">{confirmation.price}€</div>
+                    <div className="mt-1">
+                      {confirmation.gradeLabel
+                        ? `${confirmation.gradeLabel} (+${confirmation.pct || 0}%)`
+                        : "-"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detalhe do orçamento */}
+                <div className="mt-5 pt-4 border-t border-white/10 space-y-1.5 text-sm">
+                  {confirmation.basePrice != null && (
+                    <div className="flex justify-between text-white/70">
+                      <span>Preço base</span>
+                      <span>{eur(confirmation.basePrice)}</span>
+                    </div>
+                  )}
+                  {confirmation.extrasTotal != null &&
+                    confirmation.extrasTotal > 0 && (
+                      <div className="flex justify-between text-white/70">
+                        <span>Extras</span>
+                        <span>{eur(confirmation.extrasTotal)}</span>
+                      </div>
+                    )}
+                  <div className="flex justify-between items-center pt-2 mt-1 border-t border-white/10">
+                    <span className="text-white/80 font-semibold">
+                      Total estimado
+                    </span>
+                    <span className="font-display text-2xl font-black">
+                      {eur(confirmation.price)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -539,7 +614,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
         </div>
 
         {/* Footer navegação */}
-        {step < 4 && (
+        {step < TOTAL_STEPS && (
           <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between gap-3 sticky bottom-0 bg-zinc-900">
             <button
               onClick={() => setStep((s) => Math.max(1, s - 1))}
@@ -548,7 +623,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
             >
               <ArrowLeft className="w-3.5 h-3.5" /> VOLTAR
             </button>
-            {step < 3 && (
+            {step < 4 && (
               <button
                 onClick={() => canNext() && setStep((s) => s + 1)}
                 disabled={!canNext()}
@@ -557,7 +632,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 CONTINUAR <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )}
-            {step === 3 && (
+            {step === 4 && (
               <button
                 onClick={() => canNext() && submit()}
                 disabled={!canNext() || submitting}
