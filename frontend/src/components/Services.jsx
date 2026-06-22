@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { SERVICES } from '../mock';
+import { useLang } from '../i18n';
 import ServiceDetail from './ServiceDetail';
 
 export default function Services({ onBook }) {
+  const { t, tx } = useLang();
   const [detailService, setDetailService] = useState(null);
 
   return (
@@ -11,11 +13,11 @@ export default function Services({ onBook }) {
       <div className="max-w-7xl mx-auto px-6 relative">
         <div className="text-center mb-16">
           <h2 className="font-display text-white text-4xl md:text-5xl font-black tracking-wide">
-            OS NOSSOS SERVIÇOS
+            {t('services.title')}
           </h2>
           <span className="accent-bar mx-auto mt-5" />
           <p className="text-white/55 mt-4 max-w-xl mx-auto text-sm">
-            Soluções completas para cuidar do teu carro ao mais alto nível.
+            {t('services.subtitle')}
           </p>
         </div>
 
@@ -32,7 +34,7 @@ export default function Services({ onBook }) {
                 <div className="relative h-56 overflow-hidden">
                   <img
                     src={s.image}
-                    alt={s.title}
+                    alt={tx(s, 'title')}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
                     loading="lazy"
                   />
@@ -45,15 +47,15 @@ export default function Services({ onBook }) {
 
                 <div className="px-6 pt-3 pb-6 text-center flex-1 flex flex-col">
                   <h3 className="font-display text-white text-lg font-bold tracking-wider">
-                    {s.title}
+                    {tx(s, 'title')}
                   </h3>
                   <p className="text-white/55 text-sm mt-3 leading-relaxed min-h-[60px]">
-                    {s.desc}
+                    {tx(s, 'desc')}
                   </p>
 
                   <div className="mt-auto pt-5 border-t border-white/10 flex items-center justify-between">
                     <div className="text-left">
-                      <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">DESDE</span>
+                      <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('services.from')}</span>
                       <div className="text-white font-display text-2xl font-bold">{s.price}€</div>
                     </div>
                     <button
@@ -63,7 +65,7 @@ export default function Services({ onBook }) {
                       }}
                       className="group/btn inline-flex items-center gap-1.5 text-white/70 hover:text-blue-400 text-[11px] tracking-[0.22em] font-semibold transition-colors"
                     >
-                      MARCAR
+                      {t('services.book')}
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
                     </button>
                   </div>
@@ -78,7 +80,7 @@ export default function Services({ onBook }) {
             onClick={() => onBook()}
             className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-3 text-[11px] tracking-[0.25em] font-bold hover:border-blue-600 hover:text-blue-400 transition"
           >
-            FAZER MARCAÇÃO
+            {t('services.cta')}
           </button>
         </div>
       </div>

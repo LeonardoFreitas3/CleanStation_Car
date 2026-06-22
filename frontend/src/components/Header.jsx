@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X, CalendarCheck } from 'lucide-react';
+import { Menu, X, CalendarCheck, Globe } from 'lucide-react';
 import Logo from './Logo';
+import { useLang } from '../i18n';
 
 const LINKS = [
-  { href: '#home', label: 'INÍCIO' },
-  { href: '#services', label: 'SERVIÇOS' },
-  { href: '#before-after', label: 'ANTES & DEPOIS' },
-  { href: '#about', label: 'SOBRE NÓS' },
-  { href: '#testimonials', label: 'TESTEMUNHOS' },
-  { href: '#contact', label: 'CONTACTOS' },
+  { href: '#home', key: 'nav.home' },
+  { href: '#services', key: 'nav.services' },
+  { href: '#before-after', key: 'nav.beforeAfter' },
+  { href: '#about', key: 'nav.about' },
+  { href: '#testimonials', key: 'nav.testimonials' },
+  { href: '#contact', key: 'nav.contact' },
 ];
 
 export default function Header({ onBook }) {
+  const { t, lang, setLang } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState('#home');
+  const toggleLang = () => setLang(lang === 'pt' ? 'en' : 'pt');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -61,7 +64,7 @@ export default function Header({ onBook }) {
                 active === l.href ? 'text-white' : 'text-white/65 hover:text-blue-400'
               }`}
             >
-              {l.label}
+              {t(l.key)}
               <span
                 className={`absolute left-0 right-0 -bottom-0.5 h-[2px] bg-blue-600 transition-all ${
                   active === l.href ? 'opacity-100' : 'opacity-0'
@@ -71,21 +74,42 @@ export default function Header({ onBook }) {
           ))}
         </nav>
 
-        <button
-          onClick={onBook}
-          className="btn-silver hidden lg:inline-flex items-center gap-2 px-6 py-2.5 text-[11px] tracking-[0.22em] font-bold"
-        >
-          <CalendarCheck className="w-4 h-4" />
-          MARCAR AGORA
-        </button>
+        <div className="hidden lg:flex items-center gap-3">
+          <button
+            onClick={toggleLang}
+            aria-label={t('lang.aria')}
+            title={t('lang.switchTo')}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-[11px] tracking-[0.2em] font-bold text-white/70 border border-white/20 hover:border-blue-500 hover:text-blue-400 transition"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            {lang === 'pt' ? 'EN' : 'PT'}
+          </button>
+          <button
+            onClick={onBook}
+            className="btn-silver inline-flex items-center gap-2 px-6 py-2.5 text-[11px] tracking-[0.22em] font-bold"
+          >
+            <CalendarCheck className="w-4 h-4" />
+            {t('nav.book')}
+          </button>
+        </div>
 
-        <button
-          className="lg:hidden text-white p-2"
-          onClick={() => setOpen(v => !v)}
-          aria-label="Menu"
-        >
-          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            onClick={toggleLang}
+            aria-label={t('lang.aria')}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] tracking-[0.2em] font-bold text-white/80 border border-white/20"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            {lang === 'pt' ? 'EN' : 'PT'}
+          </button>
+          <button
+            className="text-white p-2"
+            onClick={() => setOpen(v => !v)}
+            aria-label="Menu"
+          >
+            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile */}
@@ -102,7 +126,7 @@ export default function Header({ onBook }) {
               onClick={() => setOpen(false)}
               className="py-3 text-sm tracking-[0.2em] text-white/80 border-b border-white/5"
             >
-              {l.label}
+              {t(l.key)}
             </a>
           ))}
           <button
@@ -112,7 +136,7 @@ export default function Header({ onBook }) {
             }}
             className="btn-silver mt-3 px-5 py-3 text-xs tracking-[0.22em] font-bold flex items-center justify-center gap-2"
           >
-            <CalendarCheck className="w-4 h-4" /> MARCAR AGORA
+            <CalendarCheck className="w-4 h-4" /> {t('nav.book')}
           </button>
         </div>
       </div>

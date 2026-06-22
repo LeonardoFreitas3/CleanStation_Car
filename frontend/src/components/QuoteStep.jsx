@@ -1,15 +1,11 @@
 import React from "react";
 import { Check, Gauge, Plus } from "lucide-react";
-import {
-  INTERIOR_PROBLEMS,
-  EXTERIOR_PROBLEMS,
-  EXTRAS,
-  eur,
-} from "../mock";
+import { INTERIOR_PROBLEMS, EXTERIOR_PROBLEMS, EXTRAS } from "../mock";
+import { eur } from "../i18n";
 
 // Silhueta de veículo (vista lateral). A carroçaria (exterior) e o
 // habitáculo (interior) iluminam-se consoante os problemas assinalados.
-function CarVisual({ interiorCount, exteriorCount }) {
+function CarVisual({ interiorCount, exteriorCount, ariaLabel }) {
   const extActive = exteriorCount > 0;
   const intActive = interiorCount > 0;
   return (
@@ -17,7 +13,7 @@ function CarVisual({ interiorCount, exteriorCount }) {
       viewBox="0 0 400 170"
       className="w-full h-auto"
       role="img"
-      aria-label="Representação do veículo"
+      aria-label={ariaLabel}
     >
       <defs>
         <linearGradient id="csc-body" x1="0" y1="0" x2="0" y2="1">
@@ -74,7 +70,7 @@ function CarVisual({ interiorCount, exteriorCount }) {
   );
 }
 
-function ProblemChip({ item, active, onToggle }) {
+function ProblemChip({ item, label, active, onToggle }) {
   const Icon = item.icon;
   return (
     <button
@@ -94,7 +90,7 @@ function ProblemChip({ item, active, onToggle }) {
       >
         <Icon className="w-4 h-4" />
       </span>
-      <span className="text-sm leading-tight">{item.label}</span>
+      <span className="text-sm leading-tight">{label}</span>
       {active && (
         <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-blue-600 text-white flex items-center justify-center">
           <Check className="w-3 h-3" />
@@ -104,13 +100,13 @@ function ProblemChip({ item, active, onToggle }) {
   );
 }
 
-function SectionTitle({ children, count }) {
+function SectionTitle({ children, count, markedLabel }) {
   return (
     <div className="flex items-center justify-between mb-3">
       <div className="text-white/45 text-[10px] tracking-[0.3em]">{children}</div>
       {count > 0 && (
         <span className="text-[10px] tracking-[0.2em] text-blue-300 bg-blue-900/30 border border-blue-700/40 px-2 py-0.5">
-          {count} ASSINALADO{count > 1 ? "S" : ""}
+          {count} {markedLabel}
         </span>
       )}
     </div>
@@ -126,9 +122,13 @@ export default function QuoteStep({
   otherNote,
   setOtherNote,
   quote,
+  t,
+  tx,
+  lang,
 }) {
   const interiorCount = INTERIOR_PROBLEMS.filter((p) => problems.includes(p.id)).length;
   const exteriorCount = EXTERIOR_PROBLEMS.filter((p) => problems.includes(p.id)).length;
+  const marked = (n) => (n > 1 ? t("quote.markedPl") : t("quote.marked"));
   const gradeColor =
     quote.grade === 3
       ? "from-red-600 to-orange-500"
@@ -143,25 +143,27 @@ export default function QuoteStep({
         {/* Visual do veículo */}
         <div className="border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5 mb-6">
           <div className="text-white/45 text-[10px] tracking-[0.3em] mb-1">
-            AVALIAÇÃO VISUAL DA SUJIDADE
+            {t("quote.assessTitle")}
           </div>
           <p className="text-white/55 text-sm mb-4">
-            Assinala os problemas encontrados. O grau e o preço são calculados
-            automaticamente.
+            {t("quote.assessPara")}
           </p>
           <div className="max-w-md mx-auto">
-            <CarVisual interiorCount={interiorCount} exteriorCount={exteriorCount} />
+            <CarVisual interiorCount={interiorCount} exteriorCount={exteriorCount} ariaLabel={t("quote.vehicleAlt")} />
           </div>
         </div>
 
         {/* Interior */}
         <div className="mb-6">
-          <SectionTitle count={interiorCount}>INTERIOR</SectionTitle>
+          <SectionTitle count={interiorCount} markedLabel={marked(interiorCount)}>
+            {t("quote.interior")}
+          </SectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {INTERIOR_PROBLEMS.map((p) => (
               <ProblemChip
                 key={p.id}
                 item={p}
+                label={tx(p, "label")}
                 active={problems.includes(p.id)}
                 onToggle={onToggleProblem}
               />
@@ -171,12 +173,15 @@ export default function QuoteStep({
 
         {/* Exterior */}
         <div className="mb-6">
-          <SectionTitle count={exteriorCount}>EXTERIOR</SectionTitle>
+          <SectionTitle count={exteriorCount} markedLabel={marked(exteriorCount)}>
+            {t("quote.exterior")}
+          </SectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {EXTERIOR_PROBLEMS.map((p) => (
               <ProblemChip
                 key={p.id}
                 item={p}
+                label={tx(p, "label")}
                 active={problems.includes(p.id)}
                 onToggle={onToggleProblem}
               />
@@ -186,7 +191,9 @@ export default function QuoteStep({
 
         {/* Extras */}
         <div>
-          <SectionTitle count={extras.length}>EXTRAS OPCIONAIS</SectionTitle>
+          <SectionTitle count={extras.length} markedLabel={marked(extras.length)}>
+            {t("quote.extras")}
+          </SectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {EXTRAS.map((e) => {
               const Icon = e.icon;
@@ -211,9 +218,9 @@ export default function QuoteStep({
                     <Icon className="w-4 h-4" />
                   </span>
                   <span className="flex-1">
-                    <span className="block text-sm leading-tight text-white">{e.label}</span>
+                    <span className="block text-sm leading-tight text-white">{tx(e, "label")}</span>
                     <span className="text-[11px] text-white/50">
-                      {e.price > 0 ? `+ ${eur(e.price)}` : "Sob consulta"}
+                      {e.price > 0 ? `+ ${eur(e.price, lang)}` : t("quote.onRequest")}
                     </span>
                   </span>
                   {active && (
@@ -232,7 +239,7 @@ export default function QuoteStep({
               onChange={(e) => setOtherNote(e.target.value)}
               rows={2}
               maxLength={200}
-              placeholder="Descreve o extra pretendido (será avaliado e orçamentado)"
+              placeholder={t("quote.otherPh")}
               className="mt-2.5 w-full bg-white/[0.06] border border-white/20 px-4 py-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-blue-500/70 resize-none"
             />
           )}
@@ -245,7 +252,7 @@ export default function QuoteStep({
           <div className="px-5 py-4 border-b border-white/10 flex items-center gap-2">
             <Gauge className="w-4 h-4 text-blue-400" />
             <span className="text-[10px] tracking-[0.3em] text-white/60">
-              RESUMO DO ORÇAMENTO
+              {t("quote.summary")}
             </span>
           </div>
 
@@ -256,10 +263,10 @@ export default function QuoteStep({
             >
               <div>
                 <div className="text-[10px] tracking-[0.25em] opacity-80">
-                  GRAU {quote.grade}
+                  {t("quote.grade")} {quote.grade}
                 </div>
                 <div className="font-display font-bold tracking-wide text-sm">
-                  {quote.gradeLabel.toUpperCase()}
+                  {(lang === "en" ? quote.gradeLabelEn : quote.gradeLabel).toUpperCase()}
                 </div>
               </div>
               <div className="text-right">
@@ -273,27 +280,27 @@ export default function QuoteStep({
 
           {/* Linhas */}
           <div className="px-5 py-4 space-y-2.5 text-sm">
-            <Row label="Serviço" value={service?.title} tight />
-            <Row label="Preço base" value={eur(quote.base)} />
-            <Row label="Problemas assinalados" value={String(quote.count)} />
-            <Row label="Percentagem aplicada" value={`+${quote.pct}%`} />
+            <Row label={t("quote.service")} value={tx(service, "title")} tight />
+            <Row label={t("quote.base")} value={eur(quote.base, lang)} />
+            <Row label={t("quote.problems")} value={String(quote.count)} />
+            <Row label={t("quote.pctApplied")} value={`+${quote.pct}%`} />
             <div className="border-t border-white/10 pt-2.5">
-              <Row label="Subtotal" value={eur(quote.subtotal)} />
+              <Row label={t("quote.subtotal")} value={eur(quote.subtotal, lang)} />
             </div>
 
             {quote.chosenExtras.length > 0 && (
               <div className="border-t border-white/10 pt-2.5 space-y-1.5">
-                <div className="text-white/40 text-[10px] tracking-[0.25em]">EXTRAS</div>
+                <div className="text-white/40 text-[10px] tracking-[0.25em]">{t("quote.extrasUp")}</div>
                 {quote.chosenExtras.map((e) => (
                   <div key={e.id} className="flex justify-between text-white/70 text-[13px]">
                     <span className="inline-flex items-center gap-1.5">
                       <Plus className="w-3 h-3 text-blue-400" />
-                      {e.label}
+                      {tx(e, "label")}
                     </span>
-                    <span>{e.price > 0 ? eur(e.price) : "—"}</span>
+                    <span>{e.price > 0 ? eur(e.price, lang) : "—"}</span>
                   </div>
                 ))}
-                <Row label="Total extras" value={eur(quote.extrasTotal)} />
+                <Row label={t("quote.totalExtras")} value={eur(quote.extrasTotal, lang)} />
               </div>
             )}
           </div>
@@ -302,15 +309,14 @@ export default function QuoteStep({
           <div className="px-5 py-4 border-t border-white/10 bg-blue-950/30">
             <div className="flex items-end justify-between">
               <span className="text-[10px] tracking-[0.3em] text-white/55">
-                TOTAL ESTIMADO
+                {t("quote.estTotal")}
               </span>
               <span className="font-display text-3xl font-black text-white">
-                {eur(quote.total)}
+                {eur(quote.total, lang)}
               </span>
             </div>
             <p className="text-white/40 text-[11px] mt-2 leading-relaxed">
-              Valor estimado com base na avaliação assinalada. Confirmado na
-              inspeção do veículo.
+              {t("quote.disclaimer")}
             </p>
           </div>
         </div>

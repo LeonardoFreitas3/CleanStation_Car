@@ -1,7 +1,62 @@
 import React from 'react';
 import LegalModal from './LegalModal';
+import { useLang } from '../i18n';
 
 export default function TermsConditions({ open, onClose }) {
+  const { lang } = useLang();
+
+  if (lang === 'en') {
+    return (
+      <LegalModal open={open} onClose={onClose} title="Terms & Conditions">
+        <p><strong>Last updated:</strong> June 2025</p>
+
+        <h2>1. Identification</h2>
+        <p>
+          <strong>Clean Station Car</strong> — provider of car washing and detailing services<br />
+          R. Conselheiro Lobato 533, 4705-089 Braga, Portugal<br />
+          Email: <a href="mailto:cleanstationcar@gmail.com" className="text-blue-400">cleanstationcar@gmail.com</a>
+        </p>
+
+        <h2>2. Services Provided</h2>
+        <p>Clean Station Car provides detailed washing, interior sanitisation, polishing and ceramic protection of motor vehicles, at the indicated premises or by previously agreed call-out.</p>
+
+        <h2>3. Bookings</h2>
+        <ul>
+          <li>Bookings can be made online, by phone or in person.</li>
+          <li>Booking confirmation is sent by email to the address provided.</li>
+          <li>Customers must arrive on time. Delays of more than 20 minutes may require rescheduling.</li>
+          <li>Cancellations must be communicated at least <strong>24 hours in advance</strong>.</li>
+        </ul>
+
+        <h2>4. Prices</h2>
+        <ul>
+          <li>The prices shown are indicative and may vary according to the condition, size and type of vehicle.</li>
+          <li>The final price is confirmed after assessment of the vehicle.</li>
+          <li>Prices include VAT at the legal rate in force.</li>
+        </ul>
+
+        <h2>5. Payment</h2>
+        <p>Payment is made on handover of the vehicle, by cash, bank transfer or other agreed means. No advance payment is required for online bookings.</p>
+
+        <h2>6. Liability</h2>
+        <ul>
+          <li>Clean Station Car is not liable for pre-existing damage not reported at the time of vehicle handover.</li>
+          <li>Customers are advised to record and report any visible damage at handover.</li>
+          <li>Personal items left inside the vehicle are the customer's sole responsibility.</li>
+        </ul>
+
+        <h2>7. Warranty and Complaints</h2>
+        <p>If you are not satisfied with the service provided, contact us within <strong>48 hours</strong> of collecting the vehicle. We will review the situation and, where applicable, correct it at no additional cost.</p>
+
+        <h2>8. Opening Hours</h2>
+        <p>Monday to Saturday, 08:00 to 19:00. Closed on Sundays and national holidays.</p>
+
+        <h2>9. Governing Law</h2>
+        <p>These terms are governed by Portuguese law. In the event of a dispute, the court of the district of Braga has jurisdiction, without prejudice to alternative dispute resolution.</p>
+      </LegalModal>
+    );
+  }
+
   return (
     <LegalModal open={open} onClose={onClose} title="Termos & Condições">
       <p><strong>Última atualização:</strong> Junho de 2025</p>

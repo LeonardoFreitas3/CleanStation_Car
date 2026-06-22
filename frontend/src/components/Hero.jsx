@@ -1,10 +1,12 @@
 import React from "react";
 import { CalendarCheck } from "lucide-react";
-import { FEATURES, SITE } from "../mock";
+import { FEATURES } from "../mock";
+import { useLang } from "../i18n";
 
 const HERO_CAR = "/img/banner.png";
 
 export default function Hero({ onBook }) {
+  const { t, tx } = useLang();
   return (
     <section id="home" className="relative bg-black overflow-hidden">
       <div className="relative min-h-[100vh] flex flex-col">
@@ -82,12 +84,12 @@ export default function Hero({ onBook }) {
                 style={{ animationDelay: "0.28s" }}
               >
                 <p className="text-blue-400 text-xs sm:text-sm tracking-[0.42em] font-semibold">
-                  LAVAGEM DETALHADA PREMIUM
+                  {t('hero.badge1')}
                 </p>
                 <p className="text-blue-400 text-xs sm:text-sm tracking-[0.42em] font-semibold mt-1">
-                  EM BRAGA
+                  {t('hero.badge2')}
                 </p>
-                <p className="text-white/70 text-base mt-5">{SITE.subtitle}</p>
+                <p className="text-white/70 text-base mt-5">{t('hero.subtitle')}</p>
               </div>
 
               <div
@@ -99,13 +101,13 @@ export default function Hero({ onBook }) {
                   className="btn-silver inline-flex items-center justify-center gap-2 px-8 py-4 text-xs tracking-[0.25em] font-bold"
                 >
                   <CalendarCheck className="w-4 h-4" />
-                  MARCAR AGORA
+                  {t('hero.book')}
                 </button>
                 <a
                   href="#services"
                   className="inline-flex items-center justify-center gap-2 border border-white/55 text-white px-8 py-4 text-xs tracking-[0.25em] font-bold hover:bg-blue-900/30 hover:border-blue-500 hover:text-blue-300 transition"
                 >
-                  VER SERVIÇOS
+                  {t('hero.services')}
                 </a>
               </div>
             </div>
@@ -134,7 +136,7 @@ export default function Hero({ onBook }) {
                     strokeWidth={1.4}
                   />
                   <span className="text-white/85 text-[10px] sm:text-[11px] tracking-[0.22em] font-semibold">
-                    {f.label.toUpperCase()}
+                    {tx(f, 'label').toUpperCase()}
                   </span>
                 </div>
               );

@@ -1,7 +1,83 @@
 import React from 'react';
 import LegalModal from './LegalModal';
+import { useLang } from '../i18n';
 
 export default function CookiePolicy({ open, onClose }) {
+  const { lang } = useLang();
+
+  if (lang === 'en') {
+    return (
+      <LegalModal open={open} onClose={onClose} title="Cookie Policy">
+        <p><strong>Last updated:</strong> June 2025</p>
+
+        <h2>1. What are Cookies?</h2>
+        <p>Cookies are small text files stored on your device when you visit a website. They allow the site to recognise your device and store information about your preferences.</p>
+
+        <h2>2. Cookies We Use</h2>
+
+        <h3>Strictly Necessary Cookies</h3>
+        <p>Essential for the website to work. They do not require consent.</p>
+        <table className="w-full text-sm border-collapse mt-2 mb-4">
+          <thead>
+            <tr className="border-b border-white/20">
+              <th className="text-left py-2 pr-4 text-white/60 font-semibold">Cookie</th>
+              <th className="text-left py-2 pr-4 text-white/60 font-semibold">Purpose</th>
+              <th className="text-left py-2 text-white/60 font-semibold">Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b border-white/10">
+              <td className="py-2 pr-4 text-white/70">csc_cookie_consent</td>
+              <td className="py-2 pr-4 text-white/70">Stores your cookie consent choice</td>
+              <td className="py-2 text-white/70">1 year</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Performance Cookies (Analytics)</h3>
+        <p>They let us understand how visitors use the website. Only enabled with your consent.</p>
+        <table className="w-full text-sm border-collapse mt-2 mb-4">
+          <thead>
+            <tr className="border-b border-white/20">
+              <th className="text-left py-2 pr-4 text-white/60 font-semibold">Cookie</th>
+              <th className="text-left py-2 pr-4 text-white/60 font-semibold">Purpose</th>
+              <th className="text-left py-2 text-white/60 font-semibold">Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b border-white/10">
+              <td className="py-2 pr-4 text-white/70">_ga</td>
+              <td className="py-2 pr-4 text-white/70">Google Analytics — distinguishes users</td>
+              <td className="py-2 text-white/70">2 years</td>
+            </tr>
+            <tr className="border-b border-white/10">
+              <td className="py-2 pr-4 text-white/70">_ga_*</td>
+              <td className="py-2 pr-4 text-white/70">Google Analytics — keeps session state</td>
+              <td className="py-2 text-white/70">2 years</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>3. How to Manage Cookies</h2>
+        <p>You can manage your cookie preferences at any time:</p>
+        <ul>
+          <li><strong>Via the banner</strong> — click "Manage preferences" in the cookie banner that appears on your first visit.</li>
+          <li><strong>Via the browser</strong> — most browsers let you block or delete cookies in their settings. Check your browser's help menu.</li>
+        </ul>
+        <p>Note that disabling certain cookies may affect the functionality of the website.</p>
+
+        <h2>4. Third-Party Cookies</h2>
+        <p>The website embeds a Google Maps map. Google may set its own cookies when you interact with the map. See the <a href="https://policies.google.com/privacy" className="text-blue-400" target="_blank" rel="noreferrer">Google Privacy Policy</a> for more information.</p>
+
+        <h2>5. Changes to this Policy</h2>
+        <p>We may update this policy from time to time. The "last updated" date at the top of this page indicates when it was last revised.</p>
+
+        <h2>6. Contact</h2>
+        <p>For questions about the use of cookies, contact us: <a href="mailto:cleanstationcar@gmail.com" className="text-blue-400">cleanstationcar@gmail.com</a></p>
+      </LegalModal>
+    );
+  }
+
   return (
     <LegalModal open={open} onClose={onClose} title="Política de Cookies">
       <p><strong>Última atualização:</strong> Junho de 2025</p>

@@ -295,9 +295,9 @@ export const EXTRA_BY_ID = Object.fromEntries(EXTRAS.map((e) => [e.id, e]));
 
 // Graus de sujidade determinados automaticamente pelo nº de problemas.
 export const GRADES = [
-  { grade: 1, label: 'Sujidade Normal',  min: 0, max: 1,        multiplier: 1.0,  pct: 0  },
-  { grade: 2, label: 'Sujidade Elevada', min: 2, max: 3,        multiplier: 1.3,  pct: 30 },
-  { grade: 3, label: 'Sujidade Extrema', min: 4, max: Infinity, multiplier: 1.75, pct: 75 },
+  { grade: 1, label: 'Sujidade Normal',  labelEn: 'Normal Dirt',  min: 0, max: 1,        multiplier: 1.0,  pct: 0  },
+  { grade: 2, label: 'Sujidade Elevada', labelEn: 'Heavy Dirt',   min: 2, max: 3,        multiplier: 1.3,  pct: 30 },
+  { grade: 3, label: 'Sujidade Extrema', labelEn: 'Extreme Dirt', min: 4, max: Infinity, multiplier: 1.75, pct: 75 },
 ];
 
 export function gradeForCount(count) {
@@ -326,6 +326,7 @@ export function computeQuote(service, problemIds = [], extraIds = []) {
     count,
     grade: g.grade,
     gradeLabel: g.label,
+    gradeLabelEn: g.labelEn,
     multiplier: g.multiplier,
     pct: g.pct,
     subtotal,
@@ -334,3 +335,196 @@ export function computeQuote(service, problemIds = [], extraIds = []) {
     chosenExtras,
   };
 }
+
+// ─── Traduções dos dados (EN) ────────────────────────────────────────────────
+// Decoramos os arrays existentes com campos `*En`, lidos por tx() no i18n.
+// Mantém os dados PT+EN juntos sem duplicar estrutura (ids, ícones, preços).
+
+const EN_SERVICES = {
+  'lavagem-ceramica': {
+    title: 'WASH WITH CERAMIC PROTECTION',
+    desc: 'Complete wash with ceramic protection applied for shine and protection.',
+    durationLabel: '2 hours',
+    includes: [
+      'Snow foam pre-wash',
+      'Complete exterior wash',
+      'Paint decontamination',
+      'Ceramic protection application',
+      'Wheel and tyre cleaning',
+      'Premium microfibre drying',
+    ],
+  },
+  'lavagem-ceramica-longa': {
+    title: 'WASH W/ LONG-LASTING CERAMIC PROTECTION',
+    desc: 'Wash with long-lasting ceramic protection for maximum durability.',
+    durationLabel: '3 hours',
+    includes: [
+      'Snow foam pre-wash',
+      'Complete exterior wash',
+      'Chemical paint decontamination',
+      'Long-lasting ceramic protection (6+ months)',
+      'Reinforced hydrophobic treatment',
+      'Extra UV protection',
+      'Wheel and tyre cleaning',
+      'Premium microfibre drying',
+    ],
+  },
+  'detalhada-completa': {
+    title: 'FULL INTERIOR/EXTERIOR DETAIL',
+    desc: 'Full detailed wash of the vehicle inside and out.',
+    durationLabel: '1 day',
+    includes: [
+      'Deep exterior wash with snow foam',
+      'Complete paint decontamination',
+      'Vacuuming and cleaning of the entire interior',
+      'Plastic cleaning and dressing',
+      'Leather conditioning (if applicable)',
+      'Interior and exterior glass cleaning',
+      'Wheel and tyre cleaning',
+      'Rubber and seal treatment',
+      'Detailed engine bay cleaning',
+      'Drying and final inspection',
+    ],
+  },
+  'detalhada-interior': {
+    title: 'DETAILED INTERIOR WASH',
+    desc: 'Deep, detailed cleaning of the entire cabin.',
+    durationLabel: '3 hours',
+    includes: [
+      'Complete cabin vacuuming',
+      'Deep cleaning of upholstery and mats',
+      'Plastic cleaning and dressing',
+      'Leather conditioning (if applicable)',
+      'Interior glass cleaning',
+      'Console and dashboard cleaning',
+      'Ozone sanitisation',
+    ],
+  },
+  'detalhada-exterior': {
+    title: 'DETAILED EXTERIOR WASH',
+    desc: 'Meticulous exterior wash with attention to every detail.',
+    durationLabel: '3 hours',
+    includes: [
+      'Snow foam pre-wash',
+      'Two-bucket method wash',
+      'Chemical and mechanical decontamination',
+      'Detailed wheel and tyre cleaning',
+      'Wheel arch cleaning',
+      'Rubber and seal treatment',
+      'Premium microfibre drying',
+    ],
+  },
+  'higienizacao-estofos': {
+    title: 'UPHOLSTERY SANITISATION',
+    desc: 'Deep cleaning and sanitisation of the vehicle upholstery.',
+    durationLabel: '3 hours',
+    includes: [
+      'Deep upholstery vacuuming',
+      'Specialised product application',
+      'Mechanical brushing',
+      'Hot extraction',
+      'Stain and mark removal',
+      'Odour elimination',
+      'Accelerated drying',
+    ],
+  },
+  'descontaminacao-vidros': {
+    title: 'GLASS DECONTAMINATION',
+    desc: 'Removal of contaminants and restoration of glass clarity.',
+    durationLabel: '1 hour',
+    includes: [
+      'Limescale and mineral deposit removal',
+      'Chemical glass decontamination',
+      'Glass polishing',
+      'Water-repellent application',
+      'Wing mirror cleaning',
+    ],
+  },
+  'polimento-farois-dianteiros': {
+    title: 'FRONT HEADLIGHT POLISHING (PAIR)',
+    desc: 'Restoration and polishing of the front headlights for maximum visibility.',
+    durationLabel: '1h30',
+    includes: [
+      'Progressive multi-grit sanding',
+      'Rotary machine polishing',
+      'Full clarity restoration',
+      'UV protection application',
+      'Pair of front headlights included',
+    ],
+  },
+  'polimento-farois-traseiros': {
+    title: 'REAR LIGHT POLISHING (PAIR)',
+    desc: 'Restoration and polishing of the rear lights for a perfect finish.',
+    durationLabel: '1 hour',
+    includes: [
+      'Progressive multi-grit sanding',
+      'Rotary machine polishing',
+      'Full clarity restoration',
+      'UV protection application',
+      'Pair of rear lights included',
+    ],
+  },
+};
+
+const EN_FEATURES = {
+  'Atendimento Premium': 'Premium Service',
+  'Produtos de Qualidade': 'Quality Products',
+  'Resultados Garantidos': 'Guaranteed Results',
+  'Marcação Rápida': 'Fast Booking',
+};
+
+const EN_PROCESS = {
+  '01': { title: 'ASSESSMENT', desc: 'We analyse the vehicle condition to define the best treatment.' },
+  '02': { title: 'DEEP WASH', desc: 'We remove dirt, contaminants and impurities in depth.' },
+  '03': { title: 'DETAIL & PROTECTION', desc: 'We work every detail and apply high-quality protection.' },
+  '04': { title: 'PREMIUM HANDOVER', desc: 'We hand your car back flawless and ready to impress.' },
+};
+
+const EN_TESTIMONIALS = {
+  'Ricardo Pereira': 'Exceptional service! The car looked brand new, it exceeded my expectations.',
+  'João Fernandes': 'Professionalism, attention to detail and incredible results. Highly recommend!',
+  'Miguel Costa': 'Best detailed wash I have ever had. Impeccable setting and very attentive staff.',
+  'Sofia Almeida': 'Easy booking, punctuality and a next-level result. I will definitely be back.',
+};
+
+const EN_BEFORE_AFTER = { EXTERIOR: 'EXTERIOR', INTERIOR: 'INTERIOR', BANCOS: 'SEATS', JANTES: 'WHEELS' };
+
+const EN_PROBLEMS = {
+  lixo: 'Accumulated rubbish',
+  areia: 'Excessive sand or dirt',
+  tapetes: 'Very dirty mats',
+  'manchas-estofos': 'Upholstery stains',
+  'manchas-dificeis': 'Tough stains',
+  pelos: 'Pet hair',
+  odor: 'Unpleasant odour',
+  bagageira: 'Very dirty boot',
+  insetos: 'Embedded insects',
+  jantes: 'Heavily contaminated wheels',
+  resina: 'Resin or tar',
+  vidros: 'Contaminated glass',
+  pintura: 'Heavily contaminated paint',
+  lama: 'Excessive mud',
+  plasticos: 'Degraded exterior plastics',
+};
+
+const EN_EXTRAS = {
+  'pelos-intensivo': 'Intensive pet hair removal',
+  odores: 'Odour treatment',
+  'polimento-localizado': 'Localised polishing',
+  'recup-plasticos': 'Plastic restoration',
+  vomito: 'Vomit cleaning',
+  derrames: 'Spill cleaning',
+  outro: 'Other (on request)',
+};
+
+// Aplica os campos *En aos arrays exportados.
+SERVICES.forEach((s) => {
+  const e = EN_SERVICES[s.id];
+  if (e) { s.titleEn = e.title; s.descEn = e.desc; s.durationLabelEn = e.durationLabel; s.includesEn = e.includes; }
+});
+FEATURES.forEach((f) => { if (EN_FEATURES[f.label]) f.labelEn = EN_FEATURES[f.label]; });
+PROCESS.forEach((p) => { const e = EN_PROCESS[p.n]; if (e) { p.titleEn = e.title; p.descEn = e.desc; } });
+TESTIMONIALS.forEach((t) => { if (EN_TESTIMONIALS[t.name]) t.textEn = EN_TESTIMONIALS[t.name]; });
+BEFORE_AFTER.forEach((b) => { if (EN_BEFORE_AFTER[b.label]) b.labelEn = EN_BEFORE_AFTER[b.label]; });
+[...INTERIOR_PROBLEMS, ...EXTERIOR_PROBLEMS].forEach((p) => { if (EN_PROBLEMS[p.id]) p.labelEn = EN_PROBLEMS[p.id]; });
+EXTRAS.forEach((x) => { if (EN_EXTRAS[x.id]) x.labelEn = EN_EXTRAS[x.id]; });

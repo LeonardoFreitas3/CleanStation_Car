@@ -1,7 +1,69 @@
 import React from 'react';
 import LegalModal from './LegalModal';
+import { useLang } from '../i18n';
 
 export default function PrivacyPolicy({ open, onClose }) {
+  const { lang } = useLang();
+
+  if (lang === 'en') {
+    return (
+      <LegalModal open={open} onClose={onClose} title="Privacy Policy">
+        <p><strong>Last updated:</strong> June 2025</p>
+
+        <h2>1. Data Controller</h2>
+        <p>
+          <strong>Clean Station Car</strong><br />
+          R. Conselheiro Lobato 533, 4705-089 Braga, Portugal<br />
+          Email: <a href="mailto:cleanstationcar@gmail.com" className="text-blue-400">cleanstationcar@gmail.com</a><br />
+          Phone: +351 934 177 308
+        </p>
+
+        <h2>2. Data Collected</h2>
+        <p>We collect the following personal data when you book online:</p>
+        <ul>
+          <li>Full name</li>
+          <li>Phone number</li>
+          <li>Email address</li>
+          <li>Vehicle information</li>
+          <li>Additional notes provided voluntarily</li>
+        </ul>
+
+        <h2>3. Purpose and Legal Basis</h2>
+        <p>Data is processed for:</p>
+        <ul>
+          <li><strong>Booking management</strong> — performance of the service contract (Art. 6(1)(b) GDPR)</li>
+          <li><strong>Booking communications</strong> — sending confirmations and reminders by email/SMS</li>
+          <li><strong>Legal compliance</strong> — invoicing and archiving (Art. 6(1)(c) GDPR)</li>
+        </ul>
+
+        <h2>4. Data Retention</h2>
+        <p>Booking data is kept for <strong>3 years</strong> from the date of service, unless a legal obligation requires a different period.</p>
+
+        <h2>5. Data Sharing</h2>
+        <p>Your data is not sold or shared with third parties for commercial purposes. We may share it with:</p>
+        <ul>
+          <li>Transactional email providers (Brevo), bound by a sub-processing agreement</li>
+          <li>Competent authorities, when required by law</li>
+        </ul>
+
+        <h2>6. Your Rights</h2>
+        <p>Under the GDPR, you have the right to:</p>
+        <ul>
+          <li>Access your personal data</li>
+          <li>Rectify inaccurate data</li>
+          <li>Request erasure of your data</li>
+          <li>Object to processing</li>
+          <li>Data portability</li>
+          <li>Lodge a complaint with the CNPD (<a href="https://www.cnpd.pt" className="text-blue-400" target="_blank" rel="noreferrer">www.cnpd.pt</a>)</li>
+        </ul>
+        <p>To exercise your rights, contact us by email: <a href="mailto:cleanstationcar@gmail.com" className="text-blue-400">cleanstationcar@gmail.com</a></p>
+
+        <h2>7. Security</h2>
+        <p>We adopt appropriate technical and organisational measures to protect your data against unauthorised access, loss or destruction.</p>
+      </LegalModal>
+    );
+  }
+
   return (
     <LegalModal open={open} onClose={onClose} title="Política de Privacidade">
       <p><strong>Última atualização:</strong> Junho de 2025</p>

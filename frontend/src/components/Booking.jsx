@@ -9,30 +9,14 @@ import {
   ArrowLeft,
   Loader2,
 } from "lucide-react";
-import { SERVICES, TIME_SLOTS, computeQuote, eur, PROBLEM_LABEL } from "../mock";
+import { SERVICES, TIME_SLOTS, computeQuote, PROBLEM_LABEL } from "../mock";
+import { useLang, eur } from "../i18n";
 import QuoteStep from "./QuoteStep";
 import Logo from "./Logo";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
 
-const STEP_LABELS = ["Serviço", "Orçamento", "Data & Hora", "Dados", "Confirmação"];
-const TOTAL_STEPS = STEP_LABELS.length;
-
-const PT_MONTHS = [
-  "Janeiro",
-  "Fevereiro",
-  "Março",
-  "Abril",
-  "Maio",
-  "Junho",
-  "Julho",
-  "Agosto",
-  "Setembro",
-  "Outubro",
-  "Novembro",
-  "Dezembro",
-];
-const PT_DAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+const TOTAL_STEPS = 5;
 
 function startOfMonth(y, m) {
   return new Date(y, m, 1);
@@ -55,6 +39,10 @@ function isoDate(d) {
 }
 
 export default function Booking({ open, onClose, initialServiceId }) {
+  const { t, lang, tx } = useLang();
+  const PT_MONTHS = t("booking.months");
+  const PT_DAYS = t("booking.days");
+  const STEP_LABELS = t("booking.steps");
   const [step, setStep] = useState(1);
   const [serviceId, setServiceId] = useState(initialServiceId || null);
   const today = useMemo(() => {
@@ -190,9 +178,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
         body: JSON.stringify(payload),
       });
       if (r.status === 409) {
-        setSubmitError(
-          "Este horário já foi reservado. Por favor escolhe outro.",
-        );
+        setSubmitError(t("booking.errSlotTaken"));
         setStep(3);
         return;
       }
@@ -201,7 +187,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
       setConfirmation(booking);
       setStep(5);
     } catch {
-      setSubmitError("Não foi possível confirmar a marcação. Tenta novamente.");
+      setSubmitError(t("booking.errGeneric"));
     } finally {
       setSubmitting(false);
     }
@@ -216,7 +202,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <div className="text-[10px] text-white/40 tracking-[0.25em]">
-                PASSO {step} DE {TOTAL_STEPS}
+                {t("booking.stepOf", { a: step, b: TOTAL_STEPS })}
               </div>
             </div>
             <button
@@ -278,16 +264,16 @@ export default function Booking({ open, onClose, initialServiceId }) {
                       )}
                     </div>
                     <div className="mt-4 font-display font-bold tracking-wide">
-                      {s.title}
+                      {tx(s, "title")}
                     </div>
-                    <div className="text-white/55 text-sm mt-1">{s.desc}</div>
+                    <div className="text-white/55 text-sm mt-1">{tx(s, "desc")}</div>
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
                       <span className="text-white/60 text-xs inline-flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" /> {s.durationLabel}
+                        <Clock className="w-3.5 h-3.5" /> {tx(s, "durationLabel")}
                       </span>
                       <span className="text-white font-display text-xl font-bold">
                         <span className="text-white/50 text-xs font-normal tracking-wider">
-                          desde{" "}
+                          {t("booking.from")}{" "}
                         </span>
                         {s.price}€
                       </span>
@@ -309,6 +295,9 @@ export default function Booking({ open, onClose, initialServiceId }) {
               otherNote={otherNote}
               setOtherNote={setOtherNote}
               quote={quote}
+              t={t}
+              tx={tx}
+              lang={lang}
             />
           )}
 
@@ -371,50 +360,48 @@ export default function Booking({ open, onClose, initialServiceId }) {
                   })}
                 </div>
                 <p className="text-white/40 text-[11px] mt-4">
-                  Domingos encerrado. Horários já ocupados não aparecem.
+                  {t("booking.calNote")}
                 </p>
               </div>
 
               <div className="border border-white/10 p-5">
                 <div className="text-white/40 text-[10px] tracking-[0.3em] mb-1">
-                  HORÁRIO DISPONÍVEL
+                  {t("booking.availableTime")}
                 </div>
                 <div className="font-display tracking-wider">
-                  {selectedDate ? fmtDate(selectedDate) : "Seleciona uma data"}
+                  {selectedDate ? fmtDate(selectedDate) : t("booking.selectDate")}
                 </div>
                 <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 gap-2">
                   {loadingSlots && (
                     <div className="col-span-full flex items-center gap-2 text-white/50 text-sm py-4">
-                      <Loader2 className="w-4 h-4 animate-spin" /> A verificar
-                      disponibilidade...
+                      <Loader2 className="w-4 h-4 animate-spin" /> {t("booking.checking")}
                     </div>
                   )}
                   {!loadingSlots &&
                     selectedDate &&
-                    availableSlots.every((t) => busySlots.includes(t)) && (
+                    availableSlots.every((slot) => busySlots.includes(slot)) && (
                       <div className="col-span-full text-white/50 text-sm py-4">
-                        Sem horários disponíveis para este serviço neste dia.
+                        {t("booking.noSlots")}
                       </div>
                     )}
                   {!loadingSlots &&
                     selectedDate &&
-                    availableSlots.map((t) => {
-                      const busy = busySlots.includes(t);
+                    availableSlots.map((slot) => {
+                      const busy = busySlots.includes(slot);
                       return (
                         <button
-                          key={t}
+                          key={slot}
                           disabled={busy}
-                          onClick={() => !busy && setSelectedTime(t)}
-                          title={busy ? "Horário ocupado" : undefined}
+                          onClick={() => !busy && setSelectedTime(slot)}
                           className={`py-3 text-sm tracking-wider border transition ${
-                            selectedTime === t
+                            selectedTime === slot
                               ? "bg-blue-700 text-white border-blue-600"
                               : busy
                                 ? "border-white/5 text-white/20 line-through cursor-not-allowed"
                                 : "border-white/15 text-white hover:border-blue-600/60 hover:text-blue-300"
                           }`}
                         >
-                          {t}
+                          {slot}
                         </button>
                       );
                     })}
@@ -422,25 +409,26 @@ export default function Booking({ open, onClose, initialServiceId }) {
 
                 <div className="mt-6 p-4 border border-white/10 bg-white/[0.03]">
                   <div className="text-white/40 text-[10px] tracking-[0.3em] mb-2">
-                    RESUMO
+                    {t("booking.summary")}
                   </div>
                   <div className="text-sm flex justify-between">
-                    <span className="text-white/60">Serviço</span>
-                    <span className="font-semibold"> {service?.title}</span>
+                    <span className="text-white/60">{t("booking.service")}</span>
+                    <span className="font-semibold"> {tx(service, "title")}</span>
                   </div>
                   <div className="text-sm flex justify-between mt-1">
-                    <span className="text-white/60">Duração</span>
-                    <span>{service?.durationLabel}</span>
+                    <span className="text-white/60">{t("booking.duration")}</span>
+                    <span>{tx(service, "durationLabel")}</span>
                   </div>
                   <div className="text-sm flex justify-between mt-1">
                     <span className="text-white/60">
-                      Grau {quote?.grade} · {quote?.gradeLabel}
+                      {t("booking.grade")} {quote?.grade} ·{" "}
+                      {lang === "en" ? quote?.gradeLabelEn : quote?.gradeLabel}
                     </span>
                     <span>+{quote?.pct}%</span>
                   </div>
                   <div className="text-sm flex justify-between mt-2 pt-2 border-t border-white/10">
-                    <span className="text-white/60">Total estimado</span>
-                    <span className="font-bold">{quote && eur(quote.total)}</span>
+                    <span className="text-white/60">{t("booking.estTotal")}</span>
+                    <span className="font-bold">{quote && eur(quote.total, lang)}</span>
                   </div>
                 </div>
               </div>
@@ -451,10 +439,10 @@ export default function Booking({ open, onClose, initialServiceId }) {
           {step === 4 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                ["name", "Nome completo *", "text", "O teu nome"],
-                ["phone", "Telefone *", "tel", "+351 ..."],
-                ["email", "Email *", "email", "email@exemplo.pt"],
-                ["car", "Veículo", "text", "Ex.: BMW Série 3"],
+                ["name", t("booking.fName"), "text", t("booking.fNamePh")],
+                ["phone", t("booking.fPhone"), "tel", t("booking.fPhonePh")],
+                ["email", t("booking.fEmail"), "email", t("booking.fEmailPh")],
+                ["car", t("booking.fCar"), "text", t("booking.fCarPh")],
               ].map(([key, label, type, ph]) => (
                 <div key={key} className="flex flex-col">
                   <label className="text-white/50 text-[10px] tracking-[0.25em] mb-2">
@@ -473,7 +461,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               ))}
               <div className="md:col-span-2 flex flex-col">
                 <label className="text-white/50 text-[10px] tracking-[0.25em] mb-2">
-                  NOTAS
+                  {t("booking.fNotes")}
                 </label>
                 <textarea
                   value={info.notes}
@@ -481,20 +469,20 @@ export default function Booking({ open, onClose, initialServiceId }) {
                     setInfo((v) => ({ ...v, notes: e.target.value }))
                   }
                   rows={3}
-                  placeholder="Detalhes adicionais (opcional)"
+                  placeholder={t("booking.fNotesPh")}
                   className="bg-white/[0.06] border border-white/20 px-4 py-3 text-white placeholder:text-white/35 focus:outline-none focus:border-white/70 focus:bg-white/[0.09] resize-none"
                 />
               </div>
               <div className="md:col-span-2 p-4 border border-white/10 bg-white/[0.03] grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                 <div>
                   <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                    SERVIÇO
+                    {t("booking.sService")}
                   </div>
-                  <div className="mt-1 font-semibold">{service?.title}</div>
+                  <div className="mt-1 font-semibold">{tx(service, "title")}</div>
                 </div>
                 <div>
                   <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                    DATA
+                    {t("booking.sDate")}
                   </div>
                   <div className="mt-1">
                     {selectedDate ? fmtDate(selectedDate) : "-"}
@@ -502,15 +490,15 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 </div>
                 <div>
                   <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                    HORA
+                    {t("booking.sTime")}
                   </div>
                   <div className="mt-1">{selectedTime || "-"}</div>
                 </div>
                 <div>
                   <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                    TOTAL ESTIMADO
+                    {t("booking.sEstTotal")}
                   </div>
-                  <div className="mt-1 font-bold">{quote && eur(quote.total)}</div>
+                  <div className="mt-1 font-bold">{quote && eur(quote.total, lang)}</div>
                 </div>
               </div>
             </div>
@@ -523,56 +511,56 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 <Check className="w-8 h-8" />
               </div>
               <h3 className="font-display text-3xl font-black tracking-wide mt-6">
-                MARCAÇÃO CONFIRMADA!
+                {t("booking.doneTitle")}
               </h3>
               <p className="text-white/60 mt-3">
-                A tua marcação foi registada e adicionada ao nosso calendário.
+                {t("booking.donePara")}
               </p>
               <div className="mt-8 border border-white/10 p-5 text-left">
                 <div className="flex items-center justify-between">
                   <div className="text-white/40 text-[10px] tracking-[0.3em]">
-                    REFERÊNCIA
+                    {t("booking.reference")}
                   </div>
                   <div className="font-mono text-sm">{confirmation.id}</div>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                      SERVIÇO
+                      {t("booking.sService")}
                     </div>
-                    <div className="mt-1">{confirmation.serviceTitle}</div>
+                    <div className="mt-1">{tx(service, "title") || confirmation.serviceTitle}</div>
                   </div>
                   <div>
                     <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                      VEÍCULO
+                      {t("booking.cVehicle")}
                     </div>
                     <div className="mt-1">{confirmation.car || "-"}</div>
                   </div>
                   <div>
                     <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                      DATA
+                      {t("booking.sDate")}
                     </div>
                     <div className="mt-1">{confirmation.dateLabel}</div>
                   </div>
                   <div>
                     <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                      HORA
+                      {t("booking.sTime")}
                     </div>
                     <div className="mt-1">{confirmation.time}</div>
                   </div>
                   <div>
                     <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                      DURAÇÃO
+                      {t("booking.cDuration")}
                     </div>
-                    <div className="mt-1">{confirmation.durationLabel}</div>
+                    <div className="mt-1">{tx(service, "durationLabel") || confirmation.durationLabel}</div>
                   </div>
                   <div>
                     <div className="text-white/40 text-[10px] tracking-[0.25em]">
-                      GRAU
+                      {t("booking.cGrade")}
                     </div>
                     <div className="mt-1">
                       {confirmation.gradeLabel
-                        ? `${confirmation.gradeLabel} (+${confirmation.pct || 0}%)`
+                        ? `${lang === "en" && quote ? quote.gradeLabelEn : confirmation.gradeLabel} (+${confirmation.pct || 0}%)`
                         : "-"}
                     </div>
                   </div>
@@ -582,23 +570,23 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 <div className="mt-5 pt-4 border-t border-white/10 space-y-1.5 text-sm">
                   {confirmation.basePrice != null && (
                     <div className="flex justify-between text-white/70">
-                      <span>Preço base</span>
-                      <span>{eur(confirmation.basePrice)}</span>
+                      <span>{t("booking.cBase")}</span>
+                      <span>{eur(confirmation.basePrice, lang)}</span>
                     </div>
                   )}
                   {confirmation.extrasTotal != null &&
                     confirmation.extrasTotal > 0 && (
                       <div className="flex justify-between text-white/70">
-                        <span>Extras</span>
-                        <span>{eur(confirmation.extrasTotal)}</span>
+                        <span>{t("booking.cExtras")}</span>
+                        <span>{eur(confirmation.extrasTotal, lang)}</span>
                       </div>
                     )}
                   <div className="flex justify-between items-center pt-2 mt-1 border-t border-white/10">
                     <span className="text-white/80 font-semibold">
-                      Total estimado
+                      {t("booking.cTotal")}
                     </span>
                     <span className="font-display text-2xl font-black">
-                      {eur(confirmation.price)}
+                      {eur(confirmation.price, lang)}
                     </span>
                   </div>
                 </div>
@@ -607,7 +595,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 onClick={onClose}
                 className="mt-8 w-full bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 hover:from-blue-700 hover:via-blue-500 hover:to-blue-700 text-white py-4 text-xs tracking-[0.25em] font-bold transition-all"
               >
-                FECHAR
+                {t("booking.close")}
               </button>
             </div>
           )}
@@ -621,7 +609,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
               disabled={step === 1}
               className="inline-flex items-center gap-2 px-5 py-3 text-xs tracking-[0.22em] font-semibold border border-white/15 text-white disabled:opacity-30 hover:border-blue-500 hover:bg-blue-900/20 hover:text-blue-400 transition"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> VOLTAR
+              <ArrowLeft className="w-3.5 h-3.5" /> {t("booking.back")}
             </button>
             {step < 4 && (
               <button
@@ -629,7 +617,7 @@ export default function Booking({ open, onClose, initialServiceId }) {
                 disabled={!canNext()}
                 className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 hover:from-blue-700 hover:via-blue-500 hover:to-blue-700 text-white disabled:opacity-30 transition-all"
               >
-                CONTINUAR <ArrowRight className="w-3.5 h-3.5" />
+                {t("booking.continue")} <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )}
             {step === 4 && (
@@ -640,12 +628,11 @@ export default function Booking({ open, onClose, initialServiceId }) {
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> A
-                    CONFIRMAR...
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t("booking.confirming")}
                   </>
                 ) : (
                   <>
-                    CONFIRMAR MARCAÇÃO <Check className="w-3.5 h-3.5" />
+                    {t("booking.confirm")} <Check className="w-3.5 h-3.5" />
                   </>
                 )}
               </button>

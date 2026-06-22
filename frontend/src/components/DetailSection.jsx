@@ -1,9 +1,11 @@
 import React from 'react';
 import { CalendarCheck } from 'lucide-react';
+import { useLang } from '../i18n';
 
 const SPLASH_IMAGE = '/img/detail.jpg';
 
 export default function DetailSection({ onBook }) {
+  const { t } = useLang();
   return (
     <section
       id="about"
@@ -27,14 +29,13 @@ export default function DetailSection({ onBook }) {
             className="font-display text-white font-black leading-[0.95] tracking-tight"
             style={{ letterSpacing: '0.01em' }}
           >
-            <span className="block text-[clamp(2.4rem,6vw,4.2rem)]">O DETALHE QUE</span>
-            <span className="block text-[clamp(2.4rem,6vw,4.2rem)]">O TEU CARRO</span>
-            <span className="block text-[clamp(2.4rem,6vw,4.2rem)]">MERECE</span>
+            <span className="block text-[clamp(2.4rem,6vw,4.2rem)]">{t('detail.l1')}</span>
+            <span className="block text-[clamp(2.4rem,6vw,4.2rem)]">{t('detail.l2')}</span>
+            <span className="block text-[clamp(2.4rem,6vw,4.2rem)]">{t('detail.l3')}</span>
           </h2>
           <span className="accent-bar-left mt-6" />
           <p className="text-white/75 mt-8 max-w-lg leading-relaxed">
-            Na Clean Station Car, cada veículo recebe o cuidado e a atenção que
-            merece. Qualidade, paixão e perfeição em cada detalhe.
+            {t('detail.para')}
           </p>
           <button
             onClick={onBook}
@@ -54,7 +55,7 @@ export default function DetailSection({ onBook }) {
             }}
           >
             <CalendarCheck className="w-4 h-4 shrink-0" />
-            MARCAR AGORA
+            {t('detail.book')}
             <span
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 60%)' }}

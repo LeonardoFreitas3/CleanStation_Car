@@ -1,9 +1,12 @@
 import React from 'react';
 import { X, Check, Clock, ArrowRight } from 'lucide-react';
+import { useLang } from '../i18n';
 
 export default function ServiceDetail({ service, open, onClose, onBook }) {
+  const { t, tx } = useLang();
   if (!open || !service) return null;
   const Icon = service.icon;
+  const includes = tx(service, 'includes') || service.includes;
 
   return (
     <div
@@ -18,7 +21,7 @@ export default function ServiceDetail({ service, open, onClose, onBook }) {
         <div className="relative h-48 sm:h-64 overflow-hidden flex-shrink-0">
           <img
             src={service.image}
-            alt={service.title}
+            alt={tx(service, 'title')}
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-black/50 to-transparent" />
@@ -35,11 +38,11 @@ export default function ServiceDetail({ service, open, onClose, onBook }) {
               </div>
               <div className="flex items-center gap-2 text-white/50 text-xs">
                 <Clock className="w-3.5 h-3.5" />
-                {service.durationLabel}
+                {tx(service, 'durationLabel')}
               </div>
             </div>
             <h2 className="font-display text-xl sm:text-2xl font-black tracking-wide leading-tight">
-              {service.title}
+              {tx(service, 'title')}
             </h2>
           </div>
         </div>
@@ -47,17 +50,17 @@ export default function ServiceDetail({ service, open, onClose, onBook }) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-6">
           <p className="text-white/60 text-sm leading-relaxed">
-            {service.desc}
+            {tx(service, 'desc')}
           </p>
 
           {/* Includes */}
-          {service.includes && service.includes.length > 0 && (
+          {includes && includes.length > 0 && (
             <div className="mt-6">
               <div className="text-white/40 text-[10px] tracking-[0.3em] mb-4">
-                O QUE ESTÁ INCLUÍDO
+                {t('serviceDetail.includes')}
               </div>
               <ul className="space-y-2.5">
-                {service.includes.map((item, i) => (
+                {includes.map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <div className="w-5 h-5 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-3 h-3 text-blue-400" />
@@ -70,14 +73,14 @@ export default function ServiceDetail({ service, open, onClose, onBook }) {
           )}
 
           <div className="mt-6 text-white/40 text-xs italic">
-            Valores sujeitos a avaliação do estado da viatura.
+            {t('serviceDetail.note')}
           </div>
         </div>
 
         {/* Footer */}
         <div className="px-5 sm:px-6 py-4 border-t border-white/10 flex items-center justify-between gap-4 flex-shrink-0">
           <div>
-            <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">DESDE</span>
+            <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('serviceDetail.from')}</span>
             <div className="text-white font-display text-2xl sm:text-3xl font-bold">{service.price}€</div>
           </div>
           <button
@@ -87,7 +90,7 @@ export default function ServiceDetail({ service, open, onClose, onBook }) {
             }}
             className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 hover:from-blue-700 hover:via-blue-500 hover:to-blue-700 text-white transition-all"
           >
-            MARCAR <ArrowRight className="w-3.5 h-3.5" />
+            {t('serviceDetail.book')} <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

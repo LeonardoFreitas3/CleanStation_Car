@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Cookie, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { applyConsent } from '../analytics';
+import { useLang } from '../i18n';
 
 const CONSENT_KEY = 'csc_cookie_consent';
 
 export default function CookieBanner({ onOpenPolicy }) {
+  const { t } = useLang();
   const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [analytics, setAnalytics] = useState(false);
@@ -36,12 +38,12 @@ export default function CookieBanner({ onOpenPolicy }) {
           <Cookie className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold tracking-wide">
-              Utilizamos cookies
+              {t('cookie.title')}
             </p>
             <p className="text-white/60 text-xs mt-1 leading-relaxed">
-              Usamos cookies essenciais para o funcionamento do site e, com o seu consentimento, cookies analíticos para melhorar a experiência.{' '}
+              {t('cookie.body')}{' '}
               <button onClick={onOpenPolicy} className="text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors">
-                Política de Cookies
+                {t('cookie.policy')}
               </button>
             </p>
 
@@ -50,8 +52,8 @@ export default function CookieBanner({ onOpenPolicy }) {
               <div className="mt-4 border border-white/10 p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-white text-xs font-semibold">Cookies Necessários</div>
-                    <div className="text-white/50 text-[11px] mt-0.5">Essenciais para o funcionamento. Não podem ser desativados.</div>
+                    <div className="text-white text-xs font-semibold">{t('cookie.necessary')}</div>
+                    <div className="text-white/50 text-[11px] mt-0.5">{t('cookie.necessaryDesc')}</div>
                   </div>
                   <div className="w-10 h-5 bg-blue-700 rounded-full flex items-center px-1 shrink-0">
                     <div className="w-3 h-3 bg-white rounded-full ml-auto" />
@@ -59,8 +61,8 @@ export default function CookieBanner({ onOpenPolicy }) {
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-white text-xs font-semibold">Cookies Analíticos</div>
-                    <div className="text-white/50 text-[11px] mt-0.5">Ajudam-nos a perceber como o site é utilizado.</div>
+                    <div className="text-white text-xs font-semibold">{t('cookie.analytics')}</div>
+                    <div className="text-white/50 text-[11px] mt-0.5">{t('cookie.analyticsDesc')}</div>
                   </div>
                   <button
                     onClick={() => setAnalytics(v => !v)}
@@ -76,7 +78,7 @@ export default function CookieBanner({ onOpenPolicy }) {
           <button
             onClick={() => save(false)}
             className="text-white/40 hover:text-white transition shrink-0"
-            title="Recusar opcionais"
+            title={t('cookie.declineTitle')}
           >
             <X className="w-4 h-4" />
           </button>
@@ -89,20 +91,20 @@ export default function CookieBanner({ onOpenPolicy }) {
             className="inline-flex items-center gap-1.5 text-white/50 hover:text-blue-400 text-[11px] tracking-[0.2em] transition-colors"
           >
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            GERIR PREFERÊNCIAS
+            {t('cookie.manage')}
           </button>
           <div className="flex gap-3">
             <button
               onClick={() => save(false)}
               className="px-5 py-2.5 text-[11px] tracking-[0.2em] font-semibold border border-white/20 text-white hover:border-blue-500 hover:text-blue-400 transition"
             >
-              RECUSAR
+              {t('cookie.decline')}
             </button>
             <button
               onClick={() => save(true)}
               className="px-5 py-2.5 text-[11px] tracking-[0.2em] font-bold bg-blue-700 hover:bg-blue-600 text-white transition"
             >
-              ACEITAR TUDO
+              {t('cookie.acceptAll')}
             </button>
           </div>
         </div>

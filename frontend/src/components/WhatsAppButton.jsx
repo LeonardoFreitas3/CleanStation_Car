@@ -1,14 +1,16 @@
 import React from 'react';
 import { SITE } from '../mock';
+import { useLang } from '../i18n';
 
 export default function WhatsAppButton() {
-  const msg = encodeURIComponent('Olá! Gostaria de fazer uma marcação na Clean Station Car.');
+  const { t } = useLang();
+  const msg = encodeURIComponent(t('whatsapp.msg'));
   return (
     <a
       href={`https://wa.me/${SITE.phoneRaw}?text=${msg}`}
       target="_blank"
       rel="noreferrer"
-      aria-label="Contactar via WhatsApp"
+      aria-label={t('whatsapp.aria')}
       className="fixed bottom-6 right-6 z-[70] group"
     >
       <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-30" />

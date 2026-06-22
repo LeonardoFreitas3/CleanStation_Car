@@ -1,9 +1,11 @@
 import React from 'react';
 import { Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { SITE } from '../mock';
+import { useLang } from '../i18n';
 import Logo from './Logo';
 
 export default function Footer({ onLegal }) {
+  const { t } = useLang();
   return (
     <footer className="bg-black border-t border-white/10 pt-16 pb-6">
       <div className="max-w-7xl mx-auto px-6">
@@ -12,30 +14,30 @@ export default function Footer({ onLegal }) {
           <div className="lg:col-span-1">
             <Logo size={56} />
             <p className="text-white/55 text-sm mt-5 max-w-xs leading-relaxed">
-              Lavagem detalhada premium em Braga.
-              <br />O detalhe que o teu carro merece.
+              {t('footer.tagline1')}
+              <br />{t('footer.tagline2')}
             </p>
           </div>
 
           {/* Navegação */}
           <div className="lg:col-span-2">
             <div className="text-white text-sm tracking-[0.25em] font-semibold mb-5">
-              NAVEGAÇÃO
+              {t('footer.navigation')}
             </div>
             <ul className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-              <li><a href="#home" className="text-white/65 hover:text-blue-400 transition-colors">Início</a></li>
-              <li><a href="#about" className="text-white/65 hover:text-blue-400 transition-colors">Sobre Nós</a></li>
-              <li><a href="#services" className="text-white/65 hover:text-blue-400 transition-colors">Serviços</a></li>
-              <li><a href="#testimonials" className="text-white/65 hover:text-blue-400 transition-colors">Testemunhos</a></li>
-              <li><a href="#before-after" className="text-white/65 hover:text-blue-400 transition-colors">Antes &amp; Depois</a></li>
-              <li><a href="#contact" className="text-white/65 hover:text-blue-400 transition-colors">Contactos</a></li>
+              <li><a href="#home" className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.home')}</a></li>
+              <li><a href="#about" className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.about')}</a></li>
+              <li><a href="#services" className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.services')}</a></li>
+              <li><a href="#testimonials" className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.testimonials')}</a></li>
+              <li><a href="#before-after" className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.beforeAfter')}</a></li>
+              <li><a href="#contact" className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.contact')}</a></li>
             </ul>
           </div>
 
           {/* Redes Sociais */}
           <div>
             <div className="text-white text-sm tracking-[0.25em] font-semibold mb-5">
-              REDES SOCIAIS
+              {t('footer.social')}
             </div>
             <div className="flex items-center gap-3">
               <a
@@ -76,18 +78,17 @@ export default function Footer({ onLegal }) {
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-3 pt-6 text-xs text-white/45">
           <div>
-            © {new Date().getFullYear()} Clean Station Car. Todos os direitos
-            reservados.
+            © {new Date().getFullYear()} Clean Station Car. {t('footer.rights')}
           </div>
           <div className="flex gap-5">
             <button onClick={() => onLegal('privacy')} className="hover:text-blue-400 transition-colors">
-              Política de Privacidade
+              {t('footer.privacy')}
             </button>
             <button onClick={() => onLegal('terms')} className="hover:text-blue-400 transition-colors">
-              Termos &amp; Condições
+              {t('footer.terms')}
             </button>
             <button onClick={() => onLegal('cookies')} className="hover:text-blue-400 transition-colors">
-              Cookies
+              {t('footer.cookies')}
             </button>
           </div>
         </div>

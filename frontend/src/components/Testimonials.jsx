@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { TESTIMONIALS } from '../mock';
+import { useLang } from '../i18n';
 
 export default function Testimonials() {
+  const { t, tx } = useLang();
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
@@ -17,7 +19,7 @@ export default function Testimonials() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-14">
           <h2 className="font-display text-white text-3xl md:text-5xl font-black tracking-wide">
-            O QUE DIZEM OS NOSSOS CLIENTES
+            {t('testimonials.title')}
           </h2>
           <span className="accent-bar mx-auto mt-5" />
         </div>
@@ -41,7 +43,7 @@ export default function Testimonials() {
                 ))}
               </div>
               <p className="text-white/85 leading-relaxed mb-6 text-[15px] text-center min-h-[88px]">
-                “{t.text}”
+                “{tx(t, 'text')}”
               </p>
               <div className="pt-5 border-t border-white/10 text-center">
                 <div className="text-white font-semibold tracking-wide">{t.name}</div>
