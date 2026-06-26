@@ -19,11 +19,11 @@ export default function AboutSection() {
           className="w-full h-full object-cover object-center"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-l from-black/95 via-black/80 to-black/40" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6">
+      <div className="relative max-w-7xl mx-auto px-6 flex justify-end">
         <div className="max-w-2xl">
           <h2 className="font-display text-white font-black text-3xl md:text-4xl tracking-wide">
             {t('about.title')}

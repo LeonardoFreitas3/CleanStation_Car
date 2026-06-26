@@ -2,9 +2,7 @@
 import {
   Sparkles, Brush, Disc3, ShieldCheck, Car, Wrench, Gem, SprayCan, ShieldPlus,
   Droplets, Lightbulb, CircleDot, Star,
-  // Calculadora de orçamento (mantida mas não utilizada na UI após remoção de marcações)
-  Trash2, Wind, Footprints, Droplet, PawPrint, CloudFog, Package, Bug, Square,
-  Waves, Layers, Scissors, AlertTriangle, Plus,
+  PawPrint, Wind, CloudFog, Layers, Scissors,
 } from 'lucide-react';
 
 export const SITE = {
@@ -269,13 +267,6 @@ export const SERVICES = [
   },
 ];
 
-export const BEFORE_AFTER = [
-  { label: 'EXTERIOR', before: '/img/antes_ex.png', after: '/img/depois_ex.png' },
-  { label: 'INTERIOR', before: '/img/antes_in.png', after: '/img/depois_in.png' },
-  { label: 'BANCOS',   before: '/img/antes_ba.png', after: '/img/depois_ba.png' },
-  { label: 'JANTES',  before: '/img/antes_ja.png', after: '/img/depois_ja.png' },
-];
-
 export const PROCESS = [
   { n: '01', title: 'AVALIAÇÃO', desc: 'Analisamos o estado do veículo para definir o melhor tratamento.', icon: Sparkles },
   { n: '02', title: 'LAVAGEM PROFUNDA', desc: 'Removemos sujidade, contaminantes e impurezas em profundidade.', icon: SprayCan },
@@ -306,78 +297,14 @@ export const TESTIMONIALS = [
   },
 ];
 
-export const TIME_SLOTS = [
-  '08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00',
-];
-
-export const BOOKINGS_KEY = 'csc_bookings_mock_v1';
-
-export const HERO_IMAGE = '/img/banner.png';
-
-export const DETAIL_IMAGE = '/img/detail.jpg';
-
-// ─── Calculadora de orçamento (mantida para referência, não utilizada na UI) ─
-
-export const INTERIOR_PROBLEMS = [
-  { id: 'lixo',            label: 'Lixo acumulado',          icon: Trash2 },
-  { id: 'areia',           label: 'Areia ou terra excessiva', icon: Wind },
-  { id: 'tapetes',         label: 'Tapetes muito sujos',      icon: Footprints },
-  { id: 'manchas-estofos', label: 'Manchas em estofos',       icon: Droplet },
-  { id: 'manchas-dificeis',label: 'Manchas difíceis',         icon: Droplets },
-  { id: 'pelos',           label: 'Pelos de animais',         icon: PawPrint },
-  { id: 'odor',            label: 'Odor desagradável',        icon: CloudFog },
-  { id: 'bagageira',       label: 'Bagageira muito suja',     icon: Package },
-];
-
-export const EXTERIOR_PROBLEMS = [
-  { id: 'insetos',   label: 'Insetos incrustados',        icon: Bug },
-  { id: 'jantes',    label: 'Jantes muito contaminadas',  icon: Disc3 },
-  { id: 'resina',    label: 'Resina ou alcatrão',         icon: Droplet },
-  { id: 'vidros',    label: 'Vidros contaminados',        icon: Square },
-  { id: 'pintura',   label: 'Pintura muito contaminada',  icon: SprayCan },
-  { id: 'lama',      label: 'Excesso de lama',            icon: Waves },
-  { id: 'plasticos', label: 'Plásticos exteriores degradados', icon: Layers },
-];
-
-export const ALL_PROBLEMS = [...INTERIOR_PROBLEMS, ...EXTERIOR_PROBLEMS];
-export const PROBLEM_LABEL = Object.fromEntries(ALL_PROBLEMS.map((p) => [p.id, p.label]));
-
 export const EXTRAS = [
-  { id: 'pelos-animal',      label: 'Remoção de Pêlo de Animal',       price: 20, icon: PawPrint },
-  { id: 'areia-praia',       label: 'Remoção de Areia de Praia',       price: 15, icon: Wind },
-  { id: 'odores',            label: 'Tratamento de Odores',            price: 25, icon: CloudFog },
-  { id: 'jantes-profunda',   label: 'Limpeza Profunda de Jantes',      price: 25, icon: Disc3 },
-  { id: 'plasticos-inter',   label: 'Proteção de Plásticos Interiores',price: 20, icon: Layers },
-  { id: 'couro',             label: 'Tratamento de Couro',             price: 60, icon: Scissors },
+  { id: 'pelos-animal',    label: 'Remoção de Pêlo de Animal',        price: 20, icon: PawPrint },
+  { id: 'areia-praia',     label: 'Remoção de Areia de Praia',        price: 15, icon: Wind },
+  { id: 'odores',          label: 'Tratamento de Odores',             price: 25, icon: CloudFog },
+  { id: 'jantes-profunda', label: 'Limpeza Profunda de Jantes',       price: 25, icon: Disc3 },
+  { id: 'plasticos-inter', label: 'Proteção de Plásticos Interiores', price: 20, icon: Layers },
+  { id: 'couro',           label: 'Tratamento de Couro',              price: 60, icon: Scissors },
 ];
-
-export const EXTRA_BY_ID = Object.fromEntries(EXTRAS.map((e) => [e.id, e]));
-
-export const GRADES = [
-  { grade: 1, label: 'Sujidade Normal',  labelEn: 'Normal Dirt',  min: 0, max: 1,        multiplier: 1.0,  pct: 0  },
-  { grade: 2, label: 'Sujidade Elevada', labelEn: 'Heavy Dirt',   min: 2, max: 3,        multiplier: 1.3,  pct: 30 },
-  { grade: 3, label: 'Sujidade Extrema', labelEn: 'Extreme Dirt', min: 4, max: Infinity, multiplier: 1.75, pct: 75 },
-];
-
-export function gradeForCount(count) {
-  return GRADES.find((g) => count >= g.min && count <= g.max) || GRADES[0];
-}
-
-export function eur(n) {
-  const v = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
-  return (Number.isInteger(v) ? String(v) : v.toFixed(2).replace('.', ',')) + ' €';
-}
-
-export function computeQuote(service, problemIds = [], extraIds = []) {
-  const base = service?.price || 0;
-  const count = problemIds.length;
-  const g = gradeForCount(count);
-  const subtotal = base * g.multiplier;
-  const chosenExtras = EXTRAS.filter((e) => extraIds.includes(e.id));
-  const extrasTotal = chosenExtras.reduce((s, e) => s + e.price, 0);
-  const total = subtotal + extrasTotal;
-  return { base, count, grade: g.grade, gradeLabel: g.label, gradeLabelEn: g.labelEn, multiplier: g.multiplier, pct: g.pct, subtotal, extrasTotal, total, chosenExtras };
-}
 
 // ─── Traduções dos dados (EN) ────────────────────────────────────────────────
 
@@ -482,16 +409,6 @@ const EN_TESTIMONIALS = {
   'Sofia Almeida': 'Premium quality, attention to detail and a result you can see. I will definitely be back.',
 };
 
-const EN_BEFORE_AFTER = { EXTERIOR: 'EXTERIOR', INTERIOR: 'INTERIOR', BANCOS: 'SEATS', JANTES: 'WHEELS' };
-
-const EN_PROBLEMS = {
-  lixo: 'Accumulated rubbish', areia: 'Excessive sand or dirt', tapetes: 'Very dirty mats',
-  'manchas-estofos': 'Upholstery stains', 'manchas-dificeis': 'Tough stains', pelos: 'Pet hair',
-  odor: 'Unpleasant odour', bagageira: 'Very dirty boot', insetos: 'Embedded insects',
-  jantes: 'Heavily contaminated wheels', resina: 'Resin or tar', vidros: 'Contaminated glass',
-  pintura: 'Heavily contaminated paint', lama: 'Excessive mud', plasticos: 'Degraded exterior plastics',
-};
-
 const EN_EXTRAS = {
   'pelos-animal': 'Pet hair removal', 'areia-praia': 'Beach sand removal',
   'odores': 'Odour treatment', 'jantes-profunda': 'Deep wheel cleaning',
@@ -509,6 +426,4 @@ CATEGORIES.forEach((c) => {
 FEATURES.forEach((f) => { if (EN_FEATURES[f.label]) f.labelEn = EN_FEATURES[f.label]; });
 PROCESS.forEach((p) => { const e = EN_PROCESS[p.n]; if (e) { p.titleEn = e.title; p.descEn = e.desc; } });
 TESTIMONIALS.forEach((t) => { if (EN_TESTIMONIALS[t.name]) t.textEn = EN_TESTIMONIALS[t.name]; });
-BEFORE_AFTER.forEach((b) => { if (EN_BEFORE_AFTER[b.label]) b.labelEn = EN_BEFORE_AFTER[b.label]; });
-[...INTERIOR_PROBLEMS, ...EXTERIOR_PROBLEMS].forEach((p) => { if (EN_PROBLEMS[p.id]) p.labelEn = EN_PROBLEMS[p.id]; });
 EXTRAS.forEach((x) => { if (EN_EXTRAS[x.id]) x.labelEn = EN_EXTRAS[x.id]; });
