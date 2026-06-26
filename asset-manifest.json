@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/CleanStation_Car/static/css/main.50ec2f16.css",
+    "main.js": "/CleanStation_Car/static/js/main.3a366754.js",
+    "index.html": "/CleanStation_Car/index.html",
+    "main.50ec2f16.css.map": "/CleanStation_Car/static/css/main.50ec2f16.css.map",
+    "main.3a366754.js.map": "/CleanStation_Car/static/js/main.3a366754.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.50ec2f16.css",
+    "static/js/main.3a366754.js"
+  ]
+}
