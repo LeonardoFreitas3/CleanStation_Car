@@ -19,16 +19,16 @@ export default function AboutSection() {
           className="w-full h-full object-cover object-center"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-l from-black/95 via-black/80 to-black/40" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6">
-        <div className="max-w-2xl">
+      <div className="relative max-w-7xl mx-auto px-6 flex justify-end">
+        <div className="max-w-2xl text-center">
           <h2 className="font-display text-white font-black text-3xl md:text-4xl tracking-wide">
             {t('about.title')}
           </h2>
-          <span className="accent-bar-left mt-5" />
+          <span className="accent-bar mx-auto mt-5" />
 
           <div className="mt-8 space-y-5 text-white/75 leading-relaxed text-sm md:text-base">
             <p>{t('about.p1')}</p>
@@ -41,15 +41,17 @@ export default function AboutSection() {
             {t('about.closing')}
           </p>
 
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-10 inline-flex items-center gap-3 px-8 py-4 text-xs tracking-[0.3em] font-bold text-black bg-white hover:bg-blue-50 transition"
-          >
-            <MessageCircle className="w-4 h-4 shrink-0" />
-            {t('about.whatsapp')}
-          </a>
+          <div className="flex justify-center mt-10">
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-3 px-8 py-4 text-xs tracking-[0.3em] font-bold text-black bg-white hover:bg-blue-50 transition"
+            >
+              <MessageCircle className="w-4 h-4 shrink-0" />
+              {t('about.whatsapp')}
+            </a>
+          </div>
         </div>
       </div>
     </section>
