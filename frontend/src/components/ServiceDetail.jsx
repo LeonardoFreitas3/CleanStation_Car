@@ -1,12 +1,15 @@
 import React from 'react';
-import { X, Check, Clock, ArrowRight } from 'lucide-react';
+import { X, Check, MessageCircle } from 'lucide-react';
+import { SITE } from '../mock';
 import { useLang } from '../i18n';
 
-export default function ServiceDetail({ service, open, onClose, onBook }) {
+export default function ServiceDetail({ service, open, onClose }) {
   const { t, tx } = useLang();
   if (!open || !service) return null;
   const Icon = service.icon;
   const includes = tx(service, 'includes') || service.includes;
+  const waMsg = encodeURIComponent(`Olá! Gostaria de pedir um orçamento para: ${tx(service, 'title')}`);
+  const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
 
   return (
     <div
@@ -36,10 +39,6 @@ export default function ServiceDetail({ service, open, onClose, onBook }) {
               <div className="w-10 h-10 border border-white/20 bg-black/40 flex items-center justify-center">
                 <Icon className="w-5 h-5 text-blue-400" strokeWidth={1.4} />
               </div>
-              <div className="flex items-center gap-2 text-white/50 text-xs">
-                <Clock className="w-3.5 h-3.5" />
-                {tx(service, 'durationLabel')}
-              </div>
             </div>
             <h2 className="font-display text-xl sm:text-2xl font-black tracking-wide leading-tight">
               {tx(service, 'title')}
@@ -53,7 +52,6 @@ export default function ServiceDetail({ service, open, onClose, onBook }) {
             {tx(service, 'desc')}
           </p>
 
-          {/* Includes */}
           {includes && includes.length > 0 && (
             <div className="mt-6">
               <div className="text-white/40 text-[10px] tracking-[0.3em] mb-4">
@@ -83,15 +81,15 @@ export default function ServiceDetail({ service, open, onClose, onBook }) {
             <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('serviceDetail.from')}</span>
             <div className="text-white font-display text-2xl sm:text-3xl font-bold">{service.price}€</div>
           </div>
-          <button
-            onClick={() => {
-              onClose();
-              onBook(service.id);
-            }}
-            className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 hover:from-blue-700 hover:via-blue-500 hover:to-blue-700 text-white transition-all"
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition"
           >
-            {t('serviceDetail.book')} <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+            <MessageCircle className="w-3.5 h-3.5" />
+            {t('serviceDetail.whatsapp')}
+          </a>
         </div>
       </div>
     </div>

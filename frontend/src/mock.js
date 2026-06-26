@@ -1,8 +1,8 @@
 // Mock data for Clean Station Car
 import {
   Sparkles, Brush, Disc3, ShieldCheck, Car, Wrench, Gem, SprayCan, ShieldPlus,
-  Droplets, Lightbulb, CircleDot,
-  // Calculadora de orçamento
+  Droplets, Lightbulb, CircleDot, Star,
+  // Calculadora de orçamento (mantida mas não utilizada na UI após remoção de marcações)
   Trash2, Wind, Footprints, Droplet, PawPrint, CloudFog, Package, Bug, Square,
   Waves, Layers, Scissors, AlertTriangle, Plus,
 } from 'lucide-react';
@@ -11,191 +11,260 @@ export const SITE = {
   name: 'Clean Station Car',
   tagline: 'Lavagem Detalhada Premium em Braga',
   subtitle: 'O detalhe que o teu carro merece.',
-  phone: '+351 934 177 308',
-  phoneRaw: '351934177308',
+  phone: '+351 913 733 791',
+  phoneRaw: '351913733791',
   email: 'cleanstationcar@gmail.com',
-  address: 'R. Conselheiro Lobato 533, 4705-089 Braga',
+  address: 'R. Conselheiro Lobato 503, 4705-089 Braga',
   hours: 'Segunda a Sábado · 08:00 – 19:00',
-  mapsShareUrl: 'https://maps.google.com/?q=R.+Conselheiro+Lobato+533,+4705-089+Braga',
+  mapsShareUrl: 'https://maps.google.com/?q=R.+Conselheiro+Lobato+503,+4705-089+Braga',
   mapsEmbed:
-    'https://www.google.com/maps?q=R.+Conselheiro+Lobato+533,+4705-089+Braga&output=embed',
+    'https://www.google.com/maps?q=R.+Conselheiro+Lobato+503,+4705-089+Braga&output=embed',
 };
 
 export const FEATURES = [
-  { icon: Gem, label: 'Atendimento Premium' },
-  { icon: SprayCan, label: 'Produtos de Qualidade' },
-  { icon: ShieldCheck, label: 'Resultados Garantidos' },
-  { icon: Sparkles, label: 'Marcação Rápida' },
+  { icon: Gem,        label: 'Produtos Premium' },
+  { icon: Sparkles,   label: 'Atenção ao Detalhe' },
+  { icon: ShieldCheck,label: 'Resultados Duradouros' },
+  { icon: Star,       label: 'Satisfação Garantida' },
+];
+
+// ─── Categorias de serviços ───────────────────────────────────────────────────
+export const CATEGORIES = [
+  { id: 'lavagens',       label: 'LAVAGENS',                   labelEn: 'WASHES',                    subtitle: 'Qual a diferença?',              subtitleEn: "What's the difference?",    icon: Droplets  },
+  { id: 'descontaminacao',label: 'DESCONTAMINAÇÃO E PROTEÇÕES',labelEn: 'DECONTAMINATION & PROTECTION',subtitle: 'Para uma proteção total',        subtitleEn: 'For total protection',       icon: ShieldCheck },
+  { id: 'higienizacao',   label: 'HIGIENIZAÇÃO',               labelEn: 'SANITISATION',              subtitle: 'Interior saudável, conforto total',subtitleEn: 'Healthy interior, total comfort', icon: Sparkles },
+  { id: 'polimentos',     label: 'POLIMENTOS E CORREÇÕES',     labelEn: 'POLISHING & CORRECTIONS',   subtitle: 'De volta ao brilho perfeito',     subtitleEn: 'Back to perfect shine',      icon: Gem       },
 ];
 
 export const SERVICES = [
+  // ── LAVAGENS ──────────────────────────────────────────────────────────────
   {
-    id: 'lavagem-ceramica',
-    title: 'LAVAGEM COM PROTEÇÃO CERÂMICA',
-    desc: 'Lavagem completa com aplicação de proteção cerâmica para brilho e proteção.',
+    id: 'lavagem-simples',
+    category: 'lavagens',
+    title: 'LAVAGEM INTERIOR E EXTERIOR SIMPLES',
+    desc: 'Limpeza geral para manutenção do veículo.',
+    price: 25,
+    icon: Droplets,
+    image: '/img/lavagem.jpg',
+    includes: [
+      'Lavagem exterior completa',
+      'Aspiração do interior',
+      'Limpeza básica do interior',
+      'Vidros limpos',
+      'Serviço simples — inclui lavagem interior simples',
+    ],
+  },
+  {
+    id: 'lavagem-selante',
+    category: 'lavagens',
+    title: 'LAVAGEM COM SELANTE',
+    desc: 'Lavagem exterior com aplicação de proteção temporária que realça o brilho e cria uma camada hidrofóbica.',
     price: 37,
-    duration: 120,
-    durationLabel: '2 horas',
     icon: ShieldCheck,
     image: '/img/lavagem.jpg',
     includes: [
-      'Pré-lavagem com snow foam',
       'Lavagem exterior completa',
-      'Descontaminação da pintura',
-      'Aplicação de proteção cerâmica',
-      'Limpeza de jantes e pneus',
-      'Secagem com microfibra premium',
+      'Aplicação de selante protetor',
+      'Maior brilho e repelência à água',
+      'Protege a pintura de sujidade e agentes externos',
+      'Inclui lavagem simples interior',
     ],
   },
   {
-    id: 'lavagem-ceramica-longa',
-    title: 'LAVAGEM C/ PROTEÇÃO CERÂMICA LONGA DURAÇÃO',
-    desc: 'Lavagem com proteção cerâmica de longa duração para máxima durabilidade.',
-    price: 52,
-    duration: 180,
-    durationLabel: '3 horas',
+    id: 'lavagem-selante-premium',
+    category: 'lavagens',
+    title: 'LAVAGEM COM SELANTE PREMIUM',
+    desc: 'Lavagem exterior com selante de alta performance que oferece proteção superior e brilho mais intenso e duradouro.',
+    price: 55,
     icon: ShieldPlus,
     image: '/img/ceramica-longa.jpg',
     includes: [
-      'Pré-lavagem com snow foam',
       'Lavagem exterior completa',
-      'Descontaminação química da pintura',
-      'Proteção cerâmica de longa duração (6+ meses)',
-      'Tratamento hidrofóbico reforçado',
-      'Proteção UV extra',
-      'Limpeza de jantes e pneus',
-      'Secagem com microfibra premium',
-    ],
-  },
-  {
-    id: 'detalhada-completa',
-    title: 'LAVAGEM DETALHADA INTERIOR/EXTERIOR',
-    desc: 'Lavagem detalhada completa do interior e exterior do veículo.',
-    price: 150,
-    duration: 480,
-    durationLabel: '1 dia',
-    fullDay: true,
-    icon: Car,
-    image: '/img/detalhada-completa.jpg',
-    includes: [
-      'Lavagem exterior profunda com snow foam',
-      'Descontaminação completa da pintura',
-      'Aspiração e limpeza de todo o interior',
-      'Limpeza e hidratação de plásticos',
-      'Hidratação de couro (se aplicável)',
-      'Limpeza de vidros interior e exterior',
-      'Limpeza de jantes e pneus',
-      'Tratamento de borrachas e vedantes',
-      'Limpeza detalhada do motor',
-      'Secagem e inspeção final',
+      'Aplicação de selante premium de alta performance',
+      'Brilho intenso e proteção superior',
+      'Maior duração do efeito protetor',
+      'Inclui lavagem simples interior',
     ],
   },
   {
     id: 'detalhada-interior',
+    category: 'lavagens',
     title: 'LAVAGEM DETALHADA INTERIOR',
-    desc: 'Limpeza profunda e detalhada de todo o habitáculo.',
+    desc: 'Limpeza cuidada de todas as zonas interiores do veículo.',
     price: 80,
-    duration: 180,
-    durationLabel: '3 horas',
     icon: Brush,
     image: '/img/interior.jpg',
     includes: [
-      'Aspiração completa do habitáculo',
-      'Limpeza profunda de estofos e tapetes',
-      'Limpeza e hidratação de plásticos',
-      'Hidratação de couro (se aplicável)',
-      'Limpeza de vidros interior',
-      'Limpeza de consola e painel',
-      'Higienização com ozono',
+      'Aspiração profunda',
+      'Limpeza de plásticos e painel',
+      'Limpeza de consola',
+      'Cantos e zonas difíceis',
+      'Vidros interiores',
+      'Serviço exclusivo para interior',
     ],
   },
   {
     id: 'detalhada-exterior',
+    category: 'lavagens',
     title: 'LAVAGEM DETALHADA EXTERIOR',
-    desc: 'Lavagem exterior minuciosa com atenção a cada detalhe.',
+    desc: 'Limpeza profunda da parte exterior com atenção a cada pormenor.',
     price: 90,
-    duration: 180,
-    durationLabel: '3 horas',
     icon: SprayCan,
     image: '/img/proteção.jpg',
     includes: [
-      'Pré-lavagem com snow foam',
-      'Lavagem com método dois baldes',
-      'Descontaminação química e mecânica',
-      'Limpeza detalhada de jantes e pneus',
-      'Limpeza de caixas de roda',
-      'Tratamento de borrachas e vedantes',
-      'Secagem com microfibra premium',
+      'Lavagem profunda da carroçaria',
+      'Limpeza de jantes e pneus',
+      'Vidros exteriores',
+      'Pormenores exteriores',
+      'Mais brilho e detalhe no acabamento',
+      'Serviço exclusivo para exterior',
     ],
   },
   {
-    id: 'higienizacao-estofos',
-    title: 'HIGIENIZAÇÃO DE ESTOFOS',
-    desc: 'Limpeza e higienização profunda dos estofos do veículo.',
-    price: 80,
-    duration: 180,
-    durationLabel: '3 horas',
-    icon: Sparkles,
-    image: '/img/estofos.jpg',
+    id: 'detalhada-completa',
+    category: 'lavagens',
+    title: 'LAVAGEM DETALHADA INTERIOR + EXTERIOR',
+    desc: 'O serviço mais completo de limpeza, com o carro renovado por dentro e por fora.',
+    price: 155,
+    icon: Car,
+    image: '/img/detalhada-completa.jpg',
     includes: [
-      'Aspiração profunda dos estofos',
-      'Aplicação de produto especializado',
-      'Escovagem mecânica',
-      'Extração a quente',
-      'Remoção de nódoas e manchas',
-      'Eliminação de odores',
-      'Secagem acelerada',
+      'Interior detalhado completo',
+      'Exterior detalhado completo',
+      'Acabamento premium',
+      'Inclui lavagem simples interior',
     ],
   },
+
+  // ── DESCONTAMINAÇÃO E PROTEÇÕES ──────────────────────────────────────────
   {
-    id: 'descontaminacao-vidros',
-    title: 'DESCONTAMINAÇÃO DE VIDROS',
-    desc: 'Remoção de contaminantes e restauro da transparência dos vidros.',
+    id: 'vidros',
+    category: 'descontaminacao',
+    title: 'SERVIÇO COMPLETO DE VIDROS',
+    desc: 'Remove sujidade invisível agarrada ao vidro e aplica uma proteção hidrofóbica que repele a água.',
     price: 50,
-    duration: 60,
-    durationLabel: '1 hora',
     icon: Droplets,
     image: '/img/vidros.jpg',
     includes: [
-      'Remoção de calcário e depósitos minerais',
-      'Descontaminação química dos vidros',
-      'Polimento de vidros',
-      'Aplicação de repelente de água',
-      'Limpeza de espelhos retrovisores',
+      'Remove calcário, gordura, resíduos e contaminantes',
+      'Aplicação de proteção hidrofóbica',
+      'Vidro mais limpo e transparente',
+      'Água da chuva a escorrer mais facilmente',
+      'Melhor visibilidade e mais segurança',
     ],
   },
   {
-    id: 'polimento-farois-dianteiros',
-    title: 'POLIMENTO FARÓIS DIANTEIROS (PAR)',
-    desc: 'Restauro e polimento dos faróis dianteiros para máxima visibilidade.',
-    price: 70,
-    duration: 90,
-    durationLabel: '1h30',
+    id: 'descontaminacao-pintura',
+    category: 'descontaminacao',
+    title: 'DESCONTAMINAÇÃO COMPLETA DA PINTURA',
+    desc: 'Limpeza profunda da carroçaria que remove partículas que a lavagem normal não consegue tirar.',
+    price: 95,
+    icon: ShieldCheck,
+    image: '/img/proteção.jpg',
+    includes: [
+      'Remoção de ferrugem superficial (partículas ferrosas)',
+      'Remoção de alcatrão e resinas',
+      'Remoção de poluição agarrada à pintura',
+      'Pintura mais lisa ao toque e com mais brilho',
+      'Superfície preparada para receber proteção',
+    ],
+  },
+  {
+    id: 'ceramica',
+    category: 'descontaminacao',
+    title: 'PROTEÇÃO CERÂMICA PROFISSIONAL',
+    desc: 'Camada de proteção aplicada sobre a pintura que cria uma barreira durável contra agressões externas.',
+    price: 250,
+    icon: Gem,
+    image: '/img/ceramica-longa.jpg',
+    includes: [
+      'Proteção contra raios UV',
+      'Proteção contra sujidade e produtos químicos',
+      'Proteção contra pequenos riscos superficiais',
+      'Brilho mais intenso e efeito repelente à água',
+      'Pintura protegida durante muito mais tempo',
+      'Facilita a limpeza do carro',
+    ],
+  },
+
+  // ── HIGIENIZAÇÃO ─────────────────────────────────────────────────────────
+  {
+    id: 'higienizacao-estofos',
+    category: 'higienizacao',
+    title: 'HIGIENIZAÇÃO DE ESTOFOS',
+    desc: 'Limpeza profunda dos bancos e tecidos do interior, com remoção de manchas, maus odores e alergénios.',
+    price: 100,
+    icon: Sparkles,
+    image: '/img/estofos.jpg',
+    includes: [
+      'Limpeza completa dos estofos',
+      'Remoção de manchas e sujidade acumulada',
+      'Eliminação de maus odores',
+      'Redução de bactérias e alergénios',
+      'Interior mais saudável e com aspeto renovado',
+      'Remoção dos bancos sempre que necessário',
+    ],
+  },
+
+  // ── POLIMENTOS E CORREÇÕES ───────────────────────────────────────────────
+  {
+    id: 'polimento-1-etapa',
+    category: 'polimentos',
+    title: 'POLIMENTO DE 1 ETAPA',
+    desc: 'Correção leve da pintura para remover pequenos riscos superficiais e devolver brilho.',
+    price: 180,
+    icon: Wrench,
+    image: '/img/polimento.jpg',
+    includes: [
+      'Remove marcas leves e riscos superficiais',
+      'Reduz hologramas e imperfeições',
+      'Recupera o brilho e a cor da pintura',
+      'Resultado rápido e eficaz',
+    ],
+  },
+  {
+    id: 'polimento-avancado',
+    category: 'polimentos',
+    title: 'POLIMENTO DE CORREÇÃO AVANÇADO',
+    desc: 'Processo em várias etapas para pinturas com mais desgaste, riscos profundos e imperfeições severas.',
+    price: 300,
+    icon: Gem,
+    image: '/img/polimento.jpg',
+    includes: [
+      'Remove riscos profundos e marcas de desgaste',
+      'Melhora cores e uniformiza a pintura',
+      'Proporciona brilho máximo e reflexos intensos',
+      'Acabamento de show car',
+    ],
+  },
+  {
+    id: 'farois-dianteiros',
+    category: 'polimentos',
+    title: 'POLIMENTO DE FARÓIS DIANTEIROS (PAR)',
+    desc: 'Recupera faróis amarelados, opacos ou com riscos, melhorando a estética e a iluminação.',
+    price: 55,
     icon: Lightbulb,
     image: '/img/polimento.jpg',
     includes: [
-      'Lixagem progressiva (multi-grit)',
-      'Polimento com máquina rotativa',
-      'Restauro completo da transparência',
-      'Aplicação de proteção UV',
-      'Par de faróis dianteiros incluído',
+      'Remove oxidação e opacidade',
+      'Elimina riscos superficiais',
+      'Melhora a passagem de luz',
+      'Deixa os faróis transparentes e como novos',
     ],
   },
   {
-    id: 'polimento-farois-traseiros',
-    title: 'POLIMENTO FARÓIS TRASEIROS (PAR)',
-    desc: 'Restauro e polimento dos faróis traseiros para um acabamento perfeito.',
-    price: 50,
-    duration: 60,
-    durationLabel: '1 hora',
+    id: 'farois-traseiros',
+    category: 'polimentos',
+    title: 'POLIMENTO DE FARÓIS TRASEIROS (PAR)',
+    desc: 'Recupera o aspeto original das luzes traseiras, removendo opacidade e riscos superficiais.',
+    price: 40,
     icon: CircleDot,
     image: '/img/farois-traseiros.jpg',
     includes: [
-      'Lixagem progressiva (multi-grit)',
-      'Polimento com máquina rotativa',
-      'Restauro completo da transparência',
-      'Aplicação de proteção UV',
-      'Par de faróis traseiros incluído',
+      'Remove desgaste e opacidade',
+      'Elimina riscos superficiais',
+      'Recupera a transparência',
+      'Melhora o aspeto do veículo',
     ],
   },
 ];
@@ -233,28 +302,22 @@ export const TESTIMONIALS = [
   {
     name: 'Sofia Almeida',
     car: 'Volkswagen Golf',
-    text: 'Marcação fácil, pontualidade e um resultado de outro nível. Voltarei sem dúvida.',
+    text: 'Qualidade premium, atenção ao detalhe e um resultado que se nota. Voltarei sem dúvida.',
   },
 ];
 
-// Booking helpers
 export const TIME_SLOTS = [
   '08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00',
 ];
 
-// LocalStorage key for mocked bookings
 export const BOOKINGS_KEY = 'csc_bookings_mock_v1';
 
 export const HERO_IMAGE = '/img/banner.png';
 
 export const DETAIL_IMAGE = '/img/detail.jpg';
 
-// ─── Calculadora de orçamento ────────────────────────────────────────────────
-// IMPORTANTE: os preços dos extras e os multiplicadores de grau estão
-// duplicados (autoritativos) no backend (server.py → EXTRAS_CATALOG / grade_for).
-// Se alterares valores aqui, atualiza também o backend para manter a coerência.
+// ─── Calculadora de orçamento (mantida para referência, não utilizada na UI) ─
 
-// Problemas do INTERIOR — cada um conta 1 para o grau de sujidade.
 export const INTERIOR_PROBLEMS = [
   { id: 'lixo',            label: 'Lixo acumulado',          icon: Trash2 },
   { id: 'areia',           label: 'Areia ou terra excessiva', icon: Wind },
@@ -266,7 +329,6 @@ export const INTERIOR_PROBLEMS = [
   { id: 'bagageira',       label: 'Bagageira muito suja',     icon: Package },
 ];
 
-// Problemas do EXTERIOR — cada um conta 1 para o grau de sujidade.
 export const EXTERIOR_PROBLEMS = [
   { id: 'insetos',   label: 'Insetos incrustados',        icon: Bug },
   { id: 'jantes',    label: 'Jantes muito contaminadas',  icon: Disc3 },
@@ -280,20 +342,17 @@ export const EXTERIOR_PROBLEMS = [
 export const ALL_PROBLEMS = [...INTERIOR_PROBLEMS, ...EXTERIOR_PROBLEMS];
 export const PROBLEM_LABEL = Object.fromEntries(ALL_PROBLEMS.map((p) => [p.id, p.label]));
 
-// Extras opcionais — valor configurável por extra.
 export const EXTRAS = [
-  { id: 'pelos-intensivo',    label: 'Remoção intensiva de pelos', price: 20, icon: Scissors },
-  { id: 'odores',             label: 'Tratamento de odores',       price: 25, icon: Wind },
-  { id: 'polimento-localizado', label: 'Polimento localizado',     price: 30, icon: Sparkles },
-  { id: 'recup-plasticos',    label: 'Recuperação de plásticos',   price: 20, icon: Layers },
-  { id: 'vomito',             label: 'Limpeza de vómito',          price: 40, icon: AlertTriangle },
-  { id: 'derrames',           label: 'Limpeza de derrames',        price: 25, icon: Droplets },
-  { id: 'outro',              label: 'Outro (sob consulta)',       price: 0,  icon: Plus, custom: true },
+  { id: 'pelos-animal',      label: 'Remoção de Pêlo de Animal',       price: 20, icon: PawPrint },
+  { id: 'areia-praia',       label: 'Remoção de Areia de Praia',       price: 15, icon: Wind },
+  { id: 'odores',            label: 'Tratamento de Odores',            price: 25, icon: CloudFog },
+  { id: 'jantes-profunda',   label: 'Limpeza Profunda de Jantes',      price: 25, icon: Disc3 },
+  { id: 'plasticos-inter',   label: 'Proteção de Plásticos Interiores',price: 20, icon: Layers },
+  { id: 'couro',             label: 'Tratamento de Couro',             price: 60, icon: Scissors },
 ];
 
 export const EXTRA_BY_ID = Object.fromEntries(EXTRAS.map((e) => [e.id, e]));
 
-// Graus de sujidade determinados automaticamente pelo nº de problemas.
 export const GRADES = [
   { grade: 1, label: 'Sujidade Normal',  labelEn: 'Normal Dirt',  min: 0, max: 1,        multiplier: 1.0,  pct: 0  },
   { grade: 2, label: 'Sujidade Elevada', labelEn: 'Heavy Dirt',   min: 2, max: 3,        multiplier: 1.3,  pct: 30 },
@@ -304,15 +363,11 @@ export function gradeForCount(count) {
   return GRADES.find((g) => count >= g.min && count <= g.max) || GRADES[0];
 }
 
-// Formata um valor em euros (vírgula decimal PT, sem decimais quando inteiro).
 export function eur(n) {
   const v = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
   return (Number.isInteger(v) ? String(v) : v.toFixed(2).replace('.', ',')) + ' €';
 }
 
-// Cálculo do orçamento em tempo real.
-//   Subtotal   = Preço Base × Multiplicador (grau)
-//   Preço Final = Subtotal + Extras
 export function computeQuote(service, problemIds = [], extraIds = []) {
   const base = service?.price || 0;
   const count = problemIds.length;
@@ -321,161 +376,101 @@ export function computeQuote(service, problemIds = [], extraIds = []) {
   const chosenExtras = EXTRAS.filter((e) => extraIds.includes(e.id));
   const extrasTotal = chosenExtras.reduce((s, e) => s + e.price, 0);
   const total = subtotal + extrasTotal;
-  return {
-    base,
-    count,
-    grade: g.grade,
-    gradeLabel: g.label,
-    gradeLabelEn: g.labelEn,
-    multiplier: g.multiplier,
-    pct: g.pct,
-    subtotal,
-    extrasTotal,
-    total,
-    chosenExtras,
-  };
+  return { base, count, grade: g.grade, gradeLabel: g.label, gradeLabelEn: g.labelEn, multiplier: g.multiplier, pct: g.pct, subtotal, extrasTotal, total, chosenExtras };
 }
 
 // ─── Traduções dos dados (EN) ────────────────────────────────────────────────
-// Decoramos os arrays existentes com campos `*En`, lidos por tx() no i18n.
-// Mantém os dados PT+EN juntos sem duplicar estrutura (ids, ícones, preços).
 
 const EN_SERVICES = {
-  'lavagem-ceramica': {
-    title: 'WASH WITH CERAMIC PROTECTION',
-    desc: 'Complete wash with ceramic protection applied for shine and protection.',
-    durationLabel: '2 hours',
-    includes: [
-      'Snow foam pre-wash',
-      'Complete exterior wash',
-      'Paint decontamination',
-      'Ceramic protection application',
-      'Wheel and tyre cleaning',
-      'Premium microfibre drying',
-    ],
+  'lavagem-simples': {
+    title: 'BASIC INTERIOR & EXTERIOR WASH',
+    desc: 'General cleaning for vehicle maintenance.',
+    includes: ['Complete exterior wash', 'Interior vacuuming', 'Basic interior cleaning', 'Clean windows', 'Simple service — includes basic interior wash'],
   },
-  'lavagem-ceramica-longa': {
-    title: 'WASH W/ LONG-LASTING CERAMIC PROTECTION',
-    desc: 'Wash with long-lasting ceramic protection for maximum durability.',
-    durationLabel: '3 hours',
-    includes: [
-      'Snow foam pre-wash',
-      'Complete exterior wash',
-      'Chemical paint decontamination',
-      'Long-lasting ceramic protection (6+ months)',
-      'Reinforced hydrophobic treatment',
-      'Extra UV protection',
-      'Wheel and tyre cleaning',
-      'Premium microfibre drying',
-    ],
+  'lavagem-selante': {
+    title: 'WASH WITH SEALANT',
+    desc: 'Exterior wash with a temporary protective sealant that enhances shine and creates a hydrophobic layer.',
+    includes: ['Complete exterior wash', 'Protective sealant application', 'Enhanced shine and water repellency', 'Protects paint from dirt and external agents', 'Includes basic interior wash'],
   },
-  'detalhada-completa': {
-    title: 'FULL INTERIOR/EXTERIOR DETAIL',
-    desc: 'Full detailed wash of the vehicle inside and out.',
-    durationLabel: '1 day',
-    includes: [
-      'Deep exterior wash with snow foam',
-      'Complete paint decontamination',
-      'Vacuuming and cleaning of the entire interior',
-      'Plastic cleaning and dressing',
-      'Leather conditioning (if applicable)',
-      'Interior and exterior glass cleaning',
-      'Wheel and tyre cleaning',
-      'Rubber and seal treatment',
-      'Detailed engine bay cleaning',
-      'Drying and final inspection',
-    ],
+  'lavagem-selante-premium': {
+    title: 'WASH WITH PREMIUM SEALANT',
+    desc: 'Exterior wash with a high-performance sealant offering superior protection and longer-lasting shine.',
+    includes: ['Complete exterior wash', 'High-performance premium sealant', 'Intense shine and superior protection', 'Longer-lasting protective effect', 'Includes basic interior wash'],
   },
   'detalhada-interior': {
     title: 'DETAILED INTERIOR WASH',
-    desc: 'Deep, detailed cleaning of the entire cabin.',
-    durationLabel: '3 hours',
-    includes: [
-      'Complete cabin vacuuming',
-      'Deep cleaning of upholstery and mats',
-      'Plastic cleaning and dressing',
-      'Leather conditioning (if applicable)',
-      'Interior glass cleaning',
-      'Console and dashboard cleaning',
-      'Ozone sanitisation',
-    ],
+    desc: 'Careful cleaning of all interior areas of the vehicle.',
+    includes: ['Deep vacuuming', 'Plastics and dashboard cleaning', 'Console cleaning', 'Tight corners and difficult areas', 'Interior windows', 'Interior-only service'],
   },
   'detalhada-exterior': {
     title: 'DETAILED EXTERIOR WASH',
-    desc: 'Meticulous exterior wash with attention to every detail.',
-    durationLabel: '3 hours',
-    includes: [
-      'Snow foam pre-wash',
-      'Two-bucket method wash',
-      'Chemical and mechanical decontamination',
-      'Detailed wheel and tyre cleaning',
-      'Wheel arch cleaning',
-      'Rubber and seal treatment',
-      'Premium microfibre drying',
-    ],
+    desc: 'Deep exterior cleaning with attention to every detail.',
+    includes: ['Deep bodywork wash', 'Wheel and tyre cleaning', 'Exterior windows', 'Exterior details', 'More shine and finishing detail', 'Exterior-only service'],
+  },
+  'detalhada-completa': {
+    title: 'DETAILED INTERIOR + EXTERIOR WASH',
+    desc: 'The most complete cleaning service, leaving your car renewed inside and out.',
+    includes: ['Complete detailed interior', 'Complete detailed exterior', 'Premium finish', 'Includes basic interior wash'],
+  },
+  'vidros': {
+    title: 'COMPLETE GLASS SERVICE',
+    desc: 'Removes invisible dirt stuck to the glass and applies a hydrophobic coating that repels water.',
+    includes: ['Removes limescale, grease, road residue and contaminants', 'Hydrophobic protection application', 'Cleaner and more transparent glass', 'Rain water runs off more easily', 'Better visibility and greater safety'],
+  },
+  'descontaminacao-pintura': {
+    title: 'COMPLETE PAINT DECONTAMINATION',
+    desc: 'Deep bodywork cleaning that removes particles a regular wash cannot eliminate.',
+    includes: ['Removal of surface rust (iron particles)', 'Tar and resin removal', 'Removal of pollution bonded to the paint', 'Smoother, shinier paint', 'Surface ready for protection'],
+  },
+  'ceramica': {
+    title: 'PROFESSIONAL CERAMIC PROTECTION',
+    desc: 'A durable protective layer applied over the paint that creates a barrier against external damage.',
+    includes: ['Protection against UV rays', 'Protection against dirt and chemicals', 'Protection against minor surface scratches', 'More intense shine and water-repellent effect', 'Paint protected for much longer', 'Easier to clean the car'],
   },
   'higienizacao-estofos': {
     title: 'UPHOLSTERY SANITISATION',
-    desc: 'Deep cleaning and sanitisation of the vehicle upholstery.',
-    durationLabel: '3 hours',
-    includes: [
-      'Deep upholstery vacuuming',
-      'Specialised product application',
-      'Mechanical brushing',
-      'Hot extraction',
-      'Stain and mark removal',
-      'Odour elimination',
-      'Accelerated drying',
-    ],
+    desc: 'Deep cleaning of seats and interior fabrics, removing stains, odours and allergens.',
+    includes: ['Complete upholstery cleaning', 'Stain and accumulated dirt removal', 'Elimination of bad odours', 'Reduction of bacteria and allergens', 'Healthier interior with a renewed look', 'Seat removal whenever necessary'],
   },
-  'descontaminacao-vidros': {
-    title: 'GLASS DECONTAMINATION',
-    desc: 'Removal of contaminants and restoration of glass clarity.',
-    durationLabel: '1 hour',
-    includes: [
-      'Limescale and mineral deposit removal',
-      'Chemical glass decontamination',
-      'Glass polishing',
-      'Water-repellent application',
-      'Wing mirror cleaning',
-    ],
+  'polimento-1-etapa': {
+    title: '1-STAGE POLISHING',
+    desc: 'Light paint correction to remove minor surface scratches and restore shine.',
+    includes: ['Removes light marks and surface scratches', 'Reduces holograms and imperfections', 'Restores paint shine and colour', 'Fast and effective result'],
   },
-  'polimento-farois-dianteiros': {
+  'polimento-avancado': {
+    title: 'ADVANCED CORRECTION POLISHING',
+    desc: 'Multi-stage process for paint with heavier wear, deep scratches and severe imperfections.',
+    includes: ['Removes deep scratches and wear marks', 'Improves colour uniformity', 'Maximum shine and intense reflections', 'Show car finish'],
+  },
+  'farois-dianteiros': {
     title: 'FRONT HEADLIGHT POLISHING (PAIR)',
-    desc: 'Restoration and polishing of the front headlights for maximum visibility.',
-    durationLabel: '1h30',
-    includes: [
-      'Progressive multi-grit sanding',
-      'Rotary machine polishing',
-      'Full clarity restoration',
-      'UV protection application',
-      'Pair of front headlights included',
-    ],
+    desc: 'Restores yellowed, hazy or scratched headlights, improving appearance and illumination.',
+    includes: ['Removes oxidation and haziness', 'Eliminates surface scratches', 'Improves light output', 'Leaves headlights clear and like new'],
   },
-  'polimento-farois-traseiros': {
+  'farois-traseiros': {
     title: 'REAR LIGHT POLISHING (PAIR)',
-    desc: 'Restoration and polishing of the rear lights for a perfect finish.',
-    durationLabel: '1 hour',
-    includes: [
-      'Progressive multi-grit sanding',
-      'Rotary machine polishing',
-      'Full clarity restoration',
-      'UV protection application',
-      'Pair of rear lights included',
-    ],
+    desc: 'Restores the original look of rear lights, removing haziness and surface scratches.',
+    includes: ['Removes wear and haziness', 'Eliminates surface scratches', 'Restores clarity', 'Improves the look of the vehicle'],
   },
 };
 
 const EN_FEATURES = {
-  'Atendimento Premium': 'Premium Service',
-  'Produtos de Qualidade': 'Quality Products',
-  'Resultados Garantidos': 'Guaranteed Results',
-  'Marcação Rápida': 'Fast Booking',
+  'Produtos Premium':     'Premium Products',
+  'Atenção ao Detalhe':   'Attention to Detail',
+  'Resultados Duradouros':'Lasting Results',
+  'Satisfação Garantida': 'Guaranteed Satisfaction',
+};
+
+const EN_CATEGORIES = {
+  'lavagens':       { label: 'WASHES',                     subtitle: "What's the difference?" },
+  'descontaminacao':{ label: 'DECONTAMINATION & PROTECTION', subtitle: 'For total protection' },
+  'higienizacao':   { label: 'SANITISATION',               subtitle: 'Healthy interior, total comfort' },
+  'polimentos':     { label: 'POLISHING & CORRECTIONS',    subtitle: 'Back to perfect shine' },
 };
 
 const EN_PROCESS = {
   '01': { title: 'ASSESSMENT', desc: 'We analyse the vehicle condition to define the best treatment.' },
-  '02': { title: 'DEEP WASH', desc: 'We remove dirt, contaminants and impurities in depth.' },
+  '02': { title: 'DEEP WASH',  desc: 'We remove dirt, contaminants and impurities in depth.' },
   '03': { title: 'DETAIL & PROTECTION', desc: 'We work every detail and apply high-quality protection.' },
   '04': { title: 'PREMIUM HANDOVER', desc: 'We hand your car back flawless and ready to impress.' },
 };
@@ -484,43 +479,32 @@ const EN_TESTIMONIALS = {
   'Ricardo Pereira': 'Exceptional service! The car looked brand new, it exceeded my expectations.',
   'João Fernandes': 'Professionalism, attention to detail and incredible results. Highly recommend!',
   'Miguel Costa': 'Best detailed wash I have ever had. Impeccable setting and very attentive staff.',
-  'Sofia Almeida': 'Easy booking, punctuality and a next-level result. I will definitely be back.',
+  'Sofia Almeida': 'Premium quality, attention to detail and a result you can see. I will definitely be back.',
 };
 
 const EN_BEFORE_AFTER = { EXTERIOR: 'EXTERIOR', INTERIOR: 'INTERIOR', BANCOS: 'SEATS', JANTES: 'WHEELS' };
 
 const EN_PROBLEMS = {
-  lixo: 'Accumulated rubbish',
-  areia: 'Excessive sand or dirt',
-  tapetes: 'Very dirty mats',
-  'manchas-estofos': 'Upholstery stains',
-  'manchas-dificeis': 'Tough stains',
-  pelos: 'Pet hair',
-  odor: 'Unpleasant odour',
-  bagageira: 'Very dirty boot',
-  insetos: 'Embedded insects',
-  jantes: 'Heavily contaminated wheels',
-  resina: 'Resin or tar',
-  vidros: 'Contaminated glass',
-  pintura: 'Heavily contaminated paint',
-  lama: 'Excessive mud',
-  plasticos: 'Degraded exterior plastics',
+  lixo: 'Accumulated rubbish', areia: 'Excessive sand or dirt', tapetes: 'Very dirty mats',
+  'manchas-estofos': 'Upholstery stains', 'manchas-dificeis': 'Tough stains', pelos: 'Pet hair',
+  odor: 'Unpleasant odour', bagageira: 'Very dirty boot', insetos: 'Embedded insects',
+  jantes: 'Heavily contaminated wheels', resina: 'Resin or tar', vidros: 'Contaminated glass',
+  pintura: 'Heavily contaminated paint', lama: 'Excessive mud', plasticos: 'Degraded exterior plastics',
 };
 
 const EN_EXTRAS = {
-  'pelos-intensivo': 'Intensive pet hair removal',
-  odores: 'Odour treatment',
-  'polimento-localizado': 'Localised polishing',
-  'recup-plasticos': 'Plastic restoration',
-  vomito: 'Vomit cleaning',
-  derrames: 'Spill cleaning',
-  outro: 'Other (on request)',
+  'pelos-animal': 'Pet hair removal', 'areia-praia': 'Beach sand removal',
+  'odores': 'Odour treatment', 'jantes-profunda': 'Deep wheel cleaning',
+  'plasticos-inter': 'Interior plastic protection', 'couro': 'Leather treatment',
 };
 
-// Aplica os campos *En aos arrays exportados.
 SERVICES.forEach((s) => {
   const e = EN_SERVICES[s.id];
-  if (e) { s.titleEn = e.title; s.descEn = e.desc; s.durationLabelEn = e.durationLabel; s.includesEn = e.includes; }
+  if (e) { s.titleEn = e.title; s.descEn = e.desc; s.includesEn = e.includes; }
+});
+CATEGORIES.forEach((c) => {
+  const e = EN_CATEGORIES[c.id];
+  if (e) { c.labelEn = e.label; c.subtitleEn = e.subtitle; }
 });
 FEATURES.forEach((f) => { if (EN_FEATURES[f.label]) f.labelEn = EN_FEATURES[f.label]; });
 PROCESS.forEach((p) => { const e = EN_PROCESS[p.n]; if (e) { p.titleEn = e.title; p.descEn = e.desc; } });

@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X, CalendarCheck, Globe } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import Logo from './Logo';
 import { useLang } from '../i18n';
 
 const LINKS = [
-  { href: '#home', key: 'nav.home' },
-  { href: '#services', key: 'nav.services' },
-  { href: '#before-after', key: 'nav.beforeAfter' },
-  { href: '#about', key: 'nav.about' },
+  { href: '#home',         key: 'nav.home' },
+  { href: '#services',     key: 'nav.services' },
+  { href: '#about',        key: 'nav.about' },
   { href: '#testimonials', key: 'nav.testimonials' },
-  { href: '#contact', key: 'nav.contact' },
+  { href: '#contact',      key: 'nav.contact' },
 ];
 
-export default function Header({ onBook }) {
+export default function Header() {
   const { t, lang, setLang } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -31,11 +30,7 @@ export default function Header({ onBook }) {
     const els = ids.map(id => document.getElementById(id)).filter(Boolean);
     if (!els.length) return;
     const obs = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) setActive('#' + e.target.id);
-        });
-      },
+      entries => { entries.forEach(e => { if (e.isIntersecting) setActive('#' + e.target.id); }); },
       { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
     );
     els.forEach(el => obs.observe(el));
@@ -45,9 +40,7 @@ export default function Header({ onBook }) {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-black/85 backdrop-blur-md border-b border-white/5 py-3'
-          : 'bg-transparent py-5'
+        scrolled ? 'bg-black/85 backdrop-blur-md border-b border-white/5 py-3' : 'bg-transparent py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -65,11 +58,7 @@ export default function Header({ onBook }) {
               }`}
             >
               {t(l.key)}
-              <span
-                className={`absolute left-0 right-0 -bottom-0.5 h-[2px] bg-blue-600 transition-all ${
-                  active === l.href ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
+              <span className={`absolute left-0 right-0 -bottom-0.5 h-[2px] bg-blue-600 transition-all ${active === l.href ? 'opacity-100' : 'opacity-0'}`} />
             </a>
           ))}
         </nav>
@@ -83,13 +72,6 @@ export default function Header({ onBook }) {
           >
             <Globe className="w-3.5 h-3.5" />
             {lang === 'pt' ? 'EN' : 'PT'}
-          </button>
-          <button
-            onClick={onBook}
-            className="btn-silver inline-flex items-center gap-2 px-6 py-2.5 text-[11px] tracking-[0.22em] font-bold"
-          >
-            <CalendarCheck className="w-4 h-4" />
-            {t('nav.book')}
           </button>
         </div>
 
@@ -113,11 +95,7 @@ export default function Header({ onBook }) {
       </div>
 
       {/* Mobile */}
-      <div
-        className={`lg:hidden overflow-hidden transition-all duration-300 ${
-          open ? 'max-h-[480px]' : 'max-h-0'
-        }`}
-      >
+      <div className={`lg:hidden overflow-hidden transition-all duration-300 ${open ? 'max-h-[400px]' : 'max-h-0'}`}>
         <div className="px-6 py-4 bg-black/95 border-t border-white/5 flex flex-col gap-1">
           {LINKS.map(l => (
             <a
@@ -129,15 +107,6 @@ export default function Header({ onBook }) {
               {t(l.key)}
             </a>
           ))}
-          <button
-            onClick={() => {
-              setOpen(false);
-              onBook();
-            }}
-            className="btn-silver mt-3 px-5 py-3 text-xs tracking-[0.22em] font-bold flex items-center justify-center gap-2"
-          >
-            <CalendarCheck className="w-4 h-4" /> {t('nav.book')}
-          </button>
         </div>
       </div>
     </header>

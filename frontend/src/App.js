@@ -1,17 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Services from './components/Services';
-import DetailSection from './components/DetailSection';
-import BeforeAfter from './components/BeforeAfter';
+import AboutSection from './components/AboutSection';
 import Process from './components/Process';
 import Testimonials from './components/Testimonials';
 import ContactMap from './components/ContactMap';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
-import Booking from './components/Booking';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsConditions from './components/TermsConditions';
 import CookiePolicy from './components/CookiePolicy';
@@ -25,14 +23,14 @@ const SEO = {
   pt: {
     title: 'Clean Station Car – Limpeza e Detalhe Automóvel Premium em Braga',
     description:
-      'Limpeza automóvel e detalhe premium em Braga. Lavagem detalhada, polimento de faróis, proteção cerâmica, higienização de estofos e descontaminação. Orçamento e marcação online instantâneos.',
+      'Limpeza automóvel e detalhe premium em Braga. Lavagem detalhada, polimento de faróis, proteção cerâmica, higienização de estofos e descontaminação. Orçamento sem compromisso via WhatsApp.',
     keywords:
-      'limpeza automóvel Braga, lavagem auto Braga, detalhe automóvel, lavagem detalhada, proteção cerâmica, polimento faróis, higienização estofos, lavagem a seco, car detailing Braga',
+      'limpeza automóvel Braga, lavagem auto Braga, detalhe automóvel, lavagem detalhada, proteção cerâmica, polimento faróis, higienização estofos, car detailing Braga',
   },
   en: {
     title: 'Clean Station Car – Premium Car Cleaning & Detailing in Braga',
     description:
-      'Premium car cleaning and detailing in Braga, Portugal. Detailed wash, headlight polishing, ceramic protection, upholstery sanitisation and decontamination. Instant online quote and booking.',
+      'Premium car cleaning and detailing in Braga, Portugal. Detailed wash, headlight polishing, ceramic protection, upholstery sanitisation and decontamination. No-commitment quote via WhatsApp.',
     keywords:
       'car cleaning Braga, car wash Braga, car detailing Braga, detailed wash, ceramic protection, headlight polishing, upholstery cleaning, valeting Braga',
   },
@@ -40,19 +38,10 @@ const SEO = {
 
 function Home() {
   const { lang } = useLang();
-  const [bookingOpen, setBookingOpen] = useState(false);
-  const [initialService, setInitialService] = useState(null);
-  const [legalOpen, setLegalOpen] = useState(null); // 'privacy' | 'terms' | 'cookies'
+  const [legalOpen, setLegalOpen] = useState(null);
 
-  const openBooking = useCallback((serviceId) => {
-    setInitialService(typeof serviceId === 'string' ? serviceId : null);
-    setBookingOpen(true);
-  }, []);
-
-  // Analytics — carrega GA se já houve consentimento
   useEffect(() => { initAnalytics(); }, []);
 
-  // SEO + schema (dependente do idioma)
   useEffect(() => {
     const seo = SEO[lang] || SEO.pt;
     document.documentElement.lang = lang;
@@ -84,7 +73,6 @@ function Home() {
     ensureMeta('twitter:description', seo.description);
     ensureMeta('twitter:image', `${SITE_URL}/img/banner.png`);
 
-    // Canonical + hreflang alternates
     const ensureLink = (id, rel, href, hreflang) => {
       let el = document.getElementById(id);
       if (!el) { el = document.createElement('link'); el.id = id; el.rel = rel; document.head.appendChild(el); }
@@ -96,7 +84,6 @@ function Home() {
     ensureLink('seo-alt-en', 'alternate', SITE_URL, 'en');
     ensureLink('seo-alt-default', 'alternate', SITE_URL, 'x-default');
 
-    // LocalBusiness schema (rico, para SEO local)
     const sid = 'schema-localbusiness';
     document.getElementById(sid)?.remove();
     const s = document.createElement('script');
@@ -110,14 +97,14 @@ function Home() {
       image: `${SITE_URL}/img/banner.png`,
       logo: `${SITE_URL}/img/logo.png`,
       url: SITE_URL,
-      telephone: '+351934177308',
+      telephone: '+351913733791',
       email: 'cleanstationcar@gmail.com',
       priceRange: '€€',
       currenciesAccepted: 'EUR',
       paymentAccepted: 'Cash, Bank Transfer',
       address: {
         '@type': 'PostalAddress',
-        streetAddress: 'R. Conselheiro Lobato 533',
+        streetAddress: 'R. Conselheiro Lobato 503',
         addressLocality: 'Braga',
         postalCode: '4705-089',
         addressRegion: 'Braga',
@@ -139,9 +126,9 @@ function Home() {
         '@type': 'OfferCatalog',
         name: lang === 'en' ? 'Car cleaning and detailing services' : 'Serviços de limpeza e detalhe automóvel',
         itemListElement: [
-          'Lavagem com Proteção Cerâmica', 'Lavagem Detalhada Interior',
-          'Lavagem Detalhada Exterior', 'Higienização de Estofos',
-          'Descontaminação de Vidros', 'Polimento de Faróis',
+          'Lavagem com Selante', 'Lavagem Detalhada Interior', 'Lavagem Detalhada Exterior',
+          'Higienização de Estofos', 'Descontaminação Completa da Pintura',
+          'Proteção Cerâmica Profissional', 'Polimento de Faróis',
         ].map((n) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: n } })),
       },
     });
@@ -150,23 +137,17 @@ function Home() {
 
   return (
     <div className="bg-black text-white min-h-screen">
-      <Header onBook={openBooking} />
+      <Header />
       <main>
-        <Hero onBook={openBooking} />
-        <Services onBook={openBooking} />
-        <DetailSection onBook={openBooking} />
-        <BeforeAfter />
+        <Hero />
+        <Services />
+        <AboutSection />
         <Process />
         <Testimonials />
-        <ContactMap onBook={openBooking} />
+        <ContactMap />
       </main>
       <Footer onLegal={setLegalOpen} />
       <WhatsAppButton />
-      <Booking
-        open={bookingOpen}
-        initialServiceId={initialService}
-        onClose={() => setBookingOpen(false)}
-      />
       <PrivacyPolicy open={legalOpen === 'privacy'} onClose={() => setLegalOpen(null)} />
       <TermsConditions open={legalOpen === 'terms'} onClose={() => setLegalOpen(null)} />
       <CookiePolicy open={legalOpen === 'cookies'} onClose={() => setLegalOpen(null)} />
