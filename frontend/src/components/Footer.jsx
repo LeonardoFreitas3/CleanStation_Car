@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, Facebook, MessageCircle } from 'lucide-react';
+import { Instagram } from 'lucide-react';
 import { SITE } from '../mock';
 import { useLang } from '../i18n';
 import Logo from './Logo';
@@ -39,19 +39,14 @@ export default function Footer({ onLegal }) {
               {t('footer.social')}
             </div>
             <div className="flex items-center gap-3">
-              <a href="#" aria-label="Instagram" className="w-10 h-10 border border-white/20 hover:border-blue-500 hover:bg-blue-900/20 hover:text-blue-400 flex items-center justify-center text-white transition rounded-sm">
+              <a
+                href="https://www.instagram.com/cleanstation_car/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+                className="w-10 h-10 border border-white/20 hover:border-pink-500 hover:bg-pink-900/20 hover:text-pink-400 flex items-center justify-center text-white transition rounded-sm"
+              >
                 <Instagram className="w-4 h-4" strokeWidth={1.5} />
-              </a>
-              <a href="#" aria-label="Facebook" className="w-10 h-10 border border-white/20 hover:border-blue-500 hover:bg-blue-900/20 hover:text-blue-400 flex items-center justify-center text-white transition rounded-sm">
-                <Facebook className="w-4 h-4" strokeWidth={1.5} />
-              </a>
-              <a href={`https://wa.me/${SITE.phoneRaw}`} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="w-10 h-10 border border-white/20 hover:border-emerald-500 hover:bg-emerald-900/20 hover:text-emerald-400 flex items-center justify-center text-white transition rounded-sm">
-                <MessageCircle className="w-4 h-4" strokeWidth={1.5} />
-              </a>
-              <a href="#" aria-label="TikTok" className="w-10 h-10 border border-white/20 hover:border-blue-500 hover:bg-blue-900/20 hover:text-blue-400 flex items-center justify-center text-white transition rounded-sm">
-                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.69a8.16 8.16 0 0 0 4.77 1.52V6.79a4.85 4.85 0 0 1-1.84-.1z" />
-                </svg>
               </a>
             </div>
           </div>

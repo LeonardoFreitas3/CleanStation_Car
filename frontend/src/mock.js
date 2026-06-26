@@ -43,7 +43,7 @@ export const SERVICES = [
     desc: 'Limpeza geral para manutenção do veículo.',
     price: 25,
     icon: Droplets,
-    image: '/img/lavagem.jpg',
+    image: '/img/lavagem.jpg',           // car being washed
     includes: [
       'Lavagem exterior completa',
       'Aspiração do interior',
@@ -59,7 +59,7 @@ export const SERVICES = [
     desc: 'Lavagem exterior com aplicação de proteção temporária que realça o brilho e cria uma camada hidrofóbica.',
     price: 37,
     icon: ShieldCheck,
-    image: '/img/lavagem.jpg',
+    image: '/img/proteção.jpg',
     includes: [
       'Lavagem exterior completa',
       'Aplicação de selante protetor',
@@ -108,7 +108,7 @@ export const SERVICES = [
     desc: 'Limpeza profunda da parte exterior com atenção a cada pormenor.',
     price: 90,
     icon: SprayCan,
-    image: '/img/proteção.jpg',
+    image: '/img/detalhada-completa.jpg',
     includes: [
       'Lavagem profunda da carroçaria',
       'Limpeza de jantes e pneus',
@@ -125,7 +125,7 @@ export const SERVICES = [
     desc: 'O serviço mais completo de limpeza, com o carro renovado por dentro e por fora.',
     price: 155,
     icon: Car,
-    image: '/img/detalhada-completa.jpg',
+    image: '/img/detail.jpg',
     includes: [
       'Interior detalhado completo',
       'Exterior detalhado completo',
@@ -158,7 +158,7 @@ export const SERVICES = [
     desc: 'Limpeza profunda da carroçaria que remove partículas que a lavagem normal não consegue tirar.',
     price: 95,
     icon: ShieldCheck,
-    image: '/img/proteção.jpg',
+    image: '/img/polimento.jpg',
     includes: [
       'Remoção de ferrugem superficial (partículas ferrosas)',
       'Remoção de alcatrão e resinas',
@@ -174,7 +174,7 @@ export const SERVICES = [
     desc: 'Camada de proteção aplicada sobre a pintura que cria uma barreira durável contra agressões externas.',
     price: 250,
     icon: Gem,
-    image: '/img/ceramica-longa.jpg',
+    image: '/img/banner.png',
     includes: [
       'Proteção contra raios UV',
       'Proteção contra sujidade e produtos químicos',
@@ -227,7 +227,7 @@ export const SERVICES = [
     desc: 'Processo em várias etapas para pinturas com mais desgaste, riscos profundos e imperfeições severas.',
     price: 300,
     icon: Gem,
-    image: '/img/polimento.jpg',
+    image: '/img/ceramica-longa.jpg',
     includes: [
       'Remove riscos profundos e marcas de desgaste',
       'Melhora cores e uniformiza a pintura',
@@ -242,7 +242,7 @@ export const SERVICES = [
     desc: 'Recupera faróis amarelados, opacos ou com riscos, melhorando a estética e a iluminação.',
     price: 55,
     icon: Lightbulb,
-    image: '/img/polimento.jpg',
+    image: '/img/farois-traseiros.jpg',
     includes: [
       'Remove oxidação e opacidade',
       'Elimina riscos superficiais',
@@ -257,7 +257,7 @@ export const SERVICES = [
     desc: 'Recupera o aspeto original das luzes traseiras, removendo opacidade e riscos superficiais.',
     price: 40,
     icon: CircleDot,
-    image: '/img/farois-traseiros.jpg',
+    image: '/img/lavagem.jpg',
     includes: [
       'Remove desgaste e opacidade',
       'Elimina riscos superficiais',
