@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://LeonardoFreitas3.github.io/CleanStation_Car",
+  "homepage": "https://cleanstationcar.com",
   "dependencies": {
     "lucide-react": "^0.507.0",
     "react": "^19.0.0",

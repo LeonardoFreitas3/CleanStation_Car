@@ -17,7 +17,7 @@ import CookieBanner from './components/CookieBanner';
 import { initAnalytics } from './analytics';
 import { LanguageProvider, useLang } from './i18n';
 
-const SITE_URL = 'https://cleanstationcar.pt';
+const SITE_URL = 'https://cleanstationcar.com';
 
 const SEO = {
   pt: {

@@ -1,5 +1,6 @@
 import React from 'react';
 import LegalModal from './LegalModal';
+import { SITE } from '../mock';
 import { useLang } from '../i18n';
 
 export default function TermsConditions({ open, onClose }) {
@@ -13,8 +14,8 @@ export default function TermsConditions({ open, onClose }) {
         <h2>1. Identification</h2>
         <p>
           <strong>Clean Station Car</strong> — provider of car washing and detailing services<br />
-          R. Conselheiro Lobato 533, 4705-089 Braga, Portugal<br />
-          Email: <a href="mailto:cleanstationcar@gmail.com" className="text-blue-400">cleanstationcar@gmail.com</a>
+          {SITE.address}, Portugal<br />
+          Email: <a href={`mailto:${SITE.email}`} className="text-blue-400">{SITE.email}</a>
         </p>
 
         <h2>2. Services Provided</h2>
@@ -64,8 +65,8 @@ export default function TermsConditions({ open, onClose }) {
       <h2>1. Identificação</h2>
       <p>
         <strong>Clean Station Car</strong> — prestador de serviços de lavagem e detalhamento automóvel<br />
-        R. Conselheiro Lobato 533, 4705-089 Braga, Portugal<br />
-        Email: <a href="mailto:cleanstationcar@gmail.com" className="text-blue-400">cleanstationcar@gmail.com</a>
+        {SITE.address}, Portugal<br />
+        Email: <a href={`mailto:${SITE.email}`} className="text-blue-400">{SITE.email}</a>
       </p>
 
       <h2>2. Serviços Prestados</h2>

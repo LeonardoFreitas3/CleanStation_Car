@@ -1,5 +1,6 @@
 import React from 'react';
 import LegalModal from './LegalModal';
+import { SITE } from '../mock';
 import { useLang } from '../i18n';
 
 export default function PrivacyPolicy({ open, onClose }) {
@@ -13,9 +14,9 @@ export default function PrivacyPolicy({ open, onClose }) {
         <h2>1. Data Controller</h2>
         <p>
           <strong>Clean Station Car</strong><br />
-          R. Conselheiro Lobato 533, 4705-089 Braga, Portugal<br />
-          Email: <a href="mailto:cleanstationcar@gmail.com" className="text-blue-400">cleanstationcar@gmail.com</a><br />
-          Phone: +351 934 177 308
+          {SITE.address}, Portugal<br />
+          Email: <a href={`mailto:${SITE.email}`} className="text-blue-400">{SITE.email}</a><br />
+          Phone: {SITE.phone}
         </p>
 
         <h2>2. Data Collected</h2>
@@ -71,9 +72,9 @@ export default function PrivacyPolicy({ open, onClose }) {
       <h2>1. Responsável pelo Tratamento</h2>
       <p>
         <strong>Clean Station Car</strong><br />
-        R. Conselheiro Lobato 533, 4705-089 Braga, Portugal<br />
-        Email: <a href="mailto:cleanstationcar@gmail.com" className="text-blue-400">cleanstationcar@gmail.com</a><br />
-        Telefone: +351 934 177 308
+        {SITE.address}, Portugal<br />
+        Email: <a href={`mailto:${SITE.email}`} className="text-blue-400">{SITE.email}</a><br />
+        Telefone: {SITE.phone}
       </p>
 
       <h2>2. Dados Recolhidos</h2>

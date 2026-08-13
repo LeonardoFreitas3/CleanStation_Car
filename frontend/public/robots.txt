@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://cleanstationcar.pt/sitemap.xml
+Sitemap: https://cleanstationcar.com/sitemap.xml
