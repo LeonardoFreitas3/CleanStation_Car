@@ -3,7 +3,7 @@ import { MessageCircle } from 'lucide-react';
 import { SITE } from '../mock';
 import { useLang } from '../i18n';
 
-const SPLASH_IMAGE = '/img/detail.jpg';
+const SPLASH_IMAGE = `${process.env.PUBLIC_URL}/img/detail.jpg`;
 
 export default function AboutSection() {
   const { t } = useLang();

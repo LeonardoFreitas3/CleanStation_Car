@@ -3,7 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { FEATURES, SITE } from "../mock";
 import { useLang } from "../i18n";
 
-const HERO_CAR = "/img/banner.png";
+const HERO_CAR = `${process.env.PUBLIC_URL}/img/banner.png`;
 
 export default function Hero() {
   const { t, tx } = useLang();
