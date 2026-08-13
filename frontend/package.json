@@ -15,6 +15,7 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
+    "favicon": "node scripts/gen-favicon.mjs",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
