@@ -174,7 +174,7 @@ export const SERVICES = [
     desc: 'Camada de proteção aplicada sobre a pintura que cria uma barreira durável contra agressões externas.',
     price: 250,
     icon: Gem,
-    image: `${process.env.PUBLIC_URL}/img/banner.png`,
+    image: `${process.env.PUBLIC_URL}/img/banner.jpg`,
     includes: [
       'Proteção contra raios UV',
       'Proteção contra sujidade e produtos químicos',

@@ -31,11 +31,11 @@
     <meta property="og:url" content="https://cleanstationcar.com/" />
     <meta property="og:title" content="Clean Station Car – Limpeza e Detalhe Automóvel Premium em Braga" />
     <meta property="og:description" content="Limpeza automóvel e detalhe premium em Braga. Orçamento e marcação online instantâneos." />
-    <meta property="og:image" content="https://cleanstationcar.com/img/banner.png" />
+    <meta property="og:image" content="https://cleanstationcar.com/img/banner.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Clean Station Car – Limpeza e Detalhe Automóvel Premium em Braga" />
     <meta name="twitter:description" content="Limpeza automóvel e detalhe premium em Braga. Orçamento e marcação online instantâneos." />
-    <meta name="twitter:image" content="https://cleanstationcar.com/img/banner.png" />
+    <meta name="twitter:image" content="https://cleanstationcar.com/img/banner.jpg" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -44,6 +44,10 @@
       rel="stylesheet"
     />
     <link rel="icon" href="img/favicon.ico" />
+    <!-- Imagem LCP: o hero e renderizado pelo React, o preload arranca o
+         download em paralelo com o bundle. type= faz os browsers sem suporte
+         a WebP ignorarem-no e usarem o .jpg do <picture>. -->
+    <link rel="preload" as="image" href="%PUBLIC_URL%/img/banner.webp" type="image/webp" />
     <title>Clean Station Car – Limpeza e Detalhe Automóvel Premium em Braga</title>
   </head>
   <body>

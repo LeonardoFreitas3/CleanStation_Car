@@ -3,7 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { FEATURES, SITE } from "../mock";
 import { useLang } from "../i18n";
 
-const HERO_CAR = `${process.env.PUBLIC_URL}/img/banner.png`;
+const HERO_CAR = `${process.env.PUBLIC_URL}/img/banner`;
 
 export default function Hero() {
   const { t, tx } = useLang();
@@ -15,13 +15,17 @@ export default function Hero() {
       <div className="relative min-h-[100vh] flex flex-col">
         {/* Background */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={HERO_CAR}
-            alt="Audi luxury car"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: "65% 60%" }}
-            loading="eager"
-          />
+          <picture>
+            <source srcSet={`${HERO_CAR}.webp`} type="image/webp" />
+            <img
+              src={`${HERO_CAR}.jpg`}
+              alt="Audi luxury car"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ objectPosition: "65% 60%" }}
+              loading="eager"
+              fetchPriority="high"
+            />
+          </picture>
           <div className="absolute pointer-events-none" style={{ left: "62%", top: "58%", transform: "translate(-50%, -50%)", width: "70%", height: "60%", background: "radial-gradient(ellipse at center, rgba(255,250,235,0.25) 0%, rgba(255,250,235,0.08) 30%, transparent 65%)", filter: "blur(50px)" }} />
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-black/20" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_60%,_transparent_0%,_rgba(0,0,0,0.55)_70%,_#000_100%)]" />

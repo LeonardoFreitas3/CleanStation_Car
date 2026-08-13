@@ -67,11 +67,11 @@ function Home() {
     ensureMeta('og:type', 'website', 'property');
     ensureMeta('og:url', SITE_URL, 'property');
     ensureMeta('og:locale', lang === 'en' ? 'en_GB' : 'pt_PT', 'property');
-    ensureMeta('og:image', `${SITE_URL}/img/banner.png`, 'property');
+    ensureMeta('og:image', `${SITE_URL}/img/banner.jpg`, 'property');
     ensureMeta('twitter:card', 'summary_large_image');
     ensureMeta('twitter:title', seo.title);
     ensureMeta('twitter:description', seo.description);
-    ensureMeta('twitter:image', `${SITE_URL}/img/banner.png`);
+    ensureMeta('twitter:image', `${SITE_URL}/img/banner.jpg`);
 
     const ensureLink = (id, rel, href, hreflang) => {
       let el = document.getElementById(id);
@@ -94,7 +94,7 @@ function Home() {
       '@id': `${SITE_URL}/#business`,
       name: 'Clean Station Car',
       description: (SEO[lang] || SEO.pt).description,
-      image: `${SITE_URL}/img/banner.png`,
+      image: `${SITE_URL}/img/banner.jpg`,
       logo: `${SITE_URL}/img/logo.png`,
       url: SITE_URL,
       telephone: '+351913733791',
