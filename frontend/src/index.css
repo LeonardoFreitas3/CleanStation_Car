@@ -24,11 +24,6 @@ html {
     letter-spacing: 0.02em;
 }
 
-.font-serif-elegant {
-    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-    font-weight: 500;
-}
-
 ::selection {
     background: #2563eb;
     color: #fff;
@@ -84,30 +79,6 @@ html {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-}
-
-/* Chrome button */
-.btn-chrome {
-    background: linear-gradient(
-        180deg,
-        #fafafa 0%,
-        #d8d8d8 35%,
-        #9a9a9a 55%,
-        #6a6a6a 70%,
-        #b8b8b8 100%
-    );
-    color: #0a0a0a;
-    border: 1px solid #2a2a2a;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.9),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-        0 4px 18px rgba(0, 0, 0, 0.55);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-    transition: filter 0.25s ease, transform 0.2s ease;
-}
-.btn-chrome:hover {
-    filter: brightness(1.08);
-    transform: translateY(-1px);
 }
 
 /* Silver soft button (matches mockup MARCAR AGORA) */
@@ -169,15 +140,4 @@ html {
     width: 64px;
     height: 3px;
     background: linear-gradient(90deg, #60a5fa 0%, #2563eb 45%, transparent 100%);
-}
-
-/* Glow used behind car in hero */
-.hero-glow {
-    background: radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 0.18) 0%,
-        rgba(255, 255, 255, 0.05) 30%,
-        transparent 65%
-    );
-    filter: blur(20px);
 }
