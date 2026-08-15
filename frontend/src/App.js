@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
@@ -16,6 +16,10 @@ import CookiePolicy from './components/CookiePolicy';
 import CookieBanner from './components/CookieBanner';
 import { initAnalytics } from './analytics';
 import { LanguageProvider, useLang } from './i18n';
+
+// Carregado a pedido: o CRM traz o supabase-js atras, e quem visita o site
+// publico nao tem de descarregar nada disso.
+const CrmApp = lazy(() => import('./crm/CrmApp'));
 
 const SITE_URL = 'https://cleanstationcar.com';
 
@@ -162,6 +166,14 @@ function App() {
       <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route
+            path="/crm/*"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-black" />}>
+                <CrmApp />
+              </Suspense>
+            }
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
