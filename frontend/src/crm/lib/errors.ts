@@ -63,6 +63,16 @@ export function friendlyError(error: unknown): string {
 
   const err = error as SupabaseLikeError;
 
+  // O detalhe tecnico nao pode ir para o ecra — revela nomes de tabelas e
+  // politicas — mas tem de ir para algum lado, senao um erro em producao fica
+  // impossivel de diagnosticar. Vai para a consola, so em desenvolvimento.
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.error('[CRM] erro do Supabase:', {
+      code: err.code, status: err.status, message: err.message, raw: error,
+    });
+  }
+
   if (err.code && AUTH_CODES[err.code]) return AUTH_CODES[err.code];
   if (err.code && POSTGRES_MESSAGES[err.code]) return POSTGRES_MESSAGES[err.code];
   if (err.status === 401 || err.status === 403) {
