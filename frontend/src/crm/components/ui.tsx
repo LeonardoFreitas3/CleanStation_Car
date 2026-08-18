@@ -73,6 +73,73 @@ export function Field({ label, error, trailing, className = '', id, ...rest }: F
   );
 }
 
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  label: string;
+  options: Array<{ value: string; label: string }>;
+}
+
+export function Select({ label, options, className = '', id, ...rest }: SelectProps) {
+  const selectId = id ?? `s-${label.replace(/\s+/g, '-').toLowerCase()}`;
+  return (
+    <div className={className}>
+      <label htmlFor={selectId} className="block text-[10px] tracking-[0.28em] text-white/50 mb-2 uppercase">
+        {label}
+      </label>
+      <select
+        {...rest}
+        id={selectId}
+        className="w-full bg-black/60 border border-white/15 focus:border-blue-500 outline-none px-4 py-3 text-white text-sm rounded-sm transition"
+      >
+        {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </div>
+  );
+}
+
+interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string;
+}
+
+export function TextArea({ label, className = '', id, ...rest }: TextAreaProps) {
+  const areaId = id ?? `t-${label.replace(/\s+/g, '-').toLowerCase()}`;
+  return (
+    <div className={className}>
+      <label htmlFor={areaId} className="block text-[10px] tracking-[0.28em] text-white/50 mb-2 uppercase">
+        {label}
+      </label>
+      <textarea
+        {...rest}
+        id={areaId}
+        rows={rest.rows ?? 4}
+        className="w-full bg-black/60 border border-white/15 focus:border-blue-500 outline-none px-4 py-3 text-white text-sm rounded-sm transition placeholder:text-white/25 resize-y"
+      />
+    </div>
+  );
+}
+
+interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  label: string;
+  hint?: string;
+}
+
+export function Checkbox({ label, hint, className = '', id, ...rest }: CheckboxProps) {
+  const boxId = id ?? `c-${label.replace(/\s+/g, '-').toLowerCase()}`;
+  return (
+    <label htmlFor={boxId} className={`flex items-start gap-3 cursor-pointer group ${className}`}>
+      <input
+        {...rest}
+        id={boxId}
+        type="checkbox"
+        className="mt-0.5 w-4 h-4 shrink-0 accent-blue-600 cursor-pointer"
+      />
+      <span>
+        <span className="block text-white text-sm group-hover:text-blue-300 transition">{label}</span>
+        {hint && <span className="block text-white/40 text-xs mt-0.5 leading-relaxed">{hint}</span>}
+      </span>
+    </label>
+  );
+}
+
 export function Card({ className = '', children }: { className?: string; children: React.ReactNode }) {
   return (
     <div className={`bg-[#0e0e0e] border border-white/10 rounded-md ${className}`}>{children}</div>
