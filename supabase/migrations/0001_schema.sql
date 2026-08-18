@@ -147,6 +147,11 @@ create trigger on_auth_user_created
 -- permissao de update no proprio perfil poderia fazer PATCH /profiles?id=eq.<eu>
 -- com {"role":"admin"} e promover-se sozinho. A politica RLS de update nao
 -- consegue comparar com o valor antigo; um trigger consegue.
+--
+-- ATENCAO ao promover o primeiro admin: no SQL Editor nao ha JWT, portanto
+-- auth.uid() e NULL, is_admin() e false e este trigger reverte a alteracao
+-- SEM DAR ERRO. Ver o passo 5 do README — e preciso desliga-lo durante o
+-- update. Pela API, com um admin autenticado, funciona normalmente.
 create or replace function public.protect_profile_privileges()
 returns trigger
 language plpgsql

@@ -91,10 +91,36 @@ O trigger cria automaticamente o perfil, como `employee` inativo.
 De volta ao **SQL Editor**, com o teu email:
 
 ```sql
+begin;
+alter table public.profiles disable trigger profiles_protect_privileges;
+
 update public.profiles
 set role = 'admin', active = true, full_name = 'O Teu Nome'
 where email = 'o-teu-email@exemplo.com';
+
+alter table public.profiles enable trigger profiles_protect_privileges;
+commit;
 ```
+
+**Porquê desligar o trigger.** O `profiles_protect_privileges` impede que
+alguém se promova a si próprio: reverte alterações a `role` e `active` para
+quem não for admin. No SQL Editor não há sessão autenticada, logo `auth.uid()`
+é `NULL` e `is_admin()` devolve `false` — o trigger trata-te como um atacante
+e desfaz a alteração **sem dar erro**.
+
+O sintoma é o `UPDATE` reportar sucesso, o `updated_at` mudar, e o `role`
+continuar em `employee`. Se te acontecer, é isto.
+
+A transação garante que o trigger volta a ficar ligado mesmo que algo falhe a
+meio. Confirma sempre depois:
+
+```sql
+select email, role, active from public.profiles;
+```
+
+Isto só é preciso para o primeiro admin. A partir daí, um admin autenticado
+altera funções pelo CRM normalmente — pela API o `is_admin()` já devolve
+`true` e o trigger deixa passar.
 
 Confirma que resultou:
 
