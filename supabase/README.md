@@ -46,15 +46,33 @@ Deves ver `audit_logs`, `clients`, `profiles`, `service_types`, `services`,
 Todos os ficheiros são idempotentes (`if not exists`, `create or replace`),
 portanto voltar a correr um que falhou a meio é seguro.
 
-## 3. Desligar os registos públicos
+## 3. Desligar os registos públicos (e só os registos)
 
-**Authentication → Sign In / Providers → Email.**
+**Authentication → Sign In / Providers.**
 
-Desliga **Enable sign ups**.
+São duas definições diferentes e é fácil trocá-las:
 
-Isto não é opcional. A `anon key` é pública por desenho — está no JavaScript
-que qualquer visitante descarrega. Com os registos abertos, qualquer pessoa
-pode criar conta no teu CRM.
+| Definição | Estado correto | O que faz |
+|---|---|---|
+| **Enable Email provider** (no cartão Email) | **LIGADO** | Permite entrar com email e password |
+| **Allow new users to sign up** (definição do projeto, no topo da página) | **DESLIGADO** | Impede a criação de contas |
+
+Desligar o **provider** em vez dos **registos** bloqueia também o início de
+sessão — ninguém entra, nem tu. O sintoma é o erro
+`email_provider_disabled: Email logins are disabled`.
+
+Confirma que ficou como deve ser (substitui `<PROJECT_REF>` e a chave):
+
+```bash
+# deve responder: email_provider_disabled OU signup_disabled
+curl -s -X POST -H "apikey: <ANON_KEY>" -H "Content-Type: application/json" \
+  -d '{"email":"teste@exemplo.com","password":"Password123!"}' \
+  https://<PROJECT_REF>.supabase.co/auth/v1/signup
+```
+
+Desligar os registos não é opcional. A `anon key` é pública por desenho — está
+no JavaScript que qualquer visitante descarrega. Com os registos abertos,
+qualquer pessoa cria conta no teu CRM.
 
 A segunda metade desta defesa já está no esquema: perfis novos nascem com
 `active = false` e não vêem nada até um admin os ativar.

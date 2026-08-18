@@ -6,9 +6,33 @@
 
 interface SupabaseLikeError {
   message?: string;
+  /** PostgREST devolve o SQLSTATE aqui; o GoTrue devolve o error_code. */
   code?: string;
   status?: number;
 }
+
+/**
+ * Codigos do GoTrue (Supabase Auth).
+ *
+ * Preferidos as mensagens em texto: o texto muda entre versoes, o codigo nao.
+ * Foi assim que "Email logins are disabled" passou despercebido e caiu na
+ * mensagem generica.
+ */
+const AUTH_CODES: Record<string, string> = {
+  invalid_credentials: 'Email ou palavra-passe incorretos.',
+  email_not_confirmed: 'Confirme o seu email antes de iniciar sessão.',
+  user_not_found: 'Email ou palavra-passe incorretos.',
+  user_banned: 'A sua conta está bloqueada. Contacte o administrador.',
+  over_request_rate_limit: 'Demasiadas tentativas. Aguarde um momento e tente novamente.',
+  over_email_send_rate_limit: 'Demasiados emails enviados. Aguarde alguns minutos.',
+  weak_password: 'A palavra-passe é demasiado fraca. Use pelo menos 8 caracteres.',
+  same_password: 'A nova palavra-passe tem de ser diferente da atual.',
+  otp_expired: 'A ligação expirou. Peça uma nova recuperação de palavra-passe.',
+  // Nao e culpa de quem esta a tentar entrar: e configuracao do projeto.
+  // A mensagem aponta para o sitio certo em vez de acusar as credenciais.
+  email_provider_disabled: 'O início de sessão por email está desativado nas definições do Supabase.',
+  signup_disabled: 'A criação de contas está desativada.',
+};
 
 /** Codigos do Postgres que aparecem atraves do PostgREST. */
 const POSTGRES_MESSAGES: Record<string, string> = {
@@ -21,10 +45,13 @@ const POSTGRES_MESSAGES: Record<string, string> = {
 };
 
 /** Mensagens do GoTrue (Supabase Auth), que chegam em ingles. */
+/** Rede de seguranca para versoes que ainda nao mandam error_code. */
 const AUTH_MESSAGES: Array<[RegExp, string]> = [
   [/invalid login credentials/i, 'Email ou palavra-passe incorretos.'],
   [/email not confirmed/i, 'Confirme o seu email antes de iniciar sessão.'],
   [/user not found/i, 'Email ou palavra-passe incorretos.'],
+  [/logins are disabled|provider is disabled/i, 'O início de sessão por email está desativado nas definições do Supabase.'],
+  [/signups? (are|is) disabled/i, 'A criação de contas está desativada.'],
   [/invalid or expired/i, 'A ligação expirou. Peça uma nova recuperação de palavra-passe.'],
   [/rate limit|too many requests/i, 'Demasiadas tentativas. Aguarde um momento e tente novamente.'],
   [/password should be at least/i, 'A palavra-passe deve ter pelo menos 8 caracteres.'],
@@ -36,6 +63,7 @@ export function friendlyError(error: unknown): string {
 
   const err = error as SupabaseLikeError;
 
+  if (err.code && AUTH_CODES[err.code]) return AUTH_CODES[err.code];
   if (err.code && POSTGRES_MESSAGES[err.code]) return POSTGRES_MESSAGES[err.code];
   if (err.status === 401 || err.status === 403) {
     return 'Não tem autorização para executar esta ação.';
