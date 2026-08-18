@@ -1,6 +1,6 @@
 import { getSupabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';
-import type { Service, ServiceStatus, ServiceWithRelations } from '../types';
+import type { Service, ServiceExtra, ServiceStatus, ServiceWithRelations } from '../types';
 
 /** Ordem do fluxo na oficina. Igual a do enum service_status no Postgres. */
 export const SERVICE_FLOW: ServiceStatus[] = [
@@ -119,6 +119,48 @@ export async function listServices({
 
   if (error) throw new Error(friendlyError(error));
   return { rows: (data ?? []) as unknown as ServiceWithRelations[], total: count ?? 0 };
+}
+
+export interface ServiceInput {
+  client_id: string;
+  vehicle_id?: string | null;
+  employee_id?: string | null;
+  service_type_id?: string | null;
+  /** Instantaneo do catalogo. Ver comentario em createService. */
+  service_name: string;
+  price: number;
+  extras?: ServiceExtra[];
+  extras_total?: number;
+  discount?: number;
+  scheduled_at?: string | null;
+  notes?: string | null;
+}
+
+/**
+ * Cria o servico com o nome e o preco COPIADOS do catalogo, nao referenciados.
+ *
+ * Se a ceramica subir de 250 para 280, os servicos ja feitos tem de continuar
+ * a valer 250 no historico e na faturacao. Por isso service_name e price sao
+ * gravados aqui e nunca mais lidos por join.
+ */
+export async function createService(input: ServiceInput): Promise<Service> {
+  const supabase = getSupabase();
+  const { data: auth } = await supabase.auth.getUser();
+
+  const { data, error } = await supabase
+    .from('services')
+    .insert({
+      ...input,
+      extras: input.extras ?? [],
+      extras_total: input.extras_total ?? 0,
+      discount: input.discount ?? 0,
+      created_by: auth.user?.id ?? null,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(friendlyError(error));
+  return data as Service;
 }
 
 export async function getService(id: string): Promise<ServiceWithRelations | null> {

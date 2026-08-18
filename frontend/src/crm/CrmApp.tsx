@@ -12,6 +12,8 @@ import ClientDetail from './pages/ClientDetail';
 import ClientForm from './pages/ClientForm';
 import VehicleForm from './pages/VehicleForm';
 import Services from './pages/Services';
+import ServiceDetail from './pages/ServiceDetail';
+import ServiceForm from './pages/ServiceForm';
 import { PageTitle } from './components/ui';
 
 /** Secao ainda por construir. Diz o que e, em vez de fingir que funciona. */
@@ -80,8 +82,8 @@ export default function CrmApp() {
             }
           />
           <Route path="servicos" element={<Services />} />
-          <Route path="servicos/novo" element={<Pending title="Novo serviço" phase="próxima entrega" />} />
-          <Route path="servicos/:id" element={<Pending title="Serviço" phase="próxima entrega" />} />
+          <Route path="servicos/novo" element={<ServiceForm />} />
+          <Route path="servicos/:id" element={<ServiceDetail />} />
 
           <Route path="clientes" element={<Clients />} />
           <Route path="clientes/novo" element={<ClientForm />} />
