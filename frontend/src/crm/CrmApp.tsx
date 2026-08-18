@@ -14,20 +14,7 @@ import VehicleForm from './pages/VehicleForm';
 import Services from './pages/Services';
 import ServiceDetail from './pages/ServiceDetail';
 import ServiceForm from './pages/ServiceForm';
-import { PageTitle } from './components/ui';
-
-/** Secao ainda por construir. Diz o que e, em vez de fingir que funciona. */
-function Pending({ title, phase }: { title: string; phase: string }) {
-  return (
-    <>
-      <PageTitle>{title}</PageTitle>
-      <div className="border border-dashed border-white/15 rounded-md p-8 text-center">
-        <p className="text-white/60 text-sm">Esta secção ainda não está construída.</p>
-        <p className="text-white/35 text-xs mt-2">Prevista para a {phase}.</p>
-      </div>
-    </>
-  );
-}
+import FollowUps from './pages/FollowUps';
 
 export default function CrmApp() {
   // noindex aqui e nao no layout: o login fica fora do layout e sem isto
@@ -94,7 +81,7 @@ export default function CrmApp() {
             path="follow-ups"
             element={
               <RoleGuard allow={['admin', 'manager']}>
-                <Pending title="Follow-ups" phase="fase 2" />
+                <FollowUps />
               </RoleGuard>
             }
           />
