@@ -143,6 +143,14 @@ as $$
     );
 $$;
 
+-- O revoke do 0002 só apanhou as funções existentes nessa altura; estas nasceram
+-- depois. Sem sessão as políticas RLS já devolviam zero linhas, mas não há razão
+-- para o anon sequer as poder chamar.
+revoke all on function public.search_clients(text, integer, integer, text) from anon;
+revoke all on function public.count_clients(text) from anon;
+grant execute on function public.search_clients(text, integer, integer, text) to authenticated;
+grant execute on function public.count_clients(text) to authenticated;
+
 -- pg_trgm torna os ILIKE '%x%' indexáveis. Sem isto a pesquisa faz varrimento
 -- completo — tolerável em centenas de clientes, mau em milhares.
 create extension if not exists pg_trgm;

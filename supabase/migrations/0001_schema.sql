@@ -32,11 +32,49 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 -- ── Funcoes auxiliares ───────────────────────────────────────────────────────
+-- As que leem profiles ficam DEPOIS da tabela, mais abaixo: uma funcao
+-- `language sql` tem o corpo validado no momento da criacao, ao contrario de
+-- plpgsql que adia. Declara-las aqui rebentava com "relation public.profiles
+-- does not exist".
 
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+-- ── profiles ─────────────────────────────────────────────────────────────────
+-- Nunca guarda passwords: essas vivem exclusivamente em auth.users, gerido
+-- pelo Supabase Auth.
+
+create table if not exists public.profiles (
+  id          uuid primary key references auth.users(id) on delete cascade,
+  full_name   text not null default '',
+  email       text not null default '',
+  phone       text,
+  role        public.user_role not null default 'employee',
+  avatar_url  text,
+  -- Inativo por omissao, de proposito. A anon key e publica, portanto quem a
+  -- tirar do bundle pode chamar auth.signUp diretamente. Se o perfil nascesse
+  -- ativo, essa pessoa passava is_staff() e lia a base de clientes toda.
+  -- Assim, uma conta nova nao ve nada ate um admin a ativar.
+  -- Desligar os registos publicos no painel do Supabase e a outra metade
+  -- desta defesa; esta sobrevive a alguem os voltar a ligar.
+  active      boolean not null default false,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+-- ── Funcoes que dependem de profiles ─────────────────────────────────────────
 -- SECURITY DEFINER de proposito: as politicas RLS de profiles precisam de ler
 -- profiles, o que daria recursao infinita. SECURITY DEFINER ignora RLS e corta
 -- o ciclo. search_path fixo para nao ser sequestrada por um schema do
 -- utilizador.
+
 create or replace function public.auth_role()
 returns public.user_role
 language sql
@@ -78,38 +116,6 @@ set search_path = public, pg_temp
 as $$
   select public.auth_role() is not null;
 $$;
-
-create or replace function public.set_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-
--- ── profiles ─────────────────────────────────────────────────────────────────
--- Nunca guarda passwords: essas vivem exclusivamente em auth.users, gerido
--- pelo Supabase Auth.
-
-create table if not exists public.profiles (
-  id          uuid primary key references auth.users(id) on delete cascade,
-  full_name   text not null default '',
-  email       text not null default '',
-  phone       text,
-  role        public.user_role not null default 'employee',
-  avatar_url  text,
-  -- Inativo por omissao, de proposito. A anon key e publica, portanto quem a
-  -- tirar do bundle pode chamar auth.signUp diretamente. Se o perfil nascesse
-  -- ativo, essa pessoa passava is_staff() e lia a base de clientes toda.
-  -- Assim, uma conta nova nao ve nada ate um admin a ativar.
-  -- Desligar os registos publicos no painel do Supabase e a outra metade
-  -- desta defesa; esta sobrevive a alguem os voltar a ligar.
-  active      boolean not null default false,
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now()
-);
 
 -- Cria o perfil automaticamente quando nasce um utilizador no Auth.
 -- Todos entram como 'employee'. A promocao a admin e deliberada e manual,

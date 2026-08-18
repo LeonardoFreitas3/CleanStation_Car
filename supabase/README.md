@@ -30,10 +30,21 @@ um de cada vez, confirmando que dá "Success" antes de passar ao seguinte:
 4. `migrations/0004_client_overview.sql` — vista e pesquisa de clientes
 
 Se algum falhar, pára e resolve antes de continuar: os seguintes assumem que
-os anteriores correram.
+os anteriores correram. Um erro do género `relation "public.clients" does not
+exist` no `0004` quer dizer que o `0001` não chegou ao fim — volta atrás.
 
-> Estas migrations nunca foram executadas contra um Postgres. Estão revistas à
-> mão. O SQL Editor reporta erros de sintaxe imediatamente.
+Depois do `0001`, confirma que as seis tabelas existem:
+
+```sql
+select table_name from information_schema.tables
+where table_schema = 'public' order by table_name;
+```
+
+Deves ver `audit_logs`, `clients`, `profiles`, `service_types`, `services`,
+`vehicles`.
+
+Todos os ficheiros são idempotentes (`if not exists`, `create or replace`),
+portanto voltar a correr um que falhou a meio é seguro.
 
 ## 3. Desligar os registos públicos
 
