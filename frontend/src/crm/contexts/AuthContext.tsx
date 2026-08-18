@@ -27,8 +27,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Evita escrever estado depois de desmontar, o que acontece quando o
   // utilizador sai da pagina a meio do carregamento do perfil.
+  //
+  // O `mounted.current = true` na entrada nao e redundante: em StrictMode o
+  // React monta, desmonta e volta a montar. Sem repor a flag, o cleanup da
+  // primeira montagem deixava-a a false para sempre e o setLoading(false)
+  // nunca corria — o CRM ficava preso no spinner.
   const mounted = useRef(true);
-  useEffect(() => () => { mounted.current = false; }, []);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
 
   const loadProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     const { data, error } = await getSupabase()

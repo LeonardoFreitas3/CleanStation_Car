@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, Wrench, BellRing, LogOut } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -35,18 +34,6 @@ const ROLE_LABEL: Record<UserRole, string> = {
 export default function CrmLayout() {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
-
-  // O CRM nunca deve ser indexado. O robots.txt ja o proibe, mas isto cobre o
-  // caso de alguem chegar por um link direto.
-  useEffect(() => {
-    const meta = document.createElement('meta');
-    meta.name = 'robots';
-    meta.content = 'noindex, nofollow';
-    document.head.appendChild(meta);
-    const previousTitle = document.title;
-    document.title = 'CRM · Clean Station Car';
-    return () => { meta.remove(); document.title = previousTitle; };
-  }, []);
 
   const items = NAV.filter((i) => (profile ? i.allow.includes(profile.role) : false));
 

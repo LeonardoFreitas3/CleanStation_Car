@@ -113,6 +113,34 @@ export interface Service {
   deleted_at: string | null;
 }
 
+/**
+ * Linha da vista client_overview: cliente com estatisticas ja agregadas pelo
+ * Postgres. O estado (Novo/VIP/Inativo) nao vem daqui — e derivado em
+ * clientStatus() a partir destes numeros, para os limiares viverem num sitio
+ * so ate existir a pagina de definicoes.
+ */
+export interface ClientOverview {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  client_type: ClientType;
+  notes: string | null;
+  data_consent: boolean;
+  marketing_consent: boolean;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  visit_count: number;
+  total_spent: number;
+  last_visit_at: string | null;
+  vehicle_count: number;
+  days_since_last_visit: number | null;
+  avg_days_between_visits: number | null;
+}
+
+export type ClientStatus = 'novo' | 'ativo' | 'recorrente' | 'vip' | 'inativo';
+
 export interface ServicePhoto {
   id: string;
   service_id: string;

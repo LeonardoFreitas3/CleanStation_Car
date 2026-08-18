@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { isSupabaseConfigured } from './lib/config';
 import { AuthProvider } from './contexts/AuthContext';
@@ -6,6 +7,8 @@ import CrmLayout from './layouts/CrmLayout';
 import Login from './pages/Login';
 import SetupRequired from './pages/SetupRequired';
 import Dashboard from './pages/Dashboard';
+import Clients from './pages/Clients';
+import Services from './pages/Services';
 import { PageTitle } from './components/ui';
 
 /** Secao ainda por construir. Diz o que e, em vez de fingir que funciona. */
@@ -22,6 +25,33 @@ function Pending({ title, phase }: { title: string; phase: string }) {
 }
 
 export default function CrmApp() {
+  // noindex aqui e nao no layout: o login fica fora do layout e sem isto
+  // herdava o "index, follow" do site publico. O robots.txt tambem proibe
+  // /crm, mas isto cobre quem chega por link direto.
+  useEffect(() => {
+    // Reaproveita a meta que ja vem no index.html em vez de acrescentar outra:
+    // duas metas robots com valores opostos e um sinal contraditorio para os
+    // motores de busca, mesmo que na pratica vencesse a mais restritiva.
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    const created = !meta;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'robots';
+      document.head.appendChild(meta);
+    }
+
+    const previousContent = meta.content;
+    const previousTitle = document.title;
+    meta.content = 'noindex, nofollow';
+    document.title = 'CRM · Clean Station Car';
+
+    return () => {
+      if (created) meta?.remove();
+      else if (meta) meta.content = previousContent;
+      document.title = previousTitle;
+    };
+  }, []);
+
   // Sem credenciais nao ha CRM nenhum. Mostra o que falta configurar em vez de
   // rebentar ao instanciar o cliente Supabase.
   if (!isSupabaseConfigured) return <SetupRequired />;
@@ -46,8 +76,13 @@ export default function CrmApp() {
               </RoleGuard>
             }
           />
-          <Route path="servicos" element={<Pending title="Serviços" phase="fase 1" />} />
-          <Route path="clientes" element={<Pending title="Clientes" phase="fase 1" />} />
+          <Route path="servicos" element={<Services />} />
+          <Route path="servicos/novo" element={<Pending title="Novo serviço" phase="próxima entrega" />} />
+          <Route path="servicos/:id" element={<Pending title="Serviço" phase="próxima entrega" />} />
+
+          <Route path="clientes" element={<Clients />} />
+          <Route path="clientes/novo" element={<Pending title="Novo cliente" phase="próxima entrega" />} />
+          <Route path="clientes/:id" element={<Pending title="Ficha do cliente" phase="próxima entrega" />} />
           <Route
             path="follow-ups"
             element={
