@@ -10,6 +10,8 @@ import {
 import { getSupabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';
 import { ServiceTimeline } from '../components/ServiceTimeline';
+import { PhotoUploader } from '../components/PhotoUploader';
+import { MessageSender } from '../components/MessageSender';
 import { useAuth } from '../contexts/AuthContext';
 import { date, eur, whatsappNumber } from '../lib/format';
 import { Alert, Button, Card, Spinner } from '../components/ui';
@@ -24,6 +26,7 @@ export default function ServiceDetail() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [messaging, setMessaging] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -203,11 +206,11 @@ export default function ServiceDetail() {
 
           <div className="flex gap-3 flex-wrap">
             {wa && (
-              <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="flex-1 min-w-[140px]">
-                <Button variant="whatsapp" size="lg" className="w-full">
-                  <MessageCircle className="w-4 h-4" /> WhatsApp
+              <div className="flex-1 min-w-[140px]">
+                <Button variant="whatsapp" size="lg" onClick={() => setMessaging(true)} className="w-full">
+                  <MessageCircle className="w-4 h-4" /> Mensagem
                 </Button>
-              </a>
+              </div>
             )}
             <Button variant="danger" size="lg" onClick={cancel} disabled={busy} className="flex-1 min-w-[140px]">
               <Ban className="w-4 h-4" /> Cancelar
@@ -215,6 +218,13 @@ export default function ServiceDetail() {
           </div>
         </div>
       )}
+
+      <div className="mt-8">
+        <div className="text-[10px] tracking-[0.28em] text-white/50 uppercase mb-4">Fotografias</div>
+        <PhotoUploader serviceId={service.id} />
+      </div>
+
+      {messaging && <MessageSender service={service} onClose={() => setMessaging(false)} />}
 
       {service.extras.length > 0 && (
         <Card className="p-4 mt-6">
