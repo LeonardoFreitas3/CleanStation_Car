@@ -100,7 +100,13 @@ create table if not exists public.profiles (
   phone       text,
   role        public.user_role not null default 'employee',
   avatar_url  text,
-  active      boolean not null default true,
+  -- Inativo por omissao, de proposito. A anon key e publica, portanto quem a
+  -- tirar do bundle pode chamar auth.signUp diretamente. Se o perfil nascesse
+  -- ativo, essa pessoa passava is_staff() e lia a base de clientes toda.
+  -- Assim, uma conta nova nao ve nada ate um admin a ativar.
+  -- Desligar os registos publicos no painel do Supabase e a outra metade
+  -- desta defesa; esta sobrevive a alguem os voltar a ligar.
+  active      boolean not null default false,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
