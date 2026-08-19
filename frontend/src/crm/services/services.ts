@@ -53,11 +53,15 @@ export const SERVICE_FILTERS: Array<{ value: ServiceFilter; label: string }> = [
   { value: 'todos', label: 'Todos' },
 ];
 
+// O !employee_id nao e decorativo: services tem DUAS chaves estrangeiras para
+// profiles — employee_id e created_by. Sem dizer qual, o PostgREST recusa o
+// embed com PGRST201 ("more than one relationship was found"). clients e
+// vehicles nao precisam de hint porque so tem uma ligacao cada.
 const SELECT_WITH_RELATIONS = `
   *,
   client:clients ( id, name, phone ),
   vehicle:vehicles ( id, plate, make, model ),
-  employee:profiles ( id, full_name )
+  employee:profiles!employee_id ( id, full_name )
 `;
 
 /** Intervalo [inicio, fim) do dia local, convertido para ISO. */
