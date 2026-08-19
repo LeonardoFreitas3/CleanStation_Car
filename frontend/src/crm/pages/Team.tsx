@@ -1,0 +1,156 @@
+import { useCallback, useEffect, useState } from 'react';
+import { UserCheck, UserX, Info } from 'lucide-react';
+import {
+  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, listTeam, setActive, updateRole,
+} from '../services/team';
+import type { TeamMember } from '../services/team';
+import { useAuth } from '../contexts/AuthContext';
+import { date } from '../lib/format';
+import { Alert, Button, Card, PageTitle, Select, Spinner } from '../components/ui';
+import type { UserRole } from '../types';
+
+const ROLES: Array<{ value: UserRole; label: string }> = [
+  { value: 'employee', label: 'Funcionário' },
+  { value: 'manager', label: 'Gestor' },
+  { value: 'admin', label: 'Administrador' },
+];
+
+export default function Team() {
+  const { profile } = useAuth();
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setMembers(await listTeam());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível carregar a equipa.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const changeRole = async (m: TeamMember, role: UserRole) => {
+    if (role === m.role) return;
+    setBusy(m.id);
+    setError(null);
+    try {
+      await updateRole(m.id, role);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível alterar a função.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const toggleActive = async (m: TeamMember) => {
+    const action = m.active ? 'desativar' : 'reativar';
+    if (!window.confirm(
+      `Tem a certeza que pretende ${action} ${m.full_name || m.email}?\n\n`
+      + (m.active
+        ? 'Deixa de conseguir entrar e de ver qualquer dado. O histórico de serviços mantém-se.'
+        : 'Volta a ter acesso ao CRM.'),
+    )) return;
+
+    setBusy(m.id);
+    setError(null);
+    try {
+      await setActive(m.id, !m.active);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : `Não foi possível ${action}.`);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  if (loading) return <div className="py-20 flex justify-center"><Spinner size={26} /></div>;
+
+  return (
+    <>
+      <PageTitle sub={`${members.length} ${members.length === 1 ? 'pessoa' : 'pessoas'}`}>
+        Equipa
+      </PageTitle>
+
+      {/* Criar contas exige a service_role, que nunca pode estar no frontend.
+          Melhor dizer onde se faz do que ter um botao que nao funciona. */}
+      <Card className="p-4 mb-6 flex items-start gap-3">
+        <Info className="w-4 h-4 text-blue-400/70 mt-0.5 shrink-0" />
+        <div className="text-sm text-white/60 leading-relaxed">
+          Contas novas criam-se no painel do Supabase, em{' '}
+          <span className="text-white/80">Authentication → Users → Add user</span>. Aparecem
+          aqui como Funcionário inativo — basta ativá-las e escolher a função.
+        </div>
+      </Card>
+
+      {error && <div className="mb-6"><Alert tone="error">{error}</Alert></div>}
+
+      <div className="space-y-3">
+        {members.map((m) => {
+          const isSelf = m.id === profile?.id;
+          const working = busy === m.id;
+
+          return (
+            <Card key={m.id} className={`p-4 ${m.active ? '' : 'opacity-60'}`}>
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-white font-semibold">{m.full_name || '(sem nome)'}</span>
+                    <span className={`px-2 py-0.5 text-[10px] tracking-[0.15em] uppercase font-semibold border rounded-sm ${ROLE_CLASS[m.role]}`}>
+                      {ROLE_LABEL[m.role]}
+                    </span>
+                    {isSelf && <span className="text-blue-400/70 text-[10px] tracking-[0.15em] uppercase">você</span>}
+                    {!m.active && (
+                      <span className="px-2 py-0.5 text-[10px] tracking-[0.15em] uppercase font-semibold border rounded-sm bg-red-950/30 text-red-300/80 border-red-900/40">
+                        Inativo
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-white/45 text-xs mt-1 truncate">{m.email}</div>
+                  <div className="text-white/30 text-xs mt-1">
+                    {m.total_services} {m.total_services === 1 ? 'serviço' : 'serviços'}
+                    {m.services_month > 0 && ` · ${m.services_month} este mês`}
+                    {m.last_service_at && ` · último em ${date(m.last_service_at)}`}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <Select
+                    label=""
+                    value={m.role}
+                    onChange={(e) => changeRole(m, e.target.value as UserRole)}
+                    options={ROLES}
+                    disabled={working || !m.active}
+                    className="w-40"
+                  />
+                  <Button
+                    variant={m.active ? 'danger' : 'secondary'}
+                    onClick={() => toggleActive(m)}
+                    loading={working}
+                    // Desativar-se a si proprio expulsava-o na hora. A base de
+                    // dados tambem impede ficar sem administradores, mas mais
+                    // vale nao chegar la.
+                    disabled={isSelf}
+                    title={isSelf ? 'Não pode desativar a sua própria conta' : undefined}
+                  >
+                    {m.active ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                    {m.active ? 'Desativar' : 'Ativar'}
+                  </Button>
+                </div>
+              </div>
+
+              <p className="text-white/30 text-xs mt-3 pt-3 border-t border-white/10">
+                {ROLE_DESCRIPTION[m.role]}
+              </p>
+            </Card>
+          );
+        })}
+      </div>
+    </>
+  );
+}

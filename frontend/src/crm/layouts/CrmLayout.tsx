@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Wrench, BellRing, LogOut, Search } from 'lucide-react';
+import { LayoutDashboard, Users, Wrench, BellRing, LogOut, Search, UserCog } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { GlobalSearch } from '../components/GlobalSearch';
@@ -17,6 +17,7 @@ interface NavItem {
 
 const ALL: UserRole[] = ['admin', 'manager', 'employee'];
 const STAFF: UserRole[] = ['admin', 'manager'];
+const ADMIN: UserRole[] = ['admin'];
 
 // O dashboard fica fora do alcance do employee: agrega faturacao e ticket
 // medio, que a especificacao poe fora do que ele deve consultar.
@@ -25,6 +26,7 @@ const NAV: NavItem[] = [
   { to: '/crm/servicos', label: 'Serviços', icon: Wrench, allow: ALL },
   { to: '/crm/clientes', label: 'Clientes', icon: Users, allow: ALL },
   { to: '/crm/follow-ups', label: 'Follow-ups', icon: BellRing, allow: STAFF },
+  { to: '/crm/equipa', label: 'Equipa', icon: UserCog, allow: ADMIN },
 ];
 
 const ROLE_LABEL: Record<UserRole, string> = {
@@ -151,13 +153,15 @@ export default function CrmLayout() {
               to={to}
               end={end}
               className={({ isActive }) =>
-                `flex-1 flex flex-col items-center gap-1 py-3 text-[9px] tracking-[0.14em] uppercase font-semibold transition ${
+                `flex-1 min-w-0 flex flex-col items-center gap-1 py-3 px-1 uppercase font-semibold transition ${
                   isActive ? 'text-blue-400' : 'text-white/45'
                 }`
               }
             >
-              <Icon className="w-5 h-5" strokeWidth={1.5} />
-              {label}
+              <Icon className="w-5 h-5 shrink-0" strokeWidth={1.5} />
+              {/* Com 5 separadores em 375px sobram ~75px cada: o tracking sai
+                  e o rotulo trunca, em vez de transbordar para cima do vizinho. */}
+              <span className="text-[9px] tracking-tight truncate max-w-full">{label}</span>
             </NavLink>
           ))}
         </div>

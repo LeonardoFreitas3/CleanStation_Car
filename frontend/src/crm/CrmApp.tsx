@@ -16,6 +16,7 @@ import Services from './pages/Services';
 import ServiceDetail from './pages/ServiceDetail';
 import ServiceForm from './pages/ServiceForm';
 import FollowUps from './pages/FollowUps';
+import Team from './pages/Team';
 
 export default function CrmApp() {
   // noindex aqui e nao no layout: o login fica fora do layout e sem isto
@@ -83,6 +84,14 @@ export default function CrmApp() {
           <Route path="clientes/:id/editar" element={<ClientForm />} />
           <Route path="clientes/:id/viaturas/nova" element={<VehicleForm />} />
           <Route path="clientes/:id/viaturas/:vehicleId" element={<VehicleForm />} />
+          <Route
+            path="equipa"
+            element={
+              <RoleGuard allow={['admin']}>
+                <Team />
+              </RoleGuard>
+            }
+          />
           <Route
             path="follow-ups"
             element={
