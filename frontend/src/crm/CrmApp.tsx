@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute, RoleGuard } from './components/ProtectedRoute';
 import CrmLayout from './layouts/CrmLayout';
 import Login from './pages/Login';
+import NewPassword from './pages/NewPassword';
 import SetupRequired from './pages/SetupRequired';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
@@ -52,6 +53,9 @@ export default function CrmApp() {
     <AuthProvider>
       <Routes>
         <Route path="login" element={<Login />} />
+        {/* Fora do ProtectedRoute: quem chega pelo link tem sessao, mas nao
+            deve ir para o dashboard antes de definir a palavra-passe. */}
+        <Route path="nova-palavra-passe" element={<NewPassword />} />
 
         <Route
           element={
