@@ -17,6 +17,17 @@ export async function listVehiclesByClient(clientId: string): Promise<Vehicle[]>
   return (data ?? []) as Vehicle[];
 }
 
+export async function getVehicle(id: string): Promise<Vehicle | null> {
+  const { data, error } = await getSupabase()
+    .from('vehicles')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) throw new Error(friendlyError(error));
+  return (data as Vehicle) ?? null;
+}
+
 export async function createVehicle(input: VehicleInput): Promise<Vehicle> {
   const { data, error } = await getSupabase()
     .from('vehicles')

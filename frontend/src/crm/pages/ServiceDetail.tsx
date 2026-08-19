@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Car, User, MessageCircle, Ban, Calendar, UserPlus,
+  ArrowLeft, ArrowRight, Car, User, MessageCircle, Ban, Calendar, UserPlus, Pencil,
 } from 'lucide-react';
 import {
   SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus,
@@ -125,9 +125,14 @@ export default function ServiceDetail() {
             {service.service_name}
           </h1>
         </div>
-        <div className="text-right shrink-0">
-          <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase">Total</div>
-          <div className="text-white font-display text-2xl font-bold">{eur(service.total)}</div>
+        <div className="flex items-start gap-4 shrink-0">
+          <div className="text-right">
+            <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase">Total</div>
+            <div className="text-white font-display text-2xl font-bold">{eur(service.total)}</div>
+          </div>
+          <Link to={`/crm/servicos/${service.id}/editar`}>
+            <Button variant="secondary"><Pencil className="w-4 h-4" /> Editar</Button>
+          </Link>
         </div>
       </div>
 

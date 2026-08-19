@@ -241,7 +241,11 @@ export default function ClientDetail() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {vehicles.map((v) => (
-                  <Card key={v.id} className="p-4">
+                  <Link
+                    key={v.id}
+                    to={`/crm/clientes/${client.id}/viaturas/${v.id}`}
+                    className="block bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition rounded-md p-4"
+                  >
                     <div className="flex items-start gap-3">
                       <Car className="w-5 h-5 text-blue-400/70 mt-0.5 shrink-0" strokeWidth={1.5} />
                       <div className="min-w-0">
@@ -254,7 +258,7 @@ export default function ClientDetail() {
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </Link>
                 ))}
               </div>
             )}

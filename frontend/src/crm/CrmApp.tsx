@@ -75,12 +75,14 @@ export default function CrmApp() {
           <Route path="servicos" element={<Services />} />
           <Route path="servicos/novo" element={<ServiceForm />} />
           <Route path="servicos/:id" element={<ServiceDetail />} />
+          <Route path="servicos/:id/editar" element={<ServiceForm />} />
 
           <Route path="clientes" element={<Clients />} />
           <Route path="clientes/novo" element={<ClientForm />} />
           <Route path="clientes/:id" element={<ClientDetail />} />
           <Route path="clientes/:id/editar" element={<ClientForm />} />
           <Route path="clientes/:id/viaturas/nova" element={<VehicleForm />} />
+          <Route path="clientes/:id/viaturas/:vehicleId" element={<VehicleForm />} />
           <Route
             path="follow-ups"
             element={

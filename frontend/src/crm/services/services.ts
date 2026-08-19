@@ -179,6 +179,37 @@ export async function getService(id: string): Promise<ServiceWithRelations | nul
 }
 
 /**
+ * Edita um servico ja criado.
+ *
+ * Nao mexe no status: esse muda pelo fluxo, em updateServiceStatus, para o
+ * carimbo das datas ficar coerente.
+ */
+export async function updateService(
+  id: string,
+  input: Partial<Omit<ServiceInput, 'client_id'>>,
+): Promise<Service> {
+  const { data, error } = await getSupabase()
+    .from('services')
+    .update(input)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new Error(friendlyError(error));
+  return data as Service;
+}
+
+/** Soft delete. So admin, pela politica RLS. */
+export async function softDeleteService(id: string): Promise<void> {
+  const { error } = await getSupabase()
+    .from('services')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) throw new Error(friendlyError(error));
+}
+
+/**
  * Avanca o estado. started_at e completed_at sao carimbados por trigger no
  * Postgres, nao aqui: assim ficam certos venha a alteracao de onde vier.
  */

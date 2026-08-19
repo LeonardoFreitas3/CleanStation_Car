@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Save, Search, Check } from 'lucide-react';
 import { useDebounced } from '../hooks/useDebounced';
-import { listClients } from '../services/clients';
+import { getClient, listClients } from '../services/clients';
 import { listVehiclesByClient } from '../services/vehicles';
 import { listServiceTypes, CATEGORY_LABEL } from '../services/serviceTypes';
-import { createService } from '../services/services';
+import { createService, getService, updateService } from '../services/services';
 import { useAuth } from '../contexts/AuthContext';
 import { eur } from '../lib/format';
 import {
@@ -17,6 +17,8 @@ export default function ServiceForm() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [params] = useSearchParams();
+  const { id: serviceId } = useParams<{ id: string }>();
+  const isEdit = Boolean(serviceId);
 
   const [catalogue, setCatalogue] = useState<{ services: ServiceType[]; extras: ServiceType[] }>({
     services: [], extras: [],
@@ -54,14 +56,42 @@ export default function ServiceForm() {
   // Cliente pre-selecionado quando se chega a partir da ficha dele
   useEffect(() => {
     const preset = params.get('cliente');
-    if (!preset) return;
-    listClients({ query: '', pageSize: 100 })
-      .then((r) => {
-        const found = r.rows.find((c) => c.id === preset);
-        if (found) setClient(found);
-      })
+    if (!preset || isEdit) return;
+    getClient(preset)
+      .then((c) => { if (c) setClient(c); })
       .catch(() => { /* segue sem pre-seleccao */ });
-  }, [params]);
+  }, [params, isEdit]);
+
+  // Em edicao, carrega o servico existente. O cliente nao muda: trocar o dono
+  // de um servico ja registado corrompia o historico e a faturacao dele.
+  useEffect(() => {
+    if (!serviceId) return;
+    (async () => {
+      try {
+        const s = await getService(serviceId);
+        if (!s) { setError('Serviço não encontrado.'); return; }
+        const c = await getClient(s.client_id);
+        if (c) setClient(c);
+        setVehicleId(s.vehicle_id ?? '');
+        setTypeId(s.service_type_id ?? '');
+        setPrice(String(s.price));
+        setDiscount(String(s.discount));
+        setExtraSlugs(s.extras.map((x) => x.slug));
+        setNotes(s.notes ?? '');
+        if (s.scheduled_at) {
+          // datetime-local nao aceita ISO com fuso: precisa de YYYY-MM-DDTHH:mm
+          // em hora local.
+          const d = new Date(s.scheduled_at);
+          const pad = (n: number) => String(n).padStart(2, '0');
+          setScheduledAt(
+            `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`,
+          );
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Não foi possível carregar o serviço.');
+      }
+    })();
+  }, [serviceId]);
 
   useEffect(() => {
     if (!debouncedSearch.trim() || client) { setClientResults([]); return; }
@@ -112,23 +142,32 @@ export default function ServiceForm() {
     if (!type) { setError('Serviço inválido.'); return; }
 
     setSaving(true);
+    const payload = {
+      vehicle_id: vehicleId || null,
+      service_type_id: type.id,
+      service_name: type.name,
+      price: Number(price) || 0,
+      extras: selectedExtras.map((x) => ({ slug: x.slug, name: x.name, price: Number(x.base_price) })),
+      extras_total: extrasTotal,
+      discount: Number(discount) || 0,
+      scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+      notes: notes.trim() || null,
+    };
+
     try {
-      const created = await createService({
-        client_id: client.id,
-        vehicle_id: vehicleId || null,
-        employee_id: profile?.id ?? null,
-        service_type_id: type.id,
-        service_name: type.name,
-        price: Number(price) || 0,
-        extras: selectedExtras.map((x) => ({ slug: x.slug, name: x.name, price: Number(x.base_price) })),
-        extras_total: extrasTotal,
-        discount: Number(discount) || 0,
-        scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
-        notes: notes.trim() || null,
-      });
-      navigate(`/crm/servicos/${created.id}`, { replace: true });
+      if (isEdit && serviceId) {
+        await updateService(serviceId, payload);
+        navigate(`/crm/servicos/${serviceId}`, { replace: true });
+      } else {
+        const created = await createService({
+          ...payload,
+          client_id: client.id,
+          employee_id: profile?.id ?? null,
+        });
+        navigate(`/crm/servicos/${created.id}`, { replace: true });
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Não foi possível criar o serviço.');
+      setError(err instanceof Error ? err.message : 'Não foi possível guardar o serviço.');
       setSaving(false);
     }
   };
@@ -149,7 +188,7 @@ export default function ServiceForm() {
         <ArrowLeft className="w-4 h-4" /> Voltar
       </button>
 
-      <PageTitle>Novo serviço</PageTitle>
+      <PageTitle>{isEdit ? 'Editar serviço' : 'Novo serviço'}</PageTitle>
 
       <form onSubmit={submit} className="max-w-2xl space-y-5">
         {/* 1. Cliente */}
@@ -162,13 +201,17 @@ export default function ServiceForm() {
                 <div className="text-white font-semibold truncate">{client.name}</div>
                 <div className="text-white/45 text-xs">{client.phone || client.email || 'Sem contacto'}</div>
               </div>
-              <button
-                type="button"
-                onClick={() => { setClient(null); setClientSearch(''); }}
-                className="text-white/45 hover:text-blue-400 text-xs uppercase tracking-[0.15em] shrink-0 transition"
-              >
-                Trocar
-              </button>
+              {/* Em edicao o cliente e fixo: mudar o dono de um servico ja
+                  registado corrompia o historico e a faturacao dele. */}
+              {!isEdit && (
+                <button
+                  type="button"
+                  onClick={() => { setClient(null); setClientSearch(''); }}
+                  className="text-white/45 hover:text-blue-400 text-xs uppercase tracking-[0.15em] shrink-0 transition"
+                >
+                  Trocar
+                </button>
+              )}
             </div>
           ) : (
             <>
@@ -352,7 +395,7 @@ export default function ServiceForm() {
 
         <div className="flex gap-3">
           <Button type="submit" size="lg" loading={saving}>
-            <Save className="w-4 h-4" /> Criar serviço
+            <Save className="w-4 h-4" /> {isEdit ? 'Guardar alterações' : 'Criar serviço'}
           </Button>
           <Button type="button" variant="secondary" size="lg" onClick={() => navigate(-1)} disabled={saving}>
             Cancelar
