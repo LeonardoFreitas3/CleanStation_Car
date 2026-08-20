@@ -54,7 +54,15 @@ export function serviceAccount(): ServiceAccount {
 
   const parsed = JSON.parse(raw);
   if (!parsed.client_email || !parsed.private_key) {
-    throw new Error('GOOGLE_SERVICE_ACCOUNT sem client_email ou private_key');
+    // Nomes das chaves, nunca os valores: é o que distingue o ficheiro da
+    // service account (client_email, private_key) do ficheiro do OAuth client
+    // (installed/web), que é fácil de trocar e produz o mesmo sintoma.
+    const found = Object.keys(parsed).join(', ') || '(objeto vazio)';
+    throw new Error(
+      `GOOGLE_SERVICE_ACCOUNT nao e a chave da service account. `
+      + `Chaves encontradas: ${found}. `
+      + `Esperado um ficheiro com "type":"service_account", client_email e private_key.`,
+    );
   }
   return parsed;
 }
