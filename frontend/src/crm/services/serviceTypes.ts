@@ -28,5 +28,6 @@ export const CATEGORY_LABEL: Record<string, string> = {
   descontaminacao: 'Descontaminação e proteções',
   higienizacao: 'Higienização',
   polimentos: 'Polimentos e correções',
+  packs: 'Packs de manutenção',
   extras: 'Extras',
 };

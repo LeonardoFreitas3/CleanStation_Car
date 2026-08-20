@@ -13,6 +13,25 @@ import {
 } from '../components/ui';
 import type { ClientOverview, ServiceType, Vehicle } from '../types';
 
+/** Portes com preco proprio. Alinhado com a tabela do site publico. */
+const SIZES = [
+  { id: 'carro',  label: 'Carro / Carrinha' },
+  { id: 'grande', label: 'Carrinha Grande' },
+  { id: 'suv',    label: 'SUV / Monovolume' },
+  { id: 'mota',   label: 'Mota' },
+];
+
+/**
+ * Preco de um servico para um porte.
+ *
+ * Nem todo o servico varia com o veiculo: ceramica e polimentos tem preco
+ * unico e chegam com prices vazio. Nesses, e sempre base_price.
+ */
+function priceOf(type: ServiceType, size: string): number {
+  const byVehicle = type.prices?.[size];
+  return byVehicle !== undefined ? byVehicle : type.base_price;
+}
+
 export default function ServiceForm() {
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -37,6 +56,7 @@ export default function ServiceForm() {
 
   // Servico
   const [typeId, setTypeId] = useState('');
+  const [vehicleSize, setVehicleSize] = useState('carro');
   const [price, setPrice] = useState('');
   const [discount, setDiscount] = useState('');
   const [extraSlugs, setExtraSlugs] = useState<string[]>([]);
@@ -116,8 +136,17 @@ export default function ServiceForm() {
   const selectType = (id: string) => {
     setTypeId(id);
     const t = catalogue.services.find((s) => s.id === id);
-    if (t) setPrice(String(t.base_price));
+    if (t) setPrice(String(priceOf(t, vehicleSize)));
   };
+
+  // Trocar o porte com um serviço já escolhido reajusta o preço.
+  const selectSize = (size: string) => {
+    setVehicleSize(size);
+    const t = catalogue.services.find((s) => s.id === typeId);
+    if (t) setPrice(String(priceOf(t, size)));
+  };
+
+  const selectedType = catalogue.services.find((s) => s.id === typeId);
 
   const selectedExtras = useMemo(
     () => catalogue.extras.filter((x) => extraSlugs.includes(x.slug)),
@@ -291,6 +320,31 @@ export default function ServiceForm() {
         <Card className="p-5">
           <div className="text-[10px] tracking-[0.28em] text-white/50 uppercase mb-3">Serviço</div>
 
+          {/* Porte da viatura: as lavagens custam mais numa Sprinter que num
+              citadino. Serviços de preço único ignoram isto. */}
+          <div className="flex gap-2 flex-wrap mb-5">
+            {SIZES.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => selectSize(s.id)}
+                className={`px-3 py-2 text-[11px] tracking-[0.12em] uppercase font-semibold border rounded-sm transition ${
+                  vehicleSize === s.id
+                    ? 'bg-blue-950/40 border-blue-600 text-blue-300'
+                    : 'border-white/15 text-white/50 hover:text-white hover:border-white/30'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {selectedType && Object.keys(selectedType.prices ?? {}).length === 0 && (
+            <p className="text-white/35 text-xs mb-4">
+              Este serviço tem preço único, independente do porte da viatura.
+            </p>
+          )}
+
           <div className="space-y-4">
             {Object.entries(grouped).map(([category, types]) => (
               <div key={category}>
@@ -298,7 +352,14 @@ export default function ServiceForm() {
                   {CATEGORY_LABEL[category] ?? category}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {types.map((t) => (
+                  {types
+                    .filter((t) => {
+                      const p = t.prices ?? {};
+                      // Um nivel sem preco para este porte nao se vende:
+                      // motas nao levam lavagem detalhada.
+                      return Object.keys(p).length === 0 || p[vehicleSize] !== undefined;
+                    })
+                    .map((t) => (
                     <button
                       key={t.id}
                       type="button"
@@ -310,7 +371,7 @@ export default function ServiceForm() {
                       }`}
                     >
                       <div className="text-white text-xs leading-snug">{t.name}</div>
-                      <div className="text-blue-400/80 text-xs mt-1 font-semibold">{eur(t.base_price)}</div>
+                      <div className="text-blue-400/80 text-xs mt-1 font-semibold">{eur(priceOf(t, vehicleSize))}</div>
                     </button>
                   ))}
                 </div>

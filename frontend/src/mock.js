@@ -1,9 +1,15 @@
-// Mock data for Clean Station Car
+// Conteúdo do site público.
 import {
   Sparkles, Brush, Disc3, ShieldCheck, Car, Wrench, Gem, SprayCan, ShieldPlus,
   Droplets, Lightbulb, CircleDot, Star,
   PawPrint, Wind, CloudFog, Layers, Scissors,
 } from 'lucide-react';
+import { LEVEL_BY_ID } from './booking/pricing';
+
+// Preço "desde" de um nível de lavagem: o mais baixo da tabela por veículo.
+// Vem de booking/pricing.js para o site e o calculador não divergirem — antes
+// os mesmos valores estavam escritos em dois sítios e desalinharam-se.
+const minPrice = (levelId) => Math.min(...Object.values(LEVEL_BY_ID[levelId].prices));
 
 export const SITE = {
   name: 'Clean Station Car',
@@ -36,101 +42,72 @@ export const CATEGORIES = [
 
 export const SERVICES = [
   // ── LAVAGENS ──────────────────────────────────────────────────────────────
+  // Preços por tipo de veículo, lidos de booking/pricing.js — é a mesma tabela
+  // que o calculador de marcações usa. O valor mostrado aqui é o mais baixo
+  // (o "desde"); a ficha do serviço mostra a tabela completa.
   {
     id: 'lavagem-simples',
     category: 'lavagens',
-    title: 'LAVAGEM INTERIOR E EXTERIOR SIMPLES',
-    desc: 'Limpeza geral para manutenção do veículo.',
-    price: 25,
+    title: 'LAVAGEM SIMPLES',
+    desc: 'Limpeza geral para manutenção do veículo, por dentro e por fora.',
+    price: minPrice('simples'),
+    priceByVehicle: LEVEL_BY_ID['simples'].prices,
     icon: Droplets,
-    image: `${process.env.PUBLIC_URL}/img/lavagem.jpg`,           // car being washed
+    image: `${process.env.PUBLIC_URL}/img/lavagem.jpg`,
     includes: [
       'Lavagem exterior completa',
       'Aspiração do interior',
       'Limpeza básica do interior',
       'Vidros limpos',
-      'Serviço simples — inclui lavagem interior simples',
     ],
   },
   {
     id: 'lavagem-selante',
     category: 'lavagens',
     title: 'LAVAGEM COM SELANTE',
-    desc: 'Lavagem exterior com aplicação de proteção temporária que realça o brilho e cria uma camada hidrofóbica.',
-    price: 37,
+    desc: 'Proteção temporária que realça o brilho e cria uma camada hidrofóbica.',
+    price: minPrice('selante'),
+    priceByVehicle: LEVEL_BY_ID['selante'].prices,
     icon: ShieldCheck,
     image: `${process.env.PUBLIC_URL}/img/proteção.jpg`,
     includes: [
-      'Lavagem exterior completa',
+      'Tudo o que inclui a lavagem simples',
       'Aplicação de selante protetor',
       'Maior brilho e repelência à água',
       'Protege a pintura de sujidade e agentes externos',
-      'Inclui lavagem simples interior',
     ],
   },
   {
-    id: 'lavagem-selante-premium',
+    id: 'lavagem-premium',
     category: 'lavagens',
-    title: 'LAVAGEM COM SELANTE PREMIUM',
-    desc: 'Lavagem exterior com selante de alta performance que oferece proteção superior e brilho mais intenso e duradouro.',
-    price: 55,
+    title: 'LAVAGEM PREMIUM',
+    desc: 'Selante de alta performance, com proteção superior e brilho mais duradouro.',
+    price: minPrice('premium'),
+    priceByVehicle: LEVEL_BY_ID['premium'].prices,
     icon: ShieldPlus,
     image: `${process.env.PUBLIC_URL}/img/ceramica-longa.jpg`,
     includes: [
-      'Lavagem exterior completa',
-      'Aplicação de selante premium de alta performance',
+      'Tudo o que inclui a lavagem com selante',
+      'Selante premium de alta performance',
       'Brilho intenso e proteção superior',
       'Maior duração do efeito protetor',
-      'Inclui lavagem simples interior',
     ],
   },
   {
-    id: 'detalhada-interior',
+    id: 'lavagem-detalhada',
     category: 'lavagens',
-    title: 'LAVAGEM DETALHADA INTERIOR',
-    desc: 'Limpeza cuidada de todas as zonas interiores do veículo.',
-    price: 80,
-    icon: Brush,
-    image: `${process.env.PUBLIC_URL}/img/interior.jpg`,
-    includes: [
-      'Aspiração profunda',
-      'Limpeza de plásticos e painel',
-      'Limpeza de consola',
-      'Cantos e zonas difíceis',
-      'Vidros interiores',
-      'Serviço exclusivo para interior',
-    ],
-  },
-  {
-    id: 'detalhada-exterior',
-    category: 'lavagens',
-    title: 'LAVAGEM DETALHADA EXTERIOR',
-    desc: 'Limpeza profunda da parte exterior com atenção a cada pormenor.',
-    price: 90,
-    icon: SprayCan,
-    image: `${process.env.PUBLIC_URL}/img/detalhada-completa.jpg`,
-    includes: [
-      'Lavagem profunda da carroçaria',
-      'Limpeza de jantes e pneus',
-      'Vidros exteriores',
-      'Pormenores exteriores',
-      'Mais brilho e detalhe no acabamento',
-      'Serviço exclusivo para exterior',
-    ],
-  },
-  {
-    id: 'detalhada-completa',
-    category: 'lavagens',
-    title: 'LAVAGEM DETALHADA INTERIOR + EXTERIOR',
-    desc: 'O serviço mais completo de limpeza, com o carro renovado por dentro e por fora.',
-    price: 155,
+    title: 'LAVAGEM DETALHADA',
+    desc: 'O serviço mais completo de limpeza, por dentro e por fora, ao pormenor.',
+    price: minPrice('detalhada'),
+    priceByVehicle: LEVEL_BY_ID['detalhada'].prices,
     icon: Car,
     image: `${process.env.PUBLIC_URL}/img/detail.jpg`,
     includes: [
       'Interior detalhado completo',
       'Exterior detalhado completo',
+      'Limpeza de jantes e pneus',
+      'Cantos e zonas de difícil acesso',
       'Acabamento premium',
-      'Inclui lavagem simples interior',
     ],
   },
 
@@ -310,34 +287,24 @@ export const EXTRAS = [
 
 const EN_SERVICES = {
   'lavagem-simples': {
-    title: 'BASIC INTERIOR & EXTERIOR WASH',
-    desc: 'General cleaning for vehicle maintenance.',
-    includes: ['Complete exterior wash', 'Interior vacuuming', 'Basic interior cleaning', 'Clean windows', 'Simple service — includes basic interior wash'],
+    title: 'BASIC WASH',
+    desc: 'General cleaning for vehicle maintenance, inside and out.',
+    includes: ['Complete exterior wash', 'Interior vacuuming', 'Basic interior cleaning', 'Clean windows'],
   },
   'lavagem-selante': {
     title: 'WASH WITH SEALANT',
-    desc: 'Exterior wash with a temporary protective sealant that enhances shine and creates a hydrophobic layer.',
-    includes: ['Complete exterior wash', 'Protective sealant application', 'Enhanced shine and water repellency', 'Protects paint from dirt and external agents', 'Includes basic interior wash'],
+    desc: 'Temporary protection that enhances shine and creates a hydrophobic layer.',
+    includes: ['Everything in the basic wash', 'Protective sealant application', 'Enhanced shine and water repellency', 'Protects paint from dirt and external agents'],
   },
-  'lavagem-selante-premium': {
-    title: 'WASH WITH PREMIUM SEALANT',
-    desc: 'Exterior wash with a high-performance sealant offering superior protection and longer-lasting shine.',
-    includes: ['Complete exterior wash', 'High-performance premium sealant', 'Intense shine and superior protection', 'Longer-lasting protective effect', 'Includes basic interior wash'],
+  'lavagem-premium': {
+    title: 'PREMIUM WASH',
+    desc: 'High-performance sealant with superior protection and longer-lasting shine.',
+    includes: ['Everything in the sealant wash', 'High-performance premium sealant', 'Intense shine and superior protection', 'Longer-lasting protective effect'],
   },
-  'detalhada-interior': {
-    title: 'DETAILED INTERIOR WASH',
-    desc: 'Careful cleaning of all interior areas of the vehicle.',
-    includes: ['Deep vacuuming', 'Plastics and dashboard cleaning', 'Console cleaning', 'Tight corners and difficult areas', 'Interior windows', 'Interior-only service'],
-  },
-  'detalhada-exterior': {
-    title: 'DETAILED EXTERIOR WASH',
-    desc: 'Deep exterior cleaning with attention to every detail.',
-    includes: ['Deep bodywork wash', 'Wheel and tyre cleaning', 'Exterior windows', 'Exterior details', 'More shine and finishing detail', 'Exterior-only service'],
-  },
-  'detalhada-completa': {
-    title: 'DETAILED INTERIOR + EXTERIOR WASH',
-    desc: 'The most complete cleaning service, leaving your car renewed inside and out.',
-    includes: ['Complete detailed interior', 'Complete detailed exterior', 'Premium finish', 'Includes basic interior wash'],
+  'lavagem-detalhada': {
+    title: 'DETAILED WASH',
+    desc: 'The most complete cleaning service, inside and out, down to the last detail.',
+    includes: ['Complete detailed interior', 'Complete detailed exterior', 'Wheel and tyre cleaning', 'Tight corners and hard-to-reach areas', 'Premium finish'],
   },
   'vidros': {
     title: 'COMPLETE GLASS SERVICE',

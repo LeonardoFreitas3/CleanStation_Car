@@ -76,6 +76,8 @@ export interface ServiceType {
   /** 'extras' identifica os complementos faturaveis, nao servicos principais. */
   category: string;
   base_price: number;
+  /** Preço por tipo de veículo. Vazio = preço único em base_price. */
+  prices: Record<string, number>;
   active: boolean;
   sort_order: number;
 }

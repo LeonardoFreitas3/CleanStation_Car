@@ -1,14 +1,20 @@
 import React from 'react';
 import { X, Check, MessageCircle } from 'lucide-react';
 import { SITE } from '../mock';
+import { VEHICLE_TYPES } from '../booking/pricing';
 import { useLang } from '../i18n';
 
 export default function ServiceDetail({ service, open, onClose }) {
-  const { t, tx } = useLang();
+  const { t, tx, lang } = useLang();
   if (!open || !service) return null;
   const Icon = service.icon;
   const includes = tx(service, 'includes') || service.includes;
-  const waMsg = encodeURIComponent(`Olá! Gostaria de pedir um orçamento para: ${tx(service, 'title')}`);
+  // Era português fixo, mesmo com o site em inglês.
+  const waMsg = encodeURIComponent(
+    lang === 'en'
+      ? `Hello! I'd like a quote for: ${tx(service, 'title')}`
+      : `Olá! Gostaria de pedir um orçamento para: ${tx(service, 'title')}`,
+  );
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
 
   return (
@@ -51,6 +57,26 @@ export default function ServiceDetail({ service, open, onClose }) {
           <p className="text-white/60 text-sm leading-relaxed">
             {tx(service, 'desc')}
           </p>
+
+          {/* Tabela por tipo de veículo. Só as lavagens variam com o veículo;
+              cerâmica, polimentos e afins têm preço único e não mostram nada. */}
+          {service.priceByVehicle && (
+            <div className="mt-6">
+              <div className="text-white/40 text-[10px] tracking-[0.3em] mb-3">
+                {lang === 'en' ? 'PRICE BY VEHICLE' : 'PREÇO POR VEÍCULO'}
+              </div>
+              <ul className="border border-white/10 rounded-sm divide-y divide-white/8">
+                {VEHICLE_TYPES
+                  .filter((v) => service.priceByVehicle[v.id] !== undefined)
+                  .map((v) => (
+                    <li key={v.id} className="flex items-center justify-between px-4 py-2.5">
+                      <span className="text-white/75 text-sm">{v.label}</span>
+                      <span className="text-white font-semibold">{service.priceByVehicle[v.id]} €</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
 
           {includes && includes.length > 0 && (
             <div className="mt-6">
