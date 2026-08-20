@@ -46,7 +46,7 @@ const translations = {
     },
     process: { title: "O NOSSO PROCESSO", subtitle: "Cada detalhe importa." },
     faq: { title: "PERGUNTAS FREQUENTES" },
-    testimonials: { title: "O QUE DIZEM OS NOSSOS CLIENTES" },
+    testimonials: { title: "O QUE DIZEM OS NOSSOS CLIENTES", seeAll: "Ver todas as avaliações no Google" },
     contact: {
       title: "ONDE ESTAMOS",
       hoursDays: "Segunda a Sábado",
@@ -132,7 +132,7 @@ const translations = {
     },
     process: { title: "OUR PROCESS", subtitle: "Every detail matters." },
     faq: { title: "FREQUENTLY ASKED QUESTIONS" },
-    testimonials: { title: "WHAT OUR CLIENTS SAY" },
+    testimonials: { title: "WHAT OUR CLIENTS SAY", seeAll: "See all reviews on Google" },
     contact: {
       title: "WHERE WE ARE",
       hoursDays: "Monday to Saturday",

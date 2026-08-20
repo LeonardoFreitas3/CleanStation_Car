@@ -21,6 +21,9 @@ export const SITE = {
   address: 'R. Conselheiro Lobato 503, 4705-089 Braga',
   hours: 'Segunda a Sábado · 08:00 – 19:00',
   mapsShareUrl: 'https://maps.google.com/?q=R.+Conselheiro+Lobato+503,+4705-089+Braga',
+  // Pagina de avaliacoes do perfil de empresa. Substituir pelo link curto do
+  // Google Business (Partilhar -> Avaliacoes) quando estiver a mao.
+  reviewsUrl: 'https://www.google.com/search?q=Clean+Station+Car+Braga#lrd=,1,,,',
   mapsEmbed:
     'https://www.google.com/maps?q=R.+Conselheiro+Lobato+503,+4705-089+Braga&output=embed',
 };
@@ -182,28 +185,14 @@ export const PROCESS = [
   { n: '04', title: 'ENTREGA PREMIUM', desc: 'Entregamos o teu carro impecável e pronto para impressionar.', icon: Car },
 ];
 
-export const TESTIMONIALS = [
-  {
-    name: 'Ricardo Pereira',
-    car: 'BMW Série 3',
-    text: 'Serviço excepcional! O carro ficou como novo, superou as minhas expectativas.',
-  },
-  {
-    name: 'João Fernandes',
-    car: 'Audi A4',
-    text: 'Profissionalismo, atenção ao detalhe e resultados incríveis. Recomendo a 100%!',
-  },
-  {
-    name: 'Miguel Costa',
-    car: 'Mercedes C220',
-    text: 'Melhor lavagem detalhada que já fiz. Ambiente impecável e pessoal muito atencioso.',
-  },
-  {
-    name: 'Sofia Almeida',
-    car: 'Volkswagen Golf',
-    text: 'Qualidade premium, atenção ao detalhe e um resultado que se nota. Voltarei sem dúvida.',
-  },
-];
+// Avaliacoes reais do Google. Vazio ate serem recolhidas do perfil da
+// empresa — os quatro testemunhos que aqui estavam eram inventados, e
+// apresentar depoimentos ficticios como reais e publicidade enganosa.
+//
+// Formato de cada entrada:
+//   { name, rating, text, date, car? }
+// A seccao nao aparece no site enquanto o array estiver vazio.
+export const TESTIMONIALS = [];
 
 export const EXTRAS = [
   { id: 'pelos-animal',    label: 'Remoção de Pêlo de Animal',        price: 20, icon: PawPrint },
@@ -298,12 +287,7 @@ const EN_PROCESS = {
   '04': { title: 'PREMIUM HANDOVER', desc: 'We hand your car back flawless and ready to impress.' },
 };
 
-const EN_TESTIMONIALS = {
-  'Ricardo Pereira': 'Exceptional service! The car looked brand new, it exceeded my expectations.',
-  'João Fernandes': 'Professionalism, attention to detail and incredible results. Highly recommend!',
-  'Miguel Costa': 'Best detailed wash I have ever had. Impeccable setting and very attentive staff.',
-  'Sofia Almeida': 'Premium quality, attention to detail and a result you can see. I will definitely be back.',
-};
+const EN_TESTIMONIALS = {};
 
 const EN_EXTRAS = {
   'pelos-animal': 'Pet hair removal', 'areia-praia': 'Beach sand removal',
