@@ -24,6 +24,11 @@ const CrmApp = lazy(() => import('./crm/CrmApp'));
 // Tambem a pedido: o formulario de marcacao so pesa para quem o abre.
 const Booking = lazy(() => import('./booking/Booking'));
 
+// Site em manutencao enquanto esta em testes. Bandeira de build: quando esta
+// desligada, nada disto entra no bundle.
+const MAINTENANCE = process.env.REACT_APP_MAINTENANCE === 'true';
+const MaintenanceGate = lazy(() => import('./MaintenanceGate'));
+
 const SITE_URL = 'https://cleanstationcar.com';
 
 const SEO = {
@@ -174,7 +179,18 @@ function App() {
     <LanguageProvider>
       <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={
+              MAINTENANCE ? (
+                <Suspense fallback={<div className="min-h-screen bg-black" />}>
+                  <MaintenanceGate><Home /></MaintenanceGate>
+                </Suspense>
+              ) : (
+                <Home />
+              )
+            }
+          />
           <Route
             path="/crm/*"
             element={
