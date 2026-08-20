@@ -71,8 +71,18 @@ export default function Services() {
 
                         <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
                           <div className="text-left">
-                            <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('services.from')}</span>
-                            <div className="text-white font-display text-xl font-bold">{s.price}€</div>
+                            {/* Polimentos não têm preço de tabela: dependem do
+                                estado da pintura e são orçamentados à vista. */}
+                            {s.onRequest ? (
+                              <div className="text-white font-display text-base font-bold">
+                                {t('services.onRequest')}
+                              </div>
+                            ) : (
+                              <>
+                                <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('services.from')}</span>
+                                <div className="text-white font-display text-xl font-bold">{s.price}€</div>
+                              </>
+                            )}
                           </div>
                           <span className="text-white/40 text-[10px] tracking-[0.15em]">
                             {t('services.contact')} →

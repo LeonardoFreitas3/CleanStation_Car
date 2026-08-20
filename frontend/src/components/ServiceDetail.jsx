@@ -78,8 +78,16 @@ export default function ServiceDetail({ service, open, onClose }) {
         {/* Footer */}
         <div className="px-5 sm:px-6 py-4 border-t border-white/10 flex items-center justify-between gap-4 flex-shrink-0">
           <div>
-            <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('serviceDetail.from')}</span>
-            <div className="text-white font-display text-2xl sm:text-3xl font-bold">{service.price}€</div>
+            {service.onRequest ? (
+              <div className="text-white font-display text-xl sm:text-2xl font-bold">
+                {t('services.onRequest')}
+              </div>
+            ) : (
+              <>
+                <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('serviceDetail.from')}</span>
+                <div className="text-white font-display text-2xl sm:text-3xl font-bold">{service.price}€</div>
+              </>
+            )}
           </div>
           <a
             href={waUrl}

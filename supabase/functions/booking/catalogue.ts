@@ -20,22 +20,24 @@ const LEVELS: Record<string, Level> = {
   simples: {
     label: 'Lavagem Simples',
     prices: { carro: 30, grande: 45, suv: 35, mota: 30 },
-    durations: { carro: 60, grande: 90, suv: 75, mota: 45 },
+    durations: { carro: 90, grande: 120, suv: 105, mota: 105 },
   },
   selante: {
     label: 'Lavagem com Selante',
     prices: { carro: 40, grande: 55, suv: 45 },
-    durations: { carro: 90, grande: 120, suv: 105 },
+    durations: { carro: 105, grande: 135, suv: 120 },
   },
   premium: {
     label: 'Lavagem Premium',
     prices: { carro: 65, grande: 80, suv: 75 },
-    durations: { carro: 120, grande: 150, suv: 135 },
+    durations: { carro: 240, grande: 360, suv: 300 },
   },
   detalhada: {
     label: 'Lavagem Detalhada',
     prices: { carro: 140, grande: 180, suv: 160 },
-    durations: { carro: 240, grande: 300, suv: 270 },
+    // 24h: o carro fica de um dia para o outro. Ocupa o dia inteiro, e o
+    // calculo de vagas trata este caso a parte.
+    durations: { carro: 1440, grande: 1440, suv: 1440 },
   },
 };
 

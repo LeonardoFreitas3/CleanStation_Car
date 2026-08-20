@@ -43,7 +43,7 @@ async function handleAvailability(body: Record<string, unknown>) {
   const duration = Number(body.duration ?? 60);
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json({ error: 'Data inválida' }, 400);
-  if (!Number.isFinite(duration) || duration < 15 || duration > 600) {
+  if (!Number.isFinite(duration) || duration < 15 || duration > 1440) {
     return json({ error: 'Duração inválida' }, 400);
   }
   if (isClosed(date)) return json({ slots: [] });

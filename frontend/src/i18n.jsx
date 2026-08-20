@@ -27,6 +27,7 @@ const translations = {
       from: "DESDE",
       contact: "SABER MAIS",
       note: "Valor a partir de. Preço final sob consulta.",
+      onRequest: "Sob consulta",
     },
     serviceDetail: {
       includes: "O QUE ESTÁ INCLUÍDO",
@@ -110,6 +111,7 @@ const translations = {
       from: "FROM",
       contact: "LEARN MORE",
       note: "Price from. Final price upon consultation.",
+      onRequest: "On request",
     },
     serviceDetail: {
       includes: "WHAT'S INCLUDED",

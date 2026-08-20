@@ -12,6 +12,20 @@ export const CLOSES = 19;        // 19:00
 export const SLOT_MINUTES = 30;
 export const MIN_NOTICE_MINUTES = 60;
 
+/** A partir daqui o serviço não cabe num dia de trabalho: ocupa o dia todo. */
+export const FULL_DAY_MINUTES = 660;
+
+export const isFullDay = (minutes: number) => minutes >= FULL_DAY_MINUTES;
+
+/** "Dia inteiro" em vez de "1440min", que não diz nada a ninguém. */
+export function formatDuration(minutes: number): string {
+  if (minutes >= 1440) return 'Dia inteiro';
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}min`;
+  return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, '0')}`;
+}
+
 /**
  * Deslocação horária de Lisboa naquele dia, no formato "+01:00".
  *
@@ -32,14 +46,6 @@ export function lisbonOffset(dateIso: string): string {
 export function slotIso(dateIso: string, hour: number, minute: number): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${dateIso}T${pad(hour)}:${pad(minute)}:00${lisbonOffset(dateIso)}`;
-}
-
-/** "2h30" em vez de "150 minutos", que ninguém lê de cabeça. */
-export function formatDuration(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h === 0) return `${m}min`;
-  return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, '0')}`;
 }
 
 /** Domingo encerrado. getUTCDay() com meio-dia UTC evita saltos de fuso. */
@@ -71,7 +77,21 @@ export function freeSlots(
   }));
 
   const earliest = now.getTime() + MIN_NOTICE_MINUTES * 60_000;
+  const opening = new Date(slotIso(dateIso, OPENS, 0)).getTime();
   const closing = new Date(slotIso(dateIso, CLOSES, 0)).getTime();
+
+  // Serviços de dia inteiro (a lavagem detalhada são 24h) não cabem entre as
+  // 08:00 e as 19:00, e exigir que terminassem antes do fecho fazia com que
+  // nunca tivessem hora nenhuma disponível. Tratam-se à parte: entrega ao
+  // abrir, o dia fica ocupado, e o carro sai no dia seguinte.
+  if (isFullDay(durationMinutes)) {
+    if (opening < earliest) return [];
+    const end = opening + durationMinutes * 60_000;
+    // O dia tem de estar livre de ponta a ponta, não só a hora de entrega.
+    if (busyRanges.some((b) => overlaps(opening, end, b.start, b.end))) return [];
+    return [`${String(OPENS).padStart(2, '0')}:00`];
+  }
+
   const out: string[] = [];
 
   for (let h = OPENS; h < CLOSES; h++) {

@@ -64,20 +64,23 @@ export const WASH_LEVELS = [
 export const LEVEL_BY_ID = Object.fromEntries(WASH_LEVELS.map((l) => [l.id, l]));
 
 /**
- * Duração de cada nível, em minutos. Determina quantas vagas o serviço ocupa
- * na agenda.
+ * Duração de cada nível, em minutos, conforme os tempos reais da oficina.
  *
- * Estes valores são uma estimativa: ajusta-os ao ritmo real da oficina. Curtos
- * demais e ficam com marcações em cima umas das outras; longos demais e a
- * agenda parece cheia quando não está. Uma mota leva menos tempo que um carro,
- * daí o ajuste por veículo.
+ * A detalhada são 24h: o carro fica de um dia para o outro. Não é um bloco de
+ * horas como os outros — ocupa o dia inteiro, e o cálculo de vagas trata-a à
+ * parte (ver FULL_DAY_MINUTES).
  */
 export const DURATIONS = {
-  simples:   { carro: 60,  grande: 90,  suv: 75,  mota: 45 },
-  selante:   { carro: 90,  grande: 120, suv: 105 },
-  premium:   { carro: 120, grande: 150, suv: 135 },
-  detalhada: { carro: 240, grande: 300, suv: 270 },
+  simples:   { carro: 90,  grande: 120, suv: 105, mota: 105 },
+  selante:   { carro: 105, grande: 135, suv: 120 },
+  premium:   { carro: 240, grande: 360, suv: 300 },
+  detalhada: { carro: 1440, grande: 1440, suv: 1440 },
 };
+
+/** A partir daqui o serviço não cabe num dia de trabalho: ocupa o dia todo. */
+export const FULL_DAY_MINUTES = 660;
+
+export const isFullDay = (minutes) => minutes >= FULL_DAY_MINUTES;
 
 export function durationFor(vehicleId, levelId) {
   return DURATIONS[levelId]?.[vehicleId] ?? 60;
@@ -85,6 +88,7 @@ export function durationFor(vehicleId, levelId) {
 
 /** "2h30" em vez de "150 minutos", que ninguém lê de cabeça. */
 export function formatDuration(minutes) {
+  if (minutes >= 1440) return 'Dia inteiro';
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   if (h === 0) return `${m}min`;

@@ -5,6 +5,7 @@
 
 import {
   computeQuote, levelsFor, packsFor, priceFor, gradeForCount, VEHICLE_TYPES,
+  durationFor, isFullDay, formatDuration,
 } from './pricing';
 
 describe('tabela de preços por tipo de veículo', () => {
@@ -79,6 +80,35 @@ describe('grau de sujidade', () => {
     const q = computeQuote({ vehicleId: 'carro', pack, problemIds: ['lixo', 'areia', 'pelos', 'odor'] });
     expect(q.total).toBe(105);
     expect(q.isPack).toBe(true);
+  });
+});
+
+describe('durações por veículo', () => {
+  // [nível, carro, carrinha grande, SUV, mota] — tempos reais da oficina
+  const TEMPOS = [
+    ['simples', 90, 120, 105, 105],
+    ['selante', 105, 135, 120, null],
+    ['premium', 240, 360, 300, null],
+    ['detalhada', 1440, 1440, 1440, null],
+  ];
+
+  test.each(TEMPOS)('%s', (level, carro, grande, suv, mota) => {
+    expect(durationFor('carro', level)).toBe(carro);
+    expect(durationFor('grande', level)).toBe(grande);
+    expect(durationFor('suv', level)).toBe(suv);
+    if (mota !== null) expect(durationFor('mota', level)).toBe(mota);
+  });
+
+  it('só a detalhada ocupa o dia inteiro', () => {
+    expect(isFullDay(durationFor('carro', 'detalhada'))).toBe(true);
+    // 6h é o serviço mais longo que ainda cabe entre as 08:00 e as 19:00
+    expect(isFullDay(durationFor('grande', 'premium'))).toBe(false);
+  });
+
+  it('mostra "Dia inteiro" em vez de 1440min', () => {
+    expect(formatDuration(1440)).toBe('Dia inteiro');
+    expect(formatDuration(105)).toBe('1h45');
+    expect(formatDuration(240)).toBe('4h');
   });
 });
 
