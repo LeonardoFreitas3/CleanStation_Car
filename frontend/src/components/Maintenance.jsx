@@ -149,10 +149,6 @@ export default function Maintenance({ onUnlock }) {
               </button>
             </div>
 
-            <p className="text-white/40 text-xs mb-4 leading-relaxed">
-              Use as credenciais do CRM para ver o site como ficará publicado.
-            </p>
-
             <input
               type="email"
               required
