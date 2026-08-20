@@ -34,6 +34,14 @@ export function slotIso(dateIso: string, hour: number, minute: number): string {
   return `${dateIso}T${pad(hour)}:${pad(minute)}:00${lisbonOffset(dateIso)}`;
 }
 
+/** "2h30" em vez de "150 minutos", que ninguém lê de cabeça. */
+export function formatDuration(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}min`;
+  return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, '0')}`;
+}
+
 /** Domingo encerrado. getUTCDay() com meio-dia UTC evita saltos de fuso. */
 export function isClosed(dateIso: string): boolean {
   return new Date(`${dateIso}T12:00:00Z`).getUTCDay() === 0;

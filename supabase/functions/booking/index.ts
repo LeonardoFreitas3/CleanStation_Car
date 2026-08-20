@@ -9,7 +9,8 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
 import { busyPeriods, createEvent } from './google.ts';
-import { freeSlots, isClosed, slotIso } from './slots.ts';
+import { formatDuration, freeSlots, isClosed, slotIso } from './slots.ts';
+import { sendConfirmation } from './email.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -210,7 +211,30 @@ async function handleCreate(body: Record<string, unknown>) {
     console.error('Marcação criada no calendário mas falhou no CRM:', e);
   }
 
-  return json({ ok: true, reference, eventId, scheduledAt: startIso });
+  // ── 3. Confirmacao por email ───────────────────────────────────────────────
+  // Depois de tudo o resto, e sem poder falhar o pedido: a marcacao ja existe
+  // no calendario e no CRM. Uma falha do Brevo nao deve fazer o cliente pensar
+  // que nao ficou marcado e voltar a marcar.
+  const emailSent = await sendConfirmation({
+    name,
+    email,
+    reference,
+    serviceTitle: levelLabel,
+    isPack,
+    dateLabel: new Date(startIso).toLocaleDateString('pt-PT', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      timeZone: 'Europe/Lisbon',
+    }),
+    time,
+    durationLabel: formatDuration(duration),
+    vehicle: vehicleInfo,
+    price,
+    gradeLabel: body.gradeLabel ? String(body.gradeLabel) : undefined,
+    gradePct: Number(body.gradePct ?? 0) || undefined,
+    problems,
+  });
+
+  return json({ ok: true, reference, eventId, emailSent, scheduledAt: startIso });
 }
 
 // ── Router ───────────────────────────────────────────────────────────────────
