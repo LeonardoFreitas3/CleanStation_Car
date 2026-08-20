@@ -147,6 +147,11 @@ export async function sendConfirmation(d: ConfirmationData): Promise<boolean> {
       body: JSON.stringify({
         sender: { name: 'Clean Station Car', email: from },
         to: [{ email: d.email, name: d.name }],
+        // O remetente pode ser um endereco do dominio que so envia, sem caixa
+        // de correio. Sem replyTo, quem respondesse a confirmacao escrevia
+        // para o vazio — e responder ao email de confirmacao e a coisa mais
+        // natural do mundo para quem quer mudar a hora.
+        replyTo: { email: Deno.env.get('BREVO_REPLY_TO') ?? CONTACT_EMAIL, name: 'Clean Station Car' },
         subject: 'Confirmação de marcação — Clean Station Car',
         htmlContent: buildHtml(d),
       }),
