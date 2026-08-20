@@ -11,6 +11,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
 import { busyPeriods, createEvent } from './google.ts';
 import { formatDuration, freeSlots, isClosed, slotIso } from './slots.ts';
 import { sendConfirmation } from './email.ts';
+import { resolve } from './catalogue.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -65,8 +66,6 @@ async function handleCreate(body: Record<string, unknown>) {
   const email = String(body.email ?? '').trim().toLowerCase();
   const date = String(body.date ?? '');
   const time = String(body.time ?? '');
-  const duration = Number(body.duration ?? 60);
-  const price = Number(body.price ?? 0);
 
   // Validação no servidor. O formulário também valida, mas isso é conveniência:
   // quem chamar esta função diretamente passa por aqui na mesma.
@@ -78,6 +77,25 @@ async function handleCreate(body: Record<string, unknown>) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) {
     return json({ error: 'Data ou hora inválidas' }, 400);
   }
+
+  const problems = Array.isArray(body.problems) ? body.problems as string[] : [];
+  const isPack = Boolean(body.isPack);
+
+  // Preço e duração vêm do catálogo do servidor, nunca do pedido. O corpo só
+  // traz ids; se mandarem price:1 e duration:15, é ignorado.
+  let resolved;
+  try {
+    resolved = resolve(
+      String(body.vehicleType ?? ''),
+      String(body.levelId ?? ''),
+      isPack,
+      problems.length,
+    );
+  } catch (e) {
+    return json({ error: e instanceof Error ? e.message : 'Serviço inválido' }, 400);
+  }
+
+  const { price, duration } = resolved;
 
   const [h, m] = time.split(':').map(Number);
   const startIso = slotIso(date, h, m);
@@ -97,11 +115,10 @@ async function handleCreate(body: Record<string, unknown>) {
     return json({ error: 'Esse horário já não está disponível. Escolha outro.' }, 409);
   }
 
-  const levelLabel = String(body.levelLabel ?? 'Serviço');
+  // O rotulo tambem vem do catalogo: o do pedido serve so para o cliente ver.
+  const levelLabel = resolved.label;
   const vehicleInfo = String(body.vehicleInfo ?? '').trim();
-  const problems = Array.isArray(body.problems) ? body.problems as string[] : [];
   const notes = String(body.notes ?? '').trim();
-  const isPack = Boolean(body.isPack);
 
   // ── 1. Evento no calendário ────────────────────────────────────────────────
   // Primeiro o calendário: é o que os funcionários veem. Se o CRM falhar a
@@ -114,7 +131,7 @@ async function handleCreate(body: Record<string, unknown>) {
       `Veículo: ${vehicleInfo || '-'}`,
       `Telefone: ${phone}`,
       `Email: ${email || '-'}`,
-      `Estado assinalado: ${body.gradeLabel ?? '-'}`,
+      `Estado assinalado: ${resolved.gradeLabel} (+${resolved.gradePct}%)`,
       `Problemas: ${problems.length ? problems.join(', ') : '-'}`,
       `Notas: ${notes || '-'}`,
       `Estimativa: ${price} EUR`,
@@ -229,8 +246,8 @@ async function handleCreate(body: Record<string, unknown>) {
     durationLabel: formatDuration(duration),
     vehicle: vehicleInfo,
     price,
-    gradeLabel: body.gradeLabel ? String(body.gradeLabel) : undefined,
-    gradePct: Number(body.gradePct ?? 0) || undefined,
+    gradeLabel: resolved.gradeLabel,
+    gradePct: resolved.gradePct || undefined,
     problems,
   });
 
