@@ -192,13 +192,6 @@ export default function Maintenance({ onUnlock }) {
             >
               <LogIn className="w-4 h-4" /> {busy ? 'A ENTRAR…' : 'VER O SITE'}
             </button>
-
-            <a
-              href="/crm"
-              className="block text-center text-white/30 hover:text-blue-400 text-[10px] tracking-[0.2em] uppercase mt-4 transition"
-            >
-              Ir para o CRM
-            </a>
           </form>
         )}
       </div>
