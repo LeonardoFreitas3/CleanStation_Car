@@ -48,5 +48,7 @@ export default function MaintenanceGate({ children }) {
   // site daria um salto desagradável a quem tem sessão.
   if (allowed === null) return <div className="min-h-screen bg-black" />;
 
-  return allowed ? children : <Maintenance />;
+  // onUnlock deixa o login da própria página abrir o site sem recarregar nem
+  // passar pelo CRM — a ideia é ver o site, não gerir marcações.
+  return allowed ? children : <Maintenance onUnlock={() => setAllowed(true)} />;
 }

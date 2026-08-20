@@ -1,15 +1,27 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Wrench, MessageCircle, Instagram } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Wrench, MessageCircle, Instagram, Eye, EyeOff, LogIn, X } from 'lucide-react';
 import { SITE } from '../mock';
+import { getSupabase } from '../crm/lib/supabase';
+import { friendlyError } from '../crm/lib/errors';
 
 /**
  * Ecrã de manutenção do site público.
  *
  * Continua a mostrar telefone, WhatsApp e morada: quem chega ao site quer
  * marcar um serviço, e um "voltamos já" sem forma de contacto perde o cliente.
+ *
+ * O login usa as mesmas credenciais do CRM e desbloqueia o site público aqui
+ * mesmo — não leva ninguém para o CRM. Serve para testar o site tal como um
+ * cliente o vai ver.
  */
-export default function Maintenance() {
+export default function Maintenance({ onUnlock }) {
+  const [showLogin, setShowLogin] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+
   // Sem isto o Google indexava o "voltamos em breve" como sendo o site, e essa
   // versão ficava em cache nos resultados durante dias depois de voltar ao ar.
   useEffect(() => {
@@ -23,6 +35,37 @@ export default function Maintenance() {
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${encodeURIComponent(
     'Olá! Gostaria de fazer uma marcação na Clean Station Car.',
   )}`;
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+
+    try {
+      const supabase = getSupabase();
+      const { data, error: err } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (err) { setError(friendlyError(err)); setBusy(false); return; }
+
+      // Uma conta desativada autentica no Auth mas não deve ver nada.
+      const { data: profile } = await supabase
+        .from('profiles').select('active').eq('id', data.session.user.id).maybeSingle();
+
+      if (!profile?.active) {
+        await supabase.auth.signOut();
+        setError('A sua conta está desativada.');
+        setBusy(false);
+        return;
+      }
+
+      onUnlock();
+    } catch (err) {
+      setError(friendlyError(err));
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 py-16">
@@ -82,13 +125,86 @@ export default function Maintenance() {
           </a>
         </div>
 
-        {/* Discreto de proposito: e para a equipa, nao para os visitantes. */}
-        <Link
-          to="/crm/login"
-          className="inline-block mt-12 text-white/20 hover:text-blue-400 text-[10px] tracking-[0.25em] uppercase transition"
-        >
-          Acesso interno
-        </Link>
+        {/* Discreto de propósito: é para a equipa, não para os visitantes. */}
+        {!showLogin ? (
+          <button
+            onClick={() => setShowLogin(true)}
+            className="inline-block mt-12 text-white/20 hover:text-blue-400 text-[10px] tracking-[0.25em] uppercase transition"
+          >
+            Pré-visualizar o site
+          </button>
+        ) : (
+          <form onSubmit={submit} className="mt-12 text-left border border-white/12 rounded-sm p-5 bg-white/[0.02]">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[10px] tracking-[0.28em] text-white/50 uppercase">
+                Pré-visualização
+              </span>
+              <button
+                type="button"
+                onClick={() => { setShowLogin(false); setError(null); }}
+                aria-label="Fechar"
+                className="text-white/35 hover:text-white transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-white/40 text-xs mb-4 leading-relaxed">
+              Use as credenciais do CRM para ver o site como ficará publicado.
+            </p>
+
+            <input
+              type="email"
+              required
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              className="w-full bg-black/60 border border-white/15 focus:border-blue-500 outline-none px-4 py-3 text-white text-sm rounded-sm placeholder:text-white/25 mb-3"
+            />
+
+            <div className="relative mb-4">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Palavra-passe"
+                className="w-full bg-black/60 border border-white/15 focus:border-blue-500 outline-none px-4 py-3 pr-12 text-white text-sm rounded-sm placeholder:text-white/25"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Esconder palavra-passe' : 'Mostrar palavra-passe'}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-white/40 hover:text-blue-400 transition"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {error && (
+              <div role="alert" className="border border-red-800/60 bg-red-950/40 text-red-200 text-xs px-3 py-2 rounded-sm mb-4">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white text-xs tracking-[0.22em] font-bold transition rounded-sm"
+            >
+              <LogIn className="w-4 h-4" /> {busy ? 'A ENTRAR…' : 'VER O SITE'}
+            </button>
+
+            <a
+              href="/crm"
+              className="block text-center text-white/30 hover:text-blue-400 text-[10px] tracking-[0.2em] uppercase mt-4 transition"
+            >
+              Ir para o CRM
+            </a>
+          </form>
+        )}
       </div>
     </div>
   );

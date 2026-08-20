@@ -53,6 +53,26 @@ export function isClosed(dateIso: string): boolean {
   return new Date(`${dateIso}T12:00:00Z`).getUTCDay() === 0;
 }
 
+/**
+ * Data de hoje em Lisboa, no formato YYYY-MM-DD.
+ *
+ * O fuso do servidor não serve: a função corre em infraestrutura que pode
+ * estar noutro continente, e à meia-noite isso mudava o dia por engano.
+ */
+export function todayInLisbon(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Lisbon' }).format(now);
+}
+
+/**
+ * Não se marca para o próprio dia.
+ *
+ * O trabalho tem de ser preparado com antecedência: produtos, box livre,
+ * pessoal. Uma marcação para daqui a duas horas apanha a oficina de surpresa.
+ */
+export function isTooSoon(dateIso: string, now: Date = new Date()): boolean {
+  return dateIso <= todayInLisbon(now);
+}
+
 function overlaps(aStart: number, aEnd: number, bStart: number, bEnd: number): boolean {
   return aStart < bEnd && aEnd > bStart;
 }
@@ -70,6 +90,7 @@ export function freeSlots(
   now: Date = new Date(),
 ): string[] {
   if (isClosed(dateIso)) return [];
+  if (isTooSoon(dateIso, now)) return [];
 
   const busyRanges = busy.map((b) => ({
     start: new Date(b.start).getTime(),

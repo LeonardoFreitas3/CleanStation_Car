@@ -131,7 +131,10 @@ function Calendar({ value, onChange }) {
           if (!d) return <span key={`x${i}`} />;
           const iso = isoDate(d);
           // Domingo fechado; dias passados não são opção.
-          const closed = d.getDay() === 0 || d < today;
+          // Nao se marca para o proprio dia: o trabalho tem de ser
+          // preparado com antecedencia. O servidor recusa na mesma, isto
+          // so evita que o cliente escolha e leve com um erro depois.
+          const closed = d.getDay() === 0 || d <= today;
           const selected = value === iso;
           return (
             <button
@@ -150,7 +153,9 @@ function Calendar({ value, onChange }) {
           );
         })}
       </div>
-      <p className="text-white/30 text-[11px] mt-3">Domingos encerrado. Horários ocupados não aparecem.</p>
+      <p className="text-white/30 text-[11px] mt-3">
+        Domingos encerrado. Marcações a partir de amanhã. Horários ocupados não aparecem.
+      </p>
     </div>
   );
 }
