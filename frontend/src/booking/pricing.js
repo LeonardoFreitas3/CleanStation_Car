@@ -64,6 +64,34 @@ export const WASH_LEVELS = [
 export const LEVEL_BY_ID = Object.fromEntries(WASH_LEVELS.map((l) => [l.id, l]));
 
 /**
+ * Duração de cada nível, em minutos. Determina quantas vagas o serviço ocupa
+ * na agenda.
+ *
+ * Estes valores são uma estimativa: ajusta-os ao ritmo real da oficina. Curtos
+ * demais e ficam com marcações em cima umas das outras; longos demais e a
+ * agenda parece cheia quando não está. Uma mota leva menos tempo que um carro,
+ * daí o ajuste por veículo.
+ */
+export const DURATIONS = {
+  simples:   { carro: 60,  grande: 90,  suv: 75,  mota: 45 },
+  selante:   { carro: 90,  grande: 120, suv: 105 },
+  premium:   { carro: 120, grande: 150, suv: 135 },
+  detalhada: { carro: 240, grande: 300, suv: 270 },
+};
+
+export function durationFor(vehicleId, levelId) {
+  return DURATIONS[levelId]?.[vehicleId] ?? 60;
+}
+
+/** "2h30" em vez de "150 minutos", que ninguém lê de cabeça. */
+export function formatDuration(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}min`;
+  return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, '0')}`;
+}
+
+/**
  * Packs de manutenção: duas lavagens por mês.
  *
  * Não há pack de lavagem simples nem para motas — não constam da tabela de

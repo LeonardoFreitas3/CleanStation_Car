@@ -1,11 +1,11 @@
 import React from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, CalendarDays } from 'lucide-react';
 import { FEATURES, SITE } from "../mock";
 import { useLang } from "../i18n";
 
 const HERO_CAR = `${process.env.PUBLIC_URL}/img/banner`;
 
-export default function Hero() {
+export default function Hero({ onBook }) {
   const { t, tx } = useLang();
   const waMsg = encodeURIComponent(t('whatsapp.msg'));
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
@@ -56,20 +56,24 @@ export default function Hero() {
               </div>
 
               <div className="mt-10 flex flex-col sm:flex-row gap-4 fade-up" style={{ animationDelay: "0.38s" }}>
+                {/* Marcar passa a ser a ação principal: o WhatsApp obriga a
+                    trocar mensagens até acertar a hora, isto resolve num ecrã. */}
+                <button
+                  type="button"
+                  onClick={onBook}
+                  className="btn-silver inline-flex items-center justify-center gap-2 px-8 py-4 text-xs tracking-[0.25em] font-bold"
+                >
+                  <CalendarDays className="w-4 h-4" />
+                  MARCAR AGORA
+                </button>
                 <a
                   href={waUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn-silver inline-flex items-center justify-center gap-2 px-8 py-4 text-xs tracking-[0.25em] font-bold"
+                  className="inline-flex items-center justify-center gap-2 border border-white/55 text-white px-8 py-4 text-xs tracking-[0.25em] font-bold hover:bg-emerald-900/30 hover:border-emerald-500 hover:text-emerald-300 transition"
                 >
                   <MessageCircle className="w-4 h-4" />
                   {t('hero.whatsapp')}
-                </a>
-                <a
-                  href="#services"
-                  className="inline-flex items-center justify-center gap-2 border border-white/55 text-white px-8 py-4 text-xs tracking-[0.25em] font-bold hover:bg-blue-900/30 hover:border-blue-500 hover:text-blue-300 transition"
-                >
-                  {t('hero.services')}
                 </a>
               </div>
             </div>

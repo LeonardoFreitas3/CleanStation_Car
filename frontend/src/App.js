@@ -21,6 +21,9 @@ import { LanguageProvider, useLang } from './i18n';
 // publico nao tem de descarregar nada disso.
 const CrmApp = lazy(() => import('./crm/CrmApp'));
 
+// Tambem a pedido: o formulario de marcacao so pesa para quem o abre.
+const Booking = lazy(() => import('./booking/Booking'));
+
 const SITE_URL = 'https://cleanstationcar.com';
 
 const SEO = {
@@ -43,6 +46,7 @@ const SEO = {
 function Home() {
   const { lang } = useLang();
   const [legalOpen, setLegalOpen] = useState(null);
+  const [booking, setBooking] = useState(false);
 
   useEffect(() => { initAnalytics(); }, []);
 
@@ -143,7 +147,7 @@ function Home() {
     <div className="bg-black text-white min-h-screen">
       <Header />
       <main>
-        <Hero />
+        <Hero onBook={() => setBooking(true)} />
         <Services />
         <AboutSection />
         <Process />
@@ -156,6 +160,11 @@ function Home() {
       <TermsConditions open={legalOpen === 'terms'} onClose={() => setLegalOpen(null)} />
       <CookiePolicy open={legalOpen === 'cookies'} onClose={() => setLegalOpen(null)} />
       <CookieBanner onOpenPolicy={() => setLegalOpen('cookies')} />
+      {booking && (
+        <Suspense fallback={null}>
+          <Booking open onClose={() => setBooking(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }
