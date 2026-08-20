@@ -129,7 +129,22 @@ export async function busyPeriods(timeMin: string, timeMax: string): Promise<Bus
   if (!res.ok) throw new Error(`Calendar freeBusy falhou: ${await res.text()}`);
 
   const data = await res.json();
-  return data.calendars?.[calendarId()]?.busy ?? [];
+  const entry = data.calendars?.[calendarId()];
+
+  // O freeBusy responde 200 mesmo quando não consegue ler o calendário: põe o
+  // motivo num campo `errors` da entrada. Sem esta verificação, "sem acesso"
+  // era lido como "sem nada marcado" e o site oferecia horas por cima de
+  // trabalho real — falha silenciosa e cara.
+  if (!entry || entry.errors) {
+    const reason = entry?.errors?.[0]?.reason ?? 'calendário não devolvido';
+    throw new Error(
+      `Sem acesso ao calendário (${reason}). `
+      + `Confirma que ${serviceAccount().client_email} tem permissão `
+      + `"Fazer alterações a eventos" em ${calendarId()}.`,
+    );
+  }
+
+  return entry.busy ?? [];
 }
 
 export interface EventInput {

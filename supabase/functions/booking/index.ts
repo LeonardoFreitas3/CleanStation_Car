@@ -231,6 +231,6 @@ Deno.serve(async (req) => {
     // O detalhe vai para os logs, não para o visitante: as mensagens do Google
     // revelam o calendário e a service account.
     console.error(action, e);
-    return json({ error: 'Não foi possível processar o pedido. Tente novamente.' }, 500);
+    return json({ error: 'Não foi possível processar o pedido. Tente novamente.', _debug: String(e && (e.stack||e.message) || e) }, 500);
   }
 });
