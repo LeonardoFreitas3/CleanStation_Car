@@ -4,8 +4,10 @@
 //   1. So usa o simbolo do carro, nao o logo completo. O "CLEAN STATION" e
 //      ilegivel abaixo de ~48px e roubava espaco ao unico elemento que se
 //      distingue nesse tamanho.
-//   2. ZOOM > 1 corta as pontas dos farois de proposito. O carro tem racio
-//      2.74:1; a encaixa-lo inteiro num quadrado sobra metade da tela vazia.
+//   2. ZOOM = 1: o carro entra INTEIRO. Uma versao anterior usava 1.5 para
+//      encher mais o quadrado, mas isso fatiava os farois nos bordos laterais
+//      e lia-se como defeito de recorte, nao como opcao. Melhor um carro
+//      completo com preto a volta do que um carro cortado.
 //
 // Correr a partir de frontend/:  node scripts/gen-favicon.mjs
 import sharp from 'sharp';
@@ -14,7 +16,8 @@ import { writeFileSync } from 'fs';
 const SRC = 'public/img/logo.png';
 const OUT = 'public/img/favicon.ico';
 const SIZES = [16, 32, 48];
-const ZOOM = 1.5;      // largura do carro / largura do icone
+const ZOOM = 1.0;      // largura do carro / largura util do icone
+const PADDING = 0.05;  // margem interior: os cantos arredondados comem os extremos
 const RADIUS = 0.16;   // canto arredondado, fracao do lado
 const BG = '#000000';
 
@@ -64,8 +67,9 @@ async function forceWhite(buf) {
 }
 
 async function render(box, size) {
+  const usable = Math.round(size * (1 - PADDING * 2));
   let car = await forceWhite(
-    await sharp(SRC).extract(box).resize(Math.round(size * ZOOM), null).png().toBuffer()
+    await sharp(SRC).extract(box).resize(Math.round(usable * ZOOM), null).png().toBuffer()
   );
 
   // com ZOOM > 1 o carro excede a tela: corta ao centro antes de compor

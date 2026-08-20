@@ -8,6 +8,9 @@ const BREVO_URL = 'https://api.brevo.com/v3/smtp/email';
 const CONTACT_PHONE = '+351 913 733 791';
 const CONTACT_EMAIL = 'cleanstationcar@gmail.com';
 
+// URL absoluto: um caminho relativo não existe dentro de um cliente de email.
+const LOGO_URL = 'https://cleanstationcar.com/img/logo.png';
+
 /**
  * Escapa tudo o que veio do formulário antes de entrar no HTML.
  *
@@ -65,12 +68,19 @@ function buildHtml(d: ConfirmationData): string {
   <div style="max-width:520px;margin:0 auto">
 
     <div style="text-align:center;margin-bottom:32px">
-      <h1 style="font-size:20px;letter-spacing:.22em;margin:0;font-weight:700">CLEAN STATION CAR</h1>
-      <p style="color:#666;font-size:11px;letter-spacing:.3em;margin:6px 0 0">LAVAGEM DETALHADA PREMIUM · BRAGA</p>
+      <!-- O alt não é decorativo: muitos clientes bloqueiam imagens por
+           omissão, e sem ele o email abria com um espaço vazio no topo. -->
+      <img src="${LOGO_URL}" alt="CLEAN STATION CAR" width="180"
+           style="width:180px;max-width:60%;height:auto;display:block;margin:0 auto;border:0;color:#fff;font-size:18px;letter-spacing:.2em;font-weight:700">
+      <p style="color:#666;font-size:11px;letter-spacing:.3em;margin:14px 0 0">LAVAGEM DETALHADA PREMIUM &middot; BRAGA</p>
     </div>
 
     <div style="border:1px solid #222;padding:32px;margin-bottom:24px">
-      <h2 style="font-size:16px;letter-spacing:.18em;margin:0 0 6px">MARCAÇÃO CONFIRMADA ✓</h2>
+      <!-- Logo repetido em pequeno junto à mensagem, para a marca acompanhar
+           o conteúdo e não ficar só no cabeçalho. -->
+      <img src="${LOGO_URL}" alt="" width="90"
+           style="width:90px;height:auto;display:block;margin:0 0 18px;border:0;opacity:.75">
+      <h2 style="font-size:16px;letter-spacing:.18em;margin:0 0 6px">MARCAÇÃO CONFIRMADA &#10003;</h2>
       <p style="color:#888;font-size:14px;margin:0 0 28px">
         Olá ${esc(d.name)}, a sua marcação foi registada com sucesso.
       </p>
