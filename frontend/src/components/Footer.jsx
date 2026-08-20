@@ -29,6 +29,7 @@ export default function Footer({ onLegal }) {
               <li><a href="#about"        className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.about')}</a></li>
               <li><a href="#services"     className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.services')}</a></li>
               <li><a href="#testimonials" className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.testimonials')}</a></li>
+              <li><a href="#faq"          className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.faq')}</a></li>
               <li><a href="#contact"      className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.contact')}</a></li>
             </ul>
           </div>

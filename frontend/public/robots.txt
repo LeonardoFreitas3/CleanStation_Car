@@ -2,4 +2,39 @@ User-agent: *
 Allow: /
 Disallow: /crm
 
+# Motores de busca com IA e assistentes. Por omissão já seriam permitidos —
+# está explícito para que a intenção fique clara: queremos ser encontrados
+# também por quem pergunta a um assistente onde lavar o carro em Braga.
+User-agent: GPTBot
+Allow: /
+Disallow: /crm
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /crm
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /crm
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /crm
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /crm
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /crm
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /crm
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /crm
+
 Sitemap: https://cleanstationcar.com/sitemap.xml

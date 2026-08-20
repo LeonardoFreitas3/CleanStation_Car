@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Car, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, Car, ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { useDebounced } from '../hooks/useDebounced';
 import {
-  CLIENT_STATUS_CLASS, CLIENT_STATUS_LABEL, clientStatus, listClients,
+  CLIENT_STATUS_CLASS, CLIENT_STATUS_LABEL, clientStatus, listClients, softDeleteClient,
 } from '../services/clients';
 import type { ClientSort } from '../services/clients';
 import { daysAgo, eur } from '../lib/format';
+import { useAuth } from '../contexts/AuthContext';
 import { Alert, Button, PageTitle, Spinner } from '../components/ui';
 import type { ClientOverview } from '../types';
 
@@ -37,6 +38,8 @@ export default function Clients() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const { hasRole } = useAuth();
 
   const query = useDebounced(search);
 
@@ -59,6 +62,25 @@ export default function Clients() {
   }, [query, page, sort]);
 
   useEffect(() => { load(); }, [load]);
+
+  const remove = async (c: ClientOverview) => {
+    const ok = window.confirm(
+      `Eliminar ${c.name}?\n\n`
+      + 'O histórico de serviços mantém-se, mas o cliente deixa de aparecer nas listagens.',
+    );
+    if (!ok) return;
+
+    setDeleting(c.id);
+    setError(null);
+    try {
+      await softDeleteClient(c.id);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível eliminar.');
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1);
 
@@ -154,6 +176,7 @@ export default function Clients() {
                   <th className="text-left font-semibold px-4 py-3">Última visita</th>
                   <th className="text-right font-semibold px-4 py-3">Valor gasto</th>
                   <th className="text-left font-semibold px-4 py-3">Estado</th>
+                  <th className="text-right font-semibold px-4 py-3">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -170,6 +193,31 @@ export default function Clients() {
                     <td className="px-4 py-3 text-white/60">{daysAgo(c.days_since_last_visit)}</td>
                     <td className="px-4 py-3 text-white text-right font-semibold">{eur(c.total_spent)}</td>
                     <td className="px-4 py-3"><StatusBadge client={c} /></td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link
+                          to={`/crm/clientes/${c.id}/editar`}
+                          title="Editar"
+                          aria-label={`Editar ${c.name}`}
+                          className="w-8 h-8 flex items-center justify-center border border-white/12 text-white/50 hover:text-blue-400 hover:border-blue-600 rounded-sm transition"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Link>
+                        {/* Eliminar so a admin: e destrutivo e nao ha razao
+                            para um funcionario o fazer a partir da lista. */}
+                        {hasRole('admin') && (
+                          <button
+                            onClick={() => remove(c)}
+                            disabled={deleting === c.id}
+                            title="Eliminar"
+                            aria-label={`Eliminar ${c.name}`}
+                            className="w-8 h-8 flex items-center justify-center border border-white/12 text-white/50 hover:text-red-400 hover:border-red-700 rounded-sm transition disabled:opacity-40"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

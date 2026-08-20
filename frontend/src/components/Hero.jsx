@@ -19,7 +19,7 @@ export default function Hero({ onBook }) {
             <source srcSet={`${HERO_CAR}.webp`} type="image/webp" />
             <img
               src={`${HERO_CAR}.jpg`}
-              alt="Audi luxury car"
+              alt="Automóvel após lavagem detalhada na Clean Station Car, em Braga"
               className="absolute inset-0 w-full h-full object-cover"
               style={{ objectPosition: "65% 60%" }}
               loading="eager"

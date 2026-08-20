@@ -45,6 +45,7 @@ const translations = {
       whatsapp: "FALA CONNOSCO",
     },
     process: { title: "O NOSSO PROCESSO", subtitle: "Cada detalhe importa." },
+    faq: { title: "PERGUNTAS FREQUENTES" },
     testimonials: { title: "O QUE DIZEM OS NOSSOS CLIENTES" },
     contact: {
       title: "ONDE ESTAMOS",
@@ -63,6 +64,7 @@ const translations = {
       about: "Sobre Nós",
       services: "Serviços",
       testimonials: "Testemunhos",
+      faq: "Perguntas Frequentes",
       contact: "Contactos",
       social: "REDES SOCIAIS",
       rights: "Todos os direitos reservados.",
@@ -129,6 +131,7 @@ const translations = {
       whatsapp: "GET IN TOUCH",
     },
     process: { title: "OUR PROCESS", subtitle: "Every detail matters." },
+    faq: { title: "FREQUENTLY ASKED QUESTIONS" },
     testimonials: { title: "WHAT OUR CLIENTS SAY" },
     contact: {
       title: "WHERE WE ARE",
@@ -147,6 +150,7 @@ const translations = {
       about: "About Us",
       services: "Services",
       testimonials: "Testimonials",
+      faq: "FAQ",
       contact: "Contact",
       social: "SOCIAL MEDIA",
       rights: "All rights reserved.",
