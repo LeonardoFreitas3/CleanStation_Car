@@ -1,17 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Car, ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
+import { Search, Plus, Car, ChevronLeft, ChevronRight, Pencil, Trash2, Download } from 'lucide-react';
 import { useDebounced } from '../hooks/useDebounced';
 import {
   CLIENT_STATUS_CLASS, CLIENT_STATUS_LABEL, clientStatus, listClients, softDeleteClient,
 } from '../services/clients';
 import type { ClientSort } from '../services/clients';
+import { csvDate, csvFilename, csvNumber, downloadCsv, toCsv } from '../lib/csv';
 import { daysAgo, eur } from '../lib/format';
 import { useAuth } from '../contexts/AuthContext';
 import { Alert, Button, PageTitle, Spinner } from '../components/ui';
 import type { ClientOverview } from '../types';
 
 const PAGE_SIZE = 25;
+
+// Teto da exportacao. Nao e o limite do negocio, e o do browser: gerar um CSV
+// de dezenas de milhares de linhas em memoria bloqueia a pagina.
+const EXPORT_LIMIT = 5000;
 
 const SORTS: Array<{ value: ClientSort; label: string }> = [
   { value: 'recent', label: 'Última visita' },
@@ -39,6 +44,7 @@ export default function Clients() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
   const { hasRole } = useAuth();
 
   const query = useDebounced(search);
@@ -62,6 +68,38 @@ export default function Clients() {
   }, [query, page, sort]);
 
   useEffect(() => { load(); }, [load]);
+
+  /**
+   * Exporta o que a pesquisa atual devolve, nao so a pagina que esta a vista —
+   * senao exportava 25 linhas e ninguem reparava que faltavam as outras.
+   */
+  const exportCsv = async () => {
+    setExporting(true);
+    setError(null);
+    try {
+      const { rows: all } = await listClients({ query, page: 0, pageSize: EXPORT_LIMIT, sort });
+      downloadCsv(csvFilename('clientes'), toCsv(all, [
+        { header: 'Nome', value: (c) => c.name },
+        { header: 'Telefone', value: (c) => c.phone },
+        { header: 'Email', value: (c) => c.email },
+        { header: 'Tipo', value: (c) => c.client_type },
+        { header: 'Estado', value: (c) => CLIENT_STATUS_LABEL[clientStatus(c)] },
+        { header: 'Visitas', value: (c) => c.visit_count },
+        { header: 'Total gasto', value: (c) => csvNumber(c.total_spent) },
+        { header: 'Última visita', value: (c) => csvDate(c.last_visit_at) },
+        { header: 'Viaturas', value: (c) => c.vehicle_count },
+        { header: 'Consente marketing', value: (c) => (c.marketing_consent ? 'Sim' : 'Não') },
+        { header: 'Cliente desde', value: (c) => csvDate(c.created_at) },
+      ]));
+      if (all.length === EXPORT_LIMIT) {
+        setError(`A exportação traz no máximo ${EXPORT_LIMIT} linhas. Filtre a pesquisa para não ficar nada de fora.`);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível exportar.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const remove = async (c: ClientOverview) => {
     const ok = window.confirm(
@@ -90,9 +128,19 @@ export default function Clients() {
         <PageTitle sub={total > 0 ? `${total} ${total === 1 ? 'cliente' : 'clientes'}` : undefined}>
           Clientes
         </PageTitle>
-        <Link to="/crm/clientes/novo">
-          <Button><Plus className="w-4 h-4" /> Novo cliente</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {/* Só admin e gestor: a lista completa de clientes com contactos e
+              faturação é a coisa mais sensível do CRM, e sai daqui num
+              ficheiro que já não volta a ser controlado. */}
+          {hasRole('admin', 'manager') && (
+            <Button variant="secondary" onClick={exportCsv} loading={exporting}>
+              <Download className="w-4 h-4" /> Exportar
+            </Button>
+          )}
+          <Link to="/crm/clientes/novo">
+            <Button><Plus className="w-4 h-4" /> Novo cliente</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="flex gap-3 flex-wrap mb-6">
