@@ -15,6 +15,7 @@ const translations = {
       faq: "FAQ",
       contact: "CONTACTOS",
     },
+    legal: { close: "Fechar" },
     hero: {
       badge1: "LAVAGEM DETALHADA PREMIUM",
       badge2: "EM BRAGA",
@@ -102,6 +103,7 @@ const translations = {
       faq: "FAQ",
       contact: "CONTACT",
     },
+    legal: { close: "Close" },
     hero: {
       badge1: "PREMIUM CAR DETAILING",
       badge2: "IN BRAGA",
