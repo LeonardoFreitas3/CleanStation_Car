@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
 import {
-  createTimeOff, dayKey, deleteTimeOff, loadWeek, timeOffDays,
+  createTimeOff, dayKey, deleteTimeOff, loadWeek, nextFreeHour, timeOffDays,
 } from '../services/agenda';
 import type { Week } from '../services/agenda';
 import { SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL } from '../services/services';
@@ -215,10 +215,20 @@ export default function Agenda() {
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <span className="text-white text-sm font-semibold capitalize">
                     {DAY_LABEL.format(d)}
+                    {key === today && (
+                      <span className="ml-2 text-blue-400/70 text-[10px] tracking-[0.15em] uppercase">hoje</span>
+                    )}
                   </span>
-                  {key === today && (
-                    <span className="text-blue-400/70 text-[10px] tracking-[0.15em] uppercase">hoje</span>
-                  )}
+                  {/* Domingo tambem deixa marcar: a oficina nao abre ao publico
+                      mas ha trabalho combinado a parte, e recusar aqui obrigava
+                      a dar a volta pelo formulario. */}
+                  <Link
+                    to={`/crm/servicos/novo?agendar=${key}T${nextFreeHour(d, services)}`}
+                    aria-label={`Marcar serviço em ${DAY_LABEL.format(d)}`}
+                    className="text-white/35 hover:text-blue-400 transition shrink-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Link>
                 </div>
 
                 {off.map((o) => (

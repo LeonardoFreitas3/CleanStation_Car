@@ -3,11 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Alert, Button, Field, Spinner } from '../components/ui';
-
-/** Destino apos entrar: quem trabalha na lavagem quer os servicos, nao metricas. */
-function homeForRole(role: string): string {
-  return role === 'employee' ? '/crm/servicos' : '/crm';
-}
+import { homeForRole } from '../lib/config';
 
 export default function Login() {
   const { session, profile, loading, signIn, requestPasswordReset } = useAuth();

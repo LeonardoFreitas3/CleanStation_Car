@@ -93,6 +93,14 @@ export default function ServiceForm() {
       .catch(() => { /* segue sem pre-seleccao */ });
   }, [params, isEdit]);
 
+  // Data pre-preenchida quando se chega a partir de um dia da agenda. Vem no
+  // formato do datetime-local (YYYY-MM-DDTHH:mm), que e o que o campo aceita.
+  useEffect(() => {
+    const preset = params.get('agendar');
+    if (!preset || isEdit) return;
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(preset)) setScheduledAt(preset);
+  }, [params, isEdit]);
+
   // Em edicao, carrega o servico existente. O cliente nao muda: trocar o dono
   // de um servico ja registado corrompia o historico e a faturacao dele.
   useEffect(() => {

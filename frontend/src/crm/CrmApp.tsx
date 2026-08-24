@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { isSupabaseConfigured } from './lib/config';
-import { AuthProvider } from './contexts/AuthContext';
+import { CRM_BASE, homeForRole, isSupabaseConfigured } from './lib/config';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute, RoleGuard } from './components/ProtectedRoute';
 import CrmLayout from './layouts/CrmLayout';
 import Login from './pages/Login';
@@ -19,6 +19,18 @@ import ServiceForm from './pages/ServiceForm';
 import FollowUps from './pages/FollowUps';
 import Team from './pages/Team';
 import Settings from './pages/Settings';
+
+/**
+ * Endereco que nao existe: manda cada um para a sua entrada.
+ *
+ * Enviar toda a gente para /crm dava ao funcionario um ecra de "sem
+ * permissoes" — o dashboard e de admin e gestor. Sem sessao vai na mesma para
+ * /crm, que trata de o levar ao login.
+ */
+function HomeRedirect() {
+  const { profile } = useAuth();
+  return <Navigate to={profile ? homeForRole(profile.role) : CRM_BASE} replace />;
+}
 
 export default function CrmApp() {
   // noindex aqui e nao no layout: o login fica fora do layout e sem isto
@@ -114,7 +126,7 @@ export default function CrmApp() {
           />
         </Route>
 
-        <Route path="*" element={<Navigate to="/crm" replace />} />
+        <Route path="*" element={<HomeRedirect />} />
       </Routes>
     </AuthProvider>
   );

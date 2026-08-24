@@ -53,6 +53,41 @@ export function timeOffDays(off: Pick<TimeOff, 'starts_at' | 'ends_at'>): string
   return out;
 }
 
+/** Horario da oficina. Igual ao de supabase/functions/booking/slots.ts. */
+export const OPENS = 8;
+export const CLOSES = 19;
+
+/**
+ * Hora a propor quando se marca um servico a partir de um dia da agenda:
+ * a seguir ao ultimo servico ja marcado, ou a abertura se o dia estiver vazio.
+ *
+ * E so uma sugestao — quem marca ve a hora no formulario e muda-a. Serve para
+ * o caso comum (encaixar o proximo a seguir ao anterior) nao dar trabalho.
+ */
+export function nextFreeHour(
+  day: Date,
+  services: Array<Pick<ServiceWithRelations, 'scheduled_at' | 'duration_minutes'>>,
+): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const opening = new Date(day);
+  opening.setHours(OPENS, 0, 0, 0);
+
+  let end = opening.getTime();
+  for (const s of services) {
+    if (!s.scheduled_at) continue;
+    const finish = new Date(s.scheduled_at).getTime() + (s.duration_minutes ?? 120) * 60_000;
+    if (finish > end) end = finish;
+  }
+
+  // Arredonda para a meia hora seguinte: ninguem marca as 10:07.
+  const slot = new Date(Math.ceil(end / (30 * 60_000)) * 30 * 60_000);
+
+  // Dia cheio: propoe o fecho e deixa a decisao a quem esta a marcar, em vez
+  // de saltar para o dia seguinte sem avisar.
+  if (slot.getHours() >= CLOSES) return `${pad(CLOSES)}:00`;
+  return `${pad(slot.getHours())}:${pad(slot.getMinutes())}`;
+}
+
 export interface Week {
   days: Date[];
   services: ServiceWithRelations[];

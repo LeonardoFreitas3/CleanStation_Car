@@ -36,3 +36,15 @@ export const FOLLOW_UP_WINDOWS = {
   atRisk: 90,
   reactivation: 120,
 } as const;
+
+/**
+ * Onde cada funcao aterra ao entrar, e para onde vai um endereco que nao
+ * existe.
+ *
+ * O employee nao passa a guarda do dashboard: mandar toda a gente para /crm
+ * dava-lhe um ecra de "sem permissoes" a cada entrada. A agenda e por onde
+ * comeca o dia de quem trabalha na oficina.
+ */
+export function homeForRole(role: string): string {
+  return role === 'employee' ? '/crm/agenda' : CRM_BASE;
+}
