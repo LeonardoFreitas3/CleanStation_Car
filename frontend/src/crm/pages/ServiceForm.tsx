@@ -13,6 +13,16 @@ import {
 } from '../components/ui';
 import type { ClientOverview, ServiceType, Vehicle } from '../types';
 
+// Meia hora a dia inteiro. São as durações reais da oficina; um campo livre em
+// minutos dava margem para enganos que se pagam com marcações em cima.
+const DURATION_OPTIONS = [30, 60, 90, 120, 180, 240, 360, 480, 660].map((m) => ({
+  value: String(m),
+  label: m >= 660 ? 'Dia inteiro' : m % 60 === 0 ? `${m / 60}h` : `${Math.floor(m / 60)}h30`,
+}));
+
+/** Duas horas é a lavagem comum. Igual ao valor por omissão da Edge Function. */
+const DEFAULT_DURATION = 120;
+
 /** Portes com preco proprio. Alinhado com a tabela do site publico. */
 const SIZES = [
   { id: 'carro',  label: 'Carro / Carrinha' },
@@ -61,6 +71,7 @@ export default function ServiceForm() {
   const [discount, setDiscount] = useState('');
   const [extraSlugs, setExtraSlugs] = useState<string[]>([]);
   const [scheduledAt, setScheduledAt] = useState('');
+  const [durationMinutes, setDurationMinutes] = useState(DEFAULT_DURATION);
   const [notes, setNotes] = useState('');
 
   const [saving, setSaving] = useState(false);
@@ -106,6 +117,9 @@ export default function ServiceForm() {
           setScheduledAt(
             `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`,
           );
+          // Serviços anteriores à 0013 não têm duração: mostram o valor por
+          // omissão, que é o mesmo que a Edge Function lhes assume.
+          setDurationMinutes(s.duration_minutes ?? DEFAULT_DURATION);
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Não foi possível carregar o serviço.');
@@ -180,6 +194,8 @@ export default function ServiceForm() {
       extras_total: extrasTotal,
       discount: Number(discount) || 0,
       scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+      // Sem hora marcada não ocupa nada, e uma duração solta só confundia.
+      duration_minutes: scheduledAt ? durationMinutes : null,
       notes: notes.trim() || null,
     };
 
@@ -431,12 +447,27 @@ export default function ServiceForm() {
             />
           </div>
 
-          <Field
-            label="Data e hora agendada"
-            type="datetime-local"
-            value={scheduledAt}
-            onChange={(e) => setScheduledAt(e.target.value)}
-          />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field
+              label="Data e hora agendada"
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
+            />
+            <Select
+              label="Duração"
+              value={String(durationMinutes)}
+              onChange={(e) => setDurationMinutes(Number(e.target.value))}
+              options={DURATION_OPTIONS}
+              // Só conta se houver hora marcada: sem data, nada ocupa a oficina.
+              disabled={!scheduledAt}
+            />
+          </div>
+          {scheduledAt && (
+            <p className="text-white/35 text-xs -mt-2">
+              Estas horas deixam de aparecer nas marcações do site.
+            </p>
+          )}
 
           <TextArea
             label="Observações"

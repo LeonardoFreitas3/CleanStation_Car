@@ -10,6 +10,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
 import { busyPeriods, createEvent } from './google.ts';
 import { formatDuration, freeSlots, isClosed, slotIso } from './slots.ts';
+import type { Busy } from './slots.ts';
 import { sendConfirmation } from './email.ts';
 import { resolve } from './catalogue.ts';
 
@@ -36,6 +37,62 @@ function admin() {
 
 const digits = (s: string) => (s ?? '').replace(/\D/g, '');
 
+/** Serviço agendado no CRM sem duração indicada. Duas horas é a lavagem comum. */
+const DEFAULT_SERVICE_MINUTES = 120;
+
+/**
+ * Períodos ocupados do dia: o Google Calendar, as folgas do CRM e os serviços
+ * agendados à mão no CRM.
+ *
+ * Os três são precisos. O calendário só conhece as marcações feitas pelo site;
+ * uma marcação por telefone vive só na tabela services, e sem isto o site
+ * oferecia essa hora a outra pessoa.
+ *
+ * Janela alargada a dois dias porque um serviço da véspera pode estender-se
+ * pela manhã — e uma folga de vários dias tem de continuar a ocupar o meio.
+ *
+ * Lido com a service_role: o RLS destas tabelas só deixa passar staff
+ * autenticado, e quem marca no site não tem sessão nenhuma.
+ */
+async function busyWindow(date: string): Promise<Busy[]> {
+  const from = slotIso(date, 0, 0);
+  const to = new Date(new Date(from).getTime() + 48 * 3600_000).toISOString();
+  const db = admin();
+
+  const [busy, off, scheduled] = await Promise.all([
+    busyPeriods(from, to),
+    db.from('time_off').select('starts_at, ends_at').lt('starts_at', to).gt('ends_at', from),
+    // Não filtra pelo fim porque a duração não é coluna comparável em SQL: a
+    // janela recua um dia para apanhar o serviço da véspera que se prolonga.
+    db.from('services')
+      .select('scheduled_at, duration_minutes')
+      .is('deleted_at', null)
+      .neq('status', 'cancelado')
+      .gte('scheduled_at', new Date(new Date(from).getTime() - 24 * 3600_000).toISOString())
+      .lt('scheduled_at', to),
+  ]);
+
+  // Uma falha a ler isto não pode passar por "dia livre": mais vale o pedido
+  // rebentar e o cliente tentar outra vez do que marcarem em cima.
+  if (off.error) throw off.error;
+  if (scheduled.error) throw scheduled.error;
+
+  return [
+    ...busy,
+    ...(off.data ?? []).map((r: { starts_at: string; ends_at: string }) => ({
+      start: r.starts_at,
+      end: r.ends_at,
+    })),
+    ...(scheduled.data ?? []).map((r: { scheduled_at: string; duration_minutes: number | null }) => ({
+      start: r.scheduled_at,
+      end: new Date(
+        new Date(r.scheduled_at).getTime()
+        + (r.duration_minutes ?? DEFAULT_SERVICE_MINUTES) * 60_000,
+      ).toISOString(),
+    })),
+  ];
+}
+
 // ── Disponibilidade ──────────────────────────────────────────────────────────
 
 async function handleAvailability(body: Record<string, unknown>) {
@@ -48,14 +105,7 @@ async function handleAvailability(body: Record<string, unknown>) {
   }
   if (isClosed(date)) return json({ slots: [] });
 
-  // Janela alargada a um dia de cada lado: um serviço da véspera que se estenda
-  // pela manhã tem de continuar a ocupar as horas dessa manhã.
-  const busy = await busyPeriods(
-    slotIso(date, 0, 0),
-    new Date(new Date(slotIso(date, 0, 0)).getTime() + 48 * 3600_000).toISOString(),
-  );
-
-  return json({ slots: freeSlots(date, duration, busy) });
+  return json({ slots: freeSlots(date, duration, await busyWindow(date)) });
 }
 
 // ── Criação ──────────────────────────────────────────────────────────────────
@@ -107,11 +157,7 @@ async function handleCreate(body: Record<string, unknown>) {
 
   // Revalidar a disponibilidade. Entre ver a hora livre e carregar em confirmar
   // podem passar minutos, e nesse intervalo outra pessoa pode ter marcado.
-  const busy = await busyPeriods(
-    slotIso(date, 0, 0),
-    new Date(new Date(slotIso(date, 0, 0)).getTime() + 48 * 3600_000).toISOString(),
-  );
-  if (!freeSlots(date, duration, busy).includes(time)) {
+  if (!freeSlots(date, duration, await busyWindow(date)).includes(time)) {
     return json({ error: 'Esse horário já não está disponível. Escolha outro.' }, 409);
   }
 
@@ -212,6 +258,7 @@ async function handleCreate(body: Record<string, unknown>) {
       price,
       status: 'agendado',
       scheduled_at: new Date(startIso).toISOString(),
+      duration_minutes: duration,
       notes: [
         notes,
         problems.length ? `Assinalado pelo cliente: ${problems.join(', ')}` : '',

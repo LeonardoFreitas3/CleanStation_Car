@@ -5,6 +5,8 @@ import type { Session } from '@supabase/supabase-js';
 import { getSupabase } from '../lib/supabase';
 import { isSupabaseConfigured } from '../lib/config';
 import { friendlyError } from '../lib/errors';
+import { getSettings } from '../services/settings';
+import { setVipThresholds } from '../services/clients';
 import type { Profile, UserRole } from '../types';
 
 interface AuthState {
@@ -46,6 +48,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .maybeSingle();
 
     if (error || !data) return null;
+
+    // Aproveita o arranque para trazer os limiares de VIP. Falhar aqui nao pode
+    // impedir a entrada: sem eles ficam os valores por omissao.
+    getSettings()
+      .then((s) => setVipThresholds(Number(s.vip_total_spent), Number(s.vip_service_count)))
+      .catch(() => {});
+
     return data as Profile;
   }, []);
 

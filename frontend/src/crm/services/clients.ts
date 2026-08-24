@@ -18,14 +18,31 @@ export interface ListClientsResult {
 }
 
 /**
+ * Limiares em uso. Vem das definicoes (tabela app_settings) uma vez por sessao;
+ * ate la valem os do config.ts.
+ *
+ * Guardados no modulo em vez de passados a clientStatus() porque a etiqueta e
+ * calculada em varios sitios e nenhum deles tem — nem devia ter — de saber de
+ * onde vem o limiar.
+ */
+let vip: { totalSpent: number; serviceCount: number } = {
+  totalSpent: VIP_THRESHOLDS.totalSpent,
+  serviceCount: VIP_THRESHOLDS.serviceCount,
+};
+
+export function setVipThresholds(totalSpent: number, serviceCount: number): void {
+  vip = { totalSpent, serviceCount };
+}
+
+/**
  * Deriva o estado a partir dos numeros da vista.
  *
- * Fica em TypeScript e nao em SQL de proposito: os limiares de VIP hao de ser
- * editaveis pelo admin (fase 3), e ter a regra em dois sitios garantia que
- * divergiam. A vista devolve factos, isto decide a etiqueta.
+ * Fica em TypeScript e nao em SQL de proposito: os limiares sao editaveis pelo
+ * admin, e ter a regra em dois sitios garantia que divergiam. A vista devolve
+ * factos, isto decide a etiqueta.
  */
 export function clientStatus(c: Pick<ClientOverview, 'visit_count' | 'total_spent' | 'days_since_last_visit'>): ClientStatus {
-  if (c.total_spent >= VIP_THRESHOLDS.totalSpent || c.visit_count >= VIP_THRESHOLDS.serviceCount) {
+  if (c.total_spent >= vip.totalSpent || c.visit_count >= vip.serviceCount) {
     return 'vip';
   }
   if (c.visit_count === 0) return 'novo';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Wrench, BellRing, LogOut, Search, UserCog } from 'lucide-react';
+import { LayoutDashboard, Users, Wrench, BellRing, LogOut, Search, UserCog, CalendarDays, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { GlobalSearch } from '../components/GlobalSearch';
@@ -23,10 +23,12 @@ const ADMIN: UserRole[] = ['admin'];
 // medio, que a especificacao poe fora do que ele deve consultar.
 const NAV: NavItem[] = [
   { to: '/crm', label: 'Dashboard', icon: LayoutDashboard, allow: STAFF, end: true },
+  { to: '/crm/agenda', label: 'Agenda', icon: CalendarDays, allow: ALL },
   { to: '/crm/servicos', label: 'Serviços', icon: Wrench, allow: ALL },
   { to: '/crm/clientes', label: 'Clientes', icon: Users, allow: ALL },
   { to: '/crm/follow-ups', label: 'Follow-ups', icon: BellRing, allow: STAFF },
   { to: '/crm/equipa', label: 'Equipa', icon: UserCog, allow: ADMIN },
+  { to: '/crm/definicoes', label: 'Definições', icon: Settings, allow: ADMIN },
 ];
 
 const ROLE_LABEL: Record<UserRole, string> = {

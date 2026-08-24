@@ -107,6 +107,8 @@ export interface Service {
   status: ServiceStatus;
   notes: string | null;
   scheduled_at: string | null;
+  /** Quanto tempo ocupa a oficina. Nulo nos servicos anteriores a 0013. */
+  duration_minutes: number | null;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
@@ -168,4 +170,14 @@ export interface ServiceWithRelations extends Service {
   client: Pick<Client, 'id' | 'name' | 'phone'> | null;
   vehicle: Pick<Vehicle, 'id' | 'plate' | 'make' | 'model'> | null;
   employee: Pick<Profile, 'id' | 'full_name'> | null;
+}
+
+/** Folga marcada no CRM. Bloqueia as horas nas marcacoes do site. */
+export interface TimeOff {
+  id: string;
+  starts_at: string;
+  ends_at: string;
+  reason: string | null;
+  created_at: string;
+  created_by: string | null;
 }
