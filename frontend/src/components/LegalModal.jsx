@@ -1,57 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
 import Logo from './Logo';
 import { useLang } from '../i18n';
+import useModalDialog from '../useModalDialog';
 
 /**
- * Janela das páginas legais.
- *
- * Assente no <dialog> do browser em vez de uma div por cima de tudo, porque
- * traz de graça o que a versão à mão não tinha: fecha com Escape, prende o
- * teclado lá dentro (sem isso o Tab passeava pelo site por trás da janela),
- * devolve o foco a quem a abriu ao fechar, e trata o resto da página como
- * inerte. Menos código do que implementar cada uma dessas coisas.
+ * Janela das páginas legais. Só se lê, portanto o Escape fecha sem perguntar.
  */
 export default function LegalModal({ open, onClose, title, children }) {
   const { t } = useLang();
-
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return undefined;
-
-    // showModal() é o que põe a janela na camada de topo, prende o teclado e
-    // torna o resto inerte. open={true} no JSX abriria a janela sem nada disso.
-    if (!el.open) el.showModal();
-
-    // O Escape fecha o <dialog> sem passar por nenhum onClick nosso. Sem avisar
-    // o React, ele continuava a achar a janela aberta e ela não voltava a abrir.
-    //
-    // O ouvinte é posto no próprio elemento e não pela prop onClose do JSX: o
-    // evento 'close' não borbulha, e a delegação de eventos do React depende
-    // disso. Não consegui exercitar o Escape no browser de automação, portanto
-    // isto é a via segura e não a que sobrou de um teste.
-    const onNativeClose = () => onClose();
-    el.addEventListener('close', onNativeClose);
-
-    // A camada de topo torna o fundo inerte mas não impede a roda do rato de
-    // o rolar por baixo.
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      el.removeEventListener('close', onNativeClose);
-      document.body.style.overflow = previous;
-    };
-  }, [open, onClose]);
-
-  // Fechar passa sempre pelo close() do browser antes de desmontar: é ele que
-  // devolve o foco a quem abriu a janela. Tirar o elemento do DOM primeiro
-  // deixava o foco no body, e quem navega por teclado voltava ao topo da
-  // página em vez de ao botão em que carregou. O onClose a seguir pode chegar
-  // duas vezes (o ouvinte do 'close' também o chama) e isso não faz mal.
-  const dismiss = () => { ref.current?.close(); onClose(); };
+  const { ref, dismiss } = useModalDialog(open, onClose);
 
   if (!open) return null;
 
@@ -62,8 +20,8 @@ export default function LegalModal({ open, onClose, title, children }) {
       // Carregar fora da janela fecha-a. O alvo só é o próprio <dialog> quando
       // o clique cai no fundo: o conteúdo está todo na div de dentro.
       onClick={(e) => { if (e.target === e.currentTarget) dismiss(); }}
-      // w-[calc(100%-2rem)] e nao w-full: o <dialog> centra-se sozinho, mas sem
-      // isto encostava as duas margens no telemovel.
+      // w-[calc(100%-2rem)] e não w-full: o <dialog> centra-se sozinho, mas sem
+      // isto encostava às duas margens no telemóvel.
       className="m-auto w-[calc(100%-2rem)] max-w-3xl max-h-[90vh] p-0 bg-transparent backdrop:bg-black/85 backdrop:backdrop-blur-sm"
     >
       <div className="bg-zinc-900 border border-white/10 text-white flex flex-col max-h-[90vh]">

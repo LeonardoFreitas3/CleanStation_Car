@@ -9,6 +9,7 @@ import {
 } from './pricing';
 import { fetchAvailability, createBooking } from './api';
 import CarVisual from './CarVisual';
+import useModalDialog from '../useModalDialog';
 
 const STEPS = ['Veículo', 'Serviço', 'Estado', 'Data', 'Dados'];
 
@@ -184,6 +185,16 @@ export default function Booking({ open, onClose }) {
 
   useEffect(() => { if (open) reset(); }, [open, reset]);
 
+  // O Escape não fecha a meio da marcação. Nas páginas legais fechar é de
+  // graça; aqui deitava fora as escolhas todas por causa de uma tecla, e a
+  // pessoa tinha de recomeçar do princípio. No primeiro passo, ou depois de
+  // marcada, não há nada a perder e fecha na mesma.
+  const { ref: dialogRef, dismiss } = useModalDialog(
+    open,
+    onClose,
+    () => step > 0 && !done,
+  );
+
   const duration = vehicleId && levelId ? durationFor(vehicleId, levelId) : 60;
   const quote = useMemo(
     () => (vehicleId && levelId ? computeQuote({ vehicleId, levelId, problemIds: problems, pack }) : null),
@@ -253,13 +264,20 @@ export default function Booking({ open, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[95] bg-black/90 flex items-end sm:items-center justify-center sm:p-4">
-      <div className="w-full sm:max-w-2xl bg-zinc-950 border border-white/12 sm:rounded-md max-h-[95vh] flex flex-col">
+    <dialog
+      ref={dialogRef}
+      aria-label="Marcar serviço"
+      // Ao contrário das páginas legais, aqui não se fecha ao carregar no
+      // fundo: um toque ao lado a meio do formulário deitava fora tudo o que a
+      // pessoa já tinha escolhido.
+      className="m-0 sm:m-auto w-full sm:w-[calc(100%-2rem)] sm:max-w-2xl max-w-none max-h-[95vh] mt-auto p-0 bg-transparent backdrop:bg-black/90"
+    >
+      <div className="w-full bg-zinc-950 border border-white/12 sm:rounded-md max-h-[95vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <span className="font-display text-white text-sm font-bold tracking-[0.2em] uppercase">
             {done ? 'Marcação confirmada' : 'Marcar serviço'}
           </span>
-          <button onClick={onClose} aria-label="Fechar" className="text-white/45 hover:text-white transition p-1">
+          <button onClick={dismiss} aria-label="Fechar" className="text-white/45 hover:text-white transition p-1">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -564,7 +582,7 @@ export default function Booking({ open, onClose }) {
         {done && (
           <div className="px-5 py-4 border-t border-white/10">
             <button
-              onClick={onClose}
+              onClick={dismiss}
               className="w-full px-5 py-3 border border-white/20 text-white text-xs tracking-[0.2em] uppercase font-bold rounded-sm hover:border-blue-500 transition inline-flex items-center justify-center gap-2"
             >
               <CalendarDays className="w-4 h-4" /> Fechar
@@ -572,6 +590,6 @@ export default function Booking({ open, onClose }) {
           </div>
         )}
       </div>
-    </div>
+    </dialog>
   );
 }
