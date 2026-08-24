@@ -2,14 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import Logo from './Logo';
 import { useLang } from '../i18n';
+import { TESTIMONIALS } from '../mock';
 
+// A secção de testemunhos não existe enquanto não houver avaliações reais
+// (ver Testimonials.jsx). Sem este filtro o menu tinha um link que não levava
+// a lado nenhum — carregar nele não fazia nada.
 const LINKS = [
   { href: '#home',         key: 'nav.home' },
   { href: '#services',     key: 'nav.services' },
   { href: '#about',        key: 'nav.about' },
-  { href: '#testimonials', key: 'nav.testimonials' },
+  { href: '#testimonials', key: 'nav.testimonials', only: TESTIMONIALS.length > 0 },
+  { href: '#faq',          key: 'nav.faq' },
   { href: '#contact',      key: 'nav.contact' },
-];
+].filter((l) => l.only !== false);
 
 export default function Header() {
   const { t, lang, setLang } = useLang();

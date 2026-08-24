@@ -12,6 +12,7 @@ const translations = {
       services: "SERVIÇOS",
       about: "SOBRE NÓS",
       testimonials: "TESTEMUNHOS",
+      faq: "FAQ",
       contact: "CONTACTOS",
     },
     hero: {
@@ -98,6 +99,7 @@ const translations = {
       services: "SERVICES",
       about: "ABOUT US",
       testimonials: "TESTIMONIALS",
+      faq: "FAQ",
       contact: "CONTACT",
     },
     hero: {

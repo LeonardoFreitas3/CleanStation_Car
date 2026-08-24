@@ -42,7 +42,7 @@ export default function CookieBanner({ onOpenPolicy }) {
             </p>
             <p className="text-white/60 text-xs mt-1 leading-relaxed">
               {t('cookie.body')}{' '}
-              <button onClick={onOpenPolicy} className="text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors">
+              <button onClick={onOpenPolicy} className="py-1 text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors">
                 {t('cookie.policy')}
               </button>
             </p>
@@ -77,7 +77,8 @@ export default function CookieBanner({ onOpenPolicy }) {
 
           <button
             onClick={() => save(false)}
-            className="text-white/40 hover:text-white transition shrink-0"
+            className="p-1.5 -m-1.5 text-white/40 hover:text-white transition shrink-0"
+            aria-label={t('cookie.declineTitle')}
             title={t('cookie.declineTitle')}
           >
             <X className="w-4 h-4" />
@@ -88,7 +89,7 @@ export default function CookieBanner({ onOpenPolicy }) {
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pb-5 pt-0">
           <button
             onClick={() => setExpanded(v => !v)}
-            className="inline-flex items-center gap-1.5 text-white/50 hover:text-blue-400 text-[11px] tracking-[0.2em] transition-colors"
+            className="inline-flex items-center gap-1.5 py-1 text-white/50 hover:text-blue-400 text-[11px] tracking-[0.2em] transition-colors"
           >
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             {t('cookie.manage')}

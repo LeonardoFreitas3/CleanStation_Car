@@ -1,6 +1,6 @@
 import React from 'react';
 import { Instagram } from 'lucide-react';
-import { SITE } from '../mock';
+import { SITE, TESTIMONIALS } from '../mock';
 import { useLang } from '../i18n';
 import Logo from './Logo';
 
@@ -24,13 +24,19 @@ export default function Footer({ onLegal }) {
             <div className="text-white text-sm tracking-[0.25em] font-semibold mb-5">
               {t('footer.navigation')}
             </div>
-            <ul className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-              <li><a href="#home"         className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.home')}</a></li>
-              <li><a href="#about"        className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.about')}</a></li>
-              <li><a href="#services"     className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.services')}</a></li>
-              <li><a href="#testimonials" className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.testimonials')}</a></li>
-              <li><a href="#faq"          className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.faq')}</a></li>
-              <li><a href="#contact"      className="text-white/65 hover:text-blue-400 transition-colors">{t('footer.contact')}</a></li>
+            {/* py-1 nos links e gap menor: a 17px de altura os alvos ficavam abaixo
+                  dos 24px que uma pessoa acerta com o dedo. */}
+            <ul className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
+              <li><a href="#home"         className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.home')}</a></li>
+              <li><a href="#about"        className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.about')}</a></li>
+              <li><a href="#services"     className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.services')}</a></li>
+              {/* Só enquanto houver avaliações reais: a secção não é montada
+                  sem elas, e o link não levava a lado nenhum. */}
+              {TESTIMONIALS.length > 0 && (
+                <li><a href="#testimonials" className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.testimonials')}</a></li>
+              )}
+              <li><a href="#faq"          className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.faq')}</a></li>
+              <li><a href="#contact"      className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.contact')}</a></li>
             </ul>
           </div>
 
