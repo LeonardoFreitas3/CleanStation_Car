@@ -1,6 +1,7 @@
 import { getSupabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';
 import type { UserRole } from '../types';
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from '../lib/config';
 
 export interface TeamMember {
   id: string;
@@ -62,4 +63,41 @@ export async function updateRole(id: string, role: UserRole): Promise<void> {
 export async function setActive(id: string, active: boolean): Promise<void> {
   const { error } = await getSupabase().from('profiles').update({ active }).eq('id', id);
   if (error) throw new Error(friendlyError(error));
+}
+
+/**
+ * Convida alguem para o CRM.
+ *
+ * Passa pela Edge Function porque criar contas exige a service_role, que nunca
+ * pode estar no frontend. O convite manda um link por email e e a propria
+ * pessoa que escolhe a palavra-passe — nem o administrador nem nos chegamos a
+ * conhece-la.
+ *
+ * Chega como Funcionario inativo. Ativar continua a ser um passo deliberado,
+ * feito aqui na Equipa.
+ */
+export async function inviteMember(fullName: string, email: string): Promise<void> {
+  const db = getSupabase();
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) throw new Error('A sua sessão expirou. Volte a entrar.');
+
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/team/invite`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // A sessao do admin, nao a anon key: e ela que a funcao verifica.
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({
+      fullName,
+      email,
+      // O dominio muda entre producao e desenvolvimento; o Supabase so aceita
+      // destinos que ja tenha na lista de permitidos.
+      redirectTo: `${window.location.origin}/crm/nova-palavra-passe`,
+    }),
+  });
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.error ?? 'Não foi possível enviar o convite.');
 }

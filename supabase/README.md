@@ -198,10 +198,18 @@ Depois de configurado, confirma:
 foi desenhada para ser pública. Quem protege os dados é o RLS, não o segredo
 da chave.
 
-**Recuperação de palavra-passe está incompleta.** O email é enviado e o link
-autentica, mas a página onde se define a nova password ainda não existe: quem
-clicar acaba autenticado sem chegar a mudá-la. Por construir.
+**Contas novas criam-se no CRM**, em Equipa → Convidar. Passa pela Edge
+Function `team`, que tem de estar publicada — ver
+`supabase/functions/team/README.md`. A pessoa recebe um link, escolhe a
+palavra-passe e entra como Funcionário **inativo**: o acesso só começa quando
+alguém a ativar.
 
-**Convites por email** precisam de uma Edge Function com a `service_role` nos
-secrets do servidor, mais SMTP configurado. Por construir. Até lá, as contas
-criam-se no painel (passo 4) e ativam-se com o SQL do passo 5.
+**O email de convite sai pelo SMTP do projeto.** O servidor de cortesia do
+Supabase serve para experimentar e pouco mais — tem um limite de poucos emails
+por hora e não garante entrega. Para uso a sério, configura SMTP próprio em
+**Authentication → Emails → SMTP Settings**. Vale para os convites e para a
+recuperação de palavra-passe.
+
+O passo 4 (criar a conta no painel) continua a ser o caminho para a **primeira**
+conta, a de administrador: não há ninguém para convidar quando ainda não existe
+ninguém.

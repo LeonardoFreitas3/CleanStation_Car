@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { UserCheck, UserX, Info } from 'lucide-react';
+import { UserCheck, UserX, Info, UserPlus, X } from 'lucide-react';
 import {
-  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, listTeam, setActive, updateRole,
+  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, inviteMember, listTeam, setActive, updateRole,
 } from '../services/team';
 import type { TeamMember } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
 import { date } from '../lib/format';
-import { Alert, Button, Card, PageTitle, Select, Spinner } from '../components/ui';
+import { Alert, Button, Card, Field, PageTitle, Select, Spinner } from '../components/ui';
 import type { UserRole } from '../types';
 
 const ROLES: Array<{ value: UserRole; label: string }> = [
@@ -22,6 +22,12 @@ export default function Team() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteName, setInviteName] = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviting, setInviting] = useState(false);
+  const [invited, setInvited] = useState<string | null>(null);
+
   const load = useCallback(async () => {
     try {
       setMembers(await listTeam());
@@ -33,6 +39,26 @@ export default function Team() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  const invite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setInviting(true);
+    try {
+      await inviteMember(inviteName.trim(), inviteEmail.trim());
+      setInvited(inviteEmail.trim());
+      setInviteOpen(false);
+      setInviteName('');
+      setInviteEmail('');
+      // A pessoa só aparece na lista depois de abrir o link: o perfil nasce
+      // com a conta, e a conta só existe quando o convite é aceite.
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível enviar o convite.');
+    } finally {
+      setInviting(false);
+    }
+  };
 
   const changeRole = async (m: TeamMember, role: UserRole) => {
     if (role === m.role) return;
@@ -77,16 +103,58 @@ export default function Team() {
         Equipa
       </PageTitle>
 
-      {/* Criar contas exige a service_role, que nunca pode estar no frontend.
-          Melhor dizer onde se faz do que ter um botao que nao funciona. */}
-      <Card className="p-4 mb-6 flex items-start gap-3">
-        <Info className="w-4 h-4 text-blue-400/70 mt-0.5 shrink-0" />
-        <div className="text-sm text-white/60 leading-relaxed">
-          Contas novas criam-se no painel do Supabase, em{' '}
-          <span className="text-white/80">Authentication → Users → Add user</span>. Aparecem
-          aqui como Funcionário inativo — basta ativá-las e escolher a função.
+      <div className="flex justify-end mb-4">
+        <Button onClick={() => { setInviteOpen((o) => !o); setInvited(null); }}>
+          {inviteOpen ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+          {inviteOpen ? 'Cancelar' : 'Convidar'}
+        </Button>
+      </div>
+
+      {inviteOpen && (
+        <Card className="p-4 mb-6">
+          <form onSubmit={invite} className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field
+                label="Nome"
+                value={inviteName}
+                onChange={(e) => setInviteName(e.target.value)}
+                placeholder="Nome próprio e apelido"
+                required
+              />
+              <Field
+                label="Email"
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="nome@exemplo.pt"
+                required
+              />
+            </div>
+
+            <div className="flex items-start gap-3 text-sm text-white/50 leading-relaxed">
+              <Info className="w-4 h-4 text-blue-400/70 mt-0.5 shrink-0" />
+              <span>
+                Recebe um email com um link para escolher a palavra-passe. Ninguém mais a
+                conhece — nem você, nem o sistema. Entra como{' '}
+                <span className="text-white/70">Funcionário inativo</span>: só tem acesso
+                depois de o ativar aqui.
+              </span>
+            </div>
+
+            <div className="flex justify-end">
+              <Button type="submit" loading={inviting}>Enviar convite</Button>
+            </div>
+          </form>
+        </Card>
+      )}
+
+      {invited && (
+        <div className="mb-6">
+          <Alert tone="success">
+            Convite enviado para {invited}. Aparece na lista assim que a pessoa abrir o link.
+          </Alert>
         </div>
-      </Card>
+      )}
 
       {error && <div className="mb-6"><Alert tone="error">{error}</Alert></div>}
 
