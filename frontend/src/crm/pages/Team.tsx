@@ -50,8 +50,9 @@ export default function Team() {
       setInviteOpen(false);
       setInviteName('');
       setInviteEmail('');
-      // A pessoa só aparece na lista depois de abrir o link: o perfil nasce
-      // com a conta, e a conta só existe quando o convite é aceite.
+      // A conta é criada logo no convite (é o que o inviteUserByEmail faz), e
+      // o trigger handle_new_user cria o perfil a seguir: recarregar já mostra
+      // a pessoa na lista, inativa, antes sequer de ela abrir o email.
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível enviar o convite.');
@@ -151,7 +152,8 @@ export default function Team() {
       {invited && (
         <div className="mb-6">
           <Alert tone="success">
-            Convite enviado para {invited}. Aparece na lista assim que a pessoa abrir o link.
+            Convite enviado para {invited}. Já aparece na lista, inativo. Ative-o quando ele
+            confirmar que definiu a palavra-passe.
           </Alert>
         </div>
       )}
