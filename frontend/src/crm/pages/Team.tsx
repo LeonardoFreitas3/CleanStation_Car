@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
-import { UserCheck, UserX, Info, UserPlus, X } from 'lucide-react';
+import { UserCheck, UserX, Info, UserPlus, X, Eye, EyeOff } from 'lucide-react';
 import {
-  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, inviteMember, listTeam, setActive, updateRole,
+  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, createMember, listTeam, setActive, updateRole,
 } from '../services/team';
 import type { TeamMember } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
 import { date } from '../lib/format';
 import { Alert, Button, Card, Field, PageTitle, Select, Spinner } from '../components/ui';
 import type { UserRole } from '../types';
+
+/** Igual ao minimo da Edge Function e da pagina de nova palavra-passe. */
+const MIN_PASSWORD = 8;
 
 const ROLES: Array<{ value: UserRole; label: string }> = [
   { value: 'employee', label: 'Funcionário' },
@@ -22,11 +25,13 @@ export default function Team() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [inviteOpen, setInviteOpen] = useState(false);
-  const [inviteName, setInviteName] = useState('');
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviting, setInviting] = useState(false);
-  const [invited, setInvited] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [created, setCreated] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -40,24 +45,27 @@ export default function Team() {
 
   useEffect(() => { load(); }, [load]);
 
-  const invite = async (e: React.FormEvent) => {
+  const createAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setInviting(true);
+    setCreating(true);
     try {
-      await inviteMember(inviteName.trim(), inviteEmail.trim());
-      setInvited(inviteEmail.trim());
-      setInviteOpen(false);
-      setInviteName('');
-      setInviteEmail('');
-      // A conta é criada logo no convite (é o que o inviteUserByEmail faz), e
-      // o trigger handle_new_user cria o perfil a seguir: recarregar já mostra
-      // a pessoa na lista, inativa, antes sequer de ela abrir o email.
+      await createMember(newName.trim(), newEmail.trim(), newPassword);
+      setCreated(newEmail.trim());
+      setFormOpen(false);
+      setNewName('');
+      setNewEmail('');
+      // Não fica no estado depois de usada: o formulário pode reabrir para
+      // criar outra conta, e a anterior não tem nada que estar lá.
+      setNewPassword('');
+      setShowPassword(false);
+      // O trigger handle_new_user cria o perfil no mesmo instante em que a
+      // conta nasce: recarregar já mostra a pessoa na lista, inativa.
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Não foi possível enviar o convite.');
+      setError(err instanceof Error ? err.message : 'Não foi possível criar a conta.');
     } finally {
-      setInviting(false);
+      setCreating(false);
     }
   };
 
@@ -105,55 +113,78 @@ export default function Team() {
       </PageTitle>
 
       <div className="flex justify-end mb-4">
-        <Button onClick={() => { setInviteOpen((o) => !o); setInvited(null); }}>
-          {inviteOpen ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-          {inviteOpen ? 'Cancelar' : 'Convidar'}
+        <Button onClick={() => { setFormOpen((o) => !o); setCreated(null); }}>
+          {formOpen ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+          {formOpen ? 'Cancelar' : 'Criar conta'}
         </Button>
       </div>
 
-      {inviteOpen && (
+      {formOpen && (
         <Card className="p-4 mb-6">
-          <form onSubmit={invite} className="space-y-4">
+          <form onSubmit={createAccount} className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <Field
                 label="Nome"
-                value={inviteName}
-                onChange={(e) => setInviteName(e.target.value)}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
                 placeholder="Nome próprio e apelido"
                 required
               />
               <Field
                 label="Email"
                 type="email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="nome@exemplo.pt"
                 required
               />
             </div>
 
+            <Field
+              label="Palavra-passe"
+              // Escondida por omissão, mas com o olho para a poder ler: quem a
+              // define tem de a transmitir, e uma gralha aqui deixa a pessoa
+              // sem conseguir entrar sem forma de o corrigir pelo CRM.
+              type={showPassword ? 'text' : 'password'}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+              minLength={MIN_PASSWORD}
+              required
+              trailing={(
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Esconder palavra-passe' : 'Mostrar palavra-passe'}
+                  className="text-white/40 hover:text-white transition p-1"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              )}
+            />
+
             <div className="flex items-start gap-3 text-sm text-white/50 leading-relaxed">
               <Info className="w-4 h-4 text-blue-400/70 mt-0.5 shrink-0" />
               <span>
-                Recebe um email com um link para escolher a palavra-passe. Ninguém mais a
-                conhece — nem você, nem o sistema. Entra como{' '}
+                Mínimo {MIN_PASSWORD} caracteres. A conta fica pronta a usar — não é enviado
+                nenhum email. Entra como{' '}
                 <span className="text-white/70">Funcionário inativo</span>: só tem acesso
                 depois de o ativar aqui.
               </span>
             </div>
 
             <div className="flex justify-end">
-              <Button type="submit" loading={inviting}>Enviar convite</Button>
+              <Button type="submit" loading={creating}>Criar conta</Button>
             </div>
           </form>
         </Card>
       )}
 
-      {invited && (
+      {created && (
         <div className="mb-6">
           <Alert tone="success">
-            Convite enviado para {invited}. Já aparece na lista, inativo. Ative-o quando ele
-            confirmar que definiu a palavra-passe.
+            Conta criada para {created}. Já aparece na lista, inativa — ative-a quando lhe
+            der os dados de acesso.
           </Alert>
         </div>
       )}

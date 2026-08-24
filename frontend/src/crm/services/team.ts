@@ -66,22 +66,25 @@ export async function setActive(id: string, active: boolean): Promise<void> {
 }
 
 /**
- * Convida alguem para o CRM.
+ * Cria a conta de um funcionario, com a palavra-passe escolhida pelo admin.
  *
  * Passa pela Edge Function porque criar contas exige a service_role, que nunca
- * pode estar no frontend. O convite manda um link por email e e a propria
- * pessoa que escolhe a palavra-passe — nem o administrador nem nos chegamos a
- * conhece-la.
+ * pode estar no frontend. A palavra-passe segue no corpo do pedido, por HTTPS,
+ * e o Auth guarda-a cifrada — nao fica em lado nenhum deste lado.
  *
  * Chega como Funcionario inativo. Ativar continua a ser um passo deliberado,
  * feito aqui na Equipa.
  */
-export async function inviteMember(fullName: string, email: string): Promise<void> {
+export async function createMember(
+  fullName: string,
+  email: string,
+  password: string,
+): Promise<void> {
   const db = getSupabase();
   const { data: { session } } = await db.auth.getSession();
   if (!session) throw new Error('A sua sessão expirou. Volte a entrar.');
 
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/team/invite`, {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/team/create`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -89,15 +92,9 @@ export async function inviteMember(fullName: string, email: string): Promise<voi
       Authorization: `Bearer ${session.access_token}`,
       apikey: SUPABASE_ANON_KEY,
     },
-    body: JSON.stringify({
-      fullName,
-      email,
-      // O dominio muda entre producao e desenvolvimento; o Supabase so aceita
-      // destinos que ja tenha na lista de permitidos.
-      redirectTo: `${window.location.origin}/crm/nova-palavra-passe`,
-    }),
+    body: JSON.stringify({ fullName, email, password }),
   });
 
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.error ?? 'Não foi possível enviar o convite.');
+  if (!res.ok) throw new Error(data?.error ?? 'Não foi possível criar a conta.');
 }

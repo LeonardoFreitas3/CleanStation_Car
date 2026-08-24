@@ -1,6 +1,6 @@
 // Edge Function da gestão de equipa.
 //
-//   POST /team/invite  -> convida alguém para o CRM, por email
+//   POST /team/create  -> cria a conta de um funcionário
 //
 // Existe porque criar contas exige a service_role, e essa nunca pode estar no
 // frontend: quem a tivesse ignorava o RLS todo e lia a base de dados inteira.
@@ -65,32 +65,35 @@ async function requireAdmin(req: Request): Promise<{ id: string } | Response> {
   return { id: user.user.id };
 }
 
-// ── Convite ──────────────────────────────────────────────────────────────────
+// ── Criar conta ──────────────────────────────────────────────────────────────
 
-async function handleInvite(req: Request, body: Record<string, unknown>) {
+/** Igual ao mínimo da página de nova palavra-passe. Não fazia sentido divergir. */
+const MIN_PASSWORD = 8;
+
+async function handleCreate(body: Record<string, unknown>) {
   const email = String(body.email ?? '').trim().toLowerCase();
   const fullName = String(body.fullName ?? '').trim();
-  const redirectTo = String(body.redirectTo ?? '').trim();
+  const password = String(body.password ?? '');
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'Email inválido' }, 400);
   if (!fullName) return json({ error: 'Indique o nome da pessoa' }, 400);
-
-  // O destino do link vem do frontend porque o domínio muda entre o site
-  // publicado e o desenvolvimento — mas só se aceita o que o Supabase já tem
-  // na lista de redirecionamentos permitidos, portanto não dá para o desviar
-  // para fora. Vazio deixa o Supabase usar o Site URL configurado.
-  if (redirectTo && !/^https?:\/\//.test(redirectTo)) {
-    return json({ error: 'Destino inválido' }, 400);
+  if (password.length < MIN_PASSWORD) {
+    return json({ error: `A palavra-passe tem de ter pelo menos ${MIN_PASSWORD} caracteres` }, 400);
   }
 
   const db = admin();
 
-  // O convite não define palavra-passe nenhuma: manda um link e é a própria
-  // pessoa que a escolhe. Ninguém — nem o administrador, nem esta função —
-  // chega a conhecê-la.
-  const { data, error } = await db.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: fullName },
-    redirectTo: redirectTo || undefined,
+  // email_confirm: a conta fica utilizável de imediato, sem depender de o email
+  // chegar. É esse o ponto de ser o administrador a definir a palavra-passe.
+  //
+  // A palavra-passe vai daqui para o Auth, que a guarda cifrada. Não é escrita
+  // em lado nenhum: não entra nos logs, não volta na resposta, não fica na
+  // tabela de perfis. Quem a sabe é quem a escolheu.
+  const { data, error } = await db.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: fullName },
   });
 
   if (error) {
@@ -98,14 +101,14 @@ async function handleInvite(req: Request, body: Record<string, unknown>) {
     // acontece no uso normal, e vale a pena dizê-la em condições.
     const already = /already been registered|already exists/i.test(error.message);
     return json(
-      { error: already ? 'Já existe uma conta com esse email.' : 'Não foi possível enviar o convite.' },
+      { error: already ? 'Já existe uma conta com esse email.' : 'Não foi possível criar a conta.' },
       already ? 409 : 500,
     );
   }
 
   // O perfil é criado pelo trigger handle_new_user, como funcionário inativo.
-  // Fica assim de propósito: quem convida ainda tem de o ativar na Equipa, e
-  // um convite enviado por engano não dá acesso a nada entretanto.
+  // Fica assim de propósito: ativar continua a ser um passo deliberado, e uma
+  // conta criada por engano não dá acesso a nada entretanto.
   return json({ ok: true, id: data.user?.id ?? null });
 }
 
@@ -123,7 +126,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
 
-    if (action === 'invite') return await handleInvite(req, body);
+    if (action === 'create') return await handleCreate(body);
     return json({ error: 'Endpoint desconhecido' }, 404);
   } catch (e) {
     // O detalhe vai para os logs e não para a resposta: as mensagens do Auth
