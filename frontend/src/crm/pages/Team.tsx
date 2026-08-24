@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { UserCheck, UserX, Info, UserPlus, X, Eye, EyeOff } from 'lucide-react';
+import { UserCheck, UserX, Info, UserPlus, X, Eye, EyeOff, KeyRound } from 'lucide-react';
 import {
-  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, createMember, listTeam, setActive, updateRole,
+  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, createMember, listTeam, setActive, setPassword,
+  updateRole,
 } from '../services/team';
 import type { TeamMember } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
@@ -32,6 +33,12 @@ export default function Team() {
   const [showPassword, setShowPassword] = useState(false);
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<string | null>(null);
+
+  // Qual das linhas tem o campo aberto. Null = nenhuma.
+  const [passwordFor, setPasswordFor] = useState<string | null>(null);
+  const [passwordValue, setPasswordValue] = useState('');
+  const [changing, setChanging] = useState(false);
+  const [passwordDone, setPasswordDone] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -66,6 +73,23 @@ export default function Team() {
       setError(err instanceof Error ? err.message : 'Não foi possível criar a conta.');
     } finally {
       setCreating(false);
+    }
+  };
+
+  const changePassword = async (e: React.FormEvent, m: TeamMember) => {
+    e.preventDefault();
+    setError(null);
+    setChanging(true);
+    try {
+      await setPassword(m.id, passwordValue);
+      setPasswordFor(null);
+      setPasswordValue('');
+      setShowPassword(false);
+      setPasswordDone(m.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível alterar a palavra-passe.');
+    } finally {
+      setChanging(false);
     }
   };
 
@@ -143,8 +167,8 @@ export default function Team() {
             <Field
               label="Palavra-passe"
               // Escondida por omissão, mas com o olho para a poder ler: quem a
-              // define tem de a transmitir, e uma gralha aqui deixa a pessoa
-              // sem conseguir entrar sem forma de o corrigir pelo CRM.
+              // define tem de a transmitir, e uma gralha aqui manda a pessoa
+              // ligar a perguntar porque é que não entra.
               type={showPassword ? 'text' : 'password'}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
@@ -230,6 +254,18 @@ export default function Team() {
                     className="w-40"
                   />
                   <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setPasswordFor(passwordFor === m.id ? null : m.id);
+                      setPasswordValue('');
+                      setPasswordDone(null);
+                    }}
+                    title="Definir uma palavra-passe nova"
+                  >
+                    <KeyRound className="w-4 h-4" />
+                    Palavra-passe
+                  </Button>
+                  <Button
                     variant={m.active ? 'danger' : 'secondary'}
                     onClick={() => toggleActive(m)}
                     loading={working}
@@ -244,6 +280,42 @@ export default function Team() {
                   </Button>
                 </div>
               </div>
+
+              {passwordFor === m.id && (
+                <form
+                  onSubmit={(e) => changePassword(e, m)}
+                  className="mt-4 pt-4 border-t border-white/10 flex items-end gap-3 flex-wrap"
+                >
+                  <Field
+                    label={`Palavra-passe nova de ${m.full_name || m.email}`}
+                    type={showPassword ? 'text' : 'password'}
+                    value={passwordValue}
+                    onChange={(e) => setPasswordValue(e.target.value)}
+                    autoComplete="new-password"
+                    minLength={MIN_PASSWORD}
+                    required
+                    className="flex-1 min-w-[240px]"
+                    trailing={(
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        aria-label={showPassword ? 'Esconder palavra-passe' : 'Mostrar palavra-passe'}
+                        className="text-white/40 hover:text-white transition p-1"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    )}
+                  />
+                  <Button type="submit" loading={changing}>Guardar</Button>
+                </form>
+              )}
+
+              {passwordDone === m.id && (
+                <p className="text-emerald-300/80 text-xs mt-3">
+                  Palavra-passe alterada. As sessões que já tivesse abertas continuam válidas —
+                  para cortar o acesso é preciso desativar a conta.
+                </p>
+              )}
 
               <p className="text-white/30 text-xs mt-3 pt-3 border-t border-white/10">
                 {ROLE_DESCRIPTION[m.role]}

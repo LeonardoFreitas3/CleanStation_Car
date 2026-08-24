@@ -1,6 +1,7 @@
 // Edge Function da gestão de equipa.
 //
-//   POST /team/create  -> cria a conta de um funcionário
+//   POST /team/create    -> cria a conta de um funcionário
+//   POST /team/password  -> altera a palavra-passe de alguém da equipa
 //
 // Existe porque criar contas exige a service_role, e essa nunca pode estar no
 // frontend: quem a tivesse ignorava o RLS todo e lia a base de dados inteira.
@@ -57,9 +58,9 @@ async function requireAdmin(req: Request): Promise<{ id: string } | Response> {
     .maybeSingle();
 
   // Desativado não conta, mesmo sendo admin: é assim que se tira o acesso a
-  // quem sai, e criar contas é o que ele nunca mais pode fazer.
+  // quem sai, e mexer em contas é o que ele nunca mais pode fazer.
   if (!profile || profile.role !== 'admin' || !profile.active) {
-    return json({ error: 'Apenas administradores podem criar contas' }, 403);
+    return json({ error: 'Apenas administradores podem gerir contas' }, 403);
   }
 
   return { id: user.user.id };
@@ -112,6 +113,29 @@ async function handleCreate(body: Record<string, unknown>) {
   return json({ ok: true, id: data.user?.id ?? null });
 }
 
+// ── Alterar palavra-passe ────────────────────────────────────────────────────
+
+async function handlePassword(body: Record<string, unknown>) {
+  const id = String(body.id ?? '').trim();
+  const password = String(body.password ?? '');
+
+  // O id vem do frontend, mas é sempre de alguém que está na lista da equipa —
+  // e mesmo que não fosse, o pior que se faz é mudar a palavra-passe de uma
+  // conta deste projeto, coisa que quem chega aqui já é admin para fazer.
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return json({ error: 'Conta inválida' }, 400);
+  if (password.length < MIN_PASSWORD) {
+    return json({ error: `A palavra-passe tem de ter pelo menos ${MIN_PASSWORD} caracteres` }, 400);
+  }
+
+  const { error } = await admin().auth.admin.updateUserById(id, { password });
+  if (error) return json({ error: 'Não foi possível alterar a palavra-passe.' }, 500);
+
+  // As sessões abertas dessa pessoa continuam válidas: o Supabase não as
+  // termina ao mudar a palavra-passe. Quem for afastado tem de ser desativado
+  // na Equipa — é isso que lhe corta o acesso, não a palavra-passe nova.
+  return json({ ok: true });
+}
+
 // ── Router ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -127,6 +151,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
 
     if (action === 'create') return await handleCreate(body);
+    if (action === 'password') return await handlePassword(body);
     return json({ error: 'Endpoint desconhecido' }, 404);
   } catch (e) {
     // O detalhe vai para os logs e não para a resposta: as mensagens do Auth

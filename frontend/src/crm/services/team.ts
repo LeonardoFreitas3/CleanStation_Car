@@ -66,25 +66,21 @@ export async function setActive(id: string, active: boolean): Promise<void> {
 }
 
 /**
- * Cria a conta de um funcionario, com a palavra-passe escolhida pelo admin.
+ * Chama a Edge Function da equipa.
  *
- * Passa pela Edge Function porque criar contas exige a service_role, que nunca
- * pode estar no frontend. A palavra-passe segue no corpo do pedido, por HTTPS,
- * e o Auth guarda-a cifrada — nao fica em lado nenhum deste lado.
- *
- * Chega como Funcionario inativo. Ativar continua a ser um passo deliberado,
- * feito aqui na Equipa.
+ * Mexer em contas exige a service_role, que nunca pode estar no frontend: o que
+ * vai daqui e a sessao de quem esta a pedir, e e a funcao que confirma, contra
+ * a base de dados, que se trata de um administrador ativo.
  */
-export async function createMember(
-  fullName: string,
-  email: string,
-  password: string,
+async function callTeamFunction(
+  path: string,
+  body: Record<string, unknown>,
+  fallbackError: string,
 ): Promise<void> {
-  const db = getSupabase();
-  const { data: { session } } = await db.auth.getSession();
+  const { data: { session } } = await getSupabase().auth.getSession();
   if (!session) throw new Error('A sua sessão expirou. Volte a entrar.');
 
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/team/create`, {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/team/${path}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -92,9 +88,33 @@ export async function createMember(
       Authorization: `Bearer ${session.access_token}`,
       apikey: SUPABASE_ANON_KEY,
     },
-    body: JSON.stringify({ fullName, email, password }),
+    body: JSON.stringify(body),
   });
 
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.error ?? 'Não foi possível criar a conta.');
+  if (!res.ok) throw new Error(data?.error ?? fallbackError);
+}
+
+/**
+ * Cria a conta de um funcionario, com a palavra-passe escolhida pelo admin.
+ *
+ * A palavra-passe segue no corpo do pedido, por HTTPS, e o Auth guarda-a
+ * cifrada — nao fica em lado nenhum deste lado.
+ *
+ * Chega como Funcionario inativo. Ativar continua a ser um passo deliberado,
+ * feito aqui na Equipa.
+ */
+export function createMember(fullName: string, email: string, password: string): Promise<void> {
+  return callTeamFunction('create', { fullName, email, password }, 'Não foi possível criar a conta.');
+}
+
+/**
+ * Define uma palavra-passe nova para alguem da equipa.
+ *
+ * Nao termina as sessoes que essa pessoa ja tenha abertas — o Supabase nao as
+ * corta ao mudar a palavra-passe. Para tirar o acesso a alguem, o que serve e
+ * desativar a conta.
+ */
+export function setPassword(id: string, password: string): Promise<void> {
+  return callTeamFunction('password', { id, password }, 'Não foi possível alterar a palavra-passe.');
 }

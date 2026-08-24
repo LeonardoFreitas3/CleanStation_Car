@@ -209,8 +209,8 @@ de SMTP é a recuperação de palavra-passe: o servidor de cortesia do Supabase 
 um limite de poucos emails por hora e não garante entrega. Para uso a sério,
 configura SMTP próprio em **Authentication → Emails → SMTP Settings**.
 
-Sem SMTP e sem forma de alterar palavras-passe pelo CRM, uma palavra-passe
-perdida resolve-se no painel: **Authentication → Users**.
+Uma palavra-passe perdida resolve-se na própria Equipa, no botão
+**Palavra-passe** de cada pessoa. Não é preciso ir ao painel nem ter SMTP.
 
 O passo 4 (criar a conta no painel) continua a ser o caminho para a **primeira**
 conta, a de administrador: não há quem crie contas antes de existir alguém.

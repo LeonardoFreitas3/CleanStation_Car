@@ -53,10 +53,13 @@ não entra nos logs, não volta na resposta, não fica na tabela de perfis.
 **Mínimo de 8 caracteres**, igual ao da página de nova palavra-passe. Se mudares
 esse mínimo, muda nos três sítios: aqui, no `Team.tsx` e no `NewPassword.tsx`.
 
-**Não há como a alterar pelo CRM.** Se ficar mal escrita, a pessoa não entra e a
-saída é o painel do Supabase (Authentication → Users) ou o "Esqueci-me da
-palavra-passe" do login, que precisa de SMTP. O formulário tem o olho para
-mostrar o que se escreveu, precisamente para isso não acontecer.
+**Alterar** faz-se na mesma página, no botão _Palavra-passe_ de cada pessoa
+(`POST /team/password`, com o `id` do perfil). Serve para quando alguém se
+esquece da sua, ou quando o campo ficou mal escrito à primeira.
+
+Alterar a palavra-passe **não termina as sessões** que essa pessoa já tenha
+abertas — o Supabase não as corta. Para tirar o acesso a alguém, o que serve é
+**desativar a conta** na Equipa.
 
 ## O que acontece a seguir
 
