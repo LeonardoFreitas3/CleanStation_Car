@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Check, Info, Save } from 'lucide-react';
+import { Check, Info, Save, Plus, X, Eye, EyeOff } from 'lucide-react';
 import {
-  CATEGORY_LABEL, VEHICLE_PRICE_KEYS, listAllServiceTypes, updateServiceType,
+  CATEGORY_LABEL, VEHICLE_PRICE_KEYS, createServiceType, listAllServiceTypes, updateServiceType,
 } from '../services/serviceTypes';
 import { getSettings, updateSettings } from '../services/settings';
 import { setVipThresholds } from '../services/clients';
 import { eur } from '../lib/format';
-import { Alert, Button, Card, Field, PageTitle, Spinner } from '../components/ui';
+import { Alert, Button, Card, Field, PageTitle, Select, Spinner } from '../components/ui';
 import type { ServiceType } from '../types';
+
+interface Draft {
+  name: string;
+  base_price: string;
+  prices: Record<string, string>;
+}
 
 /** Campo de preço vazio = "este veículo não faz este serviço", não zero. */
 const priceValue = (v: number | undefined) => (v === undefined ? '' : String(v));
@@ -24,8 +30,14 @@ export default function Settings() {
 
   // Edições por linha, só as que o utilizador tocou. Guardar tudo de uma vez
   // escrevia por cima de alterações de outra pessoa que nem sequer vi.
-  const [draft, setDraft] = useState<Record<string, { base_price: string; prices: Record<string, string> }>>({});
+  const [draft, setDraft] = useState<Record<string, Draft>>({});
   const [savingType, setSavingType] = useState<string | null>(null);
+
+  const [newOpen, setNewOpen] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newPrice, setNewPrice] = useState('');
+  const [newCategory, setNewCategory] = useState('lavagens');
+  const [adding, setAdding] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -69,19 +81,56 @@ export default function Settings() {
     }
   };
 
-  const editing = (t: ServiceType) => draft[t.id] ?? {
+  const editing = (t: ServiceType): Draft => draft[t.id] ?? {
+    name: t.name,
     base_price: String(Number(t.base_price)),
     prices: Object.fromEntries(
       VEHICLE_PRICE_KEYS.map(({ key }) => [key, priceValue(t.prices?.[key])]),
     ),
   };
 
-  const patchDraft = (t: ServiceType, patch: Partial<{ base_price: string; prices: Record<string, string> }>) =>
+  const patchDraft = (t: ServiceType, patch: Partial<Draft>) =>
     setDraft((d) => ({ ...d, [t.id]: { ...editing(t), ...patch } }));
+
+  const addType = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const price = Number(newPrice);
+    if (!newName.trim()) { setError('O serviço tem de ter nome.'); return; }
+    if (!(price >= 0)) { setError('Preço base inválido.'); return; }
+
+    setAdding(true);
+    setError(null);
+    try {
+      await createServiceType({ name: newName.trim(), category: newCategory, base_price: price });
+      setNewOpen(false);
+      setNewName('');
+      setNewPrice('');
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível criar o serviço.');
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const toggleActive = async (t: ServiceType) => {
+    setSavingType(t.id);
+    setError(null);
+    try {
+      await updateServiceType(t.id, { active: !t.active });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível alterar o serviço.');
+    } finally {
+      setSavingType(null);
+    }
+  };
 
   const saveType = async (t: ServiceType) => {
     const row = editing(t);
     const base = Number(row.base_price);
+    const name = row.name.trim();
+    if (!name) { setError('O serviço tem de ter nome.'); return; }
     if (!(base >= 0)) { setError(`Preço base inválido em "${t.name}".`); return; }
 
     // Campo vazio sai do mapa: é assim que o site distingue "não disponível"
@@ -98,7 +147,7 @@ export default function Settings() {
     setSavingType(t.id);
     setError(null);
     try {
-      await updateServiceType(t.id, { base_price: base, prices });
+      await updateServiceType(t.id, { name, base_price: base, prices });
       setDraft((d) => { const { [t.id]: _drop, ...rest } = d; return rest; });
       setSaved(t.id);
       setTimeout(() => setSaved(null), 2500);
@@ -149,7 +198,53 @@ export default function Settings() {
         </form>
       </Card>
 
-      <h2 className="text-white text-sm font-semibold mb-1">Catálogo de preços</h2>
+      <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
+        <h2 className="text-white text-sm font-semibold">Catálogo de preços</h2>
+        <Button onClick={() => setNewOpen((o) => !o)}>
+          {newOpen ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          {newOpen ? 'Cancelar' : 'Novo serviço'}
+        </Button>
+      </div>
+
+      {newOpen && (
+        <Card className="p-4 my-4">
+          <form onSubmit={addType} className="space-y-4">
+            <div className="grid sm:grid-cols-3 gap-4">
+              <Field
+                label="Nome"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Lavagem rápida"
+                className="sm:col-span-2"
+                required
+              />
+              <Field
+                label="Preço base (€)"
+                type="number"
+                min={0}
+                step="0.01"
+                value={newPrice}
+                onChange={(e) => setNewPrice(e.target.value)}
+                required
+              />
+            </div>
+            <Select
+              label="Categoria"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              options={Object.entries(CATEGORY_LABEL).map(([value, label]) => ({ value, label }))}
+            />
+            <p className="text-white/35 text-xs">
+              Fica no fim da categoria e sem preço por tipo de veículo — isso define-se a
+              seguir, na linha dele. Categoria <span className="text-white/60">Extras</span> são
+              os complementos faturáveis, não serviços principais.
+            </p>
+            <div className="flex justify-end">
+              <Button type="submit" loading={adding}>Criar serviço</Button>
+            </div>
+          </form>
+        </Card>
+      )}
       <Card className="p-4 mb-4 flex items-start gap-3">
         <Info className="w-4 h-4 text-blue-400/70 mt-0.5 shrink-0" />
         <div className="text-sm text-white/60 leading-relaxed">
@@ -175,27 +270,53 @@ export default function Settings() {
               return (
                 <Card key={t.id} className={`p-4 ${t.active ? '' : 'opacity-60'}`}>
                   <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                    <div className="min-w-0">
-                      <span className="text-white text-sm font-semibold">{t.name}</span>
-                      {!t.active && (
-                        <span className="ml-2 px-2 py-0.5 text-[10px] tracking-[0.15em] uppercase font-semibold border rounded-sm bg-red-950/30 text-red-300/80 border-red-900/40">
-                          Inativo
-                        </span>
-                      )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        {/* O nome editável no próprio sítio: renomear um serviço
+                            era das poucas coisas que ainda obrigavam a SQL. O
+                            slug não muda com ele, de propósito — é o que o site
+                            usa para falar deste serviço. */}
+                        <input
+                          value={row.name}
+                          onChange={(e) => patchDraft(t, { name: e.target.value })}
+                          aria-label={`Nome de ${t.name}`}
+                          className="flex-1 min-w-0 bg-transparent border-b border-white/10 focus:border-blue-500 outline-none text-white text-sm font-semibold py-1 transition"
+                        />
+                        {!t.active && (
+                          <span className="px-2 py-0.5 text-[10px] tracking-[0.15em] uppercase font-semibold border rounded-sm bg-red-950/30 text-red-300/80 border-red-900/40 shrink-0">
+                            Inativo
+                          </span>
+                        )}
+                      </div>
                       <div className="text-white/30 text-xs mt-1">
                         Atual: {eur(t.base_price)}
                         {Object.keys(t.prices ?? {}).length > 0 && ' · preço por veículo'}
+                        {' · '}
+                        <span className="font-mono text-white/25">{t.slug}</span>
                       </div>
                     </div>
-                    <Button
-                      onClick={() => saveType(t)}
-                      loading={savingType === t.id}
-                      disabled={!dirty}
-                      variant={dirty ? 'primary' : 'secondary'}
-                    >
-                      {saved === t.id ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-                      {saved === t.id ? 'Guardado' : 'Guardar'}
-                    </Button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button
+                        variant="secondary"
+                        onClick={() => toggleActive(t)}
+                        loading={savingType === t.id}
+                        title={t.active
+                          ? 'Deixa de aparecer ao registar serviços. O histórico mantém-se.'
+                          : 'Volta a aparecer ao registar serviços.'}
+                      >
+                        {t.active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {t.active ? 'Desativar' : 'Ativar'}
+                      </Button>
+                      <Button
+                        onClick={() => saveType(t)}
+                        loading={savingType === t.id}
+                        disabled={!dirty}
+                        variant={dirty ? 'primary' : 'secondary'}
+                      >
+                        {saved === t.id ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                        {saved === t.id ? 'Guardado' : 'Guardar'}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid sm:grid-cols-5 gap-3">

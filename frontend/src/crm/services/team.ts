@@ -118,3 +118,25 @@ export function createMember(fullName: string, email: string, password: string):
 export function setPassword(id: string, password: string): Promise<void> {
   return callTeamFunction('password', { id, password }, 'Não foi possível alterar a palavra-passe.');
 }
+
+export interface Assignable {
+  id: string;
+  full_name: string;
+}
+
+/**
+ * Quem pode ficar com um servico atribuido: a equipa ativa.
+ *
+ * Le a profiles em vez da team_overview porque so precisa de dois campos —
+ * a vista traz as contagens de trabalho, que aqui nao servem para nada.
+ */
+export async function listAssignable(): Promise<Assignable[]> {
+  const { data, error } = await getSupabase()
+    .from('profiles')
+    .select('id, full_name')
+    .eq('active', true)
+    .order('full_name');
+
+  if (error) throw new Error(friendlyError(error));
+  return (data ?? []) as Assignable[];
+}

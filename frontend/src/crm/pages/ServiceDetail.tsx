@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Car, User, MessageCircle, Ban, Calendar, UserPlus, Pencil,
+  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, UserPlus, Pencil,
 } from 'lucide-react';
 import {
   SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus,
@@ -12,6 +12,8 @@ import { friendlyError } from '../lib/errors';
 import { ServiceTimeline } from '../components/ServiceTimeline';
 import { PhotoUploader } from '../components/PhotoUploader';
 import { MessageSender } from '../components/MessageSender';
+import { listAssignable } from '../services/team';
+import type { Assignable } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
 import { date, eur, whatsappNumber } from '../lib/format';
 import { Alert, Button, Card, Spinner } from '../components/ui';
@@ -25,6 +27,7 @@ export default function ServiceDetail() {
   const [service, setService] = useState<ServiceWithRelations | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [team, setTeam] = useState<Assignable[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [messaging, setMessaging] = useState(false);
 
@@ -43,6 +46,9 @@ export default function ServiceDetail() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Falhar a lista nao pode esconder a ficha: fica so sem trocar o funcionario.
+  useEffect(() => { listAssignable().then(setTeam).catch(() => setTeam([])); }, []);
 
   const advance = async () => {
     if (!service) return;
@@ -77,16 +83,16 @@ export default function ServiceDetail() {
     }
   };
 
-  // Atalho para quem pega no trabalho: evita ter de abrir o formulario de
-  // edicao so para se atribuir a si proprio.
-  const assignToMe = async () => {
-    if (!service || !profile) return;
+  // Atribuir sem ter de abrir o formulario de edicao: e o que se faz de pe na
+  // oficina, quando alguem pega no trabalho ou se troca a quem estava.
+  const assign = async (employeeId: string | null) => {
+    if (!service) return;
     setBusy(true);
     setError(null);
     try {
       const { error: err } = await getSupabase()
         .from('services')
-        .update({ employee_id: profile.id })
+        .update({ employee_id: employeeId })
         .eq('id', service.id);
       if (err) throw new Error(friendlyError(err));
       await load();
@@ -165,17 +171,30 @@ export default function ServiceDetail() {
 
           <div className="min-w-0">
             <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase">Funcionário</div>
-            {service.employee ? (
-              <div className="text-white mt-1 inline-flex items-center gap-2 truncate">
-                <User className="w-4 h-4 text-blue-400/70 shrink-0" />{service.employee.full_name}
-              </div>
-            ) : (
+            {/* Editável aqui mesmo: trocar quem faz o trabalho é coisa de todos
+                os dias, e obrigar a abrir o formulário de edição para isso era
+                caro de mais para o que é. */}
+            <select
+              value={service.employee_id ?? ''}
+              onChange={(e) => assign(e.target.value || null)}
+              disabled={busy}
+              aria-label="Funcionário atribuído"
+              className="w-full bg-black/60 border border-white/15 focus:border-blue-500 outline-none mt-1 px-2 py-1.5 text-white text-sm rounded-sm transition disabled:opacity-50"
+            >
+              <option value="">— por atribuir —</option>
+              {team.map((t) => (
+                <option key={t.id} value={t.id}>{t.full_name || '(sem nome)'}</option>
+              ))}
+            </select>
+            {/* Um toque em vez de abrir a lista, que é o caso comum: quem está
+                a ver a ficha é quem vai pegar no carro. */}
+            {!service.employee_id && profile && (
               <button
-                onClick={assignToMe}
+                onClick={() => assign(profile.id)}
                 disabled={busy}
-                className="text-blue-400 hover:text-blue-300 text-sm mt-1 inline-flex items-center gap-2 transition disabled:opacity-50"
+                className="text-blue-400 hover:text-blue-300 text-xs mt-2 inline-flex items-center gap-2 transition disabled:opacity-50"
               >
-                <UserPlus className="w-4 h-4" /> Atribuir a mim
+                <UserPlus className="w-3.5 h-3.5" /> Atribuir a mim
               </button>
             )}
           </div>

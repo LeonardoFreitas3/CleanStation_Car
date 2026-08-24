@@ -6,6 +6,8 @@ import { getClient, listClients } from '../services/clients';
 import { listVehiclesByClient } from '../services/vehicles';
 import { listServiceTypes, CATEGORY_LABEL } from '../services/serviceTypes';
 import { createService, getService, updateService } from '../services/services';
+import { listAssignable } from '../services/team';
+import type { Assignable } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
 import { eur } from '../lib/format';
 import {
@@ -72,6 +74,10 @@ export default function ServiceForm() {
   const [extraSlugs, setExtraSlugs] = useState<string[]>([]);
   const [scheduledAt, setScheduledAt] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(DEFAULT_DURATION);
+  // Vazio = por atribuir. Ao criar, arranca em quem esta a registar, que e
+  // quase sempre quem vai fazer o trabalho.
+  const [employeeId, setEmployeeId] = useState('');
+  const [team, setTeam] = useState<Assignable[]>([]);
   const [notes, setNotes] = useState('');
 
   const [saving, setSaving] = useState(false);
@@ -83,6 +89,17 @@ export default function ServiceForm() {
       .catch((e) => setError(e instanceof Error ? e.message : 'Não foi possível carregar o catálogo.'))
       .finally(() => setLoadingCatalogue(false));
   }, []);
+
+  // Falhar a lista da equipa não impede registar o serviço: fica por atribuir,
+  // que é recuperável, ao contrário de perder o que já está preenchido.
+  useEffect(() => { listAssignable().then(setTeam).catch(() => setTeam([])); }, []);
+
+  // Num serviço novo, quem regista é quase sempre quem o vai fazer. Só se
+  // aplica enquanto ninguém tiver escolhido, para não desfazer a escolha se o
+  // perfil chegar depois.
+  useEffect(() => {
+    if (!isEdit && profile) setEmployeeId((cur) => cur || profile.id);
+  }, [isEdit, profile]);
 
   // Cliente pre-selecionado quando se chega a partir da ficha dele
   useEffect(() => {
@@ -117,6 +134,7 @@ export default function ServiceForm() {
         setDiscount(String(s.discount));
         setExtraSlugs(s.extras.map((x) => x.slug));
         setNotes(s.notes ?? '');
+        setEmployeeId(s.employee_id ?? '');
         if (s.scheduled_at) {
           // datetime-local nao aceita ISO com fuso: precisa de YYYY-MM-DDTHH:mm
           // em hora local.
@@ -204,6 +222,7 @@ export default function ServiceForm() {
       scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
       // Sem hora marcada não ocupa nada, e uma duração solta só confundia.
       duration_minutes: scheduledAt ? durationMinutes : null,
+      employee_id: employeeId || null,
       notes: notes.trim() || null,
     };
 
@@ -212,11 +231,10 @@ export default function ServiceForm() {
         await updateService(serviceId, payload);
         navigate(`/crm/servicos/${serviceId}`, { replace: true });
       } else {
-        const created = await createService({
-          ...payload,
-          client_id: client.id,
-          employee_id: profile?.id ?? null,
-        });
+        // employee_id ja vem no payload, escolhido no formulario. Antes era
+        // sempre quem estava a registar, e nao havia forma de dar o trabalho a
+        // outra pessoa.
+        const created = await createService({ ...payload, client_id: client.id });
         navigate(`/crm/servicos/${created.id}`, { replace: true });
       }
     } catch (err) {
@@ -454,6 +472,16 @@ export default function ServiceForm() {
               placeholder="0"
             />
           </div>
+
+          <Select
+            label="Funcionário"
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value)}
+            options={[
+              { value: '', label: '— por atribuir —' },
+              ...team.map((t) => ({ value: t.id, label: t.full_name || '(sem nome)' })),
+            ]}
+          />
 
           <div className="grid sm:grid-cols-2 gap-4">
             <Field
