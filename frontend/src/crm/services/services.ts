@@ -59,7 +59,7 @@ export const SERVICE_FILTERS: Array<{ value: ServiceFilter; label: string }> = [
 // vehicles nao precisam de hint porque so tem uma ligacao cada.
 export const SELECT_WITH_RELATIONS = `
   *,
-  client:clients ( id, name, phone ),
+  client:clients ( id, name, phone, email ),
   vehicle:vehicles ( id, plate, make, model ),
   employee:profiles!employee_id ( id, full_name )
 `;

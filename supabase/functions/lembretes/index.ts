@@ -223,5 +223,10 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Tambem nos logs: quem corre isto e o agendador, e a resposta de uma tarefa
+  // agendada nao e lida por ninguem. A Agenda marca-os para quem esta a olhar,
+  // isto fica para quem for a procura depois.
+  if (semEmail.length) console.info('Sem email, avisar a mao:', JSON.stringify(semEmail));
+
   return json({ ok: true, dia, marcacoes: marcacoes.length, enviados, falhas, semEmail });
 });

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarClock, CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
+import { BellRing, BellOff, CalendarClock, CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
 import {
   createTimeOff, dayKey, deleteTimeOff, loadWeek, nextFreeHour, timeOffDays,
 } from '../services/agenda';
@@ -299,6 +299,16 @@ export default function Agenda() {
                       )}
                     </span>
                     <span className="text-white text-sm truncate">{s.service_name}</span>
+
+                    {/* O lembrete da vespera sai sozinho para quem tem email.
+                        Quem nao tem fica marcado aqui, que e onde se olha na
+                        vespera — a resposta da tarefa agendada nao e lida por
+                        ninguem. */}
+                    {s.reminded_at ? (
+                      <BellRing className="w-3.5 h-3.5 text-emerald-400/60 shrink-0" aria-label="Cliente avisado" />
+                    ) : !s.client?.email ? (
+                      <BellOff className="w-3.5 h-3.5 text-amber-400/60 shrink-0" aria-label="Sem email: avisar à mão" />
+                    ) : null}
                     <span className="text-white/45 text-xs truncate">
                       {s.client?.name}
                       {s.vehicle?.plate && ` · ${s.vehicle.plate}`}

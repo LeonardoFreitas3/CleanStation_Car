@@ -95,6 +95,8 @@ export interface Service {
   client_id: string;
   vehicle_id: string | null;
   employee_id: string | null;
+  /** Quando saiu o lembrete da vespera. Null: ainda nao saiu. */
+  reminded_at: string | null;
   service_type_id: string | null;
   /** Instantaneo do catalogo: o historico nao pode mudar se o preco mudar. */
   service_name: string;
@@ -167,7 +169,7 @@ export interface AuditLog {
 
 /** Linhas com as relacoes ja resolvidas, como vem dos selects com join. */
 export interface ServiceWithRelations extends Service {
-  client: Pick<Client, 'id' | 'name' | 'phone'> | null;
+  client: Pick<Client, 'id' | 'name' | 'phone' | 'email'> | null;
   vehicle: Pick<Vehicle, 'id' | 'plate' | 'make' | 'model'> | null;
   employee: Pick<Profile, 'id' | 'full_name'> | null;
 }
