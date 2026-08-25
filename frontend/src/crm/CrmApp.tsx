@@ -13,6 +13,7 @@ import ClientDetail from './pages/ClientDetail';
 import ClientForm from './pages/ClientForm';
 import VehicleForm from './pages/VehicleForm';
 import VehicleDetail from './pages/VehicleDetail';
+import AuditLog from './pages/AuditLog';
 import Services from './pages/Services';
 import Agenda from './pages/Agenda';
 import ServiceDetail from './pages/ServiceDetail';
@@ -122,6 +123,14 @@ export default function CrmApp() {
             element={
               <RoleGuard allow={['admin']}>
                 <Team />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="registo"
+            element={
+              <RoleGuard allow={['admin']}>
+                <AuditLog />
               </RoleGuard>
             }
           />

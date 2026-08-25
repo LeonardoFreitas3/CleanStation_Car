@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Wrench, BellRing, LogOut, Search, UserCog, CalendarDays, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Wrench, BellRing, LogOut, Search, UserCog, CalendarDays, Settings, ScrollText } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { GlobalSearch } from '../components/GlobalSearch';
@@ -29,6 +29,7 @@ const NAV: NavItem[] = [
   { to: '/crm/follow-ups', label: 'Follow-ups', icon: BellRing, allow: STAFF },
   { to: '/crm/equipa', label: 'Equipa', icon: UserCog, allow: ADMIN },
   { to: '/crm/definicoes', label: 'Definições', icon: Settings, allow: ADMIN },
+  { to: '/crm/registo', label: 'Registo', icon: ScrollText, allow: ADMIN },
 ];
 
 const ROLE_LABEL: Record<UserRole, string> = {
