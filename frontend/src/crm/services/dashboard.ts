@@ -58,6 +58,8 @@ export interface FollowUp {
   days_since_last_visit: number;
   avg_days_between_visits: number | null;
   last_service_name: string | null;
+  /** Ultima mensagem de reativacao. Null se ainda nao se contactou ninguem. */
+  last_contacted_at: string | null;
   bucket: 'manutencao' | 'follow_up' | 'perdido' | 'reativacao';
 }
 

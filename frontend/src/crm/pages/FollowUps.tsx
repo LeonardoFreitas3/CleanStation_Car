@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, Ban } from 'lucide-react';
+import { MessageCircle, Ban, Check } from 'lucide-react';
 import {
   BUCKET_CLASS, BUCKET_LABEL, listFollowUps,
 } from '../services/dashboard';
 import type { FollowUp } from '../services/dashboard';
+import { logMessage } from '../services/messages';
 import { daysAgo, eur, whatsappNumber } from '../lib/format';
 import { Alert, Card, PageTitle, Spinner } from '../components/ui';
 
@@ -15,19 +16,49 @@ const WINDOWS = [
   { value: 120, label: '120+ dias' },
 ];
 
+/** Dias desde a data, ou null. O daysAgo pede dias, o registo guarda datas. */
+function diasDesde(iso: string | null): number | null {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+}
+
 export default function FollowUps() {
   const [minDays, setMinDays] = useState(30);
   const [rows, setRows] = useState<FollowUp[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     setLoading(true);
     listFollowUps(minDays)
       .then(setRows)
       .catch((e) => setError(e instanceof Error ? e.message : 'Não foi possível carregar.'))
       .finally(() => setLoading(false));
   }, [minDays]);
+
+  useEffect(() => { load(); }, [load]);
+
+  /**
+   * Regista a mensagem no momento em que se abre o WhatsApp.
+   *
+   * Nao prova que o cliente a recebeu — o WhatsApp abre noutra aplicacao e nao
+   * ha retorno. Prova que foi preparada, por quem e quando, que e o que faz
+   * falta para nao se ligar duas vezes a mesma pessoa. Marcada como marketing:
+   * reativar nao e executar um servico, e o RGPD trata-as de forma diferente.
+   *
+   * O link abre na mesma se isto falhar: nao se estraga um contacto por causa
+   * de uma linha de registo.
+   */
+  const registar = async (f: FollowUp, content: string) => {
+    try {
+      await logMessage({ clientId: f.id, content, isMarketing: true });
+      setRows((rs) => rs.map((r) => (
+        r.id === f.id ? { ...r, last_contacted_at: new Date().toISOString() } : r
+      )));
+    } catch {
+      // Ver acima.
+    }
+  };
 
   return (
     <>
@@ -92,7 +123,7 @@ export default function FollowUps() {
                   </span>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-white/10">
+                <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between gap-3 flex-wrap">
                   {/* Reativar um cliente e marketing, nao execucao de servico.
                       Sem consentimento, o RGPD nao permite — e o botao nao
                       aparece, em vez de aparecer e falhar. */}
@@ -105,12 +136,23 @@ export default function FollowUps() {
                       href={`https://wa.me/${wa}?text=${encodeURIComponent(message)}`}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={() => registar(f, message)}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] tracking-[0.18em] uppercase font-bold rounded-sm transition"
                     >
                       <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                     </a>
                   ) : (
                     <span className="text-white/35 text-xs">Sem telefone registado</span>
+                  )}
+
+                  {/* Quem ja levou mensagem fica marcado, e a lista poe-no
+                      depois de quem ainda nao levou. Nao desaparece: um
+                      contacto de ha tres meses volta a fazer sentido. */}
+                  {f.last_contacted_at && (
+                    <span className="inline-flex items-center gap-1.5 text-emerald-400/70 text-xs">
+                      <Check className="w-3.5 h-3.5" />
+                      Contactado {daysAgo(diasDesde(f.last_contacted_at)).toLowerCase()}
+                    </span>
                   )}
                 </div>
               </Card>
