@@ -134,6 +134,90 @@ async function loadCalendarBlocks(from: string, to: string): Promise<CalendarBlo
   }
 }
 
+/** Servico agendado sem duracao indicada. Duas horas e a lavagem comum — o
+ *  mesmo valor por omissao que a Edge Function das marcacoes usa. */
+const DURACAO_OMISSAO = 120;
+
+export interface Occupancy {
+  /** Minutos ocupados dentro do horario de abertura. */
+  busy: number;
+  /** Minutos que o dia tem para vender. Zero ao domingo. */
+  capacity: number;
+  /** 0 a 100, ja arredondado. */
+  pct: number;
+}
+
+interface Intervalo { start: number; end: number }
+
+/**
+ * Junta o que se sobrepoe.
+ *
+ * Sem isto, um servico das 10 as 12 e uma folga das 11 as 13 davam quatro horas
+ * ocupadas num periodo de tres, e a ocupacao passava dos 100% sem o dia estar
+ * cheio. Somar minutos so funciona depois de os intervalos deixarem de se
+ * cruzar.
+ */
+function fundir(intervalos: Intervalo[]): Intervalo[] {
+  const ordenados = [...intervalos].sort((a, b) => a.start - b.start);
+  const out: Intervalo[] = [];
+
+  for (const i of ordenados) {
+    const ultimo = out[out.length - 1];
+    if (ultimo && i.start <= ultimo.end) ultimo.end = Math.max(ultimo.end, i.end);
+    else out.push({ ...i });
+  }
+  return out;
+}
+
+/**
+ * Quanto do dia esta tomado, contando servicos, folgas e bloqueios do Google.
+ *
+ * So conta o que cai dentro do horario de abertura: um servico de dia inteiro
+ * dura 24 horas, mas o dia so tem onze para vender, e uma folga que atravessa a
+ * noite nao ocupa a madrugada de ninguem. Cada intervalo e cortado a janela do
+ * dia antes de ser somado, o que trata de caminho o servico da vespera que se
+ * prolonga pela manha.
+ */
+export function dayOccupancy(day: Date, week: Pick<Week, 'services' | 'timeOff' | 'blocks'>): Occupancy {
+  // Domingo encerrado: nao ha capacidade nenhuma, e dividir por zero dava NaN
+  // no ecra em vez de um dia fechado.
+  if (day.getDay() === 0) return { busy: 0, capacity: 0, pct: 0 };
+
+  const abre = new Date(day); abre.setHours(OPENS, 0, 0, 0);
+  const fecha = new Date(day); fecha.setHours(CLOSES, 0, 0, 0);
+  const capacity = (fecha.getTime() - abre.getTime()) / 60_000;
+
+  const intervalos: Intervalo[] = [];
+
+  for (const s of week.services) {
+    if (!s.scheduled_at || s.status === 'cancelado') continue;
+    const start = new Date(s.scheduled_at).getTime();
+    intervalos.push({ start, end: start + (s.duration_minutes ?? DURACAO_OMISSAO) * 60_000 });
+  }
+  for (const o of week.timeOff) {
+    intervalos.push({ start: new Date(o.starts_at).getTime(), end: new Date(o.ends_at).getTime() });
+  }
+  for (const b of week.blocks) {
+    intervalos.push({ start: new Date(b.startIso).getTime(), end: new Date(b.endIso).getTime() });
+  }
+
+  const inicio = abre.getTime();
+  const fim = fecha.getTime();
+
+  const busy = fundir(intervalos).reduce((total, i) => {
+    const corte = Math.min(i.end, fim) - Math.max(i.start, inicio);
+    return total + Math.max(0, corte) / 60_000;
+  }, 0);
+
+  return {
+    busy: Math.round(busy),
+    capacity,
+    // Acima de 100% e marcacao a dobrar, nao um dia com mais horas: mostra-se
+    // cheio e a sobreposicao ve-se na lista do dia.
+    pct: Math.min(100, Math.round((busy / capacity) * 100)),
+  };
+}
+
 export async function loadWeek(anchor: Date): Promise<Week> {
   const days = weekDays(anchor);
   const from = days[0].toISOString();

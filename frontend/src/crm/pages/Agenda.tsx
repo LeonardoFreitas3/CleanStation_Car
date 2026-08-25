@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BellRing, BellOff, CalendarClock, CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
 import {
-  createTimeOff, dayKey, deleteTimeOff, loadWeek, nextFreeHour, timeOffDays,
+  createTimeOff, dayKey, dayOccupancy, deleteTimeOff, loadWeek, nextFreeHour, timeOffDays,
 } from '../services/agenda';
 import type { Week } from '../services/agenda';
 import { SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL } from '../services/services';
 import { Alert, Button, Card, Checkbox, Field, PageTitle, Spinner } from '../components/ui';
+import { useAuth } from '../contexts/AuthContext';
 
 const DAY_LABEL = new Intl.DateTimeFormat('pt-PT', { weekday: 'long', day: '2-digit', month: 'long' });
 const RANGE_LABEL = new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short' });
@@ -18,6 +19,7 @@ const hour = (iso: string) => HOUR.format(new Date(iso));
 const todayKey = () => dayKey(new Date());
 
 export default function Agenda() {
+  const { profile } = useAuth();
   const [anchor, setAnchor] = useState(() => new Date());
   const [week, setWeek] = useState<Week | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,6 +72,21 @@ export default function Agenda() {
       blocks.set(k, [...(blocks.get(k) ?? []), b]);
     }
     return { services, off, blocks };
+  }, [week]);
+
+  /**
+   * Horas livres da semana.
+   *
+   * E o numero que decide se vale a pena pegar na lista de reativacao: uma
+   * semana cheia nao precisa de se ligar a ninguem, uma semana vazia precisa de
+   * se ligar a toda a gente. Sem isto contava-se a olho pela agenda.
+   */
+  const semana = useMemo(() => {
+    if (!week) return null;
+    return week.days.reduce((acc, d) => {
+      const o = dayOccupancy(d, week);
+      return { livres: acc.livres + (o.capacity - o.busy), total: acc.total + o.capacity };
+    }, { livres: 0, total: 0 });
   }, [week]);
 
   const shiftWeek = (weeks: number) => setAnchor((a) => {
@@ -134,6 +151,28 @@ export default function Agenda() {
       >
         Agenda
       </PageTitle>
+
+      {/* A pergunta que a agenda nunca respondia: sobra tempo? E o numero que
+          decide se vale a pena pegar na lista de reativacao. */}
+      {semana && semana.total > 0 && (
+        <p className="text-white/45 text-xs mb-5 -mt-2">
+          <span className="text-white/80 font-semibold tabular-nums">
+            {Math.round(semana.livres / 60)}h
+          </span>
+          {' livres esta semana · '}
+          {Math.round(((semana.total - semana.livres) / semana.total) * 100)}% ocupada
+          {/* Só a quem pode abrir a pagina: o funcionario nao tem follow-ups, e
+              um link que da "Sem permissoes" e pior do que link nenhum. */}
+          {semana.livres / semana.total > 0.5 && profile?.role !== 'employee' && (
+            <>
+              {' · '}
+              <Link to="/crm/follow-ups" className="text-blue-400/80 hover:text-blue-300 transition">
+                ver quem contactar
+              </Link>
+            </>
+          )}
+        </p>
+      )}
 
       <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
         <div className="flex items-center gap-2">
@@ -218,6 +257,7 @@ export default function Agenda() {
             const off = byDay.off.get(key) ?? [];
             const blocks = byDay.blocks.get(key) ?? [];
             const closed = d.getDay() === 0;
+            const ocupacao = week ? dayOccupancy(d, week) : null;
 
             return (
               <Card key={key} className={`p-4 ${key === today ? 'border-blue-800/50' : ''}`}>
@@ -228,6 +268,26 @@ export default function Agenda() {
                       <span className="ml-2 text-blue-400/70 text-[10px] tracking-[0.15em] uppercase">hoje</span>
                     )}
                   </span>
+                  {/* A barra antes do botao de marcar: quem olha para o dia
+                      quer saber se cabe mais alguma coisa antes de a marcar. */}
+                  {ocupacao && ocupacao.capacity > 0 && (
+                    <span className="flex items-center gap-2 ml-auto mr-1 shrink-0">
+                      <span className="w-16 h-1 bg-white/10 rounded-full overflow-hidden" aria-hidden="true">
+                        <span
+                          className={`block h-full rounded-full ${
+                            ocupacao.pct >= 90 ? 'bg-red-500/70'
+                              : ocupacao.pct >= 60 ? 'bg-amber-500/70'
+                                : 'bg-emerald-500/60'
+                          }`}
+                          style={{ width: `${ocupacao.pct}%` }}
+                        />
+                      </span>
+                      <span className="text-white/40 text-[10px] tabular-nums w-8 text-right">
+                        {ocupacao.pct}%
+                      </span>
+                    </span>
+                  )}
+
                   {/* Domingo tambem deixa marcar: a oficina nao abre ao publico
                       mas ha trabalho combinado a parte, e recusar aqui obrigava
                       a dar a volta pelo formulario. */}
