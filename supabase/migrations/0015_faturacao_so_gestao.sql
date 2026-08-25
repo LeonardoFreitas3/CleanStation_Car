@@ -155,3 +155,27 @@ $$;
 
 revoke all on function public.follow_ups(integer) from anon;
 grant execute on function public.follow_ups(integer) to authenticated;
+
+-- ── monthly_revenue ──────────────────────────────────────────────────────────
+-- A mesma porta, noutra parede. E uma view SECURITY INVOKER por cima de
+-- services, concedida a `authenticated`: um select simples devolvia a receita e
+-- o ticket medio de cada mes, sem passar por funcao nenhuma. Guardar so as duas
+-- funcoes deixava isto aberto.
+
+create or replace view public.monthly_revenue
+with (security_invoker = true)
+as
+  select
+    date_trunc('month', coalesce(completed_at, created_at)) as month,
+    count(*)                                                as service_count,
+    sum(total)                                              as revenue,
+    avg(total)                                              as avg_ticket
+  from public.services
+  where deleted_at is null
+    and status in ('concluido', 'entregue')
+    and public.is_manager()
+  group by 1
+  order by 1 desc;
+
+revoke all on public.monthly_revenue from anon, authenticated;
+grant select on public.monthly_revenue to authenticated;
