@@ -3,10 +3,18 @@
 --
 -- Correr depois do 0015.
 --
--- Ate aqui qualquer perfil ativo podia mexer no employee_id: a services_update
--- usa is_staff(), e o funcionario tinha a mesma caixa de escolha na ficha do
--- servico. Podia pegar num trabalho do colega e passa-lo para si, ou o
--- contrario. Quem distribui o trabalho passa a ser so o administrador.
+-- Duas coisas, que sao a mesma pergunta: quem faz o servico.
+--
+-- 1) Ate aqui qualquer perfil ativo podia mexer no employee_id: a
+--    services_update usa is_staff(), e a ficha do servico mostrava a caixa de
+--    escolha a toda a gente. Um funcionario podia pegar num trabalho do colega
+--    e passa-lo para si, ou o contrario. Passa a ser so do administrador, que
+--    distribui a semana no inicio dela.
+--
+-- 2) Enquanto houver um unico funcionario nao ha nada para distribuir: o
+--    servico e dele. A regra fica na base de dados e nao no CRM porque as
+--    marcacoes feitas no site criam servicos pela Edge Function booking, sem
+--    passar pelo frontend — ficavam todas por atribuir.
 --
 -- Nao da para fazer isto so com RLS: uma politica de UPDATE ve a linha antiga
 -- no USING e a nova no WITH CHECK, mas nunca as duas ao mesmo tempo, portanto
@@ -23,6 +31,10 @@
 -- trigger primeiro. Pela API, com um admin autenticado, funciona normalmente.
 -- =============================================================================
 
+-- Fora antes do preenchimento la em baixo: se ficasse de pe, revertia-o em
+-- silencio numa segunda passagem por este ficheiro.
+drop trigger if exists services_protect_assignment on public.services;
+
 create or replace function public.protect_service_assignment()
 returns trigger
 language plpgsql
@@ -30,23 +42,47 @@ security definer
 set search_path = public, pg_temp
 as $$
 begin
-  if public.is_admin() then
-    return new;
-  end if;
-
-  -- Num servico novo, quem nao e admin nao atribui a ninguem: fica por
-  -- atribuir e o administrador distribui depois.
-  if tg_op = 'INSERT' then
+  -- Quem nao e admin nao escolhe: num servico novo nao atribui a ninguem, numa
+  -- edicao fica com quem la estava.
+  if not public.is_admin() then
+    if tg_op = 'UPDATE' then
+      new.employee_id := old.employee_id;
+      return new;
+    end if;
     new.employee_id := null;
-    return new;
   end if;
 
-  new.employee_id := old.employee_id;
+  -- Um so funcionario ativo: nao ha distribuicao nenhuma a fazer, o trabalho e
+  -- dele. Com dois ou mais nao se adivinha — fica por atribuir e o admin
+  -- distribui. Vale para o admin tambem: se ele criar um servico sem escolher
+  -- ninguem, o resultado deve ser o mesmo.
+  if new.employee_id is null
+     and (select count(*) from public.profiles where active and role = 'employee') = 1
+  then
+    select id into new.employee_id
+      from public.profiles
+     where active and role = 'employee';
+  end if;
+
   return new;
 end;
 $$;
 
-drop trigger if exists services_protect_assignment on public.services;
+-- ── O que ja la esta ─────────────────────────────────────────────────────────
+-- A regra so apanha o que entra a partir de agora. Os servicos que estao por
+-- atribuir ficariam por atribuir para sempre.
+--
+-- Fora os cancelados e os apagados: atribuir trabalho que nao se vai fazer nao
+-- diz nada a ninguem. Os concluidos entram, e isso conta para o total do
+-- team_overview — o que e verdade se ele foi mesmo quem os fez.
+
+update public.services s
+   set employee_id = (select id from public.profiles where active and role = 'employee')
+ where s.employee_id is null
+   and s.deleted_at is null
+   and s.status <> 'cancelado'
+   and (select count(*) from public.profiles where active and role = 'employee') = 1;
+
 create trigger services_protect_assignment
   before insert or update on public.services
   for each row execute function public.protect_service_assignment();
