@@ -5,18 +5,22 @@ import { VIP_THRESHOLDS } from '../lib/config';
 export interface AppSettings {
   vip_total_spent: number;
   vip_service_count: number;
+  opens_hour: number;
+  closes_hour: number;
 }
 
 /** Valores enquanto as definicoes nao chegam do servidor. Iguais aos da 0014. */
 export const SETTINGS_FALLBACK: AppSettings = {
   vip_total_spent: VIP_THRESHOLDS.totalSpent,
   vip_service_count: VIP_THRESHOLDS.serviceCount,
+  opens_hour: 9,
+  closes_hour: 20,
 };
 
 export async function getSettings(): Promise<AppSettings> {
   const { data, error } = await getSupabase()
     .from('app_settings')
-    .select('vip_total_spent, vip_service_count')
+    .select('vip_total_spent, vip_service_count, opens_hour, closes_hour')
     .eq('id', 1)
     .maybeSingle();
 

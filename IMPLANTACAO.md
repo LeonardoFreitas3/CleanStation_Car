@@ -23,6 +23,7 @@ No **SQL Editor** do Supabase, uma de cada vez, por ordem. Estão em
 | `0020_modelos_follow_up.sql` | Quatro modelos de mensagem de reativação |
 | `0021_lembrete_vespera.sql` | Marca de "cliente avisado" |
 | `0022_galeria_do_cliente.sql` | Token e prazo da galeria |
+| `0023_horario_nas_definicoes.sql` | Horário editável nas Definições |
 
 **A `0016` faz um `update` a sério** — atribui ao João os serviços por atribuir.
 Antes de a correr, vale a pena ver quantos são:

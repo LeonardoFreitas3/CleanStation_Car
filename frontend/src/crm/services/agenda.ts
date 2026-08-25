@@ -54,9 +54,28 @@ export function timeOffDays(off: Pick<TimeOff, 'starts_at' | 'ends_at'>): string
   return out;
 }
 
-/** Horario da oficina. Igual ao de supabase/functions/booking/slots.ts. */
-export const OPENS = 9;
-export const CLOSES = 20;
+/**
+ * Horario da oficina.
+ *
+ * Mutavel, como os limiares de VIP: vem das definicoes e e aplicado no arranque
+ * do CRM. Os valores aqui sao o que vale enquanto nao chegam — ou se a leitura
+ * falhar, caso em que uma agenda com o horario habitual e melhor do que uma
+ * agenda que nao abre.
+ *
+ * A Edge Function das marcacoes le a mesma linha da app_settings. Sao dois
+ * leitores da mesma verdade, e nao duas verdades.
+ */
+export let OPENS = 9;
+export let CLOSES = 20;
+
+export function setHorario(opens: number, closes: number): void {
+  // Fechar antes de abrir dava uma capacidade negativa e uma ocupacao em
+  // numeros impossiveis. A base de dados ja o recusa; isto cobre o caminho
+  // entre a leitura e o ecra.
+  if (!(closes > opens)) return;
+  OPENS = opens;
+  CLOSES = closes;
+}
 
 /**
  * Hora a propor quando se marca um servico a partir de um dia da agenda:

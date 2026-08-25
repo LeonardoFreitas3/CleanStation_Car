@@ -9,7 +9,8 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
 import { busyPeriods, createEvent, deleteEvent, listEvents } from './google.ts';
-import { formatDuration, freeSlots, isClosed, slotIso } from './slots.ts';
+import { formatDuration, freeSlots, isClosed, slotIso, HORARIO_OMISSAO } from './slots.ts';
+import type { Horario } from './slots.ts';
 import type { Busy } from './slots.ts';
 import { sendConfirmation } from './email.ts';
 import { resolve } from './catalogue.ts';
@@ -95,6 +96,28 @@ async function busyWindow(date: string): Promise<Busy[]> {
 
 // ── Disponibilidade ──────────────────────────────────────────────────────────
 
+/**
+ * Horario da oficina, das definicoes.
+ *
+ * Lido com a service_role: a politica de select da app_settings exige staff
+ * autenticado, e quem marca no site nao tem sessao nenhuma.
+ *
+ * Se falhar, vale o horario habitual. Um erro a ler uma definicao nao pode
+ * fechar a oficina — melhor oferecer as horas do costume do que nao oferecer
+ * hora nenhuma e perder a marcacao.
+ */
+async function horario(): Promise<Horario> {
+  try {
+    const { data } = await admin().from('app_settings')
+      .select('opens_hour, closes_hour').eq('id', 1).maybeSingle();
+
+    if (!data || data.opens_hour == null || data.closes_hour == null) return HORARIO_OMISSAO;
+    return { opens: data.opens_hour, closes: data.closes_hour };
+  } catch {
+    return HORARIO_OMISSAO;
+  }
+}
+
 async function handleAvailability(body: Record<string, unknown>) {
   const date = String(body.date ?? '');
   const duration = Number(body.duration ?? 60);
@@ -105,7 +128,8 @@ async function handleAvailability(body: Record<string, unknown>) {
   }
   if (isClosed(date)) return json({ slots: [] });
 
-  return json({ slots: freeSlots(date, duration, await busyWindow(date)) });
+  const [ocupado, h] = await Promise.all([busyWindow(date), horario()]);
+  return json({ slots: freeSlots(date, duration, ocupado, new Date(), h) });
 }
 
 // ── Criação ──────────────────────────────────────────────────────────────────
@@ -171,7 +195,8 @@ async function handleCreate(body: Record<string, unknown>) {
 
   // Revalidar a disponibilidade. Entre ver a hora livre e carregar em confirmar
   // podem passar minutos, e nesse intervalo outra pessoa pode ter marcado.
-  if (!freeSlots(date, duration, await busyWindow(date)).includes(time)) {
+  const [ocupado, h] = await Promise.all([busyWindow(date), horario()]);
+  if (!freeSlots(date, duration, ocupado, new Date(), h).includes(time)) {
     return json({ error: 'Esse horário já não está disponível. Escolha outro.' }, 409);
   }
 

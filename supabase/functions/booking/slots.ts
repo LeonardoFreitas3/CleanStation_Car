@@ -7,15 +7,25 @@
 /** Período ocupado, no formato que o freeBusy do Google devolve. */
 export interface Busy { start: string; end: string }
 
+// Valores por omissao. O horario a serio vem das definicoes, na base de dados —
+// estes sao o que vale se a linha nao existir (0014 por correr) ou se a leitura
+// falhar: melhor oferecer o horario habitual do que nao oferecer hora nenhuma.
 export const OPENS = 9;          // 09:00
 export const CLOSES = 20;        // 20:00
+
+export interface Horario { opens: number; closes: number }
+
+export const HORARIO_OMISSAO: Horario = { opens: OPENS, closes: CLOSES };
 export const SLOT_MINUTES = 30;
 export const MIN_NOTICE_MINUTES = 60;
 
-/** A partir daqui o serviço não cabe num dia de trabalho: ocupa o dia todo. */
+/** A partir daqui o serviço não cabe num dia de trabalho: ocupa o dia todo.
+ *  Relativo ao horário — encurtar o dia não pode deixar serviços sem hora
+ *  nenhuma por caberem num dia que já não existe. */
 export const FULL_DAY_MINUTES = 660;
 
-export const isFullDay = (minutes: number) => minutes >= FULL_DAY_MINUTES;
+export const isFullDay = (minutes: number, horario: Horario = HORARIO_OMISSAO) =>
+  minutes >= (horario.closes - horario.opens) * 60;
 
 /** "Dia inteiro" em vez de "1440min", que não diz nada a ninguém. */
 export function formatDuration(minutes: number): string {
@@ -88,7 +98,9 @@ export function freeSlots(
   durationMinutes: number,
   busy: Busy[],
   now: Date = new Date(),
+  horario: Horario = HORARIO_OMISSAO,
 ): string[] {
+  const { opens, closes } = horario;
   if (isClosed(dateIso)) return [];
   if (isTooSoon(dateIso, now)) return [];
 
@@ -98,24 +110,24 @@ export function freeSlots(
   }));
 
   const earliest = now.getTime() + MIN_NOTICE_MINUTES * 60_000;
-  const opening = new Date(slotIso(dateIso, OPENS, 0)).getTime();
-  const closing = new Date(slotIso(dateIso, CLOSES, 0)).getTime();
+  const opening = new Date(slotIso(dateIso, opens, 0)).getTime();
+  const closing = new Date(slotIso(dateIso, closes, 0)).getTime();
 
   // Serviços de dia inteiro (a lavagem detalhada são 24h) não cabem entre as
   // 09:00 e as 20:00, e exigir que terminassem antes do fecho fazia com que
   // nunca tivessem hora nenhuma disponível. Tratam-se à parte: entrega ao
   // abrir, o dia fica ocupado, e o carro sai no dia seguinte.
-  if (isFullDay(durationMinutes)) {
+  if (isFullDay(durationMinutes, horario)) {
     if (opening < earliest) return [];
     const end = opening + durationMinutes * 60_000;
     // O dia tem de estar livre de ponta a ponta, não só a hora de entrega.
     if (busyRanges.some((b) => overlaps(opening, end, b.start, b.end))) return [];
-    return [`${String(OPENS).padStart(2, '0')}:00`];
+    return [`${String(opens).padStart(2, '0')}:00`];
   }
 
   const out: string[] = [];
 
-  for (let h = OPENS; h < CLOSES; h++) {
+  for (let h = opens; h < closes; h++) {
     for (let m = 0; m < 60; m += SLOT_MINUTES) {
       const start = new Date(slotIso(dateIso, h, m)).getTime();
       const end = start + durationMinutes * 60_000;

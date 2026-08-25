@@ -1,7 +1,7 @@
 // A agenda erra em silencio: uma folga que nao aparece no dia certo continua a
 // mostrar um ecra bonito, so que errado. Correr com `npm test`.
 
-import { dayKey, dayOccupancy, nextFreeHour, timeOffDays, weekDays, weekStart } from './agenda';
+import { dayKey, dayOccupancy, nextFreeHour, setHorario, timeOffDays, weekDays, weekStart } from './agenda';
 
 const local = (s) => new Date(s);
 
@@ -169,5 +169,29 @@ describe('ocupacao do dia', () => {
       services: [svc('09:00', 660), svc('10:00', 300)],
     });
     expect(o.pct).toBe(100);
+  });
+});
+
+describe('horario vindo das definicoes', () => {
+  const seg = new Date('2026-08-24T00:00:00');
+  const vazia = { services: [], timeOff: [], blocks: [] };
+
+  // As definicoes sao globais ao modulo: sem isto, mudar o horario num teste
+  // estragava os que corressem a seguir.
+  afterEach(() => setHorario(9, 20));
+
+  test('a capacidade do dia segue o horario', () => {
+    setHorario(8, 18);
+    expect(dayOccupancy(seg, vazia).capacity).toBe(600);
+  });
+
+  test('a hora sugerida arranca na abertura nova', () => {
+    setHorario(7, 15);
+    expect(nextFreeHour(seg, [])).toBe('07:00');
+  });
+
+  test('fechar antes de abrir e ignorado em vez de aceite', () => {
+    setHorario(20, 9);
+    expect(dayOccupancy(seg, vazia).capacity).toBe(660);
   });
 });

@@ -5,6 +5,7 @@ import {
 } from '../services/serviceTypes';
 import { getSettings, updateSettings } from '../services/settings';
 import { setVipThresholds } from '../services/clients';
+import { setHorario } from '../services/agenda';
 import { eur } from '../lib/format';
 import { Alert, Button, Card, Field, PageTitle, Select, Spinner } from '../components/ui';
 import type { ServiceType } from '../types';
@@ -23,6 +24,9 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const [opens, setOpens] = useState('9');
+  const [closes, setCloses] = useState('20');
+  const [savingHorario, setSavingHorario] = useState(false);
 
   const [totalSpent, setTotalSpent] = useState('');
   const [serviceCount, setServiceCount] = useState('');
@@ -45,6 +49,8 @@ export default function Settings() {
       setTypes(list);
       setTotalSpent(String(Number(settings.vip_total_spent)));
       setServiceCount(String(Number(settings.vip_service_count)));
+      setOpens(String(Number(settings.opens_hour)));
+      setCloses(String(Number(settings.closes_hour)));
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível carregar as definições.');
@@ -54,6 +60,39 @@ export default function Settings() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  const saveHorario = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const abre = Number(opens);
+    const fecha = Number(closes);
+
+    // A base de dados tambem recusa, mas dizer aqui poupa a ida e volta e da
+    // uma frase em portugues em vez de um erro de constraint.
+    if (!Number.isInteger(abre) || !Number.isInteger(fecha) || !(fecha > abre)) {
+      setError('O horário tem de ser em horas inteiras, e fechar depois de abrir.');
+      return;
+    }
+
+    setSavingHorario(true);
+    setError(null);
+    try {
+      await updateSettings({
+        vip_total_spent: Number(totalSpent),
+        vip_service_count: Number(serviceCount),
+        opens_hour: abre,
+        closes_hour: fecha,
+      });
+      // Aplica ja na sessao em curso, como os limiares: sem isto a ocupacao da
+      // agenda so mudava ao voltar a entrar.
+      setHorario(abre, fecha);
+      setSaved('horario');
+      setTimeout(() => setSaved(null), 2500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível guardar o horário.');
+    } finally {
+      setSavingHorario(false);
+    }
+  };
 
   const saveVip = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +107,12 @@ export default function Settings() {
     setSavingVip(true);
     setError(null);
     try {
-      await updateSettings({ vip_total_spent: spent, vip_service_count: count });
+      await updateSettings({
+        vip_total_spent: spent,
+        vip_service_count: count,
+        opens_hour: Number(opens),
+        closes_hour: Number(closes),
+      });
       // Aplica já na sessão em curso: sem isto as etiquetas de VIP só mudavam
       // ao voltar a entrar, e parecia que não tinha guardado.
       setVipThresholds(spent, count);
@@ -194,6 +238,41 @@ export default function Settings() {
           <Button type="submit" loading={savingVip}>
             {saved === 'vip' ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
             {saved === 'vip' ? 'Guardado' : 'Guardar'}
+          </Button>
+        </form>
+      </Card>
+
+      <Card className="p-5 mt-4">
+        <div className="text-[10px] tracking-[0.28em] text-white/50 uppercase mb-2">Horário</div>
+        <p className="text-white/45 text-xs mb-5 leading-relaxed">
+          Decide as horas que o site oferece a quem marca e a janela que a agenda usa para
+          calcular a ocupação. Domingo continua encerrado.
+          {' '}
+          <strong className="text-white/60">Os textos do site — FAQ, contactos, termos — são
+          escritos à mão e não mudam com isto.</strong>
+        </p>
+        <form onSubmit={saveHorario} className="grid sm:grid-cols-3 gap-4 items-end">
+          <Field
+            label="Abre às"
+            type="number"
+            min={0}
+            max={23}
+            step="1"
+            value={opens}
+            onChange={(e) => setOpens(e.target.value)}
+          />
+          <Field
+            label="Fecha às"
+            type="number"
+            min={1}
+            max={24}
+            step="1"
+            value={closes}
+            onChange={(e) => setCloses(e.target.value)}
+          />
+          <Button type="submit" loading={savingHorario}>
+            {saved === 'horario' ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+            {saved === 'horario' ? 'Guardado' : 'Guardar'}
           </Button>
         </form>
       </Card>

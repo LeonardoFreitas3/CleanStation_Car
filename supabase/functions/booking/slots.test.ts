@@ -62,3 +62,19 @@ Deno.test('serviço da véspera que se estende bloqueia a manhã seguinte', () =
   assertEquals(slots.includes('09:30'), false);
   assertEquals(slots.includes('10:00'), true);
 });
+
+Deno.test('horario das definicoes manda no calculo', () => {
+  const slots = freeSlots(SEGUNDA, 60, [], AGORA, { opens: 8, closes: 18 });
+  assertEquals(slots[0], '08:00');
+  assertEquals(slots[slots.length - 1], '17:00');
+});
+
+Deno.test('sem horario indicado vale o de omissao', () => {
+  assertEquals(freeSlots(SEGUNDA, 60, [], AGORA)[0], '09:00');
+});
+
+Deno.test('dia inteiro e relativo ao horario, nao um numero fixo', () => {
+  // 10h cabem num dia de 11h, mas num de 9h passam a ser servico de dia todo.
+  assertEquals(freeSlots(SEGUNDA, 600, [], AGORA, { opens: 9, closes: 20 }).length > 1, true);
+  assertEquals(freeSlots(SEGUNDA, 600, [], AGORA, { opens: 9, closes: 18 }), ['09:00']);
+});
