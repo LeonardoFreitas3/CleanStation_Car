@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 # Motores de busca com IA e assistentes. Por omissão já seriam permitidos —
 # está explícito para que a intenção fique clara: queremos ser encontrados
@@ -8,33 +9,41 @@ Disallow: /crm
 User-agent: GPTBot
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 User-agent: OAI-SearchBot
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 User-agent: ChatGPT-User
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 User-agent: ClaudeBot
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 User-agent: Claude-SearchBot
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 User-agent: PerplexityBot
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 User-agent: Google-Extended
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 User-agent: Applebot-Extended
 Allow: /
 Disallow: /crm
+Disallow: /galeria
 
 Sitemap: https://cleanstationcar.com/sitemap.xml

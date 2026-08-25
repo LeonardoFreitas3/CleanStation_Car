@@ -41,6 +41,16 @@ export default function Galeria() {
 
   useEffect(() => { carregar(); }, [carregar]);
 
+  // Fora dos motores de busca. O robots.txt tambem o diz, mas isso e um pedido
+  // e isto e uma instrucao na propria pagina — um link privado indexado deixa
+  // de ser privado, e o token ia no endereco.
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="robots"]');
+    const anterior = meta?.content;
+    if (meta) meta.content = 'noindex, nofollow';
+    return () => { if (meta && anterior !== undefined) meta.content = anterior; };
+  }, []);
+
   // Os URLs assinados duram uma hora. Quem deixar o separador aberto a tarde
   // toda volta a encontrar as fotografias, em vez de uma pagina de cruzes.
   useEffect(() => {
