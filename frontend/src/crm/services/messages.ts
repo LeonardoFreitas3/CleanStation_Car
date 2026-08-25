@@ -30,19 +30,7 @@ export async function listTemplates(): Promise<MessageTemplate[]> {
  * Uma variavel sem valor e removida junto com o espaco que a precede, em vez
  * de deixar "{{veiculo}}" cru na mensagem enviada ao cliente.
  */
-export function renderTemplate(content: string, service: ServiceWithRelations): string {
-  const vehicle = service.vehicle
-    ? [service.vehicle.make, service.vehicle.model].filter(Boolean).join(' ') || service.vehicle.plate
-    : '';
-
-  const values: Record<string, string> = {
-    nome: service.client?.name?.split(' ')[0] ?? '',
-    veiculo: vehicle,
-    matricula: service.vehicle?.plate ?? '',
-    servico: service.service_name,
-    etapa: SERVICE_STATUS_LABEL[service.status].toLowerCase(),
-  };
-
+export function applyTemplate(content: string, values: Record<string, string>): string {
   return content
     .replace(/\s*\{\{(\w+)\}\}/g, (match, key: string) => {
       const value = values[key];
@@ -51,6 +39,39 @@ export function renderTemplate(content: string, service: ServiceWithRelations): 
     })
     .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+export function renderTemplate(content: string, service: ServiceWithRelations): string {
+  const vehicle = service.vehicle
+    ? [service.vehicle.make, service.vehicle.model].filter(Boolean).join(' ') || service.vehicle.plate
+    : '';
+
+  return applyTemplate(content, {
+    nome: service.client?.name?.split(' ')[0] ?? '',
+    veiculo: vehicle,
+    matricula: service.vehicle?.plate ?? '',
+    servico: service.service_name,
+    etapa: SERVICE_STATUS_LABEL[service.status].toLowerCase(),
+  });
+}
+
+/**
+ * O mesmo, para a lista de reativacao.
+ *
+ * A lista e por cliente e nao por servico, portanto so tem estas tres a mao.
+ * Um modelo que peca {{veiculo}} fica com o espaco em branco em vez de mostrar
+ * a variavel crua — e o que o applyTemplate ja faz.
+ */
+export function renderFollowUp(content: string, values: {
+  name: string;
+  lastServiceName: string | null;
+  daysSinceLastVisit: number;
+}): string {
+  return applyTemplate(content, {
+    nome: values.name.split(' ')[0] ?? '',
+    servico: values.lastServiceName?.toLowerCase() ?? 'serviço',
+    dias: String(values.daysSinceLastVisit),
+  });
 }
 
 /**

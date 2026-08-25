@@ -5,9 +5,17 @@ import {
   BUCKET_CLASS, BUCKET_LABEL, listFollowUps,
 } from '../services/dashboard';
 import type { FollowUp } from '../services/dashboard';
-import { logMessage } from '../services/messages';
+import { listTemplates, logMessage, renderFollowUp } from '../services/messages';
+import type { MessageTemplate } from '../services/messages';
 import { daysAgo, eur, whatsappNumber } from '../lib/format';
 import { Alert, Card, PageTitle, Spinner } from '../components/ui';
+
+/**
+ * Usado enquanto nao houver modelos na base de dados — antes da 0020 ter
+ * corrido, ou se alguem os desativar todos. Sem isto, a pagina ficava sem
+ * mensagem nenhuma e o botao do WhatsApp abria vazio.
+ */
+const TEXTO_RESERVA = 'Olá {{nome}}! Já passou algum tempo desde a última visita à Clean Station Car. Quer agendar?';
 
 const WINDOWS = [
   { value: 30, label: '30+ dias' },
@@ -25,6 +33,8 @@ function diasDesde(iso: string | null): number | null {
 export default function FollowUps() {
   const [minDays, setMinDays] = useState(30);
   const [rows, setRows] = useState<FollowUp[]>([]);
+  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [templateId, setTemplateId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,6 +47,19 @@ export default function FollowUps() {
   }, [minDays]);
 
   useEffect(() => { load(); }, [load]);
+
+  // So os de reativacao: os outros falam de um servico em curso, que aqui nao
+  // existe. Falhar a carregar nao pode partir a lista — fica-se com o texto de
+  // reserva.
+  useEffect(() => {
+    listTemplates()
+      .then((all) => {
+        const followUp = all.filter((t) => t.category === 'follow_up');
+        setTemplates(followUp);
+        setTemplateId((id) => id || followUp[0]?.id || '');
+      })
+      .catch(() => setTemplates([]));
+  }, []);
 
   /**
    * Regista a mensagem no momento em que se abre o WhatsApp.
@@ -51,7 +74,12 @@ export default function FollowUps() {
    */
   const registar = async (f: FollowUp, content: string) => {
     try {
-      await logMessage({ clientId: f.id, content, isMarketing: true });
+      await logMessage({
+        clientId: f.id,
+        content,
+        templateId: templateId || null,
+        isMarketing: true,
+      });
       setRows((rs) => rs.map((r) => (
         r.id === f.id ? { ...r, last_contacted_at: new Date().toISOString() } : r
       )));
@@ -80,6 +108,22 @@ export default function FollowUps() {
             {w.label}
           </button>
         ))}
+
+        {/* Ao lado das janelas: escolher a quem se liga e escolher o que se diz
+            sao a mesma decisao. Escondido quando so ha um modelo — nao ha
+            escolha nenhuma a fazer. */}
+        {templates.length > 1 && (
+          <select
+            value={templateId}
+            onChange={(e) => setTemplateId(e.target.value)}
+            aria-label="Modelo de mensagem"
+            className="bg-black/60 border border-white/15 focus:border-blue-500 outline-none px-3 py-2 text-[11px] tracking-[0.15em] uppercase font-semibold text-white/70 rounded-sm transition"
+          >
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       <p className="text-white/40 text-xs mb-6 leading-relaxed">
@@ -100,7 +144,12 @@ export default function FollowUps() {
         <div className="space-y-3">
           {rows.map((f) => {
             const wa = whatsappNumber(f.phone);
-            const message = `Olá ${f.name.split(' ')[0]}! Já passou algum tempo desde a última visita à Clean Station Car. Quer agendar?`;
+            const template = templates.find((t) => t.id === templateId);
+            const message = renderFollowUp(template?.content ?? TEXTO_RESERVA, {
+              name: f.name,
+              lastServiceName: f.last_service_name,
+              daysSinceLastVisit: f.days_since_last_visit,
+            });
 
             return (
               <Card key={f.id} className="p-4">
