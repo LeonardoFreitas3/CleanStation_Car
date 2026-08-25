@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, UserPlus, Pencil,
+  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, Pencil,
 } from 'lucide-react';
 import {
   SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus,
@@ -171,31 +171,27 @@ export default function ServiceDetail() {
 
           <div className="min-w-0">
             <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase">Funcionário</div>
-            {/* Editável aqui mesmo: trocar quem faz o trabalho é coisa de todos
-                os dias, e obrigar a abrir o formulário de edição para isso era
-                caro de mais para o que é. */}
-            <select
-              value={service.employee_id ?? ''}
-              onChange={(e) => assign(e.target.value || null)}
-              disabled={busy}
-              aria-label="Funcionário atribuído"
-              className="w-full bg-black/60 border border-white/15 focus:border-blue-500 outline-none mt-1 px-2 py-1.5 text-white text-sm rounded-sm transition disabled:opacity-50"
-            >
-              <option value="">— por atribuir —</option>
-              {team.map((t) => (
-                <option key={t.id} value={t.id}>{t.full_name || '(sem nome)'}</option>
-              ))}
-            </select>
-            {/* Um toque em vez de abrir a lista, que é o caso comum: quem está
-                a ver a ficha é quem vai pegar no carro. */}
-            {!service.employee_id && profile && (
-              <button
-                onClick={() => assign(profile.id)}
+            {/* Editável aqui mesmo, mas só para o admin: distribuir trabalho é
+                decisão de quem manda, e o trigger services_protect_assignment
+                reverte a alteração de qualquer outra pessoa. Mostrar a caixa a
+                quem não pode usá-la era prometer o que não se cumpre. */}
+            {profile?.role === 'admin' ? (
+              <select
+                value={service.employee_id ?? ''}
+                onChange={(e) => assign(e.target.value || null)}
                 disabled={busy}
-                className="text-blue-400 hover:text-blue-300 text-xs mt-2 inline-flex items-center gap-2 transition disabled:opacity-50"
+                aria-label="Funcionário atribuído"
+                className="w-full bg-black/60 border border-white/15 focus:border-blue-500 outline-none mt-1 px-2 py-1.5 text-white text-sm rounded-sm transition disabled:opacity-50"
               >
-                <UserPlus className="w-3.5 h-3.5" /> Atribuir a mim
-              </button>
+                <option value="">— por atribuir —</option>
+                {team.map((t) => (
+                  <option key={t.id} value={t.id}>{t.full_name || '(sem nome)'}</option>
+                ))}
+              </select>
+            ) : (
+              <div className="text-white text-sm mt-1 truncate">
+                {service.employee?.full_name || '— por atribuir —'}
+              </div>
             )}
           </div>
         </div>

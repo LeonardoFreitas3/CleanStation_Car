@@ -473,15 +473,21 @@ export default function ServiceForm() {
             />
           </div>
 
-          <Select
-            label="Funcionário"
-            value={employeeId}
-            onChange={(e) => setEmployeeId(e.target.value)}
-            options={[
-              { value: '', label: '— por atribuir —' },
-              ...team.map((t) => ({ value: t.id, label: t.full_name || '(sem nome)' })),
-            ]}
-          />
+          {/* Só o admin distribui trabalho. Para os outros o campo nem aparece:
+              o trigger services_protect_assignment poe o employee_id a null na
+              criacao e reverte-o na edicao, portanto mostrar a escolha era
+              deixar escolher uma coisa que nao ia ser guardada. */}
+          {profile?.role === 'admin' && (
+            <Select
+              label="Funcionário"
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+              options={[
+                { value: '', label: '— por atribuir —' },
+                ...team.map((t) => ({ value: t.id, label: t.full_name || '(sem nome)' })),
+              ]}
+            />
+          )}
 
           <div className="grid sm:grid-cols-2 gap-4">
             <Field
