@@ -180,4 +180,6 @@ export interface TimeOff {
   reason: string | null;
   created_at: string;
   created_by: string | null;
+  /** Evento correspondente no Google Calendar. Null se o espelho falhou. */
+  google_event_id: string | null;
 }

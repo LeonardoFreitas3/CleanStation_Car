@@ -8,7 +8,7 @@
 // A resposta de availability devolve só horas — nenhum dado de nenhum cliente.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
-import { busyPeriods, createEvent } from './google.ts';
+import { busyPeriods, createEvent, deleteEvent } from './google.ts';
 import { formatDuration, freeSlots, isClosed, slotIso } from './slots.ts';
 import type { Busy } from './slots.ts';
 import { sendConfirmation } from './email.ts';
@@ -303,6 +303,67 @@ async function handleCreate(body: Record<string, unknown>) {
 
 // ── Router ───────────────────────────────────────────────────────────────────
 
+
+// ── Folgas ───────────────────────────────────────────────────────────────────
+//
+// A folga em si e criada pelo CRM, direta a base de dados, onde o RLS decide
+// quem pode. Aqui so se trata do que o browser nao pode fazer: falar com o
+// Google, cujas credenciais vivem nos secrets e nunca no frontend.
+//
+// Por isso o pedido traz o id da folga e nao os seus dados: a folga ja existe e
+// ja bloqueia o site. Isto e o espelho no calendario, e se falhar o pior caso e
+// uma folga que nao se ve no telemovel.
+
+/** Quem esta a pedir, se for pessoal ativo. Mesmo criterio do is_staff(). */
+async function staffOrNull(req: Request): Promise<string | null> {
+  const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer /, '');
+  if (!token) return null;
+
+  const db = admin();
+  const { data: user, error } = await db.auth.getUser(token);
+  if (error || !user?.user) return null;
+
+  const { data: profile } = await db.from('profiles')
+    .select('active').eq('id', user.user.id).maybeSingle();
+
+  return profile?.active ? user.user.id : null;
+}
+
+async function handleTimeOffSync(req: Request, body: Record<string, unknown>) {
+  if (!await staffOrNull(req)) return json({ error: 'Sessão inválida ou expirada' }, 401);
+
+  const id = String(body.id ?? '');
+  if (!id) return json({ error: 'Folga por identificar' }, 400);
+
+  const db = admin();
+  const { data: off } = await db.from('time_off')
+    .select('starts_at, ends_at, reason, google_event_id').eq('id', id).maybeSingle();
+
+  if (!off) return json({ error: 'Folga não encontrada' }, 404);
+  // Ja espelhada: nao criar um segundo evento para a mesma folga.
+  if (off.google_event_id) return json({ eventId: off.google_event_id });
+
+  const eventId = await createEvent({
+    summary: `[CSC] Folga${off.reason ? ` — ${off.reason}` : ''}`,
+    description: 'Marcada no CRM. Enquanto durar, o site não oferece horas.',
+    startIso: off.starts_at,
+    endIso: off.ends_at,
+  });
+
+  await db.from('time_off').update({ google_event_id: eventId }).eq('id', id);
+  return json({ eventId });
+}
+
+async function handleTimeOffRemove(req: Request, body: Record<string, unknown>) {
+  if (!await staffOrNull(req)) return json({ error: 'Sessão inválida ou expirada' }, 401);
+
+  const eventId = String(body.eventId ?? '');
+  if (!eventId) return json({ ok: true });
+
+  await deleteEvent(eventId);
+  return json({ ok: true });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'Método não suportado' }, 405);
@@ -314,6 +375,8 @@ Deno.serve(async (req) => {
 
     if (action === 'availability') return await handleAvailability(body);
     if (action === 'create') return await handleCreate(body);
+    if (action === 'time-off') return await handleTimeOffSync(req, body);
+    if (action === 'time-off-remove') return await handleTimeOffRemove(req, body);
     return json({ error: 'Endpoint desconhecido' }, 404);
   } catch (e) {
     // O detalhe vai para os logs, não para o visitante: as mensagens do Google

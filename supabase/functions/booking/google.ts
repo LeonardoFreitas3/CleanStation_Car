@@ -175,3 +175,21 @@ export async function createEvent(input: EventInput): Promise<string> {
   if (!res.ok) throw new Error(`Não foi possível criar o evento: ${await res.text()}`);
   return (await res.json()).id;
 }
+
+/**
+ * Apaga um evento. Um 404 ou um 410 nao sao falha: querem dizer que o evento ja
+ * la nao esta, que e exatamente o estado que se queria. Insistir num erro so
+ * impedia o CRM de apagar a folga por causa de um evento que ja nao existe.
+ */
+export async function deleteEvent(eventId: string): Promise<void> {
+  const token = await accessToken();
+
+  const res = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId())}/events/${encodeURIComponent(eventId)}`,
+    { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } },
+  );
+
+  if (!res.ok && res.status !== 404 && res.status !== 410) {
+    throw new Error(`Não foi possível apagar o evento: ${await res.text()}`);
+  }
+}

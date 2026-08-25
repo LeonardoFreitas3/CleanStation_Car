@@ -1,4 +1,5 @@
 import { getSupabase } from '../lib/supabase';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../lib/config';
 import { friendlyError } from '../lib/errors';
 import { SELECT_WITH_RELATIONS } from './services';
 import type { ServiceWithRelations, TimeOff } from '../types';
@@ -126,6 +127,36 @@ export async function loadWeek(anchor: Date): Promise<Week> {
   };
 }
 
+/**
+ * Espelho da folga no Google Calendar.
+ *
+ * As credenciais do Google vivem nos secrets do Supabase e nunca no browser,
+ * portanto quem fala com o calendario e a Edge Function. Vai a sessao de quem
+ * esta a pedir, que a funcao verifica.
+ *
+ * Nao lanca: a folga ja esta guardada e ja bloqueia o site quando isto corre. Se
+ * o Google estiver em baixo, o pior caso e nao se ver a folga no telemovel —
+ * rebentar aqui era transformar isso em "nao consegui marcar a folga".
+ */
+async function syncTimeOffToCalendar(path: string, body: Record<string, unknown>): Promise<void> {
+  try {
+    const { data: { session } } = await getSupabase().auth.getSession();
+    if (!session) return;
+
+    await fetch(`${SUPABASE_URL}/functions/v1/booking/${path}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    // Ver acima: o calendario e o espelho, nao o original.
+  }
+}
+
 export async function createTimeOff(input: {
   starts_at: string;
   ends_at: string;
@@ -134,11 +165,26 @@ export async function createTimeOff(input: {
   const db = getSupabase();
   const { data: user } = await db.auth.getUser();
   // created_by e exigido pela politica de insert: sem ele o RLS recusa.
-  const { error } = await db.from('time_off').insert({ ...input, created_by: user.user?.id });
+  const { data, error } = await db.from('time_off')
+    .insert({ ...input, created_by: user.user?.id })
+    .select('id')
+    .single();
   if (error) throw new Error(friendlyError(error));
+
+  await syncTimeOffToCalendar('time-off', { id: data.id });
 }
 
 export async function deleteTimeOff(id: string): Promise<void> {
-  const { error } = await getSupabase().from('time_off').delete().eq('id', id);
+  const db = getSupabase();
+  // Lido antes de apagar: depois da linha desaparecer nao ha como saber que
+  // evento e que lhe correspondia, e ele ficava orfao no calendario.
+  const { data: off } = await db.from('time_off')
+    .select('google_event_id').eq('id', id).maybeSingle();
+
+  const { error } = await db.from('time_off').delete().eq('id', id);
   if (error) throw new Error(friendlyError(error));
+
+  if (off?.google_event_id) {
+    await syncTimeOffToCalendar('time-off-remove', { eventId: off.google_event_id });
+  }
 }
