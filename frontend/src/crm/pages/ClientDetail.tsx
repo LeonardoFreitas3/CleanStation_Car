@@ -243,7 +243,7 @@ export default function ClientDetail() {
                 {vehicles.map((v) => (
                   <Link
                     key={v.id}
-                    to={`/crm/clientes/${client.id}/viaturas/${v.id}`}
+                    to={`/crm/viaturas/${v.id}`}
                     className="block bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition rounded-md p-4"
                   >
                     <div className="flex items-start gap-3">

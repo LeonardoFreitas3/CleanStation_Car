@@ -12,6 +12,7 @@ import Clients from './pages/Clients';
 import ClientDetail from './pages/ClientDetail';
 import ClientForm from './pages/ClientForm';
 import VehicleForm from './pages/VehicleForm';
+import VehicleDetail from './pages/VehicleDetail';
 import Services from './pages/Services';
 import Agenda from './pages/Agenda';
 import ServiceDetail from './pages/ServiceDetail';
@@ -103,6 +104,9 @@ export default function CrmApp() {
           <Route path="clientes/novo" element={<ClientForm />} />
           <Route path="clientes/:id" element={<ClientDetail />} />
           <Route path="clientes/:id/editar" element={<ClientForm />} />
+          {/* Fora de clientes/:id: a viatura tem historia propria, e quem
+              chega a ela pela pesquisa da matricula nao sabe o dono. */}
+          <Route path="viaturas/:id" element={<VehicleDetail />} />
           <Route path="clientes/:id/viaturas/nova" element={<VehicleForm />} />
           <Route path="clientes/:id/viaturas/:vehicleId" element={<VehicleForm />} />
           <Route

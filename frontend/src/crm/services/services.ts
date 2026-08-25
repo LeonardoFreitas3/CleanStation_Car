@@ -79,13 +79,14 @@ export interface ListServicesParams {
   employeeId?: string | null;
   serviceTypeId?: string | null;
   clientId?: string | null;
+  vehicleId?: string | null;
   page?: number;
   pageSize?: number;
 }
 
 export async function listServices({
   filter = 'hoje', employeeId = null, serviceTypeId = null, clientId = null,
-  page = 0, pageSize = 25,
+  vehicleId = null, page = 0, pageSize = 25,
 }: ListServicesParams = {}): Promise<{ rows: ServiceWithRelations[]; total: number }> {
   let q = getSupabase()
     .from('services')
@@ -95,6 +96,9 @@ export async function listServices({
   // Filtrar no Postgres e nao no browser: o historico de um cliente nao deve
   // obrigar a trazer os servicos de todos os outros.
   if (clientId) q = q.eq('client_id', clientId);
+  // O historico de um carro e a pergunta que se faz quando ele chega: um
+  // cliente com tres viaturas nao responde a isso pela ficha dele.
+  if (vehicleId) q = q.eq('vehicle_id', vehicleId);
 
   if (filter === 'hoje' || filter === 'amanha') {
     const [from, to] = dayRange(filter === 'hoje' ? 0 : 1);

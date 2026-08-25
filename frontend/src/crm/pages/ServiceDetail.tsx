@@ -160,14 +160,14 @@ export default function ServiceDetail() {
           <div className="min-w-0">
             <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase">Viatura</div>
             {service.vehicle ? (
-              <>
-                <div className="text-white font-display font-bold tracking-wider mt-1 inline-flex items-center gap-2">
+              <Link to={`/crm/viaturas/${service.vehicle.id}`} className="block group">
+                <div className="text-white group-hover:text-blue-400 transition font-display font-bold tracking-wider mt-1 inline-flex items-center gap-2">
                   <Car className="w-4 h-4 text-blue-400/70" />{service.vehicle.plate}
                 </div>
                 <div className="text-white/45 text-xs mt-0.5 truncate">
                   {[service.vehicle.make, service.vehicle.model].filter(Boolean).join(' ') || '—'}
                 </div>
-              </>
+              </Link>
             ) : <div className="text-white/40 mt-1">—</div>}
           </div>
 

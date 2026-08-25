@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Save, Search, Check } from 'lucide-react';
 import { useDebounced } from '../hooks/useDebounced';
 import { getClient, listClients } from '../services/clients';
-import { listVehiclesByClient } from '../services/vehicles';
+import { getVehicle, listVehiclesByClient } from '../services/vehicles';
 import { listServiceTypes, CATEGORY_LABEL } from '../services/serviceTypes';
 import { createService, getService, updateService } from '../services/services';
 import { listAssignable } from '../services/team';
@@ -97,9 +97,10 @@ export default function ServiceForm() {
   // Num serviço novo, quem regista é quase sempre quem o vai fazer. Só se
   // aplica enquanto ninguém tiver escolhido, para não desfazer a escolha se o
   // perfil chegar depois.
-  useEffect(() => {
-    if (!isEdit && profile) setEmployeeId((cur) => cur || profile.id);
-  }, [isEdit, profile]);
+  // Sem pre-seleccao de funcionario. Antes ficava sempre quem estava a
+  // registar, o que agora entrava em conflito com duas regras: so o admin
+  // distribui, e com um unico funcionario o servico e dele. Deixar em branco
+  // faz o trigger do 0016 decidir — e ele sabe quantos funcionarios ha.
 
   // Cliente pre-selecionado quando se chega a partir da ficha dele
   useEffect(() => {
@@ -116,6 +117,21 @@ export default function ServiceForm() {
     const preset = params.get('agendar');
     if (!preset || isEdit) return;
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(preset)) setScheduledAt(preset);
+  }, [params, isEdit]);
+
+  // Viatura pre-seleccionada quando se chega a partir da ficha dela. Traz o
+  // cliente atras: um servico e de um cliente, e o carro ja sabe de quem e.
+  useEffect(() => {
+    const preset = params.get('viatura');
+    if (!preset || isEdit) return;
+    getVehicle(preset)
+      .then(async (v) => {
+        if (!v) return;
+        const c = await getClient(v.client_id);
+        if (c) setClient(c);
+        setVehicleId(v.id);
+      })
+      .catch(() => { /* segue sem pre-seleccao */ });
   }, [params, isEdit]);
 
   // Em edicao, carrega o servico existente. O cliente nao muda: trocar o dono
