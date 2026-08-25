@@ -28,8 +28,8 @@ export default function Agenda() {
   const [allDay, setAllDay] = useState(true);
   const [startDate, setStartDate] = useState(todayKey);
   const [endDate, setEndDate] = useState(todayKey);
-  const [startTime, setStartTime] = useState('08:00');
-  const [endTime, setEndTime] = useState('19:00');
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('20:00');
   const [reason, setReason] = useState('');
 
   const load = useCallback(async (at: Date) => {

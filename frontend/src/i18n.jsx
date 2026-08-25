@@ -52,7 +52,7 @@ const translations = {
     contact: {
       title: "ONDE ESTAMOS",
       hoursDays: "Segunda a Sábado",
-      hoursTime: "08:00 – 19:00",
+      hoursTime: "09:00 – 20:00",
       ctaTitle: "FALA CONNOSCO",
       ctaPara: "Contacta-nos pelo WhatsApp para pedires um orçamento sem compromisso.",
       whatsapp: "PEDIR ORÇAMENTO",
@@ -140,7 +140,7 @@ const translations = {
     contact: {
       title: "WHERE WE ARE",
       hoursDays: "Monday to Saturday",
-      hoursTime: "08:00 – 19:00",
+      hoursTime: "09:00 – 20:00",
       ctaTitle: "GET IN TOUCH",
       ctaPara: "Contact us on WhatsApp for a no-commitment quote.",
       whatsapp: "GET A QUOTE",

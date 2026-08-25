@@ -101,7 +101,7 @@ describe('durações por veículo', () => {
 
   it('só a detalhada ocupa o dia inteiro', () => {
     expect(isFullDay(durationFor('carro', 'detalhada'))).toBe(true);
-    // 6h é o serviço mais longo que ainda cabe entre as 08:00 e as 19:00
+    // 6h é o serviço mais longo que ainda cabe entre as 09:00 e as 20:00
     expect(isFullDay(durationFor('grande', 'premium'))).toBe(false);
   });
 

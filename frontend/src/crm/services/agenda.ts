@@ -54,8 +54,8 @@ export function timeOffDays(off: Pick<TimeOff, 'starts_at' | 'ends_at'>): string
 }
 
 /** Horario da oficina. Igual ao de supabase/functions/booking/slots.ts. */
-export const OPENS = 8;
-export const CLOSES = 19;
+export const OPENS = 9;
+export const CLOSES = 20;
 
 /**
  * Hora a propor quando se marca um servico a partir de um dia da agenda:

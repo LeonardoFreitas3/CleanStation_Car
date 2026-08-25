@@ -7,8 +7,8 @@
 /** Período ocupado, no formato que o freeBusy do Google devolve. */
 export interface Busy { start: string; end: string }
 
-export const OPENS = 8;          // 08:00
-export const CLOSES = 19;        // 19:00
+export const OPENS = 9;          // 09:00
+export const CLOSES = 20;        // 20:00
 export const SLOT_MINUTES = 30;
 export const MIN_NOTICE_MINUTES = 60;
 
@@ -80,7 +80,7 @@ function overlaps(aStart: number, aEnd: number, bStart: number, bEnd: number): b
 /**
  * Horas livres do dia, já a contar com a duração do serviço.
  *
- * Um serviço de 4h às 16:00 não cabe antes das 19:00, portanto essa hora não
+ * Um serviço de 4h às 17:00 não cabe antes das 20:00, portanto essa hora não
  * aparece — mostrar e depois recusar era pior do que não mostrar.
  */
 export function freeSlots(
@@ -102,7 +102,7 @@ export function freeSlots(
   const closing = new Date(slotIso(dateIso, CLOSES, 0)).getTime();
 
   // Serviços de dia inteiro (a lavagem detalhada são 24h) não cabem entre as
-  // 08:00 e as 19:00, e exigir que terminassem antes do fecho fazia com que
+  // 09:00 e as 20:00, e exigir que terminassem antes do fecho fazia com que
   // nunca tivessem hora nenhuma disponível. Tratam-se à parte: entrega ao
   // abrir, o dia fica ocupado, e o carro sai no dia seguinte.
   if (isFullDay(durationMinutes)) {

@@ -125,8 +125,8 @@ export function businessSchema(lang) {
     openingHoursSpecification: [{
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-      opens: '08:00',
-      closes: '19:00',
+      opens: '09:00',
+      closes: '20:00',
     }],
     // Ligar a empresa às contas que ela controla ajuda os motores de busca e
     // os sistemas de IA a perceber que são a mesma entidade.
@@ -156,7 +156,7 @@ export function faqItems(lang) {
   if (lang === 'en') {
     return [
       { q: 'Where is Clean Station Car?', a: `${SITE.address}, Portugal.` },
-      { q: 'What are the opening hours?', a: 'Monday to Saturday, 08:00 to 19:00. Closed on Sundays.' },
+      { q: 'What are the opening hours?', a: 'Monday to Saturday, 09:00 to 20:00. Closed on Sundays.' },
       { q: 'How much does a wash cost?', a: `From €${desde}. The price depends on the vehicle type and the condition of the car — you get the estimate before confirming.` },
       { q: 'Do I need to book in advance?', a: 'Yes. You can book online with real-time availability, or contact us on WhatsApp. Same-day bookings are not accepted.' },
       { q: 'How long does it take?', a: 'A basic wash takes about 1h30. A full detail takes a whole day — the car stays overnight.' },
@@ -166,7 +166,7 @@ export function faqItems(lang) {
 
   return [
     { q: 'Onde fica a Clean Station Car?', a: `${SITE.address}.` },
-    { q: 'Qual é o horário?', a: 'Segunda a sábado, das 08:00 às 19:00. Domingos encerrado.' },
+    { q: 'Qual é o horário?', a: 'Segunda a sábado, das 09:00 às 20:00. Domingos encerrado.' },
     { q: 'Quanto custa uma lavagem?', a: `Desde ${desde}€. O valor depende do tipo de veículo e do estado da viatura — recebe a estimativa antes de confirmar.` },
     { q: 'É preciso marcar?', a: 'Sim. Pode marcar online, com disponibilidade em tempo real, ou pelo WhatsApp. Não aceitamos marcações para o próprio dia.' },
     { q: 'Quanto tempo demora?', a: 'Uma lavagem simples demora cerca de 1h30. Uma lavagem detalhada ocupa o dia inteiro — o carro fica de um dia para o outro.' },

@@ -49,7 +49,7 @@ curl -s -X POST \
   https://yjjizqaewkgtwzflnmzh.supabase.co/functions/v1/booking/availability
 ```
 
-Esperado: `{"slots":["08:00","08:30",...]}`.
+Esperado: `{"slots":["09:00","09:30",...]}`.
 
 Se vier `{"error":"Não foi possível processar o pedido..."}`, o detalhe está
 nos logs — a mensagem do Google revela o calendário e a service account, e por
@@ -82,7 +82,7 @@ domingo, hora de verão e serviços que atravessam a meia-noite.
 
 ## Horário e durações
 
-O horário está em `slots.ts` (segunda a sábado, 08:00–19:00, intervalos de 30
+O horário está em `slots.ts` (segunda a sábado, 09:00–20:00, intervalos de 30
 minutos, uma hora de antecedência mínima).
 
 As durações estão em `frontend/src/booking/pricing.js` (`DURATIONS`) e são uma

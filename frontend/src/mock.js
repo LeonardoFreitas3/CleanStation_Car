@@ -19,7 +19,7 @@ export const SITE = {
   phoneRaw: '351913733791',
   email: 'cleanstationcar@gmail.com',
   address: 'R. Conselheiro Lobato 503, 4705-089 Braga',
-  hours: 'Segunda a Sábado · 08:00 – 19:00',
+  hours: 'Segunda a Sábado · 09:00 – 20:00',
   mapsShareUrl: 'https://maps.google.com/?q=R.+Conselheiro+Lobato+503,+4705-089+Braga',
   // Pagina de avaliacoes do perfil de empresa. Substituir pelo link curto do
   // Google Business (Partilhar -> Avaliacoes) quando estiver a mao.

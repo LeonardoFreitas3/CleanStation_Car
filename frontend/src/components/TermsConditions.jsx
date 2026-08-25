@@ -50,7 +50,7 @@ export default function TermsConditions({ open, onClose }) {
         <p>If you are not satisfied with the service provided, contact us within <strong>48 hours</strong> of collecting the vehicle. We will review the situation and, where applicable, correct it at no additional cost.</p>
 
         <h2>8. Opening Hours</h2>
-        <p>Monday to Saturday, 08:00 to 19:00. Closed on Sundays and national holidays.</p>
+        <p>Monday to Saturday, 09:00 to 20:00. Closed on Sundays and national holidays.</p>
 
         <h2>9. Governing Law</h2>
         <p>These terms are governed by Portuguese law. In the event of a dispute, the court of the district of Braga has jurisdiction, without prejudice to alternative dispute resolution.</p>
@@ -101,7 +101,7 @@ export default function TermsConditions({ open, onClose }) {
       <p>Caso não esteja satisfeito com o serviço prestado, contacte-nos no prazo de <strong>48 horas</strong> após a recolha do veículo. Analisaremos a situação e, se aplicável, procederemos à correção sem custos adicionais.</p>
 
       <h2>8. Horário de Funcionamento</h2>
-      <p>Segunda a Sábado, das 08:00 às 19:00. Encerrado aos Domingos e feriados nacionais.</p>
+      <p>Segunda a Sábado, das 09:00 às 20:00. Encerrado aos Domingos e feriados nacionais.</p>
 
       <h2>9. Lei Aplicável</h2>
       <p>Os presentes termos regem-se pela legislação portuguesa. Em caso de litígio, é competente o tribunal da comarca de Braga, sem prejuízo do recurso a meios alternativos de resolução de conflitos.</p>

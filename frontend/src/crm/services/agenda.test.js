@@ -57,11 +57,11 @@ describe('hora sugerida ao marcar a partir da agenda', () => {
   });
 
   test('dia vazio propoe a abertura', () => {
-    expect(nextFreeHour(dia, [])).toBe('08:00');
+    expect(nextFreeHour(dia, [])).toBe('09:00');
   });
 
   test('propoe a seguir ao ultimo servico, nao ao primeiro', () => {
-    expect(nextFreeHour(dia, [svc('08:00', 60), svc('14:00', 120)])).toBe('16:00');
+    expect(nextFreeHour(dia, [svc('09:00', 60), svc('14:00', 120)])).toBe('16:00');
   });
 
   test('arredonda para a meia hora seguinte', () => {
@@ -75,10 +75,10 @@ describe('hora sugerida ao marcar a partir da agenda', () => {
   });
 
   test('dia cheio nao salta para o dia seguinte', () => {
-    expect(nextFreeHour(dia, [svc('16:00', 240)])).toBe('19:00');
+    expect(nextFreeHour(dia, [svc('16:00', 240)])).toBe('20:00');
   });
 
   test('ignora servicos sem data em vez de rebentar', () => {
-    expect(nextFreeHour(dia, [{ scheduled_at: null, duration_minutes: 60 }])).toBe('08:00');
+    expect(nextFreeHour(dia, [{ scheduled_at: null, duration_minutes: 60 }])).toBe('09:00');
   });
 });
