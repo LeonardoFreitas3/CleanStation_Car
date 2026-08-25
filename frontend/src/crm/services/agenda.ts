@@ -153,6 +153,60 @@ async function loadCalendarBlocks(from: string, to: string): Promise<CalendarBlo
   }
 }
 
+// ── Feriados ─────────────────────────────────────────────────────────────────
+//
+// ponytail: esta conta existe duas vezes, aqui e em supabase/functions/booking/
+// slots.ts, porque uma funcao Deno nao importa do frontend. Os testes dos dois
+// lados fixam as mesmas datas — se um dos lados derivar, o teto e um teste
+// vermelho e nao um erro silencioso.
+
+/** Domingo de Pascoa, algoritmo gregoriano anonimo. Daqui saem tres feriados. */
+function pascoa(ano: number): Date {
+  const a = ano % 19;
+  const b = Math.floor(ano / 100);
+  const c = ano % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mes = Math.floor((h + l - 7 * m + 114) / 31);
+  const dia = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(Date.UTC(ano, mes - 1, dia));
+}
+
+const diaIso = (d: Date) => d.toISOString().slice(0, 10);
+
+/** Feriados de um ano, em YYYY-MM-DD. Os fixos, os moveis e o de Braga. */
+export function feriados(ano: number): Set<string> {
+  const p = pascoa(ano);
+  const desloca = (dias: number) => diaIso(new Date(p.getTime() + dias * 86_400_000));
+
+  return new Set([
+    `${ano}-01-01`, `${ano}-04-25`, `${ano}-05-01`, `${ano}-06-10`,
+    `${ano}-08-15`, `${ano}-10-05`, `${ano}-11-01`, `${ano}-12-01`,
+    `${ano}-12-08`, `${ano}-12-25`,
+    desloca(-2), desloca(0), desloca(60),
+    // Sao Joao, feriado municipal de Braga.
+    `${ano}-06-24`,
+  ]);
+}
+
+/**
+ * Encerrado ao publico: domingo ou feriado.
+ *
+ * A agenda continua a deixar marcar nestes dias, como ja deixava ao domingo —
+ * ha trabalho combinado a parte. O que muda e o site nao os oferecer e a
+ * ocupacao nao os contar como dia por vender.
+ */
+export function isEncerrado(day: Date): boolean {
+  return day.getDay() === 0 || feriados(day.getFullYear()).has(dayKey(day));
+}
+
 /** Servico agendado sem duracao indicada. Duas horas e a lavagem comum — o
  *  mesmo valor por omissao que a Edge Function das marcacoes usa. */
 const DURACAO_OMISSAO = 120;
@@ -198,9 +252,10 @@ function fundir(intervalos: Intervalo[]): Intervalo[] {
  * prolonga pela manha.
  */
 export function dayOccupancy(day: Date, week: Pick<Week, 'services' | 'timeOff' | 'blocks'>): Occupancy {
-  // Domingo encerrado: nao ha capacidade nenhuma, e dividir por zero dava NaN
-  // no ecra em vez de um dia fechado.
-  if (day.getDay() === 0) return { busy: 0, capacity: 0, pct: 0 };
+  // Encerrado: nao ha capacidade nenhuma, e dividir por zero dava NaN no ecra
+  // em vez de um dia fechado. Um feriado contado como dia por vender fazia a
+  // semana do Natal parecer vazia quando estava fechada.
+  if (isEncerrado(day)) return { busy: 0, capacity: 0, pct: 0 };
 
   const abre = new Date(day); abre.setHours(OPENS, 0, 0, 0);
   const fecha = new Date(day); fecha.setHours(CLOSES, 0, 0, 0);

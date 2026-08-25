@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BellRing, BellOff, CalendarClock, CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
 import {
-  createTimeOff, dayKey, dayOccupancy, deleteTimeOff, loadWeek, nextFreeHour, timeOffDays,
+  createTimeOff, dayKey, dayOccupancy, deleteTimeOff, isEncerrado, loadWeek,
+  nextFreeHour, timeOffDays,
 } from '../services/agenda';
 import type { Week } from '../services/agenda';
 import { SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL } from '../services/services';
@@ -256,7 +257,7 @@ export default function Agenda() {
             const services = byDay.services.get(key) ?? [];
             const off = byDay.off.get(key) ?? [];
             const blocks = byDay.blocks.get(key) ?? [];
-            const closed = d.getDay() === 0;
+            const closed = isEncerrado(d);
             const ocupacao = week ? dayOccupancy(d, week) : null;
 
             return (
@@ -382,7 +383,9 @@ export default function Agenda() {
                 ))}
 
                 {!services.length && !off.length && (
-                  <p className="text-white/30 text-xs">{closed ? 'Encerrado' : 'Nada agendado'}</p>
+                  <p className="text-white/30 text-xs">
+                    {closed ? (d.getDay() === 0 ? 'Encerrado' : 'Feriado') : 'Nada agendado'}
+                  </p>
                 )}
               </Card>
             );

@@ -6,7 +6,7 @@
 // nada, apenas oferece ao cliente horas que já estão ocupadas.
 
 import { assertEquals } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { freeSlots, isClosed, lisbonOffset } from './slots.ts';
+import { feriados, freeSlots, isClosed, lisbonOffset } from './slots.ts';
 
 // Referência fixa, senão os testes mudam de resultado com o passar do dia.
 // Véspera, e não o próprio dia: não se marca para hoje, portanto um "agora"
@@ -77,4 +77,25 @@ Deno.test('dia inteiro e relativo ao horario, nao um numero fixo', () => {
   // 10h cabem num dia de 11h, mas num de 9h passam a ser servico de dia todo.
   assertEquals(freeSlots(SEGUNDA, 600, [], AGORA, { opens: 9, closes: 20 }).length > 1, true);
   assertEquals(freeSlots(SEGUNDA, 600, [], AGORA, { opens: 9, closes: 18 }), ['09:00']);
+});
+
+// As mesmas datas estao fixadas em frontend/src/crm/services/agenda.test.js. A
+// conta existe dos dois lados, e sao estes testes que a impedem de derivar.
+Deno.test('a Pascoa sai certa, e dela saem outros dois', () => {
+  assertEquals(feriados(2026).has('2026-04-05'), true); // domingo de Pascoa
+  assertEquals(feriados(2026).has('2026-04-03'), true); // Sexta-Feira Santa
+  assertEquals(feriados(2026).has('2026-06-04'), true); // Corpo de Deus
+  assertEquals(feriados(2027).has('2027-03-28'), true);
+});
+
+Deno.test('feriado fecha o dia, mesmo caindo a meio da semana', () => {
+  // 25 de dezembro de 2026 e uma sexta-feira.
+  assertEquals(isClosed('2026-12-25'), true);
+  assertEquals(freeSlots('2026-12-25', 60, [], new Date('2026-12-01T09:00:00Z')), []);
+  // A vespera e dia util e continua a dar vagas.
+  assertEquals(freeSlots('2026-12-24', 60, [], new Date('2026-12-01T09:00:00Z')).length > 0, true);
+});
+
+Deno.test('Sao Joao, feriado municipal de Braga', () => {
+  assertEquals(isClosed('2026-06-24'), true);
 });

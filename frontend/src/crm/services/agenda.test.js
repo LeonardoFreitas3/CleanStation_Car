@@ -1,7 +1,7 @@
 // A agenda erra em silencio: uma folga que nao aparece no dia certo continua a
 // mostrar um ecra bonito, so que errado. Correr com `npm test`.
 
-import { dayKey, dayOccupancy, nextFreeHour, setHorario, timeOffDays, weekDays, weekStart } from './agenda';
+import { dayKey, dayOccupancy, feriados, isEncerrado, nextFreeHour, setHorario, timeOffDays, weekDays, weekStart } from './agenda';
 
 const local = (s) => new Date(s);
 
@@ -193,5 +193,34 @@ describe('horario vindo das definicoes', () => {
   test('fechar antes de abrir e ignorado em vez de aceite', () => {
     setHorario(20, 9);
     expect(dayOccupancy(seg, vazia).capacity).toBe(660);
+  });
+});
+
+// As mesmas datas estao fixadas em supabase/functions/booking/slots.test.ts. A
+// conta existe dos dois lados, e sao estes testes que a impedem de derivar.
+describe('feriados', () => {
+  test('a Pascoa sai certa, e dela saem outros dois', () => {
+    expect(feriados(2026).has('2026-04-05')).toBe(true); // domingo de Pascoa
+    expect(feriados(2026).has('2026-04-03')).toBe(true); // Sexta-Feira Santa
+    expect(feriados(2026).has('2026-06-04')).toBe(true); // Corpo de Deus
+    expect(feriados(2027).has('2027-03-28')).toBe(true); // Pascoa do ano seguinte
+  });
+
+  test('os fixos e o de Braga', () => {
+    expect(feriados(2026).has('2026-12-25')).toBe(true);
+    expect(feriados(2026).has('2026-06-24')).toBe(true); // Sao Joao
+    expect(feriados(2026).has('2026-07-15')).toBe(false);
+  });
+
+  test('o Natal de 2026 e sexta-feira e mesmo assim esta encerrado', () => {
+    const natal = new Date('2026-12-25T00:00:00');
+    expect(natal.getDay()).toBe(5);
+    expect(isEncerrado(natal)).toBe(true);
+  });
+
+  test('feriado nao conta como dia por vender', () => {
+    const vazia = { services: [], timeOff: [], blocks: [] };
+    expect(dayOccupancy(new Date('2026-12-25T00:00:00'), vazia).capacity).toBe(0);
+    expect(dayOccupancy(new Date('2026-12-22T00:00:00'), vazia).capacity).toBe(660);
   });
 });

@@ -58,9 +58,79 @@ export function slotIso(dateIso: string, hour: number, minute: number): string {
   return `${dateIso}T${pad(hour)}:${pad(minute)}:00${lisbonOffset(dateIso)}`;
 }
 
-/** Domingo encerrado. getUTCDay() com meio-dia UTC evita saltos de fuso. */
+
+// ── Feriados ─────────────────────────────────────────────────────────────────
+//
+// Os Termos do site prometem "encerrado aos Domingos e feriados nacionais" — e
+// ate aqui so os domingos eram respeitados. O site vendia uma hora no dia 25 de
+// dezembro e alguem tinha de ligar ao cliente a desmarcar.
+//
+// Calculados e nao configurados: sao uma funcao do ano, iguais todos os anos
+// pelas mesmas regras. Uma tabela para os guardar era dar trabalho a alguem em
+// janeiro, todos os janeiros, para escrever o que ja se sabe.
+//
+// ponytail: esta conta existe duas vezes, aqui e no CRM, porque uma funcao Deno
+// nao importa do frontend. Os testes dos dois lados fixam as mesmas datas — se
+// um dos lados derivar, o teto e um teste vermelho e nao um erro silencioso.
+
+/**
+ * Domingo de Pascoa, algoritmo gregoriano anonimo.
+ *
+ * Nao ha atalho: a Pascoa e a primeira lua cheia depois do equinocio da
+ * primavera, e daqui saem tres feriados portugueses.
+ */
+function pascoa(ano: number): Date {
+  const a = ano % 19;
+  const b = Math.floor(ano / 100);
+  const c = ano % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mes = Math.floor((h + l - 7 * m + 114) / 31);
+  const dia = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(Date.UTC(ano, mes - 1, dia));
+}
+
+const diaIso = (d: Date) => d.toISOString().slice(0, 10);
+
+/** Feriados de um ano, em YYYY-MM-DD. Os fixos, os moveis e o de Braga. */
+export function feriados(ano: number): Set<string> {
+  const p = pascoa(ano);
+  const desloca = (dias: number) => diaIso(new Date(p.getTime() + dias * 86_400_000));
+
+  return new Set([
+    `${ano}-01-01`, // Ano Novo
+    `${ano}-04-25`, // Liberdade
+    `${ano}-05-01`, // Trabalhador
+    `${ano}-06-10`, // Portugal
+    `${ano}-08-15`, // Assuncao
+    `${ano}-10-05`, // Implantacao da Republica
+    `${ano}-11-01`, // Todos os Santos
+    `${ano}-12-01`, // Restauracao da Independencia
+    `${ano}-12-08`, // Imaculada Conceicao
+    `${ano}-12-25`, // Natal
+    desloca(-2),    // Sexta-Feira Santa
+    desloca(0),     // Domingo de Pascoa
+    desloca(60),    // Corpo de Deus
+    // Sao Joao, feriado municipal de Braga. A oficina e em Braga; noutra
+    // cidade esta linha sai.
+    `${ano}-06-24`,
+  ]);
+}
+
+export const isFeriado = (dateIso: string) => feriados(Number(dateIso.slice(0, 4))).has(dateIso);
+
+/** Domingo e feriado encerrados. getUTCDay() com meio-dia UTC evita saltos de
+ *  fuso. O CRM continua a deixar marcar nestes dias — ha trabalho combinado a
+ *  parte — mas o site nao os oferece a quem nao perguntou. */
 export function isClosed(dateIso: string): boolean {
-  return new Date(`${dateIso}T12:00:00Z`).getUTCDay() === 0;
+  return new Date(`${dateIso}T12:00:00Z`).getUTCDay() === 0 || isFeriado(dateIso);
 }
 
 /**
