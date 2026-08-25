@@ -128,6 +128,20 @@ async function handleCreate(body: Record<string, unknown>) {
     return json({ error: 'Data ou hora inválidas' }, 400);
   }
 
+  // Matricula obrigatoria: e ela que liga a marcacao a uma viatura no CRM. Ate
+  // aqui vinha adivinhada de um campo de texto livre, e quem escrevesse so
+  // "BMW" ficava sem viatura nenhuma — a ficha nascia orfa e alguem tinha de a
+  // ligar a mao.
+  //
+  // Validada por comprimento e nao pelo formato portugues: um carro espanhol em
+  // Braga e um cliente como outro qualquer, e recusar-lhe a marcacao para
+  // proteger um formato era trocar um cliente por um dado bem arrumado.
+  const plate = String(body.plate ?? '').trim().toUpperCase();
+  const plateNorm = plate.replace(/[^A-Z0-9]/g, '');
+  if (plateNorm.length < 4 || plateNorm.length > 10) {
+    return json({ error: 'Indique a matrícula da viatura' }, 400);
+  }
+
   const problems = Array.isArray(body.problems) ? body.problems as string[] : [];
   const isPack = Boolean(body.isPack);
 
@@ -174,7 +188,7 @@ async function handleCreate(body: Record<string, unknown>) {
     summary: `[CSC] ${levelLabel}${isPack ? ' (pack)' : ''} — ${name}`,
     description: [
       `Serviço: ${levelLabel}${isPack ? ' · pack 2x mês' : ''}`,
-      `Veículo: ${vehicleInfo || '-'}`,
+      `Veículo: ${[plate, vehicleInfo].filter(Boolean).join(' · ')}`,
       `Telefone: ${phone}`,
       `Email: ${email || '-'}`,
       `Estado assinalado: ${resolved.gradeLabel} (+${resolved.gradePct}%)`,
@@ -228,26 +242,33 @@ async function handleCreate(body: Record<string, unknown>) {
       clientId = data.id;
     }
 
-    // Viatura: só se o cliente escreveu alguma coisa, e só se ainda não existir
-    // uma igual. Sem matrícula não dá para deduplicar com rigor.
+    // Viatura: a matricula ja veio validada, portanto ha sempre uma. Procurada
+    // pela forma normalizada, que a coluna gerada mantem — "12-AB-34" e
+    // "12ab34" sao o mesmo carro e nao podem virar duas fichas.
+    //
+    // Procurada dentro deste cliente: a mesma matricula noutro cliente e o
+    // carro de familia mudado de titular, nao a mesma ficha.
     let vehicleId: string | null = null;
-    if (vehicleInfo) {
-      const plate = vehicleInfo.match(/\b[A-Z0-9]{2}[- ]?[A-Z0-9]{2}[- ]?[A-Z0-9]{2}\b/i)?.[0];
-      if (plate) {
-        const norm = plate.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-        const { data: existing } = await db.from('vehicles').select('id')
-          .eq('client_id', clientId).eq('plate_norm', norm).is('deleted_at', null)
-          .limit(1).maybeSingle();
-        if (existing) {
-          vehicleId = existing.id;
-        } else {
-          const { data } = await db.from('vehicles').insert({
-            client_id: clientId,
-            plate: plate.toUpperCase(),
-            notes: vehicleInfo,
-          }).select('id').single();
-          vehicleId = data?.id ?? null;
+    {
+      const { data: existing } = await db.from('vehicles').select('id')
+        .eq('client_id', clientId).eq('plate_norm', plateNorm).is('deleted_at', null)
+        .limit(1).maybeSingle();
+
+      if (existing) {
+        vehicleId = existing.id;
+        // Ja existia sem marca nem modelo e agora o cliente indicou-os: guarda,
+        // sem apagar o que la estivesse.
+        if (vehicleInfo) {
+          await db.from('vehicles').update({ notes: vehicleInfo })
+            .eq('id', existing.id).is('notes', null);
         }
+      } else {
+        const { data } = await db.from('vehicles').insert({
+          client_id: clientId,
+          plate,
+          notes: vehicleInfo || null,
+        }).select('id').single();
+        vehicleId = data?.id ?? null;
       }
     }
 
@@ -266,7 +287,6 @@ async function handleCreate(body: Record<string, unknown>) {
       notes: [
         notes,
         problems.length ? `Assinalado pelo cliente: ${problems.join(', ')}` : '',
-        vehicleInfo && !vehicleId ? `Viatura indicada: ${vehicleInfo}` : '',
         `Marcação do site · evento ${eventId}`,
       ].filter(Boolean).join('\n'),
     }).select('reference').single();
@@ -295,7 +315,7 @@ async function handleCreate(body: Record<string, unknown>) {
     }),
     time,
     durationLabel: formatDuration(duration),
-    vehicle: vehicleInfo,
+    vehicle: [plate, vehicleInfo].filter(Boolean).join(' · '),
     price,
     gradeLabel: resolved.gradeLabel,
     gradePct: resolved.gradePct || undefined,

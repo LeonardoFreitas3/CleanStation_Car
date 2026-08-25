@@ -172,7 +172,7 @@ export default function Booking({ open, onClose }) {
   const [slots, setSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  const [form, setForm] = useState({ name: '', phone: '', email: '', car: '', notes: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', plate: '', car: '', notes: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [done, setDone] = useState(null);
@@ -180,7 +180,7 @@ export default function Booking({ open, onClose }) {
   const reset = useCallback(() => {
     setStep(0); setVehicleId(null); setLevelId(null); setPack(null); setProblems([]);
     setDate(''); setTime(''); setSlots([]); setError(null); setDone(null);
-    setForm({ name: '', phone: '', email: '', car: '', notes: '' });
+    setForm({ name: '', phone: '', email: '', plate: '', car: '', notes: '' });
   }, []);
 
   useEffect(() => { if (open) reset(); }, [open, reset]);
@@ -222,12 +222,17 @@ export default function Booking({ open, onClose }) {
   const interiorCount = INTERIOR_PROBLEMS.filter((p) => problems.includes(p.id)).length;
   const exteriorCount = EXTERIOR_PROBLEMS.filter((p) => problems.includes(p.id)).length;
 
+  // Validada por comprimento e nao pelo formato portugues: um carro espanhol em
+  // Braga e um cliente como outro qualquer. O servidor valida da mesma maneira —
+  // isto e so para nao deixar carregar em Confirmar e levar com o erro depois.
+  const plateOk = form.plate.replace(/[^A-Za-z0-9]/g, '').length >= 4;
+
   const canAdvance = [
     Boolean(vehicleId),
     Boolean(levelId),
     true,                       // avaliação é opcional
     Boolean(date && time),
-    form.name.trim() && form.phone.replace(/\D/g, '').length >= 9,
+    form.name.trim() && form.phone.replace(/\D/g, '').length >= 9 && plateOk,
   ][step];
 
   const submit = async () => {
@@ -239,6 +244,7 @@ export default function Booking({ open, onClose }) {
         phone: form.phone.trim(),
         email: form.email.trim() || null,
         vehicleType: vehicleId,
+        plate: form.plate.trim(),
         vehicleInfo: form.car.trim() || null,
         levelId,
         levelLabel: LEVEL_BY_ID[levelId]?.label,
@@ -493,7 +499,10 @@ export default function Booking({ open, onClose }) {
                     { k: 'name', label: 'Nome *', ph: 'O seu nome', type: 'text' },
                     { k: 'phone', label: 'Telefone *', ph: '+351 …', type: 'tel' },
                     { k: 'email', label: 'Email', ph: 'email@exemplo.pt', type: 'email' },
-                    { k: 'car', label: 'Viatura', ph: 'Ex.: BMW Série 3 · 12-AB-34', type: 'text' },
+                    // Separada da marca e modelo: e a matricula que identifica o
+                    // carro, e num campo unico de texto livre ficava a adivinhar.
+                    { k: 'plate', label: 'Matrícula *', ph: '12-AB-34', type: 'text' },
+                    { k: 'car', label: 'Marca e modelo', ph: 'Ex.: BMW Série 3', type: 'text' },
                   ].map((f) => (
                     <div key={f.k}>
                       <label htmlFor={f.k} className="block text-[10px] tracking-[0.28em] text-white/50 mb-2 uppercase">
