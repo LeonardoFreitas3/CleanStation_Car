@@ -5,6 +5,9 @@ import {
   SERVICE_FILTERS, SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, listServices,
 } from '../services/services';
 import type { ServiceFilter } from '../services/services';
+import { listAssignable } from '../services/team';
+import type { Assignable } from '../services/team';
+import { useAuth } from '../contexts/AuthContext';
 import { eur } from '../lib/format';
 import { Alert, Button, PageTitle, Spinner } from '../components/ui';
 import type { ServiceWithRelations } from '../types';
@@ -17,21 +20,39 @@ function hourOf(iso: string | null): string {
 }
 
 export default function Services() {
+  const { profile } = useAuth();
   const [filter, setFilter] = useState<ServiceFilter>('hoje');
   const [page, setPage] = useState(0);
+
+  // O funcionario abre a lista no que lhe toca; quem distribui abre em toda a
+  // gente, que e o que precisa de ver para distribuir. Nenhum dos dois fica
+  // preso: a caixa muda para qualquer pessoa ou para todos.
+  const [employeeId, setEmployeeId] = useState(
+    profile?.role === 'employee' ? profile.id : '',
+  );
+  const [team, setTeam] = useState<Assignable[]>([]);
 
   const [rows, setRows] = useState<ServiceWithRelations[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => { setPage(0); }, [filter]);
+  useEffect(() => { setPage(0); }, [filter, employeeId]);
+
+  // A lista de nomes nao muda enquanto se navega: carregada uma vez. Falhar
+  // aqui nao pode partir os servicos — fica-se sem a caixa, ve-se tudo.
+  useEffect(() => { listAssignable().then(setTeam).catch(() => setTeam([])); }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await listServices({ filter, page, pageSize: PAGE_SIZE });
+      const result = await listServices({
+        filter,
+        page,
+        pageSize: PAGE_SIZE,
+        employeeId: employeeId || undefined,
+      });
       setRows(result.rows);
       setTotal(result.total);
     } catch (e) {
@@ -39,7 +60,7 @@ export default function Services() {
     } finally {
       setLoading(false);
     }
-  }, [filter, page]);
+  }, [filter, page, employeeId]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -71,6 +92,24 @@ export default function Services() {
             {f.label}
           </button>
         ))}
+
+        {/* Ao lado dos filtros e nao por baixo: e a mesma pergunta — que
+            servicos e que quero ver. */}
+        {team.length > 1 && (
+          <select
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value)}
+            aria-label="Filtrar por funcionário"
+            className="shrink-0 bg-black/60 border border-white/15 focus:border-blue-500 outline-none px-3 py-2 text-[11px] tracking-[0.15em] uppercase font-semibold text-white/70 rounded-sm transition"
+          >
+            <option value="">Toda a equipa</option>
+            {team.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.id === profile?.id ? 'Os meus' : (t.full_name || '(sem nome)')}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {error && <div className="mb-6"><Alert tone="error">{error}</Alert></div>}
@@ -80,7 +119,9 @@ export default function Services() {
       {!loading && !error && rows.length === 0 && (
         <div className="border border-dashed border-white/15 rounded-md p-10 text-center">
           <p className="text-white/60 text-sm">Nenhum serviço nesta vista.</p>
-          <p className="text-white/35 text-xs mt-2">Experimente outro filtro.</p>
+          <p className="text-white/35 text-xs mt-2">
+            {employeeId ? 'Experimente outro filtro, ou toda a equipa.' : 'Experimente outro filtro.'}
+          </p>
         </div>
       )}
 

@@ -27,6 +27,18 @@ import Settings from './pages/Settings';
  * permissoes" — o dashboard e de admin e gestor. Sem sessao vai na mesma para
  * /crm, que trata de o levar ao login.
  */
+/**
+ * A raiz do CRM e o Dashboard, que o funcionario nao pode ver. Mandava-lhe um
+ * "Sem permissoes" a cara — de um link antigo, de um favorito, de escrever /crm
+ * a mao. Um erro nao e pagina de entrada de ninguem: vai para a Agenda, que e o
+ * que ele abre todos os dias.
+ */
+function Home() {
+  const { profile } = useAuth();
+  if (profile?.role === 'employee') return <Navigate to="/crm/agenda" replace />;
+  return <Dashboard />;
+}
+
 function HomeRedirect() {
   const { profile } = useAuth();
   return <Navigate to={profile ? homeForRole(profile.role) : CRM_BASE} replace />;
@@ -79,14 +91,7 @@ export default function CrmApp() {
             </ProtectedRoute>
           }
         >
-          <Route
-            index
-            element={
-              <RoleGuard allow={['admin', 'manager']}>
-                <Dashboard />
-              </RoleGuard>
-            }
-          />
+          <Route index element={<Home />} />
           <Route path="agenda" element={<Agenda />} />
 
           <Route path="servicos" element={<Services />} />
