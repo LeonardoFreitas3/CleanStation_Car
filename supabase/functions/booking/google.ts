@@ -193,3 +193,48 @@ export async function deleteEvent(eventId: string): Promise<void> {
     throw new Error(`Não foi possível apagar o evento: ${await res.text()}`);
   }
 }
+
+export interface CalendarEvent {
+  id: string;
+  summary: string;
+  startIso: string;
+  endIso: string;
+}
+
+/**
+ * Eventos de uma janela, com titulo — ao contrario do busyPeriods, que so
+ * devolve os intervalos ocupados e serve para calcular vagas.
+ *
+ * singleEvents expande as series repetidas em ocorrencias: sem isso, um evento
+ * semanal vinha uma vez so, com a data da primeira ocorrencia, e a Agenda
+ * mostrava-o na semana errada.
+ *
+ * Os eventos de dia inteiro trazem `date` em vez de `dateTime`. Ficam com o dia
+ * as 00:00, que e como a Agenda os desenha.
+ */
+export async function listEvents(timeMin: string, timeMax: string): Promise<CalendarEvent[]> {
+  const token = await accessToken();
+
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId())}/events`,
+  );
+  url.searchParams.set('timeMin', timeMin);
+  url.searchParams.set('timeMax', timeMax);
+  url.searchParams.set('singleEvents', 'true');
+  url.searchParams.set('orderBy', 'startTime');
+  url.searchParams.set('maxResults', '250');
+
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`Não foi possível ler o calendário: ${await res.text()}`);
+
+  const data = await res.json();
+
+  return (data.items ?? [])
+    .filter((e: { status?: string }) => e.status !== 'cancelled')
+    .map((e: Record<string, any>) => ({
+      id: String(e.id),
+      summary: String(e.summary ?? '(sem título)'),
+      startIso: e.start?.dateTime ?? `${e.start?.date}T00:00:00`,
+      endIso: e.end?.dateTime ?? `${e.end?.date}T00:00:00`,
+    }));
+}

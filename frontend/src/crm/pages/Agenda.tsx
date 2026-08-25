@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
+import { CalendarClock, CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
 import {
   createTimeOff, dayKey, deleteTimeOff, loadWeek, nextFreeHour, timeOffDays,
 } from '../services/agenda';
@@ -51,7 +51,8 @@ export default function Agenda() {
   const byDay = useMemo(() => {
     const services = new Map<string, Week['services']>();
     const off = new Map<string, Week['timeOff']>();
-    if (!week) return { services, off };
+    const blocks = new Map<string, Week['blocks']>();
+    if (!week) return { services, off, blocks };
 
     for (const s of week.services) {
       if (!s.scheduled_at) continue;
@@ -61,7 +62,14 @@ export default function Agenda() {
     for (const o of week.timeOff) {
       for (const k of timeOffDays(o)) off.set(k, [...(off.get(k) ?? []), o]);
     }
-    return { services, off };
+    // Um bloqueio do Google entra no dia em que comeca. Nao se parte por dias
+    // como as folgas: e quase sempre uma hora ou duas, e parti-lo dava tres
+    // linhas iguais para dizer a mesma coisa.
+    for (const b of week.blocks) {
+      const k = dayKey(new Date(b.startIso));
+      blocks.set(k, [...(blocks.get(k) ?? []), b]);
+    }
+    return { services, off, blocks };
   }, [week]);
 
   const shiftWeek = (weeks: number) => setAnchor((a) => {
@@ -208,6 +216,7 @@ export default function Agenda() {
             const key = dayKey(d);
             const services = byDay.services.get(key) ?? [];
             const off = byDay.off.get(key) ?? [];
+            const blocks = byDay.blocks.get(key) ?? [];
             const closed = d.getDay() === 0;
 
             return (
@@ -255,6 +264,23 @@ export default function Agenda() {
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
+                  </div>
+                ))}
+
+                {/* So o que existe no Google e nao tem ficha ca: um bloqueio
+                    feito pelo telemovel, uma ida ao fornecedor. Sem botao de
+                    apagar de proposito — quem o criou foi o Google, e e la que
+                    se mexe. */}
+                {blocks.map((b) => (
+                  <div
+                    key={b.id}
+                    className="flex items-center gap-2 mb-2 px-3 py-2 border border-white/10 bg-white/[0.03] rounded-sm"
+                  >
+                    <CalendarClock className="w-4 h-4 text-white/40 shrink-0" />
+                    <span className="text-white/50 text-sm tabular-nums shrink-0">
+                      {hour(b.startIso)}–{hour(b.endIso)}
+                    </span>
+                    <span className="text-white/60 text-sm truncate">{b.summary}</span>
                   </div>
                 ))}
 

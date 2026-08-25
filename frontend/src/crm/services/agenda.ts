@@ -89,10 +89,49 @@ export function nextFreeHour(
   return `${pad(slot.getHours())}:${pad(slot.getMinutes())}`;
 }
 
+/** Evento que existe so no Google: sem ficha no CRM e sem folga que lhe toque. */
+export interface CalendarBlock {
+  id: string;
+  summary: string;
+  startIso: string;
+  endIso: string;
+}
+
 export interface Week {
   days: Date[];
   services: ServiceWithRelations[];
   timeOff: TimeOff[];
+  /** Vazio se o Google nao respondeu — a semana mostra-se na mesma. */
+  blocks: CalendarBlock[];
+}
+
+/**
+ * Bloqueios que so existem no calendario.
+ *
+ * Nao lanca: o Google e informacao a mais na Agenda, nao a Agenda. Se estiver
+ * em baixo, a semana mostra-se com os servicos e as folgas, como sempre
+ * mostrou, em vez de dar erro por causa de um extra.
+ */
+async function loadCalendarBlocks(from: string, to: string): Promise<CalendarBlock[]> {
+  try {
+    const { data: { session } } = await getSupabase().auth.getSession();
+    if (!session) return [];
+
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/booking/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ from, to }),
+    });
+
+    if (!res.ok) return [];
+    return ((await res.json())?.events ?? []) as CalendarBlock[];
+  } catch {
+    return [];
+  }
 }
 
 export async function loadWeek(anchor: Date): Promise<Week> {
@@ -101,7 +140,7 @@ export async function loadWeek(anchor: Date): Promise<Week> {
   const to = new Date(days[6].getTime() + 24 * 3600_000).toISOString();
 
   const db = getSupabase();
-  const [services, off] = await Promise.all([
+  const [services, off, blocks] = await Promise.all([
     db.from('services')
       .select(SELECT_WITH_RELATIONS)
       .is('deleted_at', null)
@@ -115,6 +154,7 @@ export async function loadWeek(anchor: Date): Promise<Week> {
       .lt('starts_at', to)
       .gt('ends_at', from)
       .order('starts_at'),
+    loadCalendarBlocks(from, to),
   ]);
 
   if (services.error) throw new Error(friendlyError(services.error));
@@ -124,6 +164,7 @@ export async function loadWeek(anchor: Date): Promise<Week> {
     days,
     services: (services.data ?? []) as unknown as ServiceWithRelations[],
     timeOff: (off.data ?? []) as TimeOff[],
+    blocks,
   };
 }
 

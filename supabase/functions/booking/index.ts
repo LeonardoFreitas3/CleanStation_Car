@@ -8,7 +8,7 @@
 // A resposta de availability devolve só horas — nenhum dado de nenhum cliente.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
-import { busyPeriods, createEvent, deleteEvent } from './google.ts';
+import { busyPeriods, createEvent, deleteEvent, listEvents } from './google.ts';
 import { formatDuration, freeSlots, isClosed, slotIso } from './slots.ts';
 import type { Busy } from './slots.ts';
 import { sendConfirmation } from './email.ts';
@@ -259,6 +259,10 @@ async function handleCreate(body: Record<string, unknown>) {
       status: 'agendado',
       scheduled_at: new Date(startIso).toISOString(),
       duration_minutes: duration,
+      // Guardado em coluna, e nao so na linha de texto das notas: e por aqui
+      // que a Agenda sabe que este evento do Google ja tem ficha e nao o deve
+      // mostrar outra vez como bloqueio.
+      google_event_id: eventId,
       notes: [
         notes,
         problems.length ? `Assinalado pelo cliente: ${problems.join(', ')}` : '',
@@ -364,6 +368,41 @@ async function handleTimeOffRemove(req: Request, body: Record<string, unknown>) 
   return json({ ok: true });
 }
 
+
+/**
+ * Eventos do calendario que ainda nao tem correspondencia no CRM.
+ *
+ * A Agenda ja mostra os servicos e as folgas, que sao a mesma coisa vista do
+ * lado da base de dados. O que falta la e o que existe *so* no Google: um
+ * bloqueio feito pelo telemovel, uma ida ao fornecedor, o que for. Devolver
+ * tudo fazia cada marcacao do site aparecer duas vezes.
+ *
+ * O cruzamento e por id, guardado no services.google_event_id e no
+ * time_off.google_event_id. Marcacoes anteriores a essas colunas nao cruzam e
+ * aparecem como bloqueio — visivel de mais em vez de escondido por engano.
+ */
+async function handleEvents(req: Request, body: Record<string, unknown>) {
+  if (!await staffOrNull(req)) return json({ error: 'Sessão inválida ou expirada' }, 401);
+
+  const from = String(body.from ?? '');
+  const to = String(body.to ?? '');
+  if (!from || !to) return json({ error: 'Janela por indicar' }, 400);
+
+  const db = admin();
+  const [events, services, off] = await Promise.all([
+    listEvents(from, to),
+    db.from('services').select('google_event_id').not('google_event_id', 'is', null),
+    db.from('time_off').select('google_event_id').not('google_event_id', 'is', null),
+  ]);
+
+  const conhecidos = new Set<string>([
+    ...(services.data ?? []).map((r: { google_event_id: string }) => r.google_event_id),
+    ...(off.data ?? []).map((r: { google_event_id: string }) => r.google_event_id),
+  ]);
+
+  return json({ events: events.filter((e) => !conhecidos.has(e.id)) });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'Método não suportado' }, 405);
@@ -377,6 +416,7 @@ Deno.serve(async (req) => {
     if (action === 'create') return await handleCreate(body);
     if (action === 'time-off') return await handleTimeOffSync(req, body);
     if (action === 'time-off-remove') return await handleTimeOffRemove(req, body);
+    if (action === 'events') return await handleEvents(req, body);
     return json({ error: 'Endpoint desconhecido' }, 404);
   } catch (e) {
     // O detalhe vai para os logs, não para o visitante: as mensagens do Google
