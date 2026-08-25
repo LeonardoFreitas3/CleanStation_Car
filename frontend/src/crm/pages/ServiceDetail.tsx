@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, Pencil,
+  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, Pencil, Share2,
 } from 'lucide-react';
 import {
   SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus,
@@ -11,6 +11,8 @@ import { getSupabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';
 import { ServiceTimeline } from '../components/ServiceTimeline';
 import { PhotoUploader } from '../components/PhotoUploader';
+import { revokeGallery, shareGallery } from '../services/photos';
+import { logMessage } from '../services/messages';
 import { MessageSender } from '../components/MessageSender';
 import { listAssignable } from '../services/team';
 import type { Assignable } from '../services/team';
@@ -240,7 +242,10 @@ export default function ServiceDetail() {
       )}
 
       <div className="mt-8">
-        <div className="text-[10px] tracking-[0.28em] text-white/50 uppercase mb-4">Fotografias</div>
+        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <div className="text-[10px] tracking-[0.28em] text-white/50 uppercase">Fotografias</div>
+          <GalleryShare service={service} onChange={load} />
+        </div>
         <PhotoUploader serviceId={service.id} />
       </div>
 
@@ -292,5 +297,103 @@ export default function ServiceDetail() {
         </Card>
       )}
     </>
+  );
+}
+
+/**
+ * Link publico das fotografias, para mandar ao cliente.
+ *
+ * Num negocio que vende detalhe, o antes-e-depois e o argumento de venda — e
+ * ate aqui ficava fechado no CRM. O link e por servico, tem prazo, e pode ser
+ * cortado a qualquer momento.
+ *
+ * A mensagem fica registada como as outras: quem abrir a ficha do cliente ve
+ * que lhe foram mandadas as fotografias, e quando.
+ */
+function GalleryShare({ service, onChange }: {
+  service: ServiceWithRelations;
+  onChange: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [url, setUrl] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const wa = whatsappNumber(service.client?.phone);
+  const partilhado = Boolean(service.share_token);
+
+  const partilhar = async () => {
+    setBusy(true);
+    setErro(null);
+    try {
+      const { url: novo } = await shareGallery(service.id);
+      setUrl(novo);
+      await navigator.clipboard?.writeText(novo).catch(() => {});
+      onChange();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível criar o link.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const revogar = async () => {
+    setBusy(true);
+    try {
+      await revokeGallery(service.id);
+      setUrl(null);
+      onChange();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível revogar.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const ligacao = url ?? (service.share_token ? `${window.location.origin}/galeria/${service.share_token}` : null);
+  const mensagem = ligacao
+    ? `Olá ${service.client?.name?.split(' ')[0] ?? ''}! As fotografias do seu ${service.vehicle?.make ?? 'carro'}: ${ligacao}`
+    : '';
+
+  return (
+    <div className="flex items-center gap-3 flex-wrap">
+      {erro && <span className="text-red-400 text-xs">{erro}</span>}
+
+      {ligacao && wa && (
+        <a
+          href={`https://wa.me/${wa}?text=${encodeURIComponent(mensagem)}`}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => logMessage({
+            clientId: service.client!.id,
+            serviceId: service.id,
+            content: mensagem,
+          }).catch(() => {})}
+          className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-xs transition"
+        >
+          <MessageCircle className="w-3.5 h-3.5" /> Enviar ao cliente
+        </a>
+      )}
+
+      <button
+        type="button"
+        onClick={partilhar}
+        disabled={busy}
+        className="inline-flex items-center gap-2 text-white/50 hover:text-blue-400 text-xs transition disabled:opacity-50"
+      >
+        <Share2 className="w-3.5 h-3.5" />
+        {partilhado ? 'Renovar link' : 'Criar link'}
+      </button>
+
+      {partilhado && (
+        <button
+          type="button"
+          onClick={revogar}
+          disabled={busy}
+          className="text-white/35 hover:text-red-400 text-xs transition disabled:opacity-50"
+        >
+          Revogar
+        </button>
+      )}
+    </div>
   );
 }

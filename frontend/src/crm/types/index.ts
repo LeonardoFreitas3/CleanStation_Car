@@ -97,6 +97,9 @@ export interface Service {
   employee_id: string | null;
   /** Quando saiu o lembrete da vespera. Null: ainda nao saiu. */
   reminded_at: string | null;
+  /** Token da galeria publica. Null: nunca foi partilhada, ou foi revogada. */
+  share_token: string | null;
+  share_expires_at: string | null;
   service_type_id: string | null;
   /** Instantaneo do catalogo: o historico nao pode mudar se o preco mudar. */
   service_name: string;

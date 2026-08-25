@@ -133,3 +133,49 @@ export const PHOTO_TYPE_LABEL: Record<PhotoType, string> = {
   during: 'Durante',
   after: 'Depois',
 };
+
+/** Trinta dias. Um link partilhado num grupo fica la para sempre; com prazo,
+ *  deixa de servir sozinho. Renovar e voltar a partilhar. */
+const PARTILHA_DIAS = 30;
+
+export interface Share {
+  url: string;
+  expiraEm: string;
+}
+
+/**
+ * Cria (ou renova) o link publico das fotografias de um servico.
+ *
+ * O token e um UUID: 122 bits ao acaso, nada para adivinhar. Gerado aqui e nao
+ * no servidor porque nao ha nada de secreto no acto de o gerar — o que protege
+ * e o tamanho do espaco, e a coluna e unica.
+ *
+ * Renovar mantem o token: quem ja recebeu o link continua a poder abri-lo, que
+ * e o que se quer quando se renova. Para cortar o acesso ha o revogar.
+ */
+export async function shareGallery(serviceId: string): Promise<Share> {
+  const db = getSupabase();
+
+  const { data: atual } = await db.from('services')
+    .select('share_token').eq('id', serviceId).maybeSingle();
+
+  const token = atual?.share_token ?? crypto.randomUUID();
+  const expiraEm = new Date(Date.now() + PARTILHA_DIAS * 86_400_000).toISOString();
+
+  const { error } = await db.from('services')
+    .update({ share_token: token, share_expires_at: expiraEm })
+    .eq('id', serviceId);
+
+  if (error) throw new Error(friendlyError(error));
+
+  return { url: `${window.location.origin}/galeria/${token}`, expiraEm };
+}
+
+/** Corta o acesso. O link deixa de abrir para toda a gente que o tenha. */
+export async function revokeGallery(serviceId: string): Promise<void> {
+  const { error } = await getSupabase().from('services')
+    .update({ share_token: null, share_expires_at: null })
+    .eq('id', serviceId);
+
+  if (error) throw new Error(friendlyError(error));
+}

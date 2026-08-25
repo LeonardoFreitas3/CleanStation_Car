@@ -22,6 +22,7 @@ import { SITE_URL, businessSchema, faqSchema, seoText } from './seo';
 // Carregado a pedido: o CRM traz o supabase-js atras, e quem visita o site
 // publico nao tem de descarregar nada disso.
 const CrmApp = lazy(() => import('./crm/CrmApp'));
+const Galeria = lazy(() => import('./gallery/Galeria'));
 
 // Tambem a pedido: o formulario de marcacao so pesa para quem o abre.
 const Booking = lazy(() => import('./booking/Booking'));
@@ -145,6 +146,16 @@ function App() {
             element={
               <Suspense fallback={<div className="min-h-screen bg-black" />}>
                 <CrmApp />
+              </Suspense>
+            }
+          />
+          {/* Publica de proposito: quem recebe o link nao tem conta nenhuma.
+              O token e que da acesso, e so aquele servico. */}
+          <Route
+            path="/galeria/:token"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-black" />}>
+                <Galeria />
               </Suspense>
             }
           />
