@@ -134,6 +134,18 @@ export default function ServiceForm() {
       .catch(() => { /* segue sem pre-seleccao */ });
   }, [params, isEdit]);
 
+  // Tipo de servico pre-seleccionado quando se repete um servico anterior.
+  // Passa pelo selectType e nao pelo setTypeId em bruto: e ele que puxa o preco
+  // do catalogo, e sem isso o servico repetido nascia a zero euros.
+  useEffect(() => {
+    const preset = params.get('tipo');
+    if (!preset || isEdit || !catalogue.services.length) return;
+    if (catalogue.services.some((t) => t.id === preset)) selectType(preset);
+    // selectType depende do catalogo e do tamanho da viatura, que ja estao
+    // resolvidos quando o catalogo chega.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, isEdit, catalogue.services]);
+
   // Em edicao, carrega o servico existente. O cliente nao muda: trocar o dono
   // de um servico ja registado corrompia o historico e a faturacao dele.
   useEffect(() => {

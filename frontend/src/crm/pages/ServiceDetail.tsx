@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, Pencil, Share2,
+  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, Pencil, Share2, RotateCcw,
 } from 'lucide-react';
 import {
   SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus,
@@ -238,6 +238,21 @@ export default function ServiceDetail() {
               <Ban className="w-4 h-4" /> Cancelar
             </Button>
           </div>
+
+          {/* Repetir e o caso comum de quem tem pack ou cliente habitual: o
+              mesmo carro, o mesmo servico, noutro dia. Leva tudo preenchido
+              menos a data — essa escolhe-se a olhar para a ocupacao da semana,
+              nao a adivinhar aqui. */}
+          {['concluido', 'entregue'].includes(service.status) && service.client && (
+            <Link
+              to={`/crm/servicos/novo?cliente=${service.client.id}`
+                + (service.vehicle ? `&viatura=${service.vehicle.id}` : '')
+                + (service.service_type_id ? `&tipo=${service.service_type_id}` : '')}
+              className="inline-flex items-center gap-2 text-white/50 hover:text-blue-400 text-xs transition"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Repetir este serviço
+            </Link>
+          )}
         </div>
       )}
 
