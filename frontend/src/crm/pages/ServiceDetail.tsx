@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, Pencil, Share2, RotateCcw,
+  BadgeEuro, Undo2,
 } from 'lucide-react';
 import {
-  SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus,
+  SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus, setPaid,
   updateServiceStatus,
 } from '../services/services';
 import { getSupabase } from '../lib/supabase';
@@ -80,6 +81,23 @@ export default function ServiceDetail() {
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível cancelar.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Quem recebe o dinheiro e quem esta ao balcao, portanto o botao e para
+  // qualquer staff — ver o comentario da 0026. O total por cobrar e que fica no
+  // dashboard, fechado ao funcionario desde o 0015.
+  const togglePaid = async () => {
+    if (!service) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await setPaid(service.id, !service.paid_at);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível registar o pagamento.');
     } finally {
       setBusy(false);
     }
@@ -303,6 +321,32 @@ export default function ServiceDetail() {
             <dd className="text-white font-display text-lg font-bold">{eur(service.total)}</dd>
           </div>
         </dl>
+
+        {/* So depois de o trabalho estar feito. Marcar como pago um servico que
+            ainda esta na lavagem e registar um facto que ainda nao aconteceu —
+            e a lista "Por cobrar" so olha para os acabados de qualquer forma. */}
+        {['concluido', 'entregue'].includes(service.status) && (
+          <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between gap-3 flex-wrap">
+            {service.paid_at ? (
+              <span className="text-emerald-400 text-sm inline-flex items-center gap-2">
+                <BadgeEuro className="w-4 h-4" /> Pago em {date(service.paid_at)}
+              </span>
+            ) : (
+              <span className="text-amber-400 text-sm inline-flex items-center gap-2">
+                <BadgeEuro className="w-4 h-4" /> Por cobrar
+              </span>
+            )}
+            <Button
+              variant={service.paid_at ? 'secondary' : 'primary'}
+              onClick={togglePaid}
+              loading={busy}
+            >
+              {service.paid_at
+                ? <><Undo2 className="w-4 h-4" /> Afinal não pagou</>
+                : <><BadgeEuro className="w-4 h-4" /> Marcar como pago</>}
+            </Button>
+          </div>
+        )}
       </Card>
 
       {service.notes && (

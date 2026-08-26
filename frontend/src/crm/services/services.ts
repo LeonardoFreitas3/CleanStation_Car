@@ -41,7 +41,7 @@ export const SERVICE_STATUS_CLASS: Record<ServiceStatus, string> = {
 export const IN_PROGRESS: ServiceStatus[] = SERVICE_FLOW.slice(1, 8);
 
 export type ServiceFilter =
-  | 'hoje' | 'amanha' | 'semana' | 'em_curso' | 'concluidos' | 'cancelados' | 'todos';
+  | 'hoje' | 'amanha' | 'semana' | 'em_curso' | 'concluidos' | 'por_cobrar' | 'cancelados' | 'todos';
 
 export const SERVICE_FILTERS: Array<{ value: ServiceFilter; label: string }> = [
   { value: 'hoje', label: 'Hoje' },
@@ -49,9 +49,22 @@ export const SERVICE_FILTERS: Array<{ value: ServiceFilter; label: string }> = [
   { value: 'semana', label: 'Esta semana' },
   { value: 'em_curso', label: 'Em curso' },
   { value: 'concluidos', label: 'Concluídos' },
+  { value: 'por_cobrar', label: 'Por cobrar' },
   { value: 'cancelados', label: 'Cancelados' },
   { value: 'todos', label: 'Todos' },
 ];
+
+/**
+ * Le o filtro que vem no ?filtro= do endereco.
+ *
+ * Existe porque o dashboard aponta para listas concretas — carregar em "Por
+ * cobrar" tem de trazer os que estao por cobrar. O que vem no endereco e
+ * escrito por quem quiser: um valor que nao exista tem de cair no de sempre,
+ * nao passar adiante e devolver uma lista sem filtro nenhum.
+ */
+export function parseFilter(raw: string | null): ServiceFilter {
+  return SERVICE_FILTERS.some((f) => f.value === raw) ? (raw as ServiceFilter) : 'hoje';
+}
 
 // O !employee_id nao e decorativo: services tem DUAS chaves estrangeiras para
 // profiles — employee_id e created_by. Sem dizer qual, o PostgREST recusa o
@@ -111,6 +124,10 @@ export async function listServices({
     q = q.in('status', IN_PROGRESS);
   } else if (filter === 'concluidos') {
     q = q.in('status', ['concluido', 'entregue']);
+  } else if (filter === 'por_cobrar') {
+    // Acabados e sem carimbo. Um servico a decorrer ainda nao e uma divida, e
+    // um cancelado nunca chegou a ser.
+    q = q.in('status', ['concluido', 'entregue']).is('paid_at', null);
   } else if (filter === 'cancelados') {
     q = q.eq('status', 'cancelado');
   }
@@ -121,8 +138,13 @@ export async function listServices({
   // Agendados por hora; o resto pelo mais recente.
   const orderColumn = ['hoje', 'amanha', 'semana'].includes(filter) ? 'scheduled_at' : 'created_at';
 
+  // A divida mais antiga primeiro, ao contrario dos outros filtros: numa lista
+  // de cobrancas o que interessa e quem espera ha mais tempo, nao quem acabou
+  // agora.
+  const ascending = orderColumn === 'scheduled_at' || filter === 'por_cobrar';
+
   const { data, error, count } = await q
-    .order(orderColumn, { ascending: orderColumn === 'scheduled_at' })
+    .order(orderColumn, { ascending })
     .range(page * pageSize, page * pageSize + pageSize - 1);
 
   if (error) throw new Error(friendlyError(error));
@@ -228,6 +250,22 @@ export async function updateServiceStatus(id: string, status: ServiceStatus): Pr
 
   if (error) throw new Error(friendlyError(error));
   return data as Service;
+}
+
+/**
+ * Carimba ou tira o carimbo do pagamento.
+ *
+ * Reversivel de proposito: quem carrega por engano tem de poder desfazer, e um
+ * pagamento marcado ao servico errado e a maneira mais facil de a lista de
+ * cobrancas deixar de valer alguma coisa.
+ */
+export async function setPaid(id: string, paid: boolean): Promise<void> {
+  const { error } = await getSupabase()
+    .from('services')
+    .update({ paid_at: paid ? new Date().toISOString() : null })
+    .eq('id', id);
+
+  if (error) throw new Error(friendlyError(error));
 }
 
 /** Proximo estado do fluxo, ou null se ja acabou ou foi cancelado. */

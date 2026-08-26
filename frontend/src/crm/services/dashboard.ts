@@ -26,6 +26,9 @@ export interface DashboardStats {
   scheduled_today: number;
   in_progress: number;
   follow_ups: number;
+  /** Servicos acabados e por pagar, de sempre e nao so deste mes. */
+  unpaid_count: number;
+  unpaid_total: number;
   top_services: TopService[];
   revenue_by_month: MonthRevenue[];
 }

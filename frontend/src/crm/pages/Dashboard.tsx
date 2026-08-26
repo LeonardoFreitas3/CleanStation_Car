@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  TrendingUp, TrendingDown, Users, Wrench, Euro, Receipt, BellRing, Clock, Plus,
+  TrendingUp, TrendingDown, Users, Wrench, Euro, Receipt, BellRing, Clock, Plus, BadgeEuro,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { getDashboardStats, variation } from '../services/dashboard';
@@ -77,10 +77,19 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <Stat label="Agendados hoje" value={String(stats.scheduled_today)} icon={Clock} to="/crm/servicos" />
         <Stat label="Em curso" value={String(stats.in_progress)} icon={Wrench} to="/crm/servicos" />
         <Stat label="A contactar" value={String(stats.follow_ups)} icon={BellRing} to="/crm/follow-ups" />
+        {/* Fica na fila de cima, com o trabalho do dia, e nao em "Este mes":
+            uma divida de marco continua a ser divida hoje, e por baixo de um
+            titulo que diz "Este mes" lia-se como se nao fosse. */}
+        <Stat
+          label="Por cobrar"
+          value={eur(stats.unpaid_total)}
+          icon={BadgeEuro}
+          to="/crm/servicos?filtro=por_cobrar"
+        />
         <Stat label="Clientes" value={String(stats.clients_total)} icon={Users} to="/crm/clientes" />
       </div>
 

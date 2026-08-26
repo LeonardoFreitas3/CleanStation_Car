@@ -26,6 +26,7 @@ No **SQL Editor** do Supabase, uma de cada vez, por ordem. Estão em
 | `0023_horario_nas_definicoes.sql` | Horário editável nas Definições |
 | `0024_lembrete_de_manutencao.sql` | Prazo de repetição no catálogo, e quem está à espera de ser lembrado |
 | `0025_pedir_avaliacao.sql` | Data de entrega a sério, endereço da avaliação e quem está à espera de ser convidado |
+| `0026_saber_quem_ficou_a_dever.sql` | Marca de pagamento no serviço, e o total por cobrar no dashboard |
 
 **A `0016` faz um `update` a sério** — atribui ao João os serviços por atribuir.
 Antes de a correr, vale a pena ver quantos são:
@@ -48,6 +49,17 @@ A `0025` **altera o `stamp_service_dates`**, o trigger do `0001` que carimba as
 datas de um serviço. As duas datas que ele já escrevia ficam exatamente como
 estavam; ganha uma terceira, o `delivered_at`, e faz o backfill dos serviços já
 entregues a partir do `completed_at`.
+
+**A `0026` reescreve o `dashboard_stats()`** — uma função `language sql` não se
+remenda por pedaços. O corpo é o da `0015` com dois campos a mais e a guarda do
+`is_manager()` intacta; se tiveres mexido nessa função à mão, essa alteração
+perde-se aqui.
+
+**No primeiro dia, a lista "Por cobrar" traz o histórico todo.** É a resposta
+honesta: ninguém carimbou nada, portanto a base de dados não sabe que estão
+pagos. Ou se carimbam à mão os que interessam, ou se corre o `update` comentado
+no fim da `0026` — que dá tudo por pago até hoje e deixa só o que vier a seguir.
+**Olha para a lista primeiro.**
 
 Nem a `0024` nem a `0025` têm de correr antes do deploy da `lembretes`, ao
 contrário da `0018`: a função apanha a falta de cada uma, escreve-a nos logs e
@@ -253,6 +265,13 @@ vão coladas no build, a partir do `frontend/.env.local`.
 - [ ] Pôr `{{veiculo}}` num modelo de reativação e tentar guardar: tem de
       recusar, a dizer que essa mensagem não sabe preencher a variável.
 - [ ] Com a sessão do João (funcionário), as Definições continuam fechadas.
+- [ ] Num serviço concluído, "Marcar como pago" carimba a data, e "Afinal não
+      pagou" desfaz.
+- [ ] O filtro **Por cobrar** na lista de serviços traz os acabados por pagar,
+      do mais antigo para o mais recente.
+- [ ] No dashboard, o cartão **Por cobrar** abre essa lista já filtrada.
+- [ ] Com a sessão do João, o `dashboard_stats` continua a devolver `null` — ele
+      carrega no botão do pagamento mas não vê a soma por cobrar.
 - [ ] Guardar um endereço de avaliação sem `https://` dá erro em português.
 - [ ] Passar um serviço a **entregue** e confirmar que o `delivered_at` ficou
       preenchido: `select delivered_at from services where id = '…'`.

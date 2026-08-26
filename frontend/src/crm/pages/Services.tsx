@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Plus, Car, User, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import {
-  SERVICE_FILTERS, SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, listServices,
+  SERVICE_FILTERS, SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, listServices, parseFilter,
 } from '../services/services';
 import type { ServiceFilter } from '../services/services';
 import { listAssignable } from '../services/team';
@@ -21,7 +21,13 @@ function hourOf(iso: string | null): string {
 
 export default function Services() {
   const { profile } = useAuth();
-  const [filter, setFilter] = useState<ServiceFilter>('hoje');
+  const [params] = useSearchParams();
+
+  // O ?filtro= existe para o dashboard poder apontar para uma lista concreta —
+  // carregar em "Por cobrar" tem de trazer os que estao por cobrar, e nao os de
+  // hoje. Lido uma vez, no arranque: a partir dai manda quem carrega nos
+  // botoes, senao o filtro voltava atras sozinho.
+  const [filter, setFilter] = useState<ServiceFilter>(() => parseFilter(params.get('filtro')));
   const [page, setPage] = useState(0);
 
   // O funcionario abre a lista no que lhe toca; quem distribui abre em toda a

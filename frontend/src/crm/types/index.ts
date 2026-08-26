@@ -112,6 +112,11 @@ export interface Service {
   delivered_at: string | null;
   /** Quando saiu o pedido de avaliacao. Null: ainda nao saiu. */
   review_requested_at: string | null;
+  /**
+   * Quando o cliente pagou. Null e por cobrar — nunca se carimba sozinho, ver
+   * a 0026: um carimbo automatico dizia que estava tudo pago sempre.
+   */
+  paid_at: string | null;
   /** Token da galeria publica. Null: nunca foi partilhada, ou foi revogada. */
   share_token: string | null;
   share_expires_at: string | null;
