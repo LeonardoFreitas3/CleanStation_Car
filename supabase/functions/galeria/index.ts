@@ -78,7 +78,10 @@ Deno.serve(async (req) => {
   const { data: signed } = await db.storage.from('service-photos').createSignedUrls(paths, TTL);
   const urlPorCaminho = new Map((signed ?? []).map((s: { path: string | null; signedUrl: string }) => [s.path, s.signedUrl]));
 
-  const vehicle = service.vehicle as { make: string | null; model: string | null } | null;
+  // Pelo `unknown`: o PostgREST devolve um objeto nesta relacao, mas os tipos
+  // do supabase-js descrevem qualquer join como lista. O `as` direto nao passa
+  // entre os dois, e o que esta certo e o que chega em tempo de execucao.
+  const vehicle = service.vehicle as unknown as { make: string | null; model: string | null } | null;
 
   return json({
     servico: service.service_name,

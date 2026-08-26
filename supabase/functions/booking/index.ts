@@ -185,8 +185,11 @@ async function handleCreate(body: Record<string, unknown>) {
 
   const { price, duration } = resolved;
 
-  const [h, m] = time.split(':').map(Number);
-  const startIso = slotIso(date, h, m);
+  // hora/minuto por extenso e nao h/m: o `h` desta funcao passou a colidir com
+  // o do horario, e duas constantes com o mesmo nome no mesmo bloco nao sao um
+  // aviso de estilo — sao um erro de sintaxe que rebenta a funcao inteira.
+  const [hora, minuto] = time.split(':').map(Number);
+  const startIso = slotIso(date, hora, minuto);
   const endIso = new Date(new Date(startIso).getTime() + duration * 60_000).toISOString();
 
   if (new Date(startIso).getTime() <= Date.now()) {
