@@ -166,17 +166,11 @@ async function handleCreate(body: Record<string, unknown>) {
     return json({ error: 'Indique a matrícula da viatura' }, 400);
   }
 
-  const isPack = Boolean(body.isPack);
-
   // Preço e duração vêm do catálogo do servidor, nunca do pedido. O corpo só
   // traz ids; se mandarem price:1 e duration:15, é ignorado.
   let resolved;
   try {
-    resolved = resolve(
-      String(body.vehicleType ?? ''),
-      String(body.levelId ?? ''),
-      isPack,
-    );
+    resolved = resolve(String(body.vehicleType ?? ''), String(body.levelId ?? ''));
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : 'Serviço inválido' }, 400);
   }
@@ -211,9 +205,9 @@ async function handleCreate(body: Record<string, unknown>) {
   // seguir, o pior caso é uma marcação sem ficha — recuperável à mão. Ao
   // contrário, uma ficha sem marcação passava despercebida.
   const eventId = await createEvent({
-    summary: `[CSC] ${levelLabel}${isPack ? ' (pack)' : ''} — ${name}`,
+    summary: `[CSC] ${levelLabel} — ${name}`,
     description: [
-      `Serviço: ${levelLabel}${isPack ? ' · pack 2x mês' : ''}`,
+      `Serviço: ${levelLabel}`,
       `Veículo: ${[plate, vehicleInfo].filter(Boolean).join(' · ')}`,
       `Telefone: ${phone}`,
       `Email: ${email || '-'}`,
@@ -299,7 +293,7 @@ async function handleCreate(body: Record<string, unknown>) {
     const { data: service, error: serviceError } = await db.from('services').insert({
       client_id: clientId,
       vehicle_id: vehicleId,
-      service_name: `${levelLabel}${isPack ? ' (pack)' : ''}`,
+      service_name: levelLabel,
       price,
       status: 'agendado',
       scheduled_at: new Date(startIso).toISOString(),
@@ -331,7 +325,6 @@ async function handleCreate(body: Record<string, unknown>) {
     email,
     reference,
     serviceTitle: levelLabel,
-    isPack,
     dateLabel: new Date(startIso).toLocaleDateString('pt-PT', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
       timeZone: 'Europe/Lisbon',

@@ -4,25 +4,27 @@ import {
 } from 'lucide-react';
 import {
   VEHICLE_TYPES, VEHICLE_BY_ID, LEVEL_BY_ID,
-  levelsFor, packsFor, computeQuote, durationFor, formatDuration, eur,
+  levelsFor, computeQuote, durationFor, formatDuration, eur,
 } from './pricing';
 import { fetchAvailability, createBooking } from './api';
 import useModalDialog from '../useModalDialog';
 
-// Houve aqui um passo "Estado": quinze caixas de problemas que o cliente
-// assinalava e que subiam o preço 30% ou 75%, conforme quantas fossem. Saiu em
-// agosto de 2026, por decisão do negócio — o preço do site é o da tabela, e o
-// que a viatura precisar a mais orça-se ao vê-la. Saiu inteiro: o ecrã, o
-// multiplicador do pricing.js e o do catalogue.ts da Edge Function.
+// Duas coisas saíram daqui em agosto de 2026, por decisão do negócio, e as
+// duas saíram inteiras — ecrã, cálculo do site e cálculo da Edge Function:
+//
+//   O passo "Estado", quinze caixas de problemas que o cliente assinalava e que
+//   subiam o preço 30% ou 75% conforme quantas fossem. O preço do site é o da
+//   tabela, e o que a viatura precisar a mais orça-se ao vê-la.
+//
+//   Os packs de duas lavagens por mês, com preço fechado, que apareciam por
+//   baixo dos níveis no passo do serviço.
 const STEPS = ['Veículo', 'Serviço', 'Data', 'Dados'];
 
 /**
- * Os tipos saem do proprio pricing.js, com ReturnType, em vez de serem
- * escritos outra vez aqui. Um pack tem seis campos e um orcamento nove; copia-
- * los era garantir que um dia discordavam do calculo — e o calculo e que manda,
- * que e ele que tem os testes.
+ * O tipo sai do proprio pricing.js, com ReturnType, em vez de ser escrito outra
+ * vez aqui: copia-lo era garantir que um dia discordava do calculo — e o
+ * calculo e que manda, que e ele que tem os testes.
  */
-type Pack = ReturnType<typeof packsFor>[number];
 type Quote = ReturnType<typeof computeQuote>;
 
 interface FormState {
@@ -210,7 +212,6 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
   const [step, setStep] = useState(0);
   const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [levelId, setLevelId] = useState<string | null>(null);
-  const [pack, setPack] = useState<Pack | null>(null);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [slots, setSlots] = useState<string[]>([]);
@@ -222,7 +223,7 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
   const [done, setDone] = useState<BookingResult | null>(null);
 
   const reset = useCallback(() => {
-    setStep(0); setVehicleId(null); setLevelId(null); setPack(null);
+    setStep(0); setVehicleId(null); setLevelId(null);
     setDate(''); setTime(''); setSlots([]); setError(null); setDone(null);
     setForm({ name: '', phone: '', email: '', plate: '', car: '', notes: '' });
   }, []);
@@ -241,8 +242,8 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
 
   const duration = vehicleId && levelId ? durationFor(vehicleId, levelId) : 60;
   const quote: Quote | null = useMemo(
-    () => (vehicleId && levelId ? computeQuote({ vehicleId, levelId, pack }) : null),
-    [vehicleId, levelId, pack],
+    () => (vehicleId && levelId ? computeQuote({ vehicleId, levelId }) : null),
+    [vehicleId, levelId],
   );
 
   // Trocar de dia obriga a repetir a consulta: a duração e a ocupação mudam.
@@ -292,7 +293,6 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
         vehicleInfo: form.car.trim() || null,
         levelId,
         levelLabel: level?.label,
-        isPack: Boolean(pack),
         date,
         time,
         duration,
@@ -367,7 +367,7 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
                       <Choice
                         key={v.id}
                         active={vehicleId === v.id}
-                        onClick={() => { setVehicleId(v.id); setLevelId(null); setPack(null); }}
+                        onClick={() => { setVehicleId(v.id); setLevelId(null); }}
                       >
                         <span className="flex items-center gap-3">
                           <Icon className="w-6 h-6 text-blue-400 shrink-0" strokeWidth={1.4} />
@@ -382,65 +382,32 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
                 </div>
               )}
 
-              {/* 2 — Nível e packs */}
+              {/* 2 — Nível */}
               {step === 1 && vehicleId && (
-                <>
-                  <div className="space-y-2">
-                    {levelsFor(vehicleId).map((l) => (
-                      <Choice
-                        key={l.id}
-                        active={levelId === l.id && !pack}
-                        onClick={() => { setLevelId(l.id); setPack(null); }}
-                        className="w-full"
-                      >
-                        <span className="flex items-start justify-between gap-3 pr-5">
-                          <span className="min-w-0">
-                            <span className="block text-sm font-semibold">{l.label}</span>
-                            <span className="block text-white/45 text-xs mt-1">{l.desc}</span>
-                            <span className="block text-white/30 text-[11px] mt-1.5">
-                              <Clock className="w-3 h-3 inline mr-1" />
-                              {formatDuration(durationFor(vehicleId, l.id))}
-                            </span>
-                          </span>
-                          <span className="font-display text-blue-300 text-lg font-bold shrink-0">
-                            {eur(l.price)}
+                <div className="space-y-2">
+                  {levelsFor(vehicleId).map((l) => (
+                    <Choice
+                      key={l.id}
+                      active={levelId === l.id}
+                      onClick={() => setLevelId(l.id)}
+                      className="w-full"
+                    >
+                      <span className="flex items-start justify-between gap-3 pr-5">
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold">{l.label}</span>
+                          <span className="block text-white/45 text-xs mt-1">{l.desc}</span>
+                          <span className="block text-white/30 text-[11px] mt-1.5">
+                            <Clock className="w-3 h-3 inline mr-1" />
+                            {formatDuration(durationFor(vehicleId, l.id))}
                           </span>
                         </span>
-                      </Choice>
-                    ))}
-                  </div>
-
-                  {packsFor(vehicleId).length > 0 && (
-                    <>
-                      <div className="text-white/45 text-[10px] tracking-[0.3em] uppercase mt-6 mb-3">
-                        Packs · 2 lavagens por mês
-                      </div>
-                      <div className="space-y-2">
-                        {packsFor(vehicleId).map((p) => (
-                          <Choice
-                            key={p.id}
-                            active={pack?.id === p.id}
-                            onClick={() => { setPack(p); setLevelId(p.levelId); }}
-                            className="w-full"
-                          >
-                            <span className="flex items-center justify-between gap-3 pr-5">
-                              <span>
-                                <span className="block text-sm font-semibold">{p.label}</span>
-                                <span className="block text-emerald-400/80 text-xs mt-1">
-                                  Poupa {eur(p.saving)} face a duas lavagens
-                                </span>
-                              </span>
-                              <span className="text-right shrink-0">
-                                <span className="block font-display text-blue-300 text-lg font-bold">{eur(p.price)}</span>
-                                <span className="block text-white/25 text-[11px] line-through">{eur(p.avulso)}</span>
-                              </span>
-                            </span>
-                          </Choice>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </>
+                        <span className="font-display text-blue-300 text-lg font-bold shrink-0">
+                          {eur(l.price)}
+                        </span>
+                      </span>
+                    </Choice>
+                  ))}
+                </div>
               )}
 
               {/* 3 — Data e hora */}
@@ -539,7 +506,6 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
           <div className="px-5 py-3 border-t border-white/10 bg-black/40 flex items-center justify-between gap-4">
             <div className="min-w-0 text-xs text-white/50 truncate">
               {vehicle?.label} · {level?.label}
-              {pack && ' · pack'}
             </div>
             <div className="text-right shrink-0">
               <div className="text-[9px] tracking-[0.2em] text-white/35 uppercase">Estimativa</div>
