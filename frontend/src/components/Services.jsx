@@ -96,10 +96,6 @@ export default function Services() {
             </div>
           );
         })}
-
-        <p className="text-center text-white/35 text-xs mt-10 tracking-[0.2em]">
-          {t('services.note')}
-        </p>
       </div>
 
       <ServiceDetail
