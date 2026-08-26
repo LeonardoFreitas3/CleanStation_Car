@@ -1,0 +1,68 @@
+# Verificação automática do que entra no main.
+#
+# Porque existe: tudo o que está neste repositório desde maio foi escrito e
+# dado como bom por testes que só corriam quando alguém se lembrava de os
+# correr. Da primeira vez que isto correu apanhou três erros de compilação na
+# `booking` — dois `const h` no mesmo bloco, que não são um aviso de estilo mas
+# um erro de sintaxe que rebenta a função inteira. Estavam no `main` há dias, à
+# espera do deploy.
+#
+# São duas verificações e nenhuma precisa de segredos: nada aqui fala com o
+# Supabase, com o Google ou com o Brevo. Não publica nada — publicar continua a
+# ser um acto de quem lê o IMPLANTACAO.md.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  site:
+    name: Site e CRM
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # `ci` e não `install`: instala o que está no package-lock e falha se ele
+      # discordar do package.json, em vez de o corrigir em silêncio.
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm test -- --watchAll=false
+
+      # O build é o que apanha o que o tsc não vê: o ESLint do CRA corre aqui, e
+      # com CI=true — que o GitHub define sozinho — um aviso passa a erro. É
+      # também a única forma de saber que o site ainda compila antes de alguém
+      # arrastar a pasta para a Netlify.
+      - run: npm run build
+
+  funcoes:
+    name: Edge Functions
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      # As Edge Functions nunca foram verificadas por nada: o `tsc` do frontend
+      # não lhes toca e o deploy do Supabase empacota com esbuild, que remove os
+      # tipos sem os conferir. Publicava-se código que não compila.
+      - run: deno check supabase/functions/*/index.ts supabase/functions/booking/slots.test.ts
+
+      - run: deno test supabase/functions/booking/slots.test.ts
