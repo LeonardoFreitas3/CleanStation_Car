@@ -192,7 +192,38 @@ export const PROCESS = [
 // Formato de cada entrada:
 //   { name, rating, text, date, car? }
 // A seccao nao aparece no site enquanto o array estiver vazio.
-export const TESTIMONIALS = [];
+export const TESTIMONIALS = [
+  {
+    name: 'carlos sá',
+    rating: 5,
+    text: 'Excelente serviço! O carro ficou impecável, parece que saiu novo do stand. Nota-se o cuidado e o profissionalismo em todos os pormenores da limpeza.',
+  },
+  {
+    name: 'Bruno Macedo',
+    rating: 5,
+    text: 'Serviço incrível! Fui muito bem atendido e a lavagem da minha mota ficou impecável.',
+  },
+  {
+    name: 'Rita Ribeiro',
+    rating: 5,
+    text: 'Serviço espetacular! O carro ficou como novo, tanto por dentro como por fora. Nota-se o cuidado com cada detalhe e a qualidade dos produtos utilizados.',
+  },
+  {
+    name: 'Márcio Aguiar',
+    rating: 5,
+    text: 'Serviço excelente! Levei o carro bastante sujo e ficou impecável, parecia outro carro.',
+  },
+  {
+    name: 'Ernesto André Fernandes',
+    rating: 5,
+    text: 'Serviço topo! Um espaço para o cuidado da limpeza auto mesmo no centro da cidade. Recomendado.',
+  },
+  {
+    name: 'Ana Alves',
+    rating: 5,
+    text: 'Um trabalho impecável, o carro ficou novo. Excelente trabalho, continuem assim!',
+  },
+];
 
 export const EXTRAS = [
   { id: 'pelos-animal',    label: 'Remoção de Pêlo de Animal',        price: 20, icon: PawPrint },

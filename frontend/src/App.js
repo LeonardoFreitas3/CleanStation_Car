@@ -102,10 +102,10 @@ function Home() {
       <Header />
       <main>
         <Hero onBook={() => setBooking(true)} />
+        <Testimonials />
         <Services />
         <AboutSection />
         <Process />
-        <Testimonials />
         <Faq />
         <ContactMap />
       </main>
