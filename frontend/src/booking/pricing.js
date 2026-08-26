@@ -192,6 +192,15 @@ export function eur(n) {
  *
  * Num pack o grau não se aplica: é um preço fechado de duas lavagens por mês,
  * e aplicar-lhe um acréscimo de 75% descaracterizava a assinatura.
+ *
+ * O @param existe para quem chama isto de TypeScript. Sem ele, o `pack = null`
+ * dizia ao compilador que o único valor aceite era null, e passar-lhe um pack
+ * a sério — que é para o que serve — deixava de compilar. O tipo do pack sai
+ * do próprio packsFor em vez de ser escrito outra vez, para não haver duas
+ * versões da mesma coisa.
+ *
+ * @param {{ vehicleId: string, levelId: string, problemIds?: string[],
+ *           pack?: ReturnType<typeof packsFor>[number] | null }} params
  */
 export function computeQuote({ vehicleId, levelId, problemIds = [], pack = null }) {
   if (pack) {

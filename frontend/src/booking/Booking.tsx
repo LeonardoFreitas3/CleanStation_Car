@@ -13,17 +13,52 @@ import useModalDialog from '../useModalDialog';
 
 const STEPS = ['Veículo', 'Serviço', 'Estado', 'Data', 'Dados'];
 
+/**
+ * Os tipos saem do proprio pricing.js, com ReturnType, em vez de serem
+ * escritos outra vez aqui. Um pack tem seis campos e um orcamento nove; copia-
+ * los era garantir que um dia discordavam do calculo — e o calculo e que manda,
+ * que e ele que tem os testes.
+ */
+type Pack = ReturnType<typeof packsFor>[number];
+type Quote = ReturnType<typeof computeQuote>;
+
+interface FormState {
+  name: string;
+  phone: string;
+  email: string;
+  plate: string;
+  car: string;
+  notes: string;
+}
+
+/** O que a Edge Function devolve. So a referencia e lida deste lado. */
+interface BookingResult {
+  reference?: number | null;
+}
+
+/** Os campos do ultimo passo. A chave e do FormState: um campo a mais aqui sem
+ *  o campo correspondente no estado deixa de compilar. */
+const CAMPOS: Array<{ k: keyof FormState; label: string; ph: string; type: string }> = [
+  { k: 'name', label: 'Nome *', ph: 'O seu nome', type: 'text' },
+  { k: 'phone', label: 'Telefone *', ph: '+351 …', type: 'tel' },
+  { k: 'email', label: 'Email', ph: 'email@exemplo.pt', type: 'email' },
+  // Separada da marca e modelo: e a matricula que identifica o
+  // carro, e num campo unico de texto livre ficava a adivinhar.
+  { k: 'plate', label: 'Matrícula *', ph: '12-AB-34', type: 'text' },
+  { k: 'car', label: 'Marca e modelo', ph: 'Ex.: BMW Série 3', type: 'text' },
+];
+
 const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
 /** ISO local (YYYY-MM-DD). toISOString() daria o dia errado a partir das 23h. */
-function isoDate(d) {
-  const pad = (n) => String(n).padStart(2, '0');
+function isoDate(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-function Stepper({ current }) {
+function Stepper({ current }: { current: number }) {
   return (
     <div className="flex items-center gap-1 px-5 py-3 border-b border-white/10 overflow-x-auto">
       {STEPS.map((label, i) => (
@@ -51,7 +86,14 @@ function Stepper({ current }) {
   );
 }
 
-function Choice({ active, onClick, children, className = '' }) {
+interface ChoiceProps {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  className?: string;
+}
+
+function Choice({ active, onClick, children, className = '' }: ChoiceProps) {
   return (
     <button
       type="button"
@@ -73,7 +115,7 @@ function Choice({ active, onClick, children, className = '' }) {
   );
 }
 
-function Calendar({ value, onChange }) {
+function Calendar({ value, onChange }: { value: string; onChange: (iso: string) => void }) {
   const [month, setMonth] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -87,7 +129,7 @@ function Calendar({ value, onChange }) {
     const last = new Date(month.getFullYear(), month.getMonth() + 1, 0);
     // getDay() devolve 0 para domingo; a grelha começa à segunda.
     const lead = (first.getDay() + 6) % 7;
-    const cells = Array(lead).fill(null);
+    const cells: Array<Date | null> = Array(lead).fill(null);
     for (let d = 1; d <= last.getDate(); d++) {
       cells.push(new Date(month.getFullYear(), month.getMonth(), d));
     }
@@ -161,21 +203,21 @@ function Calendar({ value, onChange }) {
   );
 }
 
-export default function Booking({ open, onClose }) {
+export default function Booking({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [step, setStep] = useState(0);
-  const [vehicleId, setVehicleId] = useState(null);
-  const [levelId, setLevelId] = useState(null);
-  const [pack, setPack] = useState(null);
-  const [problems, setProblems] = useState([]);
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
+  const [levelId, setLevelId] = useState<string | null>(null);
+  const [pack, setPack] = useState<Pack | null>(null);
+  const [problems, setProblems] = useState<string[]>([]);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [slots, setSlots] = useState([]);
+  const [slots, setSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  const [form, setForm] = useState({ name: '', phone: '', email: '', plate: '', car: '', notes: '' });
+  const [form, setForm] = useState<FormState>({ name: '', phone: '', email: '', plate: '', car: '', notes: '' });
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [done, setDone] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<BookingResult | null>(null);
 
   const reset = useCallback(() => {
     setStep(0); setVehicleId(null); setLevelId(null); setPack(null); setProblems([]);
@@ -196,7 +238,7 @@ export default function Booking({ open, onClose }) {
   );
 
   const duration = vehicleId && levelId ? durationFor(vehicleId, levelId) : 60;
-  const quote = useMemo(
+  const quote: Quote | null = useMemo(
     () => (vehicleId && levelId ? computeQuote({ vehicleId, levelId, problemIds: problems, pack }) : null),
     [vehicleId, levelId, problems, pack],
   );
@@ -216,8 +258,15 @@ export default function Booking({ open, onClose }) {
 
   if (!open) return null;
 
-  const toggleProblem = (id) =>
+  const toggleProblem = (id: string) =>
     setProblems((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+
+  // Resolvidos uma vez, e nao a cada sitio que precisa do rotulo: os ids
+  // podem ser nulos e o TypeScript nao deixa indexar com null — o que estava
+  // escrito antes era `LEVEL_BY_ID[levelId]?.label` em dois sitios, a apanhar
+  // com o `?.` um caso que nao era esse.
+  const vehicle = vehicleId ? VEHICLE_BY_ID[vehicleId] : null;
+  const level = levelId ? LEVEL_BY_ID[levelId] : null;
 
   const interiorCount = INTERIOR_PROBLEMS.filter((p) => problems.includes(p.id)).length;
   const exteriorCount = EXTERIOR_PROBLEMS.filter((p) => problems.includes(p.id)).length;
@@ -232,7 +281,7 @@ export default function Booking({ open, onClose }) {
     Boolean(levelId),
     true,                       // avaliação é opcional
     Boolean(date && time),
-    form.name.trim() && form.phone.replace(/\D/g, '').length >= 9 && plateOk,
+    Boolean(form.name.trim() && form.phone.replace(/\D/g, '').length >= 9 && plateOk),
   ][step];
 
   const submit = async () => {
@@ -247,7 +296,7 @@ export default function Booking({ open, onClose }) {
         plate: form.plate.trim(),
         vehicleInfo: form.car.trim() || null,
         levelId,
-        levelLabel: LEVEL_BY_ID[levelId]?.label,
+        levelLabel: level?.label,
         isPack: Boolean(pack),
         date,
         time,
@@ -260,10 +309,13 @@ export default function Booking({ open, onClose }) {
       });
       setDone(res);
     } catch (e) {
-      setError(e.message);
+      // `e` é unknown, e não uma Error: um throw de outra coisa qualquer não
+      // tem .message, e o que aparecia ao cliente era um ecrã em branco.
+      const msg = e instanceof Error ? e.message : 'Não foi possível marcar. Tente novamente.';
+      setError(msg);
       // Volta ao passo da data: o mais provável é a hora ter sido ocupada
       // entretanto, e é lá que se escolhe outra.
-      if (/dispon|ocupad/i.test(e.message)) setStep(3);
+      if (/dispon|ocupad/i.test(msg)) setStep(3);
     } finally {
       setSaving(false);
     }
@@ -415,7 +467,10 @@ export default function Booking({ open, onClose }) {
                     />
                   </div>
 
-                  {[['Interior', INTERIOR_PROBLEMS, interiorCount], ['Exterior', EXTERIOR_PROBLEMS, exteriorCount]]
+                  {([
+                    ['Interior', INTERIOR_PROBLEMS, interiorCount],
+                    ['Exterior', EXTERIOR_PROBLEMS, exteriorCount],
+                  ] as const)
                     .map(([title, list, count]) => (
                       <div key={title} className="mb-5">
                         <div className="flex items-center justify-between mb-2">
@@ -495,15 +550,7 @@ export default function Booking({ open, onClose }) {
               {/* 5 — Dados */}
               {step === 4 && (
                 <div className="space-y-4">
-                  {[
-                    { k: 'name', label: 'Nome *', ph: 'O seu nome', type: 'text' },
-                    { k: 'phone', label: 'Telefone *', ph: '+351 …', type: 'tel' },
-                    { k: 'email', label: 'Email', ph: 'email@exemplo.pt', type: 'email' },
-                    // Separada da marca e modelo: e a matricula que identifica o
-                    // carro, e num campo unico de texto livre ficava a adivinhar.
-                    { k: 'plate', label: 'Matrícula *', ph: '12-AB-34', type: 'text' },
-                    { k: 'car', label: 'Marca e modelo', ph: 'Ex.: BMW Série 3', type: 'text' },
-                  ].map((f) => (
+                  {CAMPOS.map((f) => (
                     <div key={f.k}>
                       <label htmlFor={f.k} className="block text-[10px] tracking-[0.28em] text-white/50 mb-2 uppercase">
                         {f.label}
@@ -553,7 +600,7 @@ export default function Booking({ open, onClose }) {
         {!done && quote && (
           <div className="px-5 py-3 border-t border-white/10 bg-black/40 flex items-center justify-between gap-4">
             <div className="min-w-0 text-xs text-white/50 truncate">
-              {VEHICLE_BY_ID[vehicleId]?.label} · {LEVEL_BY_ID[levelId]?.label}
+              {vehicle?.label} · {level?.label}
               {pack && ' · pack'}
               {!pack && quote.pct > 0 && (
                 <span className="text-amber-400"> · {quote.gradeLabel} +{quote.pct}%</span>

@@ -14,8 +14,15 @@ import { useEffect, useRef } from 'react';
  *        para formulários a meio, onde fechar por engano deita fora o que a
  *        pessoa escreveu.
  */
-export default function useModalDialog(open, onClose, blockEscape) {
-  const ref = useRef(null);
+export default function useModalDialog(
+  open: boolean,
+  onClose: () => void,
+  blockEscape?: () => boolean,
+) {
+  // Tipado como <dialog> e não como null: é o que o JSX precisa de saber para
+  // aceitar este ref, e é a única coisa que o showModal() e o close() abaixo
+  // podem estar a chamar.
+  const ref = useRef<HTMLDialogElement>(null);
 
   // Guardados em refs para o efeito não se voltar a montar a cada render: quem
   // usa isto passa funções novas de cada vez, e reinstalar os ouvintes a meio
@@ -36,7 +43,7 @@ export default function useModalDialog(open, onClose, blockEscape) {
     // Os ouvintes ficam no próprio elemento e não nas props do JSX: 'close' e
     // 'cancel' não borbulham, e a delegação de eventos do React depende disso.
     const handleClose = () => onCloseRef.current();
-    const handleCancel = (e) => { if (blockRef.current && blockRef.current()) e.preventDefault(); };
+    const handleCancel = (e: Event) => { if (blockRef.current && blockRef.current()) e.preventDefault(); };
     el.addEventListener('close', handleClose);
     el.addEventListener('cancel', handleCancel);
 
