@@ -4,14 +4,17 @@ import {
 } from 'lucide-react';
 import {
   VEHICLE_TYPES, VEHICLE_BY_ID, LEVEL_BY_ID,
-  INTERIOR_PROBLEMS, EXTERIOR_PROBLEMS, PROBLEM_LABEL,
   levelsFor, packsFor, computeQuote, durationFor, formatDuration, eur,
 } from './pricing';
 import { fetchAvailability, createBooking } from './api';
-import CarVisual from './CarVisual';
 import useModalDialog from '../useModalDialog';
 
-const STEPS = ['Veículo', 'Serviço', 'Estado', 'Data', 'Dados'];
+// Houve aqui um passo "Estado": quinze caixas de problemas que o cliente
+// assinalava e que subiam o preço 30% ou 75%, conforme quantas fossem. Saiu em
+// agosto de 2026, por decisão do negócio — o preço do site é o da tabela, e o
+// que a viatura precisar a mais orça-se ao vê-la. Saiu inteiro: o ecrã, o
+// multiplicador do pricing.js e o do catalogue.ts da Edge Function.
+const STEPS = ['Veículo', 'Serviço', 'Data', 'Dados'];
 
 /**
  * Os tipos saem do proprio pricing.js, com ReturnType, em vez de serem
@@ -208,7 +211,6 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
   const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [levelId, setLevelId] = useState<string | null>(null);
   const [pack, setPack] = useState<Pack | null>(null);
-  const [problems, setProblems] = useState<string[]>([]);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [slots, setSlots] = useState<string[]>([]);
@@ -220,7 +222,7 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
   const [done, setDone] = useState<BookingResult | null>(null);
 
   const reset = useCallback(() => {
-    setStep(0); setVehicleId(null); setLevelId(null); setPack(null); setProblems([]);
+    setStep(0); setVehicleId(null); setLevelId(null); setPack(null);
     setDate(''); setTime(''); setSlots([]); setError(null); setDone(null);
     setForm({ name: '', phone: '', email: '', plate: '', car: '', notes: '' });
   }, []);
@@ -239,13 +241,13 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
 
   const duration = vehicleId && levelId ? durationFor(vehicleId, levelId) : 60;
   const quote: Quote | null = useMemo(
-    () => (vehicleId && levelId ? computeQuote({ vehicleId, levelId, problemIds: problems, pack }) : null),
-    [vehicleId, levelId, problems, pack],
+    () => (vehicleId && levelId ? computeQuote({ vehicleId, levelId, pack }) : null),
+    [vehicleId, levelId, pack],
   );
 
   // Trocar de dia obriga a repetir a consulta: a duração e a ocupação mudam.
   useEffect(() => {
-    if (!date || step !== 3) return;
+    if (!date || step !== 2) return;
     let cancelled = false;
     setLoadingSlots(true);
     setTime('');
@@ -258,18 +260,12 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
 
   if (!open) return null;
 
-  const toggleProblem = (id: string) =>
-    setProblems((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
-
   // Resolvidos uma vez, e nao a cada sitio que precisa do rotulo: os ids
   // podem ser nulos e o TypeScript nao deixa indexar com null — o que estava
   // escrito antes era `LEVEL_BY_ID[levelId]?.label` em dois sitios, a apanhar
   // com o `?.` um caso que nao era esse.
   const vehicle = vehicleId ? VEHICLE_BY_ID[vehicleId] : null;
   const level = levelId ? LEVEL_BY_ID[levelId] : null;
-
-  const interiorCount = INTERIOR_PROBLEMS.filter((p) => problems.includes(p.id)).length;
-  const exteriorCount = EXTERIOR_PROBLEMS.filter((p) => problems.includes(p.id)).length;
 
   // Validada por comprimento e nao pelo formato portugues: um carro espanhol em
   // Braga e um cliente como outro qualquer. O servidor valida da mesma maneira —
@@ -279,7 +275,6 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
   const canAdvance = [
     Boolean(vehicleId),
     Boolean(levelId),
-    true,                       // avaliação é opcional
     Boolean(date && time),
     Boolean(form.name.trim() && form.phone.replace(/\D/g, '').length >= 9 && plateOk),
   ][step];
@@ -302,9 +297,6 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
         time,
         duration,
         price: quote?.total ?? 0,
-        grade: quote?.grade ?? 1,
-        gradeLabel: quote?.gradeLabel,
-        problems: problems.map((id) => PROBLEM_LABEL[id]),
         notes: form.notes.trim() || null,
       });
       setDone(res);
@@ -451,62 +443,8 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
                 </>
               )}
 
-              {/* 3 — Estado da viatura */}
+              {/* 3 — Data e hora */}
               {step === 2 && (
-                <>
-                  <p className="text-white/55 text-sm mb-4 leading-relaxed">
-                    Assinale o que se aplica. Serve para prepararmos o trabalho e dar-lhe um valor
-                    realista — é melhor sabê-lo agora do que na entrega.
-                  </p>
-
-                  <div className="max-w-xs mx-auto mb-5">
-                    <CarVisual
-                      interiorCount={interiorCount}
-                      exteriorCount={exteriorCount}
-                      ariaLabel="Representação do veículo"
-                    />
-                  </div>
-
-                  {([
-                    ['Interior', INTERIOR_PROBLEMS, interiorCount],
-                    ['Exterior', EXTERIOR_PROBLEMS, exteriorCount],
-                  ] as const)
-                    .map(([title, list, count]) => (
-                      <div key={title} className="mb-5">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-white/45 text-[10px] tracking-[0.3em] uppercase">{title}</span>
-                          {count > 0 && (
-                            <span className="text-[10px] tracking-[0.2em] text-blue-300 bg-blue-900/30 border border-blue-700/40 px-2 py-0.5">
-                              {count} assinalado{count > 1 ? 's' : ''}
-                            </span>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {list.map((p) => {
-                            const Icon = p.icon;
-                            return (
-                              <Choice key={p.id} active={problems.includes(p.id)} onClick={() => toggleProblem(p.id)}>
-                                <span className="flex items-center gap-2.5 pr-4">
-                                  <Icon className="w-4 h-4 text-blue-400/80 shrink-0" />
-                                  <span className="text-sm leading-tight">{p.label}</span>
-                                </span>
-                              </Choice>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-
-                  {pack && (
-                    <p className="text-white/40 text-xs border border-white/10 rounded-sm p-3">
-                      Escolheu um pack: o valor é fechado e não sofre acréscimo pelo estado da viatura.
-                    </p>
-                  )}
-                </>
-              )}
-
-              {/* 4 — Data e hora */}
-              {step === 3 && (
                 <>
                   <Calendar value={date} onChange={setDate} />
 
@@ -547,8 +485,8 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
                 </>
               )}
 
-              {/* 5 — Dados */}
-              {step === 4 && (
+              {/* 4 — Dados */}
+              {step === 3 && (
                 <div className="space-y-4">
                   {CAMPOS.map((f) => (
                     <div key={f.k}>
@@ -602,9 +540,6 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
             <div className="min-w-0 text-xs text-white/50 truncate">
               {vehicle?.label} · {level?.label}
               {pack && ' · pack'}
-              {!pack && quote.pct > 0 && (
-                <span className="text-amber-400"> · {quote.gradeLabel} +{quote.pct}%</span>
-              )}
             </div>
             <div className="text-right shrink-0">
               <div className="text-[9px] tracking-[0.2em] text-white/35 uppercase">Estimativa</div>

@@ -166,7 +166,6 @@ async function handleCreate(body: Record<string, unknown>) {
     return json({ error: 'Indique a matrícula da viatura' }, 400);
   }
 
-  const problems = Array.isArray(body.problems) ? body.problems as string[] : [];
   const isPack = Boolean(body.isPack);
 
   // Preço e duração vêm do catálogo do servidor, nunca do pedido. O corpo só
@@ -177,7 +176,6 @@ async function handleCreate(body: Record<string, unknown>) {
       String(body.vehicleType ?? ''),
       String(body.levelId ?? ''),
       isPack,
-      problems.length,
     );
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : 'Serviço inválido' }, 400);
@@ -219,8 +217,6 @@ async function handleCreate(body: Record<string, unknown>) {
       `Veículo: ${[plate, vehicleInfo].filter(Boolean).join(' · ')}`,
       `Telefone: ${phone}`,
       `Email: ${email || '-'}`,
-      `Estado assinalado: ${resolved.gradeLabel} (+${resolved.gradePct}%)`,
-      `Problemas: ${problems.length ? problems.join(', ') : '-'}`,
       `Notas: ${notes || '-'}`,
       `Estimativa: ${price} EUR`,
     ].join('\n'),
@@ -314,7 +310,6 @@ async function handleCreate(body: Record<string, unknown>) {
       google_event_id: eventId,
       notes: [
         notes,
-        problems.length ? `Assinalado pelo cliente: ${problems.join(', ')}` : '',
         `Marcação do site · evento ${eventId}`,
       ].filter(Boolean).join('\n'),
     }).select('reference').single();
@@ -345,9 +340,6 @@ async function handleCreate(body: Record<string, unknown>) {
     durationLabel: formatDuration(duration),
     vehicle: [plate, vehicleInfo].filter(Boolean).join(' · '),
     price,
-    gradeLabel: resolved.gradeLabel,
-    gradePct: resolved.gradePct || undefined,
-    problems,
   });
 
   return json({ ok: true, reference, eventId, emailSent, scheduledAt: startIso });

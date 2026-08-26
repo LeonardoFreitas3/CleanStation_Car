@@ -47,32 +47,27 @@ const PACKS: Record<string, Partial<Record<VehicleId, number>>> = {
   detalhada: { carro: 220, grande: 300, suv: 260 },
 };
 
-/** Multiplicador pelo estado da viatura. Num pack não se aplica: é preço fechado. */
-function gradeMultiplier(problemCount: number): { grade: number; label: string; pct: number; mult: number } {
-  if (problemCount >= 4) return { grade: 3, label: 'Sujidade Extrema', pct: 75, mult: 1.75 };
-  if (problemCount >= 2) return { grade: 2, label: 'Sujidade Elevada', pct: 30, mult: 1.3 };
-  return { grade: 1, label: 'Sujidade Normal', pct: 0, mult: 1 };
-}
-
 export interface Resolved {
   label: string;
   price: number;
   duration: number;
-  grade: number;
-  gradeLabel: string;
-  gradePct: number;
 }
 
 /**
- * Resolve preço, duração e grau a partir dos ids. Lança se a combinação não
- * existir — uma mota não leva lavagem detalhada, e aceitar isso criava uma
- * marcação impossível de cumprir.
+ * Resolve preço e duração a partir dos ids. Lança se a combinação não existir —
+ * uma mota não leva lavagem detalhada, e aceitar isso criava uma marcação
+ * impossível de cumprir.
+ *
+ * Houve aqui um multiplicador pelo "estado da viatura", que subia o preço 30%
+ * ou 75% conforme o número de problemas que o cliente assinalasse no site. Saiu
+ * em agosto de 2026, por decisão do negócio: o preço é o da tabela, e o que a
+ * viatura precisar a mais orça-se ao vê-la. Saiu também do pricing.js do site,
+ * que tinha a mesma conta escrita a dobrar.
  */
 export function resolve(
   vehicleType: string,
   levelId: string,
   isPack: boolean,
-  problemCount: number,
 ): Resolved {
   const level = LEVELS[levelId];
   if (!level) throw new Error(`Serviço desconhecido: ${levelId}`);
@@ -86,26 +81,11 @@ export function resolve(
   if (isPack) {
     const packPrice = PACKS[levelId]?.[vehicle];
     if (packPrice === undefined) throw new Error(`Não existe pack para "${level.label}" neste veículo`);
-    return {
-      label: level.label,
-      price: packPrice,
-      duration,
-      grade: 1,
-      gradeLabel: 'Pack mensal',
-      gradePct: 0,
-    };
+    return { label: level.label, price: packPrice, duration };
   }
 
   const base = level.prices[vehicle];
   if (base === undefined) throw new Error(`Preço indisponível para este veículo`);
 
-  const g = gradeMultiplier(problemCount);
-  return {
-    label: level.label,
-    price: Math.round(base * g.mult * 100) / 100,
-    duration,
-    grade: g.grade,
-    gradeLabel: g.label,
-    gradePct: g.pct,
-  };
+  return { label: level.label, price: base, duration };
 }

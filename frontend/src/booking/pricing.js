@@ -8,11 +8,7 @@
 // também os service_types no CRM (supabase/migrations/0003) — são o mesmo
 // negócio visto de dois sítios.
 
-import {
-  Car, Truck, Caravan, Bike,
-  Trash2, Wind, Footprints, Droplet, Droplets, PawPrint, CloudFog, Package,
-  Bug, Disc3, Square, SprayCan, Waves, Layers,
-} from 'lucide-react';
+import { Car, Truck, Caravan, Bike } from 'lucide-react';
 
 export const VEHICLE_TYPES = [
   { id: 'carro',    label: 'Carro / Carrinha',  hint: 'Citadinos, berlinas, carrinhas ligeiras', icon: Car },
@@ -140,58 +136,19 @@ export function priceFor(vehicleId, levelId) {
   return LEVEL_BY_ID[levelId]?.prices[vehicleId];
 }
 
-// ─── Avaliação do estado do veículo ──────────────────────────────────────────
-// Recuperada do calculador original (commit f9e883f). O preço de tabela assume
-// sujidade normal; um carro que veio da praia ou traz pelo de cão dá mais
-// trabalho, e é mais honesto dizê-lo no orçamento do que na entrega.
-
-export const INTERIOR_PROBLEMS = [
-  { id: 'lixo',             label: 'Lixo acumulado',           icon: Trash2 },
-  { id: 'areia',            label: 'Areia ou terra excessiva', icon: Wind },
-  { id: 'tapetes',          label: 'Tapetes muito sujos',      icon: Footprints },
-  { id: 'manchas-estofos',  label: 'Manchas em estofos',       icon: Droplet },
-  { id: 'manchas-dificeis', label: 'Manchas difíceis',         icon: Droplets },
-  { id: 'pelos',            label: 'Pelos de animais',         icon: PawPrint },
-  { id: 'odor',             label: 'Odor desagradável',        icon: CloudFog },
-  { id: 'bagageira',        label: 'Bagageira muito suja',     icon: Package },
-];
-
-export const EXTERIOR_PROBLEMS = [
-  { id: 'insetos',   label: 'Insetos incrustados',            icon: Bug },
-  { id: 'jantes',    label: 'Jantes muito contaminadas',      icon: Disc3 },
-  { id: 'resina',    label: 'Resina ou alcatrão',             icon: Droplet },
-  { id: 'vidros',    label: 'Vidros contaminados',            icon: Square },
-  { id: 'pintura',   label: 'Pintura muito contaminada',      icon: SprayCan },
-  { id: 'lama',      label: 'Excesso de lama',                icon: Waves },
-  { id: 'plasticos', label: 'Plásticos exteriores degradados', icon: Layers },
-];
-
-export const ALL_PROBLEMS = [...INTERIOR_PROBLEMS, ...EXTERIOR_PROBLEMS];
-export const PROBLEM_LABEL = Object.fromEntries(ALL_PROBLEMS.map((p) => [p.id, p.label]));
-
-export const GRADES = [
-  { grade: 1, label: 'Sujidade Normal',  min: 0, max: 1,        multiplier: 1.0,  pct: 0  },
-  { grade: 2, label: 'Sujidade Elevada', min: 2, max: 3,        multiplier: 1.3,  pct: 30 },
-  { grade: 3, label: 'Sujidade Extrema', min: 4, max: Infinity, multiplier: 1.75, pct: 75 },
-];
-
-export function gradeForCount(count) {
-  return GRADES.find((g) => count >= g.min && count <= g.max) || GRADES[0];
-}
-
 export function eur(n) {
   const v = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
   return `${Number.isInteger(v) ? String(v) : v.toFixed(2).replace('.', ',')} €`;
 }
 
 /**
- * Orçamento final.
+ * Orçamento: o preço do nível para aquele tipo de veículo, e mais nada.
  *
- *   base      = preço do nível para aquele tipo de veículo
- *   subtotal  = base × multiplicador do grau de sujidade
- *
- * Num pack o grau não se aplica: é um preço fechado de duas lavagens por mês,
- * e aplicar-lhe um acréscimo de 75% descaracterizava a assinatura.
+ * Houve aqui um multiplicador por "grau de sujidade", que subia o valor 30% ou
+ * 75% conforme o número de caixas que o cliente assinalasse. Saiu em agosto de
+ * 2026, por decisão do negócio: o preço do site é o preço da tabela, e o que a
+ * viatura precise a mais orça-se ao vê-la, como sempre se fez com os
+ * polimentos. Ver o comentário do passo que também saiu, no Booking.tsx.
  *
  * O @param existe para quem chama isto de TypeScript. Sem ele, o `pack = null`
  * dizia ao compilador que o único valor aceite era null, e passar-lhe um pack
@@ -199,31 +156,12 @@ export function eur(n) {
  * do próprio packsFor em vez de ser escrito outra vez, para não haver duas
  * versões da mesma coisa.
  *
- * @param {{ vehicleId: string, levelId: string, problemIds?: string[],
+ * @param {{ vehicleId?: string, levelId?: string,
  *           pack?: ReturnType<typeof packsFor>[number] | null }} params
  */
-export function computeQuote({ vehicleId, levelId, problemIds = [], pack = null }) {
-  if (pack) {
-    return {
-      base: pack.price, count: 0, grade: 1, gradeLabel: 'Pack mensal',
-      multiplier: 1, pct: 0, subtotal: pack.price, total: pack.price, isPack: true,
-    };
-  }
+export function computeQuote({ vehicleId, levelId, pack = null }) {
+  if (pack) return { base: pack.price, total: pack.price, isPack: true };
 
   const base = priceFor(vehicleId, levelId) ?? 0;
-  const count = problemIds.length;
-  const g = gradeForCount(count);
-  const subtotal = base * g.multiplier;
-
-  return {
-    base,
-    count,
-    grade: g.grade,
-    gradeLabel: g.label,
-    multiplier: g.multiplier,
-    pct: g.pct,
-    subtotal,
-    total: subtotal,
-    isPack: false,
-  };
+  return { base, total: base, isPack: false };
 }

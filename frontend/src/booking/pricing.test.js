@@ -4,7 +4,7 @@
 // e a cobrar mal, possivelmente durante semanas. Correr com `npm test`.
 
 import {
-  computeQuote, levelsFor, packsFor, priceFor, gradeForCount, VEHICLE_TYPES,
+  computeQuote, levelsFor, packsFor, priceFor, VEHICLE_TYPES,
   durationFor, isFullDay, formatDuration,
 } from './pricing';
 
@@ -61,25 +61,36 @@ describe('packs de manutenção (2x mês)', () => {
   });
 });
 
-describe('grau de sujidade', () => {
-  it.each([[0, 1], [1, 1], [2, 2], [3, 2], [4, 3], [9, 3]])(
-    '%i problemas → grau %i',
-    (count, grade) => expect(gradeForCount(count).grade).toBe(grade),
-  );
+// Houve aqui um multiplicador por grau de sujidade, que subia o valor ate 75%
+// conforme as caixas que o cliente assinalasse. Saiu em agosto de 2026: o preco
+// do site e o preco da tabela. Estes testes fixam isso — se um multiplicador
+// voltar por engano, param.
 
-  it('aplica o multiplicador ao preço do veículo escolhido', () => {
-    // SUV detalhada = 160, grau 2 (2-3 problemas) = +30%
-    const q = computeQuote({ vehicleId: 'suv', levelId: 'detalhada', problemIds: ['lixo', 'areia'] });
+describe('orçamento', () => {
+  it('é o preço de tabela do nível para aquele veículo, sem acréscimos', () => {
+    const q = computeQuote({ vehicleId: 'suv', levelId: 'detalhada' });
     expect(q.base).toBe(160);
-    expect(q.grade).toBe(2);
-    expect(q.total).toBeCloseTo(208);
+    expect(q.total).toBe(160);
+    expect(q.isPack).toBe(false);
   });
 
-  it('não aplica grau a um pack: é preço fechado', () => {
+  it('o preço não muda com o que mais lhe passem', () => {
+    const base = computeQuote({ vehicleId: 'carro', levelId: 'selante' }).total;
+    expect(base).toBe(40);
+    // Chamadas antigas ainda podem trazer problemIds; nao pode mexer no valor.
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', problemIds: ['lixo', 'areia', 'pelos', 'odor'] }).total)
+      .toBe(base);
+  });
+
+  it('um pack é preço fechado', () => {
     const pack = packsFor('carro').find((p) => p.levelId === 'premium');
-    const q = computeQuote({ vehicleId: 'carro', pack, problemIds: ['lixo', 'areia', 'pelos', 'odor'] });
+    const q = computeQuote({ vehicleId: 'carro', pack });
     expect(q.total).toBe(105);
     expect(q.isPack).toBe(true);
+  });
+
+  it('nível indisponível para aquele veículo dá zero, não um valor inventado', () => {
+    expect(computeQuote({ vehicleId: 'mota', levelId: 'detalhada' }).total).toBe(0);
   });
 });
 
