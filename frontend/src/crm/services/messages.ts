@@ -24,6 +24,60 @@ export async function listTemplates(): Promise<MessageTemplate[]> {
   return (data ?? []) as MessageTemplate[];
 }
 
+/** Como listTemplates, mas traz tambem os desativados: as Definicoes reativam-nos. */
+export async function listAllTemplates(): Promise<MessageTemplate[]> {
+  const { data, error } = await getSupabase()
+    .from('message_templates')
+    .select('*')
+    .order('category')
+    .order('sort_order');
+
+  if (error) throw new Error(friendlyError(error));
+  return (data ?? []) as MessageTemplate[];
+}
+
+/**
+ * So o admin chega aqui — a politica do 0006 e clara sobre porque: sao textos
+ * que saem em nome da empresa.
+ *
+ * O slug e a categoria nao se mexem. O slug e a chave estavel (a 0020 escreve
+ * por cima dele) e a categoria decide que variaveis o modelo pode usar e em que
+ * ecra aparece; mudar qualquer um deles pelo ecra era partir uma referencia sem
+ * dar erro nenhum.
+ */
+export async function updateTemplate(
+  id: string,
+  patch: { name?: string; content?: string; active?: boolean },
+): Promise<void> {
+  const { error } = await getSupabase().from('message_templates').update(patch).eq('id', id);
+  if (error) throw new Error(friendlyError(error));
+}
+
+/**
+ * As variaveis que cada categoria consegue mesmo preencher.
+ *
+ * Nao e decoracao: a lista de reativacao e por cliente e nao por servico, e por
+ * isso o renderFollowUp so tem estas tres a mao. Um {{veiculo}} num modelo de
+ * follow-up nao da erro — desaparece, e a mensagem sai com a frase truncada
+ * sem ninguem perceber porque. E o aviso que a 0020 escreveu em comentario e
+ * que ninguem ia ler.
+ */
+export const TEMPLATE_VARS: Record<string, string[]> = {
+  follow_up: ['nome', 'servico', 'dias'],
+};
+
+const TEMPLATE_VARS_DEFAULT = ['nome', 'veiculo', 'matricula', 'servico', 'etapa'];
+
+export const varsForCategory = (category: string): string[] =>
+  TEMPLATE_VARS[category] ?? TEMPLATE_VARS_DEFAULT;
+
+/** As variaveis escritas no texto que aquela categoria nao sabe preencher. */
+export function unknownVars(content: string, category: string): string[] {
+  const permitidas = varsForCategory(category);
+  const usadas = [...content.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]);
+  return [...new Set(usadas.filter((v) => !permitidas.includes(v)))];
+}
+
 /**
  * Substitui as variaveis do modelo.
  *

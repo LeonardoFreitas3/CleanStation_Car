@@ -7,6 +7,11 @@ export interface AppSettings {
   vip_service_count: number;
   opens_hour: number;
   closes_hour: number;
+  /**
+   * Endereco de escrever uma avaliacao, do perfil da empresa no Google. Null
+   * enquanto ninguem o preencher — e nesse caso o pedido de avaliacao nao sai.
+   */
+  review_url: string | null;
 }
 
 /** Valores enquanto as definicoes nao chegam do servidor. Iguais aos da 0014. */
@@ -15,12 +20,13 @@ export const SETTINGS_FALLBACK: AppSettings = {
   vip_service_count: VIP_THRESHOLDS.serviceCount,
   opens_hour: 9,
   closes_hour: 20,
+  review_url: null,
 };
 
 export async function getSettings(): Promise<AppSettings> {
   const { data, error } = await getSupabase()
     .from('app_settings')
-    .select('vip_total_spent, vip_service_count, opens_hour, closes_hour')
+    .select('vip_total_spent, vip_service_count, opens_hour, closes_hour, review_url')
     .eq('id', 1)
     .maybeSingle();
 

@@ -8,6 +8,7 @@ import { getSettings, updateSettings } from '../services/settings';
 import { setVipThresholds } from '../services/clients';
 import { setHorario } from '../services/agenda';
 import { eur } from '../lib/format';
+import MessageTemplates from '../components/MessageTemplates';
 import { Alert, Button, Card, Field, PageTitle, Select, Spinner } from '../components/ui';
 import type { ServiceType } from '../types';
 
@@ -30,6 +31,9 @@ export default function Settings() {
   const [opens, setOpens] = useState('9');
   const [closes, setCloses] = useState('20');
   const [savingHorario, setSavingHorario] = useState(false);
+
+  const [reviewUrl, setReviewUrl] = useState('');
+  const [savingReview, setSavingReview] = useState(false);
 
   const [totalSpent, setTotalSpent] = useState('');
   const [serviceCount, setServiceCount] = useState('');
@@ -54,6 +58,7 @@ export default function Settings() {
       setServiceCount(String(Number(settings.vip_service_count)));
       setOpens(String(Number(settings.opens_hour)));
       setCloses(String(Number(settings.closes_hour)));
+      setReviewUrl(settings.review_url ?? '');
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível carregar as definições.');
@@ -84,6 +89,7 @@ export default function Settings() {
         vip_service_count: Number(serviceCount),
         opens_hour: abre,
         closes_hour: fecha,
+        review_url: reviewUrl.trim() || null,
       });
       // Aplica ja na sessao em curso, como os limiares: sem isto a ocupacao da
       // agenda so mudava ao voltar a entrar.
@@ -115,6 +121,7 @@ export default function Settings() {
         vip_service_count: count,
         opens_hour: Number(opens),
         closes_hour: Number(closes),
+        review_url: reviewUrl.trim() || null,
       });
       // Aplica já na sessão em curso: sem isto as etiquetas de VIP só mudavam
       // ao voltar a entrar, e parecia que não tinha guardado.
@@ -125,6 +132,36 @@ export default function Settings() {
       setError(err instanceof Error ? err.message : 'Não foi possível guardar os limiares.');
     } finally {
       setSavingVip(false);
+    }
+  };
+
+  const saveReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = reviewUrl.trim();
+
+    // A base de dados tambem recusa (constraint da 0025), mas dizer aqui poupa
+    // a ida e volta. Https e nao http: o email abre no telemovel de um cliente.
+    if (url && !url.startsWith('https://')) {
+      setError('O endereço da avaliação tem de começar por https://.');
+      return;
+    }
+
+    setSavingReview(true);
+    setError(null);
+    try {
+      await updateSettings({
+        vip_total_spent: Number(totalSpent),
+        vip_service_count: Number(serviceCount),
+        opens_hour: Number(opens),
+        closes_hour: Number(closes),
+        review_url: url || null,
+      });
+      setSaved('review');
+      setTimeout(() => setSaved(null), 2500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível guardar o endereço.');
+    } finally {
+      setSavingReview(false);
     }
   };
 
@@ -222,7 +259,7 @@ export default function Settings() {
 
   return (
     <>
-      <PageTitle sub="Limiares, horário e catálogo de preços">Definições</PageTitle>
+      <PageTitle sub="Limiares, horário, mensagens e catálogo">Definições</PageTitle>
 
       {error && <div className="mb-6"><Alert tone="error">{error}</Alert></div>}
 
@@ -289,6 +326,39 @@ export default function Settings() {
           </Button>
         </form>
       </Card>
+
+      <Card className="p-5 mt-4 mb-8">
+        <div className="text-[10px] tracking-[0.28em] text-white/50 uppercase mb-2">Avaliações</div>
+        <p className="text-white/45 text-xs mb-5 leading-relaxed">
+          Dois dias depois de entregar o carro, o cliente recebe um email a agradecer e a pedir
+          uma avaliação — com as fotografias, se a galeria daquele serviço estiver partilhada.
+          Só quem deu consentimento de marketing, e um pedido por cliente de três em três meses.
+          {' '}
+          <strong className="text-white/60">Sem endereço aqui, não sai nada.</strong>
+        </p>
+        <form onSubmit={saveReview} className="grid sm:grid-cols-4 gap-4 items-end">
+          <Field
+            label="Endereço de avaliação"
+            type="url"
+            inputMode="url"
+            placeholder="https://g.page/r/…/review"
+            value={reviewUrl}
+            onChange={(e) => setReviewUrl(e.target.value)}
+            className="sm:col-span-3"
+          />
+          <Button type="submit" loading={savingReview}>
+            {saved === 'review' ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+            {saved === 'review' ? 'Guardado' : 'Guardar'}
+          </Button>
+        </form>
+        <p className="text-white/25 text-xs mt-3 leading-relaxed">
+          Tira-se do perfil da empresa no Google — <span className="text-white/45">Pedir
+          avaliações</span> no Perfil de Empresa dá o link curto. O do rodapé do site serve para
+          ler avaliações, não para escrever uma.
+        </p>
+      </Card>
+
+      <div className="mb-8"><MessageTemplates /></div>
 
       <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
         <h2 className="text-white text-sm font-semibold">Catálogo de preços</h2>

@@ -25,6 +25,7 @@ No **SQL Editor** do Supabase, uma de cada vez, por ordem. Estão em
 | `0022_galeria_do_cliente.sql` | Token e prazo da galeria |
 | `0023_horario_nas_definicoes.sql` | Horário editável nas Definições |
 | `0024_lembrete_de_manutencao.sql` | Prazo de repetição no catálogo, e quem está à espera de ser lembrado |
+| `0025_pedir_avaliacao.sql` | Data de entrega a sério, endereço da avaliação e quem está à espera de ser convidado |
 
 **A `0016` faz um `update` a sério** — atribui ao João os serviços por atribuir.
 Antes de a correr, vale a pena ver quantos são:
@@ -43,10 +44,15 @@ selante, 60 na premium, 90 na detalhada e 180 na cerâmica. São a decisão
 comercial e mudam-se nas Definições, sem SQL; se algum não te servir, muda-o lá
 antes de ligares o agendador. Um serviço sem prazo nunca manda email a ninguém.
 
-A `0024` **não** tem de correr antes do deploy da `lembretes`, ao contrário da
-`0018`: a função nova apanha a falta da migração, escreve-a nos logs e continua
-a mandar o lembrete da véspera. Corre-as pela ordem à mesma — isto é uma rede,
-não uma autorização para saltar um passo.
+A `0025` **altera o `stamp_service_dates`**, o trigger do `0001` que carimba as
+datas de um serviço. As duas datas que ele já escrevia ficam exatamente como
+estavam; ganha uma terceira, o `delivered_at`, e faz o backfill dos serviços já
+entregues a partir do `completed_at`.
+
+Nem a `0024` nem a `0025` têm de correr antes do deploy da `lembretes`, ao
+contrário da `0018`: a função apanha a falta de cada uma, escreve-a nos logs e
+continua a mandar o lembrete da véspera. Corre-as pela ordem à mesma — isto é
+uma rede, não uma autorização para saltar um passo.
 
 ---
 
@@ -60,13 +66,17 @@ npx supabase secrets set BREVO_LIST_INACTIVE=<id da lista, ver passo 5>
 Opcional, com valor por omissão de 25:
 
 ```bash
-npx supabase secrets set MANUTENCAO_MAX=25
+npx supabase secrets set EMAILS_MAX=25
 ```
 
-É o tecto de lembretes de manutenção por passagem. Existe por causa da primeira:
-ela olha para o histórico todo de uma vez, e sem tecto mandava centenas de emails
-no mesmo minuto — o Brevo corta e o domínio fica marcado. Quem sobra vai no dia
-seguinte, e a resposta diz quantos ficaram para trás (`manutencao.adiados`).
+É o tecto de emails por passagem automática — manutenção e avaliação. Existe por
+causa da primeira corrida: olha para o histórico de uma vez, e sem tecto mandava
+centenas de emails no mesmo minuto — o Brevo corta e o domínio fica marcado. Quem
+sobra vai no dia seguinte, e a resposta diz quantos ficaram para trás
+(`manutencao.adiados`, `avaliacao.adiados`).
+
+Não se aplica ao lembrete da véspera: essa lista é a agenda de amanhã, tem o
+tamanho de um dia de trabalho, e cortá-la era deixar um cliente por avisar.
 
 O `BREVO_API_KEY` e o `BREVO_FROM_EMAIL` já lá estão — são os que o email de
 confirmação usa. Confirma com `npx supabase secrets list`.
@@ -83,8 +93,9 @@ npx supabase functions deploy brevo-sync
 ```
 
 A `booking` **tem de ir**: ganhou os endpoints `time-off`, `time-off-remove` e
-`events`, e passou a exigir a matrícula. A `lembretes` também: ganhou a segunda
-passagem, a de manutenção, e o modo de ensaio. A `team` não mudou.
+`events`, e passou a exigir a matrícula. A `lembretes` também: ganhou as duas
+passagens novas — manutenção e avaliação — e o modo de ensaio. A `team` não
+mudou.
 
 **A `booking` e o site publicam-se juntos.** O site novo manda a matrícula e a
 função nova exige-a: publicar só um dos dois parte as marcações.
@@ -104,11 +115,11 @@ No painel do Supabase, **Integrations → Cron**. Ambas em POST, com o cabeçalh
 O lembrete de manhã e não à noite: um email às 09:00 da véspera é lido, um às
 23:00 chega quando já não avisa nada.
 
-**A tarefa da `lembretes` continua a ser uma só**, mas passou a fazer duas
-coisas: avisa quem tem serviço amanhã e escreve a quem já passou do prazo de
-manutenção. Correm à mesma hora, pelo mesmo agendador e pelo mesmo Brevo — uma
-segunda tarefa era um segundo sítio para desligar por engano. Antes de a criar,
-faz o ensaio do passo 6.
+**A tarefa da `lembretes` continua a ser uma só**, mas passou a fazer três
+coisas: avisa quem tem serviço amanhã, escreve a quem já passou do prazo de
+manutenção, e pede avaliação a quem levou o carro há dois dias. Correm à mesma
+hora, pelo mesmo agendador e pelo mesmo Brevo — três tarefas eram três sítios
+para desligar por engano. Antes de a criar, faz os ensaios do passo 6.
 
 ---
 
@@ -130,10 +141,12 @@ faz o ensaio do passo 6.
 
 ---
 
-## 6. O lembrete de manutenção, antes de o deixar sozinho
+## 6. Os dois emails automáticos, antes de os deixar sozinhos
 
-Este é o primeiro email que sai **sem ninguém carregar em nada** e a pedir que o
-cliente volte. Vale a pena vê-lo antes de o pôr no agendador.
+São os primeiros emails que saem **sem ninguém carregar em nada**. Vale a pena
+vê-los antes de os pôr no agendador.
+
+### 6.1 Lembrete de manutenção
 
 Primeiro, quem está à espera. No SQL Editor:
 
@@ -170,6 +183,41 @@ Se a resposta trouxer `manutencao.erro` a dizer que **não encontra a função**
 notify pgrst, 'reload schema';
 ```
 
+### 6.2 Pedido de avaliação
+
+Este começa desligado e é assim que deve começar: sem endereço nas Definições, a
+passagem não manda nada e diz-te isso em `avaliacao.erro`.
+
+O endereço tira-se do **Perfil de Empresa do Google → Pedir avaliações**, que dá
+um link curto do género `https://g.page/r/…/review`. O do rodapé do site não
+serve: é a pesquisa que mostra as avaliações, não o formulário de escrever uma.
+Cola-o em **CRM → Definições → Avaliações**. Tem de começar por `https://` — a
+base de dados recusa o resto.
+
+Depois, a mesma consulta e o mesmo ensaio:
+
+```sql
+select client_name, client_email, service_name, plate, delivered_at, share_token
+  from public.avaliacoes_a_pedir()
+ order by delivered_at;
+```
+
+Quem entra: entregue há mais de dois dias e há menos de trinta, com
+consentimento de marketing, sem outro pedido a esse cliente nos últimos noventa
+dias. O `share_token` vem preenchido quando a galeria daquele serviço está
+partilhada e ainda não expirou — nesse caso o email leva também o link das
+fotografias.
+
+**A janela dos trinta dias é o que te protege no primeiro dia.** Sem ela, a
+primeira passagem pedia avaliação de lavagens de março a toda a gente que já cá
+passou. Mesmo assim, corre o `?dry=1` antes: se um mês de entregas der uma lista
+grande, o tecto do `EMAILS_MAX` reparte-a pelos dias seguintes, mas mais vale
+saberes disso antes de sair.
+
+Um pormenor que só se vê depois: quem já estava `entregue` antes da `0025` ficou
+com o `delivered_at` copiado do `completed_at`. Para os últimos trinta dias é uma
+aproximação boa; para trás não interessa, porque a janela deixa-os de fora.
+
 ---
 
 ## 7. O site
@@ -199,6 +247,15 @@ vão coladas no build, a partir do `frontend/.env.local`.
 - [ ] Nas Definições, cada serviço mostra "Repetir ao fim de (dias)" com o prazo
       da `0024`. Os extras não mostram nada — é de propósito.
 - [ ] Guardar um prazo de 3 dias dá erro em português, não um erro de constraint.
+- [ ] Nas Definições, o cartão **Mensagens** lista os modelos por categoria e
+      guarda uma alteração ao texto. Abrir a ficha de um serviço a seguir e ver
+      a mensagem nova na lista do WhatsApp.
+- [ ] Pôr `{{veiculo}}` num modelo de reativação e tentar guardar: tem de
+      recusar, a dizer que essa mensagem não sabe preencher a variável.
+- [ ] Com a sessão do João (funcionário), as Definições continuam fechadas.
+- [ ] Guardar um endereço de avaliação sem `https://` dá erro em português.
+- [ ] Passar um serviço a **entregue** e confirmar que o `delivered_at` ficou
+      preenchido: `select delivered_at from services where id = '…'`.
 - [ ] Na ficha de um cliente que recebeu o lembrete de manutenção, a mensagem
       aparece no histórico marcada como marketing.
 

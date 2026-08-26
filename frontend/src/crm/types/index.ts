@@ -105,6 +105,13 @@ export interface Service {
   reminded_at: string | null;
   /** Quando saiu o lembrete de manutencao deste servico. Null: ainda nao saiu. */
   maintenance_reminded_at: string | null;
+  /**
+   * Quando o cliente levou mesmo o carro. Carimbado no 'entregue', ao contrario
+   * do completed_at, que fica no 'concluido' e nunca mais mexe. Ver a 0025.
+   */
+  delivered_at: string | null;
+  /** Quando saiu o pedido de avaliacao. Null: ainda nao saiu. */
+  review_requested_at: string | null;
   /** Token da galeria publica. Null: nunca foi partilhada, ou foi revogada. */
   share_token: string | null;
   share_expires_at: string | null;

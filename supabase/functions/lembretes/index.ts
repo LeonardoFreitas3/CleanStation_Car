@@ -1,6 +1,6 @@
-// Edge Function dos lembretes automáticos. Duas passagens, uma chamada.
+// Edge Function dos emails automáticos. Três passagens, uma chamada.
 //
-//   POST /lembretes        -> véspera + manutenção, e envia mesmo
+//   POST /lembretes        -> véspera + manutenção + avaliação, e envia mesmo
 //   POST /lembretes?dry=1  -> devolve a quem *ia* escrever, sem escrever
 //
 // ── 1. Véspera ──────────────────────────────────────────────────────────────
@@ -25,12 +25,24 @@
 // manutencoes_a_lembrar() do 0024, que já traz só quem pode receber. Aqui não
 // se refiltra nada: duas cópias da mesma regra acabam sempre por discordar.
 //
-// As duas na mesma função porque correm à mesma hora, pelo mesmo agendador e
-// pelo mesmo Brevo. Uma segunda função era um segundo deploy e um segundo cron
-// para não repetir uma linha de fetch.
+// ── 3. Avaliação ────────────────────────────────────────────────────────────
+// Dois dias depois de o cliente levar o carro. O site já mostra as avaliações
+// do Google; o que faltava era pedi-las — as estrelas só apareciam se alguém se
+// lembrasse sozinho.
+//
+// Também marketing, e também com consentimento: pedir uma avaliação não é
+// executar o serviço, que já acabou. Quem entra na lista decide-se na
+// avaliacoes_a_pedir() do 0025.
+//
+// Sem endereço nas Definições não sai nada. Um pedido de avaliação sem sítio
+// para onde mandar o cliente é um email a pedir um favor impossível.
+//
+// ── As três juntas ──────────────────────────────────────────────────────────
+// Na mesma função porque correm à mesma hora, pelo mesmo agendador e pelo mesmo
+// Brevo. Três funções eram três deploys e três sítios para desligar por engano.
 //
 // O ?dry=1 existe porque a alternativa a testar isto é mandar email a sério a
-// clientes reais. Vale para as duas passagens e não escreve nada — nem o email,
+// clientes reais. Vale para as três passagens e não escreve nada — nem o email,
 // nem a marca na ficha, nem o registo.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
@@ -225,15 +237,76 @@ function htmlManutencao(m: Manutencao): string {
       </p>`);
 }
 
+interface Avaliacao {
+  service_id: string;
+  client_id: string;
+  client_name: string;
+  client_email: string;
+  service_name: string;
+  delivered_at: string;
+  plate: string | null;
+  make: string | null;
+  model: string | null;
+  /** Null quando não há galeria partilhada, ou quando o link já expirou. */
+  share_token: string | null;
+}
+
+function htmlAvaliacao(a: Avaliacao, reviewUrl: string): string {
+  const viatura = [a.make, a.model].filter(Boolean).join(' ') || a.plate || 'carro';
+
+  // A galeria antes do botão, e não depois: quem vê o antes-e-depois do próprio
+  // carro chega ao pedido já convencido. Ao contrário, é só mais um pedido.
+  const galeria = a.share_token
+    ? `<p style="font-size:14px;line-height:1.6;margin:0 0 18px;color:#a3a3a3">
+        As fotografias do trabalho estão aqui:
+        <a href="${SITE}/galeria/${esc(a.share_token)}" style="color:#60a5fa">ver a galeria</a>.
+      </p>`
+    : '';
+
+  return moldura(a.client_name.split(' ')[0], `
+      <p style="font-size:15px;line-height:1.6;margin:0 0 22px">
+        Obrigado por nos ter confiado o seu <strong>${esc(viatura)}</strong>.
+        Esperamos que o tenha levado como queria.
+      </p>
+      ${caixa(`
+          <strong style="color:#fff">${esc(a.service_name)}</strong><br>
+          <span style="color:#a3a3a3">Entregue em ${esc(dataCurta(a.delivered_at))}</span>
+          ${a.plate ? `<br><span style="color:#a3a3a3">${esc(a.plate)}</span>` : ''}`)}
+      ${galeria}
+      <p style="font-size:15px;line-height:1.6;margin:0 0 20px">
+        Se ficou satisfeito, deixe-nos uma avaliação. São dois minutos e é o que
+        ajuda outra pessoa em Braga a encontrar-nos.
+      </p>
+      <table role="presentation" style="margin:0 0 20px">
+        <tr><td style="background:#2563eb;border-radius:4px">
+          <a href="${esc(reviewUrl)}" style="display:inline-block;padding:12px 22px;color:#fff;font-size:14px;font-weight:bold;text-decoration:none">
+            Deixar uma avaliação
+          </a>
+        </td></tr>
+      </table>
+      <p style="font-size:14px;line-height:1.6;margin:0 0 8px;color:#a3a3a3">
+        E se alguma coisa não ficou bem, diga-nos primeiro a nós: responda a este
+        email ou ligue <a href="tel:${TELEFONE.replace(/\s/g, '')}" style="color:#60a5fa">${esc(TELEFONE)}</a>.
+        Preferimos corrigir a saber tarde.
+      </p>`,
+    `<p style="font-size:11px;color:#525252;margin:14px 0 0;line-height:1.6">
+        Recebe esta mensagem porque autorizou o contacto para novidades e promoções.
+        Se preferir não voltar a recebê-las, responda a dizer e deixamos de enviar.
+      </p>`);
+}
+
 /**
- * Quantos lembretes de manutenção podem sair de uma vez.
+ * Quantos emails cada passagem automática pode mandar de uma vez.
  *
- * Não é uma preocupação teórica: a primeira passagem olha para o histórico
- * todo de uma vez, e sem tecto mandava centenas de emails no mesmo minuto —
- * o Brevo corta e o domínio fica marcado. Os que sobram vão no dia seguinte;
- * a lista vem ordenada por quem espera há mais tempo.
+ * Não é uma preocupação teórica: a primeira passagem olha para o histórico de
+ * uma vez, e sem tecto mandava centenas de emails no mesmo minuto — o Brevo
+ * corta e o domínio fica marcado. Os que sobram vão no dia seguinte; as listas
+ * vêm ordenadas por quem espera há mais tempo.
+ *
+ * Não vale para o lembrete da véspera: essa lista é a agenda de amanhã, tem o
+ * tamanho de um dia de trabalho, e cortá-la era deixar um cliente por avisar.
  */
-const MANUTENCAO_MAX = Number(Deno.env.get('MANUTENCAO_MAX') ?? 25);
+const EMAILS_MAX = Number(Deno.env.get('EMAILS_MAX') ?? 25);
 
 /** O envio, igual nos dois lembretes. Levanta se o Brevo recusar. */
 async function enviar(
@@ -372,7 +445,7 @@ Deno.serve(async (req) => {
     // O corte fica aqui e nao no SQL: a resposta diz quantos estavam a espera,
     // e nao so quantos couberam. Sem isso, uma fila que nunca esvazia parecia
     // um dia normal.
-    const hoje = lista.slice(0, MANUTENCAO_MAX);
+    const hoje = lista.slice(0, EMAILS_MAX);
     manutencao.adiados = lista.length - hoje.length;
 
     if (dry) manutencao.previstos = [];
@@ -423,6 +496,92 @@ Deno.serve(async (req) => {
     }
   }
 
+  // ── 3. Avaliação ───────────────────────────────────────────────────────────
+  // Dois dias depois de o cliente levar o carro. Quem entra na lista decide-se
+  // na avaliacoes_a_pedir() (0025); o endereço vem das Definições.
+
+  const avaliacao = {
+    candidatos: 0,
+    enviados: 0,
+    falhas: 0,
+    adiados: 0,
+    erro: undefined as string | undefined,
+    previstos: undefined as Array<{ para: string; viatura: string; comFotos: boolean }> | undefined,
+  };
+
+  const { data: definicoes, error: erroDefinicoes } = await db.from('app_settings')
+    .select('review_url').eq('id', 1).maybeSingle();
+
+  // Separado de proposito da coluna vazia: se a 0025 nao correu, a coluna nao
+  // existe e isto rebenta. Dizer "sem endereco nas Definicoes" nesse caso
+  // mandava alguem procurar um campo que ainda nao esta no ecra.
+  const reviewUrl = erroDefinicoes ? null : (definicoes?.review_url ?? null);
+
+  if (erroDefinicoes) {
+    console.error('Definicoes indisponiveis:', erroDefinicoes.message);
+    avaliacao.erro = erroDefinicoes.message;
+  } else if (!reviewUrl) {
+    // Nao e avaria: e a funcionalidade desligada, que e como nasce. Vai na
+    // resposta para nao parecer que correu e nao encontrou ninguem.
+    avaliacao.erro = 'Sem endereço de avaliação nas Definições.';
+  } else {
+    const { data: aPedir, error: erroAvaliacao } = await db.rpc('avaliacoes_a_pedir');
+
+    if (erroAvaliacao) {
+      console.error('Avaliacoes indisponiveis:', erroAvaliacao.message);
+      avaliacao.erro = erroAvaliacao.message;
+    } else {
+      const lista = (aPedir ?? []) as Avaliacao[];
+      avaliacao.candidatos = lista.length;
+
+      const hoje = lista.slice(0, EMAILS_MAX);
+      avaliacao.adiados = lista.length - hoje.length;
+
+      if (dry) avaliacao.previstos = [];
+
+      for (const a of hoje) {
+        const viatura = [a.make, a.model].filter(Boolean).join(' ') || a.plate || 'carro';
+
+        if (dry) {
+          avaliacao.previstos!.push({
+            para: a.client_email,
+            viatura,
+            comFotos: Boolean(a.share_token),
+          });
+          continue;
+        }
+
+        try {
+          await enviar(
+            apiKey, from,
+            { email: a.client_email, name: a.client_name },
+            'Como correu? — Clean Station Car',
+            htmlAvaliacao(a, reviewUrl),
+          );
+
+          await db.from('services')
+            .update({ review_requested_at: new Date().toISOString() })
+            .eq('id', a.service_id);
+
+          // Marketing, como o de manutencao. Alem da etiqueta, e o que impede o
+          // lembrete de manutencao de sair em cima deste nos 30 dias seguintes.
+          await db.from('message_logs').insert({
+            client_id: a.client_id,
+            service_id: a.service_id,
+            channel: 'email',
+            is_marketing: true,
+            content: `Pedido automatico de avaliacao: ${a.service_name}, entregue em ${dataCurta(a.delivered_at)}.`,
+          });
+
+          avaliacao.enviados++;
+        } catch (e) {
+          console.error('Pedido de avaliacao falhou', a.service_id, e);
+          avaliacao.falhas++;
+        }
+      }
+    }
+  }
+
   return json({
     ok: true,
     dry,
@@ -433,5 +592,6 @@ Deno.serve(async (req) => {
     semEmail,
     ...(dry ? { previstos } : {}),
     manutencao,
+    avaliacao,
   });
 });
