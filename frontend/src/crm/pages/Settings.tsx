@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check, Info, Save, Plus, X, Eye, EyeOff } from 'lucide-react';
 import {
-  CATEGORY_LABEL, VEHICLE_PRICE_KEYS, createServiceType, listAllServiceTypes, updateServiceType,
+  CATEGORY_LABEL, VEHICLE_PRICE_KEYS, createServiceType, listAllServiceTypes,
+  parseRepeatDays, updateServiceType,
 } from '../services/serviceTypes';
 import { getSettings, updateSettings } from '../services/settings';
 import { setVipThresholds } from '../services/clients';
@@ -14,6 +15,8 @@ interface Draft {
   name: string;
   base_price: string;
   prices: Record<string, string>;
+  /** Dias ate repetir. Vazio = nunca lembrar. */
+  repeat: string;
 }
 
 /** Campo de preço vazio = "este veículo não faz este serviço", não zero. */
@@ -131,6 +134,7 @@ export default function Settings() {
     prices: Object.fromEntries(
       VEHICLE_PRICE_KEYS.map(({ key }) => [key, priceValue(t.prices?.[key])]),
     ),
+    repeat: t.repeat_after_days == null ? '' : String(t.repeat_after_days),
   };
 
   const patchDraft = (t: ServiceType, patch: Partial<Draft>) =>
@@ -188,10 +192,19 @@ export default function Settings() {
       prices[key] = n;
     }
 
+    // Vazio = nunca lembrar, como o preco vazio e "nao se faz".
+    let repeat: number | null;
+    try {
+      repeat = parseRepeatDays(row.repeat);
+    } catch (err) {
+      setError(`${err instanceof Error ? err.message : 'Prazo inválido.'} (em "${t.name}")`);
+      return;
+    }
+
     setSavingType(t.id);
     setError(null);
     try {
-      await updateServiceType(t.id, { name, base_price: base, prices });
+      await updateServiceType(t.id, { name, base_price: base, prices, repeat_after_days: repeat });
       setDraft((d) => { const { [t.id]: _drop, ...rest } = d; return rest; });
       setSaved(t.id);
       setTimeout(() => setSaved(null), 2500);
@@ -209,7 +222,7 @@ export default function Settings() {
 
   return (
     <>
-      <PageTitle sub="Limiares e catálogo de preços">Definições</PageTitle>
+      <PageTitle sub="Limiares, horário e catálogo de preços">Definições</PageTitle>
 
       {error && <div className="mb-6"><Alert tone="error">{error}</Alert></div>}
 
@@ -423,6 +436,30 @@ export default function Settings() {
                   <p className="text-white/25 text-xs mt-2">
                     Campo vazio = este serviço não se faz nesse tipo de veículo.
                   </p>
+
+                  {/* Os extras ficam de fora: o lembrete olha para o serviço
+                      principal da viatura, e um prazo numa "Remoção de Areia de
+                      Praia" nunca chegava a ser lido. */}
+                  {t.category !== 'extras' && (
+                    <div className="mt-4 pt-4 border-t border-white/5 grid sm:grid-cols-5 gap-3 items-end">
+                      <Field
+                        label="Repetir ao fim de (dias)"
+                        type="number"
+                        min={7}
+                        max={730}
+                        step="1"
+                        placeholder="—"
+                        value={row.repeat}
+                        onChange={(e) => patchDraft(t, { repeat: e.target.value })}
+                      />
+                      <p className="sm:col-span-4 text-white/25 text-xs leading-relaxed">
+                        Passado esse tempo sobre o serviço, o cliente recebe um email a lembrar —
+                        automaticamente, uma vez só, e apenas se tiver dado consentimento de
+                        marketing e não tiver já hora marcada.{' '}
+                        <span className="text-white/45">Vazio = nunca lembrar.</span>
+                      </p>
+                    </div>
+                  )}
                 </Card>
               );
             })}

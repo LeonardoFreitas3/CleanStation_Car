@@ -64,6 +64,8 @@ export async function updateServiceType(
     active?: boolean;
     name?: string;
     sort_order?: number;
+    /** Null apaga o prazo: deixa de haver lembrete de manutencao para este servico. */
+    repeat_after_days?: number | null;
   },
 ): Promise<void> {
   const { error } = await getSupabase().from('service_types').update(patch).eq('id', id);
@@ -85,6 +87,28 @@ export function slugify(name: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Le o prazo de repeticao escrito a mao nas Definicoes.
+ *
+ * Vazio devolve null — "nunca lembrar" —, tal como um preco vazio quer dizer
+ * "nao se faz nesse veiculo". Os limites sao os mesmos da migracao 0024: a base
+ * de dados tambem recusa, mas recusar aqui poupa a ida e volta e da uma frase
+ * em portugues em vez de um erro de constraint.
+ *
+ * Levanta em vez de devolver um terceiro estado: null ja tem significado e
+ * empilhar-lhe um undefined por cima era garantir que um dia se confundiam.
+ */
+export function parseRepeatDays(raw: string): number | null {
+  const s = raw.trim();
+  if (!s) return null;
+
+  const n = Number(s);
+  if (!Number.isInteger(n) || n < 7 || n > 730) {
+    throw new Error('O prazo tem de ser um número inteiro de dias, entre 7 e 730.');
+  }
+  return n;
 }
 
 export interface NewServiceType {

@@ -78,6 +78,12 @@ export interface ServiceType {
   base_price: number;
   /** Preço por tipo de veículo. Vazio = preço único em base_price. */
   prices: Record<string, number>;
+  /**
+   * Dias ate valer a pena repetir o servico. Null = nunca lembrar, que e o
+   * valor por omissao. Ver a migracao 0024: e o que decide quem recebe o
+   * lembrete de manutencao.
+   */
+  repeat_after_days: number | null;
   active: boolean;
   sort_order: number;
 }
@@ -97,6 +103,8 @@ export interface Service {
   employee_id: string | null;
   /** Quando saiu o lembrete da vespera. Null: ainda nao saiu. */
   reminded_at: string | null;
+  /** Quando saiu o lembrete de manutencao deste servico. Null: ainda nao saiu. */
+  maintenance_reminded_at: string | null;
   /** Token da galeria publica. Null: nunca foi partilhada, ou foi revogada. */
   share_token: string | null;
   share_expires_at: string | null;
