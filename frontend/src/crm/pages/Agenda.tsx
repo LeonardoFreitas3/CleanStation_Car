@@ -248,6 +248,33 @@ export default function Agenda() {
 
       {error && <div className="mb-6"><Alert tone="error">{error}</Alert></div>}
 
+      {/* Os bloqueios do Google sao um extra: a semana mostra-se sem eles, como
+          sempre se mostrou. Mas em silencio as duas falhas eram iguais — a
+          agenda ficava com bom aspeto e sem dizer que estava a esconder
+          ocupacao. Uma passa sozinha, a outra so passa com um deploy, e nao ha
+          como adivinhar qual e olhando para o ecra. */}
+      {week?.blocksState === 'por-publicar' && (
+        <div className="mb-6">
+          <Alert tone="info">
+            A agenda não está a mostrar o que foi marcado direto no Google Calendar: a função
+            <span className="font-mono"> booking </span>
+            publicada é anterior a essa funcionalidade. Publica-a de novo
+            (<span className="font-mono">supabase functions deploy booking</span>) e estes
+            bloqueios voltam a aparecer. As marcações e as folgas em baixo estão completas.
+          </Alert>
+        </div>
+      )}
+
+      {week?.blocksState === 'indisponivel' && (
+        <div className="mb-6">
+          <Alert tone="info">
+            Não foi possível ler o Google Calendar agora. O que foi marcado direto no
+            calendário pode não estar aqui — as marcações e as folgas em baixo estão
+            completas. Costuma resolver-se sozinho; recarregue daqui a pouco.
+          </Alert>
+        </div>
+      )}
+
       {loading && !week ? (
         <div className="py-20 flex justify-center"><Spinner size={26} /></div>
       ) : (

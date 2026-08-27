@@ -116,12 +116,40 @@ export interface CalendarBlock {
   endIso: string;
 }
 
+/**
+ * Porque e que a lista de bloqueios veio vazia.
+ *
+ * As duas falhas pedem coisas diferentes a quem esta a olhar: uma passa
+ * sozinha, a outra so passa com um deploy. Ate aqui as duas davam a mesma
+ * agenda, com o mesmo aspeto de estar tudo bem.
+ */
+export type BlocksState = 'ok' | 'por-publicar' | 'indisponivel';
+
+/**
+ * Le o estado a partir do codigo da resposta.
+ *
+ * 404 e a funcao publicada nao conhecer o endpoint — foi publicada antes de ele
+ * existir. Nao ha nada a esperar: fica assim ate alguem a publicar de novo.
+ *
+ * O resto — rede em baixo, 5xx do Supabase, sessao expirada, Google a recusar —
+ * e passageiro. Tentar outra vez daqui a pouco resolve.
+ *
+ * `null` e a chamada nem ter chegado a ter resposta.
+ */
+export function estadoDosBlocos(status: number | null): BlocksState {
+  if (status === null) return 'indisponivel';
+  if (status === 404) return 'por-publicar';
+  return status >= 200 && status < 300 ? 'ok' : 'indisponivel';
+}
+
 export interface Week {
   days: Date[];
   services: ServiceWithRelations[];
   timeOff: TimeOff[];
   /** Vazio se o Google nao respondeu — a semana mostra-se na mesma. */
   blocks: CalendarBlock[];
+  /** Porque e que veio vazia, para a Agenda o poder dizer. */
+  blocksState: BlocksState;
 }
 
 /**
@@ -131,10 +159,15 @@ export interface Week {
  * em baixo, a semana mostra-se com os servicos e as folgas, como sempre
  * mostrou, em vez de dar erro por causa de um extra.
  */
-async function loadCalendarBlocks(from: string, to: string): Promise<CalendarBlock[]> {
+async function loadCalendarBlocks(
+  from: string,
+  to: string,
+): Promise<{ blocks: CalendarBlock[]; state: BlocksState }> {
+  const vazio = (state: BlocksState) => ({ blocks: [], state });
+
   try {
     const { data: { session } } = await getSupabase().auth.getSession();
-    if (!session) return [];
+    if (!session) return vazio('indisponivel');
 
     const res = await fetch(`${SUPABASE_URL}/functions/v1/booking/events`, {
       method: 'POST',
@@ -146,10 +179,13 @@ async function loadCalendarBlocks(from: string, to: string): Promise<CalendarBlo
       body: JSON.stringify({ from, to }),
     });
 
-    if (!res.ok) return [];
-    return ((await res.json())?.events ?? []) as CalendarBlock[];
+    const state = estadoDosBlocos(res.status);
+    if (state !== 'ok') return vazio(state);
+
+    return { blocks: ((await res.json())?.events ?? []) as CalendarBlock[], state };
   } catch {
-    return [];
+    // Nem chegou a haver resposta: rede, DNS, o browser a cortar.
+    return vazio('indisponivel');
   }
 }
 
@@ -322,7 +358,8 @@ export async function loadWeek(anchor: Date): Promise<Week> {
     days,
     services: (services.data ?? []) as unknown as ServiceWithRelations[],
     timeOff: (off.data ?? []) as TimeOff[],
-    blocks,
+    blocks: blocks.blocks,
+    blocksState: blocks.state,
   };
 }
 

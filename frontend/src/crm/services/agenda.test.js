@@ -1,7 +1,7 @@
 // A agenda erra em silencio: uma folga que nao aparece no dia certo continua a
 // mostrar um ecra bonito, so que errado. Correr com `npm test`.
 
-import { dayKey, dayOccupancy, feriados, isEncerrado, nextFreeHour, setHorario, timeOffDays, weekDays, weekStart } from './agenda';
+import { dayKey, dayOccupancy, feriados, isEncerrado, nextFreeHour, setHorario, timeOffDays, weekDays, weekStart, estadoDosBlocos } from './agenda';
 
 const local = (s) => new Date(s);
 
@@ -222,5 +222,34 @@ describe('feriados', () => {
     const vazia = { services: [], timeOff: [], blocks: [] };
     expect(dayOccupancy(new Date('2026-12-25T00:00:00'), vazia).capacity).toBe(0);
     expect(dayOccupancy(new Date('2026-12-22T00:00:00'), vazia).capacity).toBe(660);
+  });
+});
+
+// A agenda mostra-se na mesma sem os bloqueios do Google — sao um extra. Mas as
+// duas maneiras de eles faltarem pedem coisas diferentes a quem esta a olhar:
+// uma passa sozinha, a outra so passa com um deploy. Em silencio eram iguais, e
+// a agenda ficava com bom aspeto a esconder ocupacao.
+
+describe('porque e que os bloqueios do Google faltam', () => {
+  test('resposta boa e resposta boa', () => {
+    expect(estadoDosBlocos(200)).toBe('ok');
+    expect(estadoDosBlocos(204)).toBe('ok');
+  });
+
+  test('404 e a funcao publicada nao conhecer o endpoint: so um deploy resolve', () => {
+    expect(estadoDosBlocos(404)).toBe('por-publicar');
+  });
+
+  test('o resto e passageiro, e tentar outra vez resolve', () => {
+    expect(estadoDosBlocos(500)).toBe('indisponivel');
+    expect(estadoDosBlocos(502)).toBe('indisponivel');
+    // Sessao expirada: nao e o Google que esta em baixo, mas tambem nao pede
+    // um deploy — pede voltar a entrar, e recarregar ja mostra isso.
+    expect(estadoDosBlocos(401)).toBe('indisponivel');
+    expect(estadoDosBlocos(400)).toBe('indisponivel');
+  });
+
+  test('sem resposta nenhuma tambem e passageiro', () => {
+    expect(estadoDosBlocos(null)).toBe('indisponivel');
   });
 });
