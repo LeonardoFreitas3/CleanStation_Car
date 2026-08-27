@@ -1,10 +1,63 @@
 # Implantação — o que falta pôr no ar
 
-Tudo o que está neste ramo foi escrito e verificado **sem acesso à base de dados
-de produção**: os testes passam, o TypeScript está limpo e o SQL nunca correu
-contra nenhum Postgres. Esta é a ordem por que deve ser aplicado.
-
 A ordem importa. Onde importa mesmo, está dito porquê.
+
+---
+
+## Onde isto está — medido a 27/08/2026
+
+**Quase tudo já foi aplicado.** Este bloco existe porque o guia foi escrito de
+uma vez, para uma base de dados vazia, e lê-lo de cima a baixo hoje manda
+repetir passos já feitos — incluindo a `0016`, que faz um `update` a sério.
+
+Isto não é memória nem suposição: foi medido contra a API de produção com a anon
+key, sem escrever nada. As sondagens estão no fim desta secção.
+
+| Passo | Estado |
+|---|---|
+| 1. Migrações `0015`–`0025` | **feito** |
+| 1. Migração `0026` | **falta** |
+| 2. Secrets do Brevo (chave, remetente, lista) | **feito** |
+| 3. `lembretes`, `brevo-sync`, `team` | **feito** |
+| 3. `galeria` | **falta** |
+| 3. `booking` | publicada, mas **versão antiga** — sem `time-off` nem `events` |
+| 5. Lista e atributos no Brevo | **feito** (implícito no secret da lista) |
+
+**Não consegui medir de fora, confirma tu:** o `CRON_SECRET`, se as duas tarefas
+agendadas estão criadas (passo 4), se o endereço de avaliação já está nas
+Definições (passo 6.2), e o build do site na Netlify (passo 7).
+
+### O que falta, por ordem
+
+```bash
+npx supabase functions deploy booking
+```
+
+```bash
+npx supabase functions deploy galeria
+```
+
+E a `0026` no SQL Editor. Enquanto ela não correr, o filtro **Por cobrar** dá
+erro a dizer que falta uma migração, e o cartão do dashboard não aparece — os
+dois de propósito.
+
+A `booking` é a mais urgente das três: a `0018` já correu e o CRM já escreve o
+`google_event_id`, mas a função publicada ainda não conhece as folgas.
+
+### Como voltar a medir isto
+
+Com a `REACT_APP_SUPABASE_URL` e a `REACT_APP_SUPABASE_ANON_KEY` do
+`frontend/.env.local`. Nenhuma destas chamadas escreve — a `lembretes` devolve
+401 antes de tocar em email nenhum.
+
+| Pergunta | Como | Resposta |
+|---|---|---|
+| A função SQL existe? | `POST {URL}/rest/v1/rpc/<nome>` | `42501 permission denied` = existe · `PGRST202` = não |
+| A coluna existe? | `GET {URL}/rest/v1/services?select=<coluna>&limit=1` | `42501` = existe · `42703` = não |
+| A Edge Function está publicada? | `POST {URL}/functions/v1/<nome>` | erro **da própria função** = sim · `{"code":"NOT_FOUND"}` = não |
+| Que versão é a `booking`? | `POST .../functions/v1/booking/time-off` | `Endpoint desconhecido` = versão anterior às folgas |
+
+Comparar sempre com um nome inventado, para confirmar que a sonda distingue.
 
 ---
 
