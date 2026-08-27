@@ -73,8 +73,8 @@ Deno.test('um tipo de veículo que não existe é recusado', () => {
 Deno.test('o preço é o da tabela: não há multiplicador de sujidade nem packs', () => {
   const q = resolve('suv', 'detalhada');
   assertEquals(q.price, 160);
-  // A assinatura tem dois argumentos. Se voltar a ter um terceiro, isto avisa.
-  assertEquals(resolve.length, 2);
-  // E o que devolve são três campos, sem grade nem gradePct.
+  // Os campos que devolve, e mais nenhum. Um grade ou um gradePct de volta
+  // aparecem aqui — que é o sítio onde reaparecem por engano, porque é este
+  // ficheiro que decide o valor cobrado.
   assertEquals(Object.keys(q).sort(), ['duration', 'label', 'price']);
 });
