@@ -63,6 +63,9 @@ jobs:
       # As Edge Functions nunca foram verificadas por nada: o `tsc` do frontend
       # não lhes toca e o deploy do Supabase empacota com esbuild, que remove os
       # tipos sem os conferir. Publicava-se código que não compila.
-      - run: deno check supabase/functions/*/index.ts supabase/functions/booking/slots.test.ts
+      - run: deno check supabase/functions/*/index.ts supabase/functions/*/*.test.ts
 
-      - run: deno test supabase/functions/booking/slots.test.ts
+      # A pasta toda, e nao um ficheiro a dedo: o `deno test` so apanha os
+      # *.test.ts, portanto os index.ts ficam de fora sozinhos — o que interessa,
+      # porque eles chamam Deno.serve() ao serem importados.
+      - run: deno test supabase/functions/
