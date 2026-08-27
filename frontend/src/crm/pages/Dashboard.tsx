@@ -83,13 +83,19 @@ export default function Dashboard() {
         <Stat label="A contactar" value={String(stats.follow_ups)} icon={BellRing} to="/crm/follow-ups" />
         {/* Fica na fila de cima, com o trabalho do dia, e nao em "Este mes":
             uma divida de marco continua a ser divida hoje, e por baixo de um
-            titulo que diz "Este mes" lia-se como se nao fosse. */}
-        <Stat
-          label="Por cobrar"
-          value={eur(stats.unpaid_total)}
-          icon={BadgeEuro}
-          to="/crm/servicos?filtro=por_cobrar"
-        />
+            titulo que diz "Este mes" lia-se como se nao fosse.
+
+            So aparece se a 0026 tiver corrido. Sem ela o campo nao vem na
+            resposta e o cartao mostrava "0,00 €" — que se le como "ninguem
+            deve nada" quando a verdade e "ainda nao ha como saber". */}
+        {typeof stats.unpaid_total === 'number' && (
+          <Stat
+            label="Por cobrar"
+            value={eur(stats.unpaid_total)}
+            icon={BadgeEuro}
+            to="/crm/servicos?filtro=por_cobrar"
+          />
+        )}
         <Stat label="Clientes" value={String(stats.clients_total)} icon={Users} to="/crm/clientes" />
       </div>
 

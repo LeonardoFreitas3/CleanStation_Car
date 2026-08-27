@@ -37,6 +37,12 @@ const AUTH_CODES: Record<string, string> = {
 /** Codigos do Postgres que aparecem atraves do PostgREST. */
 const POSTGRES_MESSAGES: Record<string, string> = {
   '42501': 'Não tem autorização para executar esta ação.',
+  // Coluna ou funcao que o codigo conhece e a base de dados nao: e sempre uma
+  // migracao por correr, e a mensagem generica mandava procurar no sitio
+  // errado. Sem dizer *qual* coluna — a regra do topo deste ficheiro continua
+  // a valer, e o nome dela vai na consola em desenvolvimento.
+  '42703': 'Há uma migração por aplicar na base de dados. Ver o IMPLANTACAO.md.',
+  PGRST202: 'Há uma migração por aplicar na base de dados. Ver o IMPLANTACAO.md.',
   '23505': 'Já existe um registo com estes dados.',
   '23503': 'Este registo está ligado a outros e não pode ser removido.',
   '23514': 'Os dados introduzidos não são válidos.',

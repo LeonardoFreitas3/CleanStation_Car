@@ -26,9 +26,16 @@ export interface DashboardStats {
   scheduled_today: number;
   in_progress: number;
   follow_ups: number;
-  /** Servicos acabados e por pagar, de sempre e nao so deste mes. */
-  unpaid_count: number;
-  unpaid_total: number;
+  /**
+   * Servicos acabados e por pagar, de sempre e nao so deste mes.
+   *
+   * Opcionais porque a 0026 pode nao ter corrido: o dashboard_stats() antigo
+   * devolve o JSON sem estes campos, e o eur() de um undefined da "0,00 €" —
+   * que nao e um numero errado, e uma mentira. Quem os le tem de verificar que
+   * existem antes de os mostrar.
+   */
+  unpaid_count?: number;
+  unpaid_total?: number;
   top_services: TopService[];
   revenue_by_month: MonthRevenue[];
 }
