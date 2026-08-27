@@ -1,0 +1,38 @@
+-- =============================================================================
+-- CleanStation Car CRM — 0027 a fase do meio
+--
+-- Correr depois do 0026. **Sozinha, e antes da 0028.**
+--
+-- O cliente vai passar a receber três avisos por lavagem: começámos, estamos a
+-- meio, terminámos. O "começámos" e o "terminámos" já têm estado no fluxo — a
+-- `lavagem` e o `concluido`. O do meio não tinha, e mandá-lo a partir de uma
+-- fase de detalhe era fazer o aviso depender de um passo que uma lavagem
+-- simples não dá.
+--
+-- ── Porque é que isto vem sozinho numa migração ─────────────────────────────
+--
+-- Um valor novo de enum não pode ser **usado** na mesma transação em que é
+-- criado — o Postgres recusa com "unsafe use of new value of enum type". O SQL
+-- Editor do Supabase corre o script como uma transação, portanto acrescentar o
+-- valor e escrevê-lo numa linha no mesmo ficheiro rebentava.
+--
+-- Por isso são duas: esta cria o valor, a 0028 usa-o. Correr esta, esperar que
+-- acabe, e só depois a outra.
+--
+-- ── A posição ──────────────────────────────────────────────────────────────
+--
+-- Logo a seguir à `lavagem`, e não no fim. O `add value ... after` do Postgres
+-- insere na posição certa, e a ordem do enum **é** a ordem do fluxo no ecrã do
+-- serviço — o comentário do 0001 diz isso e continua a valer.
+--
+-- Numa lavagem simples o percurso é recebido → preparação → lavagem → meio →
+-- concluído, e o aviso do meio cai mesmo a meio. Numa detalhada, que ainda
+-- passa pelas fases de detalhe a seguir, cai mais cedo do que o meio real.
+--
+-- **Se preferires que caia mais tarde, muda o `after` antes de correr isto** —
+-- `after 'detalhe_interior'`, por exemplo. Depois de aplicado, mudar a posição
+-- de um valor de enum obriga a recriar o tipo e a converter a coluna, que é
+-- outra conversa. É a única coisa aqui que não se muda num ecrã.
+-- =============================================================================
+
+alter type public.service_status add value if not exists 'meio_lavagem' after 'lavagem';

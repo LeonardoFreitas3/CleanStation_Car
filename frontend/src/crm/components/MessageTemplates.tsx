@@ -4,7 +4,17 @@ import {
   MESSAGE_CATEGORY_LABEL, listAllTemplates, unknownVars, updateTemplate, varsForCategory,
   type MessageTemplate,
 } from '../services/messages';
-import { Alert, Button, Card, Field, Spinner, TextArea } from './ui';
+import { SERVICE_FLOW, SERVICE_STATUS_LABEL } from '../services/services';
+import type { ServiceStatus } from '../types';
+import { Alert, Button, Card, Field, Select, Spinner, TextArea } from './ui';
+
+/**
+ * Fases que podem disparar uma mensagem.
+ *
+ * O 'agendado' fica de fora: ainda nao aconteceu nada ao carro, e o cliente ja
+ * recebeu o email de confirmacao quando marcou.
+ */
+const FASES = SERVICE_FLOW.filter((f) => f !== 'agendado');
 
 /**
  * As mensagens editaveis no proprio ecra.
@@ -25,6 +35,7 @@ export default function MessageTemplates() {
   const [saved, setSaved] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, { name: string; content: string }>>({});
+  const [savingAuto, setSavingAuto] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -76,6 +87,38 @@ export default function MessageTemplates() {
       setError(e instanceof Error ? e.message : 'Não foi possível guardar a mensagem.');
     } finally {
       setSaving(null);
+    }
+  };
+
+  /**
+   * Liga (ou desliga) o envio automatico numa fase.
+   *
+   * Guarda logo, sem passar pelo rascunho: e uma escolha de uma caixa, nao um
+   * texto a meio de ser escrito, e obrigar a carregar em Guardar a seguir era
+   * so uma maneira de a pessoa pensar que ja tinha ficado.
+   */
+  const setAuto = async (t: MessageTemplate, valor: string) => {
+    const status = (valor || null) as ServiceStatus | null;
+
+    // A base de dados tambem recusa — ha um indice unico na 0028 — mas o erro
+    // dela nao diz qual e o outro modelo, e e isso que a pessoa precisa de
+    // saber para o desligar.
+    const ocupada = status && templates.find((o) => o.id !== t.id && o.auto_status === status);
+    if (ocupada) {
+      setError(`A fase "${SERVICE_STATUS_LABEL[status]}" já manda "${ocupada.name}". `
+        + 'Desligue-a nesse modelo primeiro — só sai uma mensagem por fase.');
+      return;
+    }
+
+    setSavingAuto(t.id);
+    setError(null);
+    try {
+      await updateTemplate(t.id, { auto_status: status });
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível guardar a fase.');
+    } finally {
+      setSavingAuto(null);
     }
   };
 
@@ -156,6 +199,29 @@ export default function MessageTemplates() {
                     value={row.content}
                     onChange={(e) => patchDraft(t, { content: e.target.value })}
                   />
+
+                  {/* A categoria follow_up nao entra: a lista de reativacao e
+                      por cliente e nao tem servico nenhum a mudar de fase. */}
+                  {t.category !== 'follow_up' && (
+                    <div className="mt-4 pt-4 border-t border-white/5 grid sm:grid-cols-5 gap-3 items-end">
+                      <Select
+                        label="Enviar sozinha quando o serviço passar a"
+                        value={t.auto_status ?? ''}
+                        disabled={savingAuto === t.id}
+                        onChange={(e) => setAuto(t, e.target.value)}
+                        className="sm:col-span-2"
+                        options={[
+                          { value: '', label: '— nunca, só à mão —' },
+                          ...FASES.map((f) => ({ value: f, label: SERVICE_STATUS_LABEL[f] })),
+                        ]}
+                      />
+                      <p className="sm:col-span-3 text-white/25 text-xs leading-relaxed">
+                        O cliente recebe esta mensagem assim que o funcionário avançar o serviço
+                        para essa fase. Uma fase só pode ter um modelo.{' '}
+                        <span className="text-white/45">Vazio = nunca sai sozinha.</span>
+                      </p>
+                    </div>
+                  )}
 
                   <p className="text-white/25 text-xs mt-2">
                     Variáveis:{' '}

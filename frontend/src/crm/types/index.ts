@@ -11,6 +11,7 @@ export type ServiceStatus =
   | 'recebido'
   | 'preparacao'
   | 'lavagem'
+  | 'meio_lavagem'
   | 'detalhe_interior'
   | 'detalhe_exterior'
   | 'protecao'

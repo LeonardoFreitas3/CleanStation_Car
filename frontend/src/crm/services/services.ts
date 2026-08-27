@@ -4,7 +4,7 @@ import type { Service, ServiceExtra, ServiceStatus, ServiceWithRelations } from 
 
 /** Ordem do fluxo na oficina. Igual a do enum service_status no Postgres. */
 export const SERVICE_FLOW: ServiceStatus[] = [
-  'agendado', 'recebido', 'preparacao', 'lavagem',
+  'agendado', 'recebido', 'preparacao', 'lavagem', 'meio_lavagem',
   'detalhe_interior', 'detalhe_exterior', 'protecao',
   'controlo_qualidade', 'concluido', 'entregue',
 ];
@@ -14,6 +14,7 @@ export const SERVICE_STATUS_LABEL: Record<ServiceStatus, string> = {
   recebido: 'Cliente recebido',
   preparacao: 'Em preparação',
   lavagem: 'Lavagem',
+  meio_lavagem: 'A meio da lavagem',
   detalhe_interior: 'Detalhe interior',
   detalhe_exterior: 'Detalhe exterior',
   protecao: 'Proteção',
@@ -28,6 +29,7 @@ export const SERVICE_STATUS_CLASS: Record<ServiceStatus, string> = {
   recebido: 'bg-blue-950/50 text-blue-300 border-blue-800/50',
   preparacao: 'bg-blue-950/50 text-blue-300 border-blue-800/50',
   lavagem: 'bg-blue-950/50 text-blue-300 border-blue-800/50',
+  meio_lavagem: 'bg-blue-950/50 text-blue-300 border-blue-800/50',
   detalhe_interior: 'bg-blue-950/50 text-blue-300 border-blue-800/50',
   detalhe_exterior: 'bg-blue-950/50 text-blue-300 border-blue-800/50',
   protecao: 'bg-blue-950/50 text-blue-300 border-blue-800/50',
@@ -37,8 +39,19 @@ export const SERVICE_STATUS_CLASS: Record<ServiceStatus, string> = {
   cancelado: 'bg-red-950/30 text-red-300/80 border-red-900/40',
 };
 
-/** Estados que contam como trabalho a decorrer. */
-export const IN_PROGRESS: ServiceStatus[] = SERVICE_FLOW.slice(1, 8);
+/**
+ * Estados que contam como trabalho a decorrer.
+ *
+ * Derivado pelos nomes e nao por indices. Estava `slice(1, 8)`, e acrescentar
+ * uma fase ao meio do fluxo — como a `meio_lavagem` — empurrava a janela e
+ * deixava a protecao e o controlo de qualidade de fora do filtro "Em curso",
+ * sem erro nenhum: os servicos nessas fases desapareciam da lista e ninguem
+ * tinha como saber porque.
+ */
+export const IN_PROGRESS: ServiceStatus[] = SERVICE_FLOW.slice(
+  SERVICE_FLOW.indexOf('recebido'),
+  SERVICE_FLOW.indexOf('concluido'),
+);
 
 export type ServiceFilter =
   | 'hoje' | 'amanha' | 'semana' | 'em_curso' | 'concluidos' | 'por_cobrar' | 'cancelados' | 'todos';

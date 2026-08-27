@@ -80,6 +80,8 @@ No **SQL Editor** do Supabase, uma de cada vez, por ordem. Estão em
 | `0024_lembrete_de_manutencao.sql` | Prazo de repetição no catálogo, e quem está à espera de ser lembrado |
 | `0025_pedir_avaliacao.sql` | Data de entrega a sério, endereço da avaliação e quem está à espera de ser convidado |
 | `0026_saber_quem_ficou_a_dever.sql` | Marca de pagamento no serviço, e o total por cobrar no dashboard |
+| `0027_fase_meio_da_lavagem.sql` | A fase "a meio" no fluxo. **Corre sozinha** |
+| `0028_mensagens_automaticas_por_fase.sql` | Que fases avisam o cliente, e o dashboard a contar a fase nova |
 
 **A `0016` faz um `update` a sério** — atribui ao João os serviços por atribuir.
 Antes de a correr, vale a pena ver quantos são:
@@ -102,6 +104,19 @@ A `0025` **altera o `stamp_service_dates`**, o trigger do `0001` que carimba as
 datas de um serviço. As duas datas que ele já escrevia ficam exatamente como
 estavam; ganha uma terceira, o `delivered_at`, e faz o backfill dos serviços já
 entregues a partir do `completed_at`.
+
+**A `0027` e a `0028` não podem ir no mesmo script.** A `0027` cria um valor
+novo no enum das fases, e o Postgres não deixa **usar** um valor de enum na
+mesma transação em que ele é criado — o SQL Editor corre cada script como uma
+transação, e a `0028` escreve esse valor numa linha. Correr a `0027`, esperar
+que acabe, e só depois a `0028`. Juntas dão
+`unsafe use of new value of enum type`.
+
+**A posição da fase nova é a única coisa aqui que não se muda num ecrã.** A
+`0027` põe a `meio_lavagem` logo a seguir à `lavagem`; se preferires que o aviso
+do meio saia mais tarde, muda o `after` **antes** de a correr. Depois de
+aplicada, mudar a ordem de um enum obriga a recriar o tipo. Que fases é que
+avisam o cliente, essas mudam-se nas Definições sem SQL nenhum.
 
 **A `0026` reescreve o `dashboard_stats()`** — uma função `language sql` não se
 remenda por pedaços. O corpo é o da `0015` com dois campos a mais e a guarda do
@@ -326,6 +341,14 @@ vão coladas no build, a partir do `frontend/.env.local`.
 - [ ] Com a sessão do João, o `dashboard_stats` continua a devolver `null` — ele
       carrega no botão do pagamento mas não vê a soma por cobrar.
 - [ ] Guardar um endereço de avaliação sem `https://` dá erro em português.
+- [ ] A ficha de um serviço mostra a fase **A meio da lavagem** a seguir à
+      Lavagem, e o "Avançar para" leva lá.
+- [ ] O filtro **Em curso** traz serviços em proteção e em controlo de
+      qualidade — se não trouxer, o `IN_PROGRESS` voltou a ser por índices.
+- [ ] Nas Definições, os modelos **Processo iniciado**, **A meio da lavagem** e
+      **Serviço concluído** aparecem com a fase escolhida; os outros com
+      "nunca, só à mão".
+- [ ] Escolher uma fase que já está noutro modelo dá erro a dizer qual é.
 - [ ] Passar um serviço a **entregue** e confirmar que o `delivered_at` ficou
       preenchido: `select delivered_at from services where id = '…'`.
 - [ ] Na ficha de um cliente que recebeu o lembrete de manutenção, a mensagem

@@ -1,7 +1,7 @@
 import { getSupabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';
 import { SERVICE_STATUS_LABEL } from './services';
-import type { ServiceWithRelations } from '../types';
+import type { ServiceStatus, ServiceWithRelations } from '../types';
 
 export interface MessageTemplate {
   id: string;
@@ -11,6 +11,12 @@ export interface MessageTemplate {
   content: string;
   active: boolean;
   sort_order: number;
+  /**
+   * Fase que faz esta mensagem sair sozinha. Null = nunca sai sozinha, so a
+   * mao. Ver a 0028: o mapa vive na base de dados para se poder mudar as fases
+   * que avisam o cliente sem publicar nada.
+   */
+  auto_status: ServiceStatus | null;
 }
 
 export async function listTemplates(): Promise<MessageTemplate[]> {
@@ -47,7 +53,7 @@ export async function listAllTemplates(): Promise<MessageTemplate[]> {
  */
 export async function updateTemplate(
   id: string,
-  patch: { name?: string; content?: string; active?: boolean },
+  patch: { name?: string; content?: string; active?: boolean; auto_status?: ServiceStatus | null },
 ): Promise<void> {
   const { error } = await getSupabase().from('message_templates').update(patch).eq('id', id);
   if (error) throw new Error(friendlyError(error));
@@ -166,5 +172,6 @@ export const MESSAGE_CATEGORY_LABEL: Record<string, string> = {
   protecao: 'Proteção',
   controlo: 'Controlo',
   conclusao: 'Conclusão',
+  meio: 'A meio',
   follow_up: 'Follow-up',
 };
