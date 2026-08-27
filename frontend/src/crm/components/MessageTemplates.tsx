@@ -35,7 +35,6 @@ export default function MessageTemplates() {
   const [saved, setSaved] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, { name: string; content: string }>>({});
-  const [savingAuto, setSavingAuto] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -98,27 +97,15 @@ export default function MessageTemplates() {
    * so uma maneira de a pessoa pensar que ja tinha ficado.
    */
   const setAuto = async (t: MessageTemplate, valor: string) => {
-    const status = (valor || null) as ServiceStatus | null;
-
-    // A base de dados tambem recusa — ha um indice unico na 0028 — mas o erro
-    // dela nao diz qual e o outro modelo, e e isso que a pessoa precisa de
-    // saber para o desligar.
-    const ocupada = status && templates.find((o) => o.id !== t.id && o.auto_status === status);
-    if (ocupada) {
-      setError(`A fase "${SERVICE_STATUS_LABEL[status]}" já manda "${ocupada.name}". `
-        + 'Desligue-a nesse modelo primeiro — só sai uma mensagem por fase.');
-      return;
-    }
-
-    setSavingAuto(t.id);
+    setSaving(t.id);
     setError(null);
     try {
-      await updateTemplate(t.id, { auto_status: status });
+      await updateTemplate(t.id, { auto_status: (valor || null) as ServiceStatus | null });
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível guardar a fase.');
     } finally {
-      setSavingAuto(null);
+      setSaving(null);
     }
   };
 
@@ -207,12 +194,23 @@ export default function MessageTemplates() {
                       <Select
                         label="Enviar sozinha quando o serviço passar a"
                         value={t.auto_status ?? ''}
-                        disabled={savingAuto === t.id}
+                        disabled={saving === t.id}
                         onChange={(e) => setAuto(t, e.target.value)}
                         className="sm:col-span-2"
                         options={[
                           { value: '', label: '— nunca, só à mão —' },
-                          ...FASES.map((f) => ({ value: f, label: SERVICE_STATUS_LABEL[f] })),
+                          // Quem ja usa cada fase vai no proprio rotulo. Quem
+                          // recusa e o indice unico da 0028; isto so evita que
+                          // se escolha as cegas uma fase ja ocupada.
+                          ...FASES.map((f) => {
+                            const dona = templates.find((o) => o.id !== t.id && o.auto_status === f);
+                            return {
+                              value: f,
+                              label: dona
+                                ? `${SERVICE_STATUS_LABEL[f]} — já usada por "${dona.name}"`
+                                : SERVICE_STATUS_LABEL[f],
+                            };
+                          }),
                         ]}
                       />
                       <p className="sm:col-span-3 text-white/25 text-xs leading-relaxed">

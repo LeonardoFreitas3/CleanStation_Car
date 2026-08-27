@@ -134,18 +134,18 @@ export default function FollowUps() {
           contactaveis e uma coisa muito diferente de quarenta por ligar. */}
       {!loading && !error && resumo.total > 0 && (
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 mb-6 pb-5 border-b border-white/10">
-          <div>
-            <div className="text-white font-display text-2xl font-bold leading-none">{resumo.porContactar}</div>
-            <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase mt-1.5">Por contactar</div>
-          </div>
-          <div>
-            <div className="text-white/70 font-display text-2xl font-bold leading-none">{resumo.contactados}</div>
-            <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase mt-1.5">Já contactados</div>
-          </div>
-          <div>
-            <div className="text-white/35 font-display text-2xl font-bold leading-none">{resumo.semContacto}</div>
-            <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase mt-1.5">Sem forma de contactar</div>
-          </div>
+          {/* A ordem e a opacidade sao a mensagem: o primeiro e o trabalho por
+              fazer, o ultimo e o que nao da para fazer. */}
+          {([
+            ['Por contactar', resumo.porContactar, 'text-white'],
+            ['Já contactados', resumo.contactados, 'text-white/70'],
+            ['Sem forma de contactar', resumo.semContacto, 'text-white/35'],
+          ] as const).map(([rotulo, valor, cor]) => (
+            <div key={rotulo}>
+              <div className={`${cor} font-display text-2xl font-bold leading-none`}>{valor}</div>
+              <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase mt-1.5">{rotulo}</div>
+            </div>
+          ))}
           <div className="text-white/30 text-xs ml-auto self-end">
             {resumo.total} {resumo.total === 1 ? 'cliente' : 'clientes'} nesta janela
           </div>
