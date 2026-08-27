@@ -123,5 +123,12 @@ cabeçalho.
 caso em que o funcionário não via o Dashboard mas conseguia chamar o RPC à mão e
 receber a faturação do mês. As guardas vivem dentro das funções SQL.
 
+**O npm local pode ser mais permissivo que o do CI.** O CI corre o npm que vem
+com o Node 22; uma máquina com npm 11 resolve conflitos de peer dependency que o
+npm 10 recusa. Um `npm ci --dry-run` que passa localmente **não** garante que o
+CI instala — já aconteceu subir o TypeScript para 5, ver tudo verde aqui, e
+partir o `npm ci` no CI. O `react-scripts@5.0.1` está abandonado e o seu peer de
+TypeScript parou no `^4`; quem quiser TS 5 tira-o primeiro, com o Vite.
+
 **Os comentários explicam o porquê, não o quê.** Se mudares uma decisão que um
 comentário justifica, muda o comentário na mesma alteração.
