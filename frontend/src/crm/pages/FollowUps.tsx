@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, Ban, Check } from 'lucide-react';
 import {
-  BUCKET_CLASS, BUCKET_LABEL, listFollowUps,
+  BUCKET_CLASS, BUCKET_LABEL, listFollowUps, resumoFollowUps,
 } from '../services/dashboard';
 import type { FollowUp } from '../services/dashboard';
 import { listTemplates, logMessage, renderFollowUp } from '../services/messages';
@@ -47,6 +47,8 @@ export default function FollowUps() {
   }, [minDays]);
 
   useEffect(() => { load(); }, [load]);
+
+  const resumo = resumoFollowUps(rows);
 
   // So os de reativacao: os outros falam de um servico em curso, que aqui nao
   // existe. Falhar a carregar nao pode partir a lista — fica-se com o texto de
@@ -126,9 +128,38 @@ export default function FollowUps() {
         )}
       </div>
 
+      {/* Debaixo dos botoes da janela e nao no topo da pagina: os numeros mudam
+          com a janela escolhida, e ve-los mudar ao carregar em "90+ dias" e
+          metade do que eles explicam. Uma lista de quarenta pessoas com doze
+          contactaveis e uma coisa muito diferente de quarenta por ligar. */}
+      {!loading && !error && resumo.total > 0 && (
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 mb-6 pb-5 border-b border-white/10">
+          <div>
+            <div className="text-white font-display text-2xl font-bold leading-none">{resumo.porContactar}</div>
+            <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase mt-1.5">Por contactar</div>
+          </div>
+          <div>
+            <div className="text-white/70 font-display text-2xl font-bold leading-none">{resumo.contactados}</div>
+            <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase mt-1.5">Já contactados</div>
+          </div>
+          <div>
+            <div className="text-white/35 font-display text-2xl font-bold leading-none">{resumo.semContacto}</div>
+            <div className="text-[9px] tracking-[0.25em] text-white/40 uppercase mt-1.5">Sem forma de contactar</div>
+          </div>
+          <div className="text-white/30 text-xs ml-auto self-end">
+            {resumo.total} {resumo.total === 1 ? 'cliente' : 'clientes'} nesta janela
+          </div>
+        </div>
+      )}
+
       <p className="text-white/40 text-xs mb-6 leading-relaxed">
         Só aparecem clientes que já passaram o seu próprio ritmo habitual. Quem costuma vir de
         60 em 60 dias não é listado aos 30.
+        {' '}
+        <span className="text-white/30">
+          &quot;Por contactar&quot; são os que nunca levaram mensagem de reativação; sem
+          consentimento de marketing ou sem telefone, o botão não aparece.
+        </span>
       </p>
 
       {error && <div className="mb-6"><Alert tone="error">{error}</Alert></div>}

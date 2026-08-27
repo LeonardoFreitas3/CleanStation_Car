@@ -1,5 +1,6 @@
 import { getSupabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';
+import { whatsappNumber } from '../lib/format';
 
 export interface TopService {
   name: string;
@@ -86,6 +87,39 @@ export const BUCKET_CLASS: Record<FollowUp['bucket'], string> = {
   perdido: 'bg-amber-950/40 text-amber-300 border-amber-700/50',
   reativacao: 'bg-red-950/30 text-red-300/80 border-red-900/40',
 };
+
+/**
+ * Os tres numeros que decidem o que se faz com a lista.
+ *
+ * Sao contados aqui e nao no SQL porque a funcao ja devolve as linhas todas —
+ * a follow_ups() nao pagina. Uma segunda ida ao servidor para contar o que ja
+ * esta em memoria era trabalho a dobrar e uma segunda verdade a manter.
+ *
+ * As tres categorias excluem-se e somam ao total, de proposito: tres numeros
+ * que se sobrepoem nao se conseguem ler. Quem nao pode ser contactado conta
+ * primeiro — esteja ou nao marcado como contactado, o que interessa e que hoje
+ * nao da para lhe escrever.
+ */
+export interface FollowUpSummary {
+  total: number;
+  /** Nunca levaram mensagem de reativacao. E a fila a serio. */
+  porContactar: number;
+  contactados: number;
+  /** Sem consentimento de marketing, ou sem telefone que sirva. */
+  semContacto: number;
+}
+
+export function resumoFollowUps(rows: FollowUp[]): FollowUpSummary {
+  const r: FollowUpSummary = { total: rows.length, porContactar: 0, contactados: 0, semContacto: 0 };
+
+  for (const f of rows) {
+    if (!f.marketing_consent || !whatsappNumber(f.phone)) r.semContacto++;
+    else if (f.last_contacted_at) r.contactados++;
+    else r.porContactar++;
+  }
+
+  return r;
+}
 
 export async function listFollowUps(minDays = 30): Promise<FollowUp[]> {
   const { data, error } = await getSupabase().rpc('follow_ups', { min_days: minDays });
