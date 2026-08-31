@@ -9,9 +9,22 @@
 // divergir dos dados.
 
 import { SERVICES, SITE } from './mock';
-import { VEHICLE_TYPES, WASH_LEVELS, levelsFor } from './booking/pricing';
+import { WASH_LEVELS } from './booking/pricing';
 
 export const SITE_URL = 'https://cleanstationcar.com';
+
+/**
+ * O horario que o site anuncia.
+ *
+ * Aqui e nao nas Definicoes: isto e gerado no build e nao tem base de dados a
+ * quem perguntar. Num sitio so, porque e dito duas vezes — no schema do
+ * negocio e na resposta das FAQ — e duas copias de um horario e a maneira mais
+ * facil de o Google anunciar uma hora e a porta ter outra.
+ *
+ * Se o horario da oficina mudar, muda tambem em CRM -> Definicoes, que e o que
+ * decide as vagas a serio. Este e o que se conta a quem procura.
+ */
+const HORARIO = { opens: '09:00', closes: '20:00' };
 export const INSTAGRAM = 'https://www.instagram.com/cleanstation_car/';
 
 /** Nomes dos serviços em texto corrido, para descrições e keywords. */
@@ -125,8 +138,8 @@ export function businessSchema(lang) {
     openingHoursSpecification: [{
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-      opens: '09:00',
-      closes: '20:00',
+      opens: HORARIO.opens,
+      closes: HORARIO.closes,
     }],
     // Ligar a empresa às contas que ela controla ajuda os motores de busca e
     // os sistemas de IA a perceber que são a mesma entidade.
@@ -145,32 +158,103 @@ export function businessSchema(lang) {
  *
  * Correspondem a texto realmente visível na página — o schema de FAQ sem
  * conteúdo à vista viola as regras do Google e pode custar os resultados
- * enriquecidos todos. São também as perguntas que os sistemas de IA recebem
- * sobre um negócio destes: onde é, quanto custa, quanto tempo demora.
+ * enriquecidos todos.
+ *
+ * Escritas à mão e não derivadas dos dados, ao contrário do resto deste
+ * ficheiro: são as perguntas e as respostas que o dono da oficina quer dar, e
+ * a regra do topo — não escrever nomes de serviços aqui — vale para o que o
+ * Google anuncia como catálogo, não para o que se responde a um cliente.
+ *
+ * As duas línguas dizem o mesmo. Mexer numa sem mexer na outra deixa metade
+ * dos visitantes com a versão antiga.
  */
 export function faqItems(lang) {
-  const carro = levelsFor('carro');
-  const desde = Math.min(...carro.map((l) => l.price));
-  const vehicles = VEHICLE_TYPES.map((v) => v.label).join(', ');
-
   if (lang === 'en') {
     return [
-      { q: 'Where is Clean Station Car?', a: `${SITE.address}, Portugal.` },
-      { q: 'What are the opening hours?', a: 'Monday to Saturday, 09:00 to 20:00. Closed on Sundays.' },
-      { q: 'How much does a wash cost?', a: `From €${desde}. The price depends on the vehicle type and the condition of the car — you get the estimate before confirming.` },
-      { q: 'Do I need to book in advance?', a: 'Yes. You can book online with real-time availability, or contact us on WhatsApp. Same-day bookings are not accepted.' },
-      { q: 'How long does it take?', a: 'A basic wash takes about 1h30. A full detail takes a whole day — the car stays overnight.' },
-      { q: 'Which vehicles do you take?', a: `${vehicles}. Each has its own pricing.` },
+      {
+        q: 'What is included in each wash?',
+        a: 'All our washes include interior and exterior cleaning. What changes between services is the level of cleaning, protection and detail applied to the vehicle.',
+      },
+      {
+        q: 'Do I need to book in advance?',
+        a: 'Yes. We recommend booking ahead to secure the time you want. You can book online, quickly and simply.',
+      },
+      {
+        q: 'How long does the wash take?',
+        a: 'It depends on the service chosen and the condition of the vehicle. An estimated duration is shown when you book.',
+      },
+      {
+        q: 'Are prices the same for every car?',
+        a: 'The prices shown are base prices. Larger vehicles, or vehicles dirtier than usual, may carry a surcharge — always agreed with you before the work starts.',
+      },
+      {
+        q: 'Do I have to leave the car at Clean Station?',
+        a: 'Yes. To guarantee the quality of the work, the vehicle must be dropped off at our premises in Braga.',
+      },
+      {
+        q: 'Do you clean upholstery and seats?',
+        a: 'Yes. Depending on the service chosen, we carry out a deeper clean of the seats and the rest of the interior.',
+      },
+      {
+        q: "What's the difference between the Premium Wash and the Detailed Wash?",
+        a: 'The Detailed Wash includes a higher level of cleaning, with seat removal, glass and paint decontamination, and premium protection applied.',
+      },
+      {
+        q: 'Do you do paint polishing?',
+        a: 'Yes. We carry out polishing and paint correction. For these services the price depends on the condition of the paint and the result you want.',
+      },
+      {
+        q: 'Can I cancel or change my booking?',
+        a: 'Yes. Contact us in advance to change or cancel your booking.',
+      },
+      {
+        q: 'Where are you?',
+        a: `We are in Braga, at ${SITE.address}. Open Monday to Saturday, ${HORARIO.opens} to ${HORARIO.closes}; closed on Sundays. You can see our location and get directions directly on our site.`,
+      },
     ];
   }
 
   return [
-    { q: 'Onde fica a Clean Station Car?', a: `${SITE.address}.` },
-    { q: 'Qual é o horário?', a: 'Segunda a sábado, das 09:00 às 20:00. Domingos encerrado.' },
-    { q: 'Quanto custa uma lavagem?', a: `Desde ${desde}€. O valor depende do tipo de veículo e do estado da viatura — recebe a estimativa antes de confirmar.` },
-    { q: 'É preciso marcar?', a: 'Sim. Pode marcar online, com disponibilidade em tempo real, ou pelo WhatsApp. Não aceitamos marcações para o próprio dia.' },
-    { q: 'Quanto tempo demora?', a: 'Uma lavagem simples demora cerca de 1h30. Uma lavagem detalhada ocupa o dia inteiro — o carro fica de um dia para o outro.' },
-    { q: 'Que veículos aceitam?', a: `${vehicles}. Cada um tem o seu preço.` },
+    {
+      q: 'O que está incluído em cada lavagem?',
+      a: 'Todas as nossas lavagens incluem limpeza interior e exterior. A diferença entre os serviços está no nível de limpeza, proteção e detalhe realizado em cada viatura.',
+    },
+    {
+      q: 'Preciso de marcar com antecedência?',
+      a: 'Sim. Recomendamos a marcação antecipada para garantir a disponibilidade do horário pretendido. Pode fazer a sua marcação online de forma rápida e simples.',
+    },
+    {
+      q: 'Quanto tempo demora a lavagem?',
+      a: 'O tempo depende do serviço escolhido e do estado da viatura. No momento da marcação é apresentada uma estimativa de duração.',
+    },
+    {
+      q: 'Os preços são iguais para todos os carros?',
+      a: 'Os preços apresentados são preços base. Viaturas de maiores dimensões ou com um nível de sujidade acima do normal podem ter um acréscimo, sempre comunicado antes da realização do serviço.',
+    },
+    {
+      q: 'Tenho de deixar o carro na Clean Station?',
+      a: 'Sim. Para garantir a qualidade do serviço, a viatura deve ser entregue nas nossas instalações em Braga.',
+    },
+    {
+      q: 'Fazem lavagem de estofos e bancos?',
+      a: 'Sim. Dependendo do serviço escolhido, realizamos uma limpeza mais profunda dos bancos e restantes elementos do interior.',
+    },
+    {
+      q: 'Qual é a diferença entre a Lavagem Premium e a Lavagem Detalhada?',
+      a: 'A Lavagem Detalhada inclui um nível de limpeza superior, com remoção dos bancos, descontaminação dos vidros e da pintura e aplicação de proteção premium.',
+    },
+    {
+      q: 'Fazem polimento automóvel?',
+      a: 'Sim. Realizamos serviços de polimento e correção de pintura. Para estes serviços, o valor depende do estado da pintura e do resultado pretendido.',
+    },
+    {
+      q: 'Posso cancelar ou alterar a minha marcação?',
+      a: 'Sim. Contacte-nos com antecedência para alterar ou cancelar a sua marcação.',
+    },
+    {
+      q: 'Onde ficam?',
+      a: `Estamos localizados em Braga, na ${SITE.address}. Abertos de segunda a sábado, das ${HORARIO.opens} às ${HORARIO.closes}; domingos encerrado. Pode consultar a nossa localização e obter indicações diretamente no nosso site.`,
+    },
   ];
 }
 
