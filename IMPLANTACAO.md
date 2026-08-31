@@ -4,95 +4,80 @@ A ordem importa. Onde importa mesmo, está dito porquê.
 
 ---
 
-## A tratar primeiro — um email a sair errado a clientes reais
+## O email que saía errado — resolvido a 31/08
 
-**Um cliente novo entra na lista "Inativos 30 dias" do Brevo antes de ter vindo
-sequer uma vez**, e a automação manda-lhe "sentimos a sua falta" ao fim de dois
-dias. Aconteceu a sério, a 27/08.
+Fica aqui o registo, porque o sintoma vai voltar a aparecer na caixa de entrada
+de quem já o recebeu e convém saber-se o que foi.
 
-A causa está corrigida no `ab55ddc`: o `days_since_last_visit` é null quando o
-cliente nunca fez um serviço concluído, e a `brevo-sync` tratava esse null como
-"inativo há uma eternidade". A mesma regra no SQL — a `follow_ups()` do `0019` —
-sempre esteve certa; foi a segunda cópia que divergiu.
+**Um cliente novo entrava na lista "Inativos 30 dias" do Brevo antes de ter
+vindo sequer uma vez**, e a automação mandava-lhe "sentimos a sua falta" ao fim
+de dois dias. O `days_since_last_visit` é null quando o cliente nunca fez um
+serviço concluído, e a `brevo-sync` tratava esse null como "inativo há uma
+eternidade". A mesma regra no SQL — a `follow_ups()` do `0019` — sempre esteve
+certa; foi a segunda cópia que divergiu.
 
-Por ordem:
+Corrigido no `ab55ddc` e **publicado**. Quem foi posto na lista por engano sai
+sozinho na sincronização seguinte: o ramo da remoção já existia.
 
-1. **No Brevo, desliga a automação da lista "Inativos 30 dias".** Enquanto
-   estiver ligada, continua a disparar em cada sincronização.
-2. ```bash
-   npx supabase functions deploy brevo-sync
-   ```
-3. Volta a ligar a automação. Quem está na lista por engano sai sozinho na
-   sincronização seguinte — o ramo da remoção já existia, não é preciso limpar
-   nada à mão no Brevo.
+**Falta só uma coisa, se a desligaste:** voltar a ligar a automação da lista no
+Brevo. Já é seguro.
 
-**Como confirmar que foi este email e não outro:** a `lembretes` escreve tudo o
-que manda na `message_logs`; a `brevo-sync` não, porque quem envia é a automação
-do Brevo. Se o email que o cliente recebeu não aparecer aqui, foi este:
+Se voltar a acontecer algo parecido, a maneira de saber qual dos quatro emails
+automáticos saiu: a `lembretes` escreve tudo o que manda na `message_logs`; a
+`brevo-sync` não, porque quem envia é a automação do Brevo. Se não estiver aqui,
+veio da lista:
 
 ```sql
-select created_at, content, is_marketing
-  from public.message_logs
- where client_id = '<id do cliente>'
- order by created_at desc;
-```
-
-### E uma decisão a tomar antes da próxima passagem da cron
-
-A `0025` faz `delivered_at = completed_at` em todos os serviços já entregues, e
-o pedido de avaliação apanha tudo o que saiu nos últimos 30 dias — até 25 de uma
-vez, a clientes servidos no mês passado. É o desenho, não um erro, e o tecto do
-`EMAILS_MAX` existe para isso.
-
-Se preferires que só os novos recebam, corre isto **antes** de a cron voltar a
-passar:
-
-```sql
-update public.services set review_requested_at = now()
- where review_requested_at is null and status = 'entregue';
+select created_at, content, is_marketing from public.message_logs where client_id = '<id>' order by created_at desc;
 ```
 
 ---
 
-## Onde isto está — medido a 27/08/2026
+## Onde isto está — medido a 31/08/2026
 
-**Quase tudo já foi aplicado.** Este bloco existe porque o guia foi escrito de
-uma vez, para uma base de dados vazia, e lê-lo de cima a baixo hoje manda
-repetir passos já feitos — incluindo a `0016`, que faz um `update` a sério.
+**A base de dados e as funções estão todas em dia.** Sondado contra a API de
+produção com a anon key, sem escrever nada; as sondagens estão no fim desta
+secção.
 
-Isto não é memória nem suposição: foi medido contra a API de produção com a anon
-key, sem escrever nada. As sondagens estão no fim desta secção.
-
-| Passo | Estado |
+| | |
 |---|---|
-| 1. Migrações `0015`–`0025` | **feito** |
-| 1. Migração `0026` | **falta** |
-| 2. Secrets do Brevo (chave, remetente, lista) | **feito** |
-| 3. `lembretes`, `brevo-sync`, `team` | **feito** |
-| 3. `galeria` | **falta** |
-| 3. `booking` | publicada, mas **versão antiga** — sem `time-off` nem `events` |
-| 5. Lista e atributos no Brevo | **feito** (implícito no secret da lista) |
+| Migrações `0015`–`0028` | **aplicadas** |
+| `booking`, `lembretes`, `galeria`, `brevo-sync`, `team` | **publicadas** |
+| Secrets do Brevo (chave, remetente, lista) | **definidos** |
+
+### O que falta
+
+**O build do site na Netlify.** É o único passo por dar, e é por ele que passa
+tudo o que o CRM ganhou: a Agenda em calendário, o filtro "Por cobrar", a fase
+"A meio da lavagem", os números nos follow-ups e as fases nas Definições. Até lá
+a base de dados sabe tudo isso e o ecrã não mostra nada.
+
+```bash
+npm --prefix frontend run build
+```
+
+E arrastar `frontend/build`, como é hábito.
 
 **Não consegui medir de fora, confirma tu:** o `CRON_SECRET`, se as duas tarefas
-agendadas estão criadas (passo 4), se o endereço de avaliação já está nas
-Definições (passo 6.2), e o build do site na Netlify (passo 7).
+agendadas estão criadas (passo 4), e se o endereço de avaliação já está nas
+Definições (passo 6.2) — sem ele o pedido de avaliação não sai.
 
-### O que falta, por ordem
+### Duas decisões de primeiro dia
 
-```bash
-npx supabase functions deploy booking
+Com a `0026` aplicada, a lista **Por cobrar** traz o histórico todo, porque
+ninguém carimbou nada. E com a `0025`, o pedido de avaliação apanha tudo o que
+foi entregue no último mês. Nos dois casos, ou se trata à mão o que interessa,
+ou se dá o passado por resolvido:
+
+```sql
+update public.services set paid_at = coalesce(completed_at, created_at) where paid_at is null and deleted_at is null and status in ('concluido','entregue');
 ```
 
-```bash
-npx supabase functions deploy galeria
+```sql
+update public.services set review_requested_at = now() where review_requested_at is null and status = 'entregue';
 ```
 
-E a `0026` no SQL Editor. Enquanto ela não correr, o filtro **Por cobrar** dá
-erro a dizer que falta uma migração, e o cartão do dashboard não aparece — os
-dois de propósito.
-
-A `booking` é a mais urgente das três: a `0018` já correu e o CRM já escreve o
-`google_event_id`, mas a função publicada ainda não conhece as folgas.
+Olhar para as listas primeiro.
 
 ### Como voltar a medir isto
 
@@ -104,8 +89,9 @@ Com a `REACT_APP_SUPABASE_URL` e a `REACT_APP_SUPABASE_ANON_KEY` do
 |---|---|---|
 | A função SQL existe? | `POST {URL}/rest/v1/rpc/<nome>` | `42501 permission denied` = existe · `PGRST202` = não |
 | A coluna existe? | `GET {URL}/rest/v1/services?select=<coluna>&limit=1` | `42501` = existe · `42703` = não |
+| A fase existe no enum? | `GET {URL}/rest/v1/services?status=eq.<fase>&limit=1` | `42501` = existe · `22P02` = não |
 | A Edge Function está publicada? | `POST {URL}/functions/v1/<nome>` | erro **da própria função** = sim · `{"code":"NOT_FOUND"}` = não |
-| Que versão é a `booking`? | `POST .../functions/v1/booking/time-off` | `Endpoint desconhecido` = versão anterior às folgas |
+| Que versão é a `booking`? | `POST .../functions/v1/booking/service-event` | `Endpoint desconhecido` = anterior aos serviços no Google |
 
 Comparar sempre com um nome inventado, para confirmar que a sonda distingue.
 
