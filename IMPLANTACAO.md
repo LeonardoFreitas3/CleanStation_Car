@@ -4,6 +4,56 @@ A ordem importa. Onde importa mesmo, está dito porquê.
 
 ---
 
+## A tratar primeiro — um email a sair errado a clientes reais
+
+**Um cliente novo entra na lista "Inativos 30 dias" do Brevo antes de ter vindo
+sequer uma vez**, e a automação manda-lhe "sentimos a sua falta" ao fim de dois
+dias. Aconteceu a sério, a 27/08.
+
+A causa está corrigida no `ab55ddc`: o `days_since_last_visit` é null quando o
+cliente nunca fez um serviço concluído, e a `brevo-sync` tratava esse null como
+"inativo há uma eternidade". A mesma regra no SQL — a `follow_ups()` do `0019` —
+sempre esteve certa; foi a segunda cópia que divergiu.
+
+Por ordem:
+
+1. **No Brevo, desliga a automação da lista "Inativos 30 dias".** Enquanto
+   estiver ligada, continua a disparar em cada sincronização.
+2. ```bash
+   npx supabase functions deploy brevo-sync
+   ```
+3. Volta a ligar a automação. Quem está na lista por engano sai sozinho na
+   sincronização seguinte — o ramo da remoção já existia, não é preciso limpar
+   nada à mão no Brevo.
+
+**Como confirmar que foi este email e não outro:** a `lembretes` escreve tudo o
+que manda na `message_logs`; a `brevo-sync` não, porque quem envia é a automação
+do Brevo. Se o email que o cliente recebeu não aparecer aqui, foi este:
+
+```sql
+select created_at, content, is_marketing
+  from public.message_logs
+ where client_id = '<id do cliente>'
+ order by created_at desc;
+```
+
+### E uma decisão a tomar antes da próxima passagem da cron
+
+A `0025` faz `delivered_at = completed_at` em todos os serviços já entregues, e
+o pedido de avaliação apanha tudo o que saiu nos últimos 30 dias — até 25 de uma
+vez, a clientes servidos no mês passado. É o desenho, não um erro, e o tecto do
+`EMAILS_MAX` existe para isso.
+
+Se preferires que só os novos recebam, corre isto **antes** de a cron voltar a
+passar:
+
+```sql
+update public.services set review_requested_at = now()
+ where review_requested_at is null and status = 'entregue';
+```
+
+---
+
 ## Onde isto está — medido a 27/08/2026
 
 **Quase tudo já foi aplicado.** Este bloco existe porque o guia foi escrito de
