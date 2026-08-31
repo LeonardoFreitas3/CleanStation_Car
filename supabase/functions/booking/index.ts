@@ -8,7 +8,7 @@
 // A resposta de availability devolve só horas — nenhum dado de nenhum cliente.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
-import { busyPeriods, createEvent, deleteEvent, listEvents } from './google.ts';
+import { busyPeriods, createEvent, deleteEvent, listEvents, updateEvent } from './google.ts';
 import { formatDuration, freeSlots, isClosed, slotIso, HORARIO_OMISSAO } from './slots.ts';
 import type { Horario } from './slots.ts';
 import type { Busy } from './slots.ts';
@@ -130,6 +130,87 @@ async function handleAvailability(body: Record<string, unknown>) {
 
   const [ocupado, h] = await Promise.all([busyWindow(date), horario()]);
   return json({ slots: freeSlots(date, duration, ocupado, new Date(), h) });
+}
+
+// ── Serviços marcados no CRM ─────────────────────────────────────────────────
+
+/**
+ * Põe o Google a par de um serviço do CRM.
+ *
+ * Um serviço marcado ao balcão ou ao telefone vivia só na tabela `services`.
+ * O site já o contava como tempo ocupado — o busyWindow lê a tabela —, portanto
+ * nunca houve risco de marcação dupla. O que não havia era vê-lo: quem abrisse
+ * o calendário no telemóvel via os dias vazios.
+ *
+ * Reconcilia em vez de "criar": recebe um id, olha para o estado actual do
+ * serviço e faz o Google ficar igual. Chamar isto duas vezes seguidas dá o
+ * mesmo resultado que chamar uma, e por isso pode ser chamado a seguir a
+ * qualquer alteração sem quem chama ter de saber o que mudou.
+ *
+ * Quem decide o que o evento diz é esta função e não o CRM: o formato do título
+ * já existia aqui para as marcações do site, e tê-lo escrito nos dois lados era
+ * garantir que um dia divergiam.
+ */
+async function handleServiceEvent(req: Request, body: Record<string, unknown>) {
+  if (!await staffOrNull(req)) return json({ error: 'Sessão inválida ou expirada' }, 401);
+
+  const id = String(body.id ?? '');
+  if (!id) return json({ error: 'Serviço por identificar' }, 400);
+
+  const db = admin();
+  const { data: s } = await db.from('services')
+    .select(`
+      scheduled_at, duration_minutes, service_name, status, deleted_at, notes, google_event_id,
+      client:clients ( name, phone, email ),
+      vehicle:vehicles ( plate, make, model )
+    `)
+    .eq('id', id).maybeSingle();
+
+  if (!s) return json({ error: 'Serviço não encontrado' }, 404);
+
+  // Um serviço sem hora não ocupa nada, e um cancelado ou apagado deixou de
+  // ocupar. Nos três casos o Google não deve ter nada — e se tiver, sai.
+  const deveExistir = Boolean(s.scheduled_at) && s.status !== 'cancelado' && !s.deleted_at;
+
+  if (!deveExistir) {
+    if (s.google_event_id) {
+      await deleteEvent(s.google_event_id);
+      await db.from('services').update({ google_event_id: null }).eq('id', id);
+    }
+    return json({ ok: true, eventId: null });
+  }
+
+  const cliente = s.client as unknown as { name: string; phone: string | null; email: string | null } | null;
+  const viatura = s.vehicle as unknown as { plate: string; make: string | null; model: string | null } | null;
+
+  const startIso = new Date(s.scheduled_at as string).toISOString();
+  const endIso = new Date(
+    new Date(startIso).getTime() + (s.duration_minutes ?? DEFAULT_SERVICE_MINUTES) * 60_000,
+  ).toISOString();
+
+  const evento = {
+    summary: `[CSC] ${s.service_name}${cliente ? ` — ${cliente.name}` : ''}`,
+    description: [
+      `Serviço: ${s.service_name}`,
+      `Veículo: ${viatura ? [viatura.plate, viatura.make, viatura.model].filter(Boolean).join(' · ') : '-'}`,
+      `Telefone: ${cliente?.phone ?? '-'}`,
+      `Email: ${cliente?.email ?? '-'}`,
+      `Notas: ${s.notes || '-'}`,
+      'Marcado no CRM.',
+    ].join('\n'),
+    startIso,
+    endIso,
+  };
+
+  // Actualizar mantém o id, que é o que liga o evento à ficha. Só se ele tiver
+  // desaparecido do Google — alguém apagou-o à mão — é que se cria outro.
+  if (s.google_event_id && await updateEvent(s.google_event_id, evento)) {
+    return json({ ok: true, eventId: s.google_event_id });
+  }
+
+  const eventId = await createEvent(evento);
+  await db.from('services').update({ google_event_id: eventId }).eq('id', id);
+  return json({ ok: true, eventId });
 }
 
 // ── Criação ──────────────────────────────────────────────────────────────────
@@ -450,6 +531,7 @@ Deno.serve(async (req) => {
     if (action === 'time-off') return await handleTimeOffSync(req, body);
     if (action === 'time-off-remove') return await handleTimeOffRemove(req, body);
     if (action === 'events') return await handleEvents(req, body);
+    if (action === 'service-event') return await handleServiceEvent(req, body);
     return json({ error: 'Endpoint desconhecido' }, 404);
   } catch (e) {
     // O detalhe vai para os logs, não para o visitante: as mensagens do Google

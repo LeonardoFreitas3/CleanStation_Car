@@ -177,6 +177,40 @@ export async function createEvent(input: EventInput): Promise<string> {
 }
 
 /**
+ * Actualiza um evento que ja existe.
+ *
+ * Um PATCH e nao apagar-e-criar: apagar muda o id, e o id e o que liga o evento
+ * ao servico na base de dados e o que a Agenda usa para saber que aquele evento
+ * ja tem ficha. Cada troca de id era uma janela em que o mesmo trabalho
+ * aparecia duas vezes.
+ *
+ * Um 404 ou um 410 querem dizer que alguem apagou o evento no Google a mao.
+ * Devolve false em vez de levantar, para quem chama poder criar outro — que e o
+ * que se quer quando o evento desapareceu por baixo.
+ */
+export async function updateEvent(eventId: string, input: EventInput): Promise<boolean> {
+  const token = await accessToken();
+
+  const res = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId())}/events/${encodeURIComponent(eventId)}`,
+    {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        summary: input.summary,
+        description: input.description,
+        start: { dateTime: input.startIso, timeZone: 'Europe/Lisbon' },
+        end: { dateTime: input.endIso, timeZone: 'Europe/Lisbon' },
+      }),
+    },
+  );
+
+  if (res.status === 404 || res.status === 410) return false;
+  if (!res.ok) throw new Error(`Não foi possível actualizar o evento: ${await res.text()}`);
+  return true;
+}
+
+/**
  * Apaga um evento. Um 404 ou um 410 nao sao falha: querem dizer que o evento ja
  * la nao esta, que e exatamente o estado que se queria. Insistir num erro so
  * impedia o CRM de apagar a folga por causa de um evento que ja nao existe.

@@ -1,5 +1,6 @@
 import { getSupabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../lib/config';
 import type { Service, ServiceExtra, ServiceStatus, ServiceWithRelations } from '../types';
 
 /** Ordem do fluxo na oficina. Igual a do enum service_status no Postgres. */
@@ -164,6 +165,43 @@ export async function listServices({
   return { rows: (data ?? []) as unknown as ServiceWithRelations[], total: count ?? 0 };
 }
 
+/**
+ * Poe o Google a par deste servico.
+ *
+ * Um servico marcado ao balcao ou ao telefone vivia so na tabela: o site ja o
+ * contava como tempo ocupado, mas quem abrisse o calendario no telemovel via o
+ * dia vazio.
+ *
+ * A Edge Function e que fala com o Google — as credenciais vivem nos secrets do
+ * Supabase e nunca no browser — e e ela que decide o que o evento diz, para o
+ * formato nao ficar escrito em dois sitios. Daqui vai so o id.
+ *
+ * Reconcilia: chamar a seguir a qualquer alteracao chega, sem quem chama ter de
+ * saber o que mudou. Criar, mudar a hora, cancelar e apagar entram todos aqui.
+ *
+ * Nao lanca, como o espelho das folgas: o servico ja esta guardado quando isto
+ * corre. Se o Google estiver em baixo, o pior caso e nao se ver a marcacao no
+ * telemovel — rebentar aqui transformava isso em "nao consegui marcar".
+ */
+async function sincronizarNoCalendario(id: string): Promise<void> {
+  try {
+    const { data: { session } } = await getSupabase().auth.getSession();
+    if (!session) return;
+
+    await fetch(`${SUPABASE_URL}/functions/v1/booking/service-event`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ id }),
+    });
+  } catch {
+    // Ver acima: o calendario e o espelho, nao o original.
+  }
+}
+
 export interface ServiceInput {
   client_id: string;
   vehicle_id?: string | null;
@@ -204,6 +242,7 @@ export async function createService(input: ServiceInput): Promise<Service> {
     .single();
 
   if (error) throw new Error(friendlyError(error));
+  await sincronizarNoCalendario(data.id);
   return data as Service;
 }
 
@@ -236,6 +275,8 @@ export async function updateService(
     .single();
 
   if (error) throw new Error(friendlyError(error));
+  // A hora ou a duracao podem ter mudado, e o evento tem de as seguir.
+  await sincronizarNoCalendario(id);
   return data as Service;
 }
 
@@ -247,6 +288,7 @@ export async function softDeleteService(id: string): Promise<void> {
     .eq('id', id);
 
   if (error) throw new Error(friendlyError(error));
+  await sincronizarNoCalendario(id);
 }
 
 /**
@@ -262,6 +304,12 @@ export async function updateServiceStatus(id: string, status: ServiceStatus): Pr
     .single();
 
   if (error) throw new Error(friendlyError(error));
+
+  // So no cancelamento. Avancar de fase nao muda a hora nem a duracao, e uma
+  // ida ao Google por cada degrau do fluxo eram oito chamadas por lavagem para
+  // reescrever o mesmo evento.
+  if (status === 'cancelado') await sincronizarNoCalendario(id);
+
   return data as Service;
 }
 
