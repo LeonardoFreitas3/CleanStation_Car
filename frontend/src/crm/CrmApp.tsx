@@ -121,7 +121,7 @@ export default function CrmApp() {
           <Route
             path="equipa"
             element={
-              <RoleGuard allow={['admin']}>
+              <RoleGuard allow={['admin', 'manager']}>
                 <Team />
               </RoleGuard>
             }

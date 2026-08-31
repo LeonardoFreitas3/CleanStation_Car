@@ -115,6 +115,17 @@ export function createMember(fullName: string, email: string, password: string):
  * corta ao mudar a palavra-passe. Para tirar o acesso a alguem, o que serve e
  * desativar a conta.
  */
+/**
+ * Muda o email de uma conta — que e o nome de utilizador com que se entra.
+ *
+ * Passa pela Edge Function e nao por um update a tabela: o email vive no Auth,
+ * e a tabela `profiles` e so uma copia para a lista. Mudar so a copia dava uma
+ * pessoa a entrar com um email e a aparecer no ecra com outro.
+ */
+export function changeEmail(id: string, email: string): Promise<void> {
+  return callTeamFunction('email', { id, email }, 'Não foi possível alterar o email.');
+}
+
 export function setPassword(id: string, password: string): Promise<void> {
   return callTeamFunction('password', { id, password }, 'Não foi possível alterar a palavra-passe.');
 }

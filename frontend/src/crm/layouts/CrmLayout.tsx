@@ -27,7 +27,7 @@ const NAV: NavItem[] = [
   { to: '/crm/servicos', label: 'Serviços', icon: Wrench, allow: ALL },
   { to: '/crm/clientes', label: 'Clientes', icon: Users, allow: ALL },
   { to: '/crm/follow-ups', label: 'Follow-ups', icon: BellRing, allow: STAFF },
-  { to: '/crm/equipa', label: 'Equipa', icon: UserCog, allow: ADMIN },
+  { to: '/crm/equipa', label: 'Equipa', icon: UserCog, allow: STAFF },
   { to: '/crm/definicoes', label: 'Definições', icon: Settings, allow: ADMIN },
   { to: '/crm/registo', label: 'Registo', icon: ScrollText, allow: ADMIN },
 ];

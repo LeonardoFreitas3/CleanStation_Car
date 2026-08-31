@@ -47,6 +47,15 @@ secção.
 
 ### O que falta
 
+**A migração `0029` e um deploy da `team`.** São o ponto do papel "mudar email e
+editar funcionários através da conta do Gestor". A `0029` abre a tabela ao
+gestor; a função `team` ganhou a acção de mudar email e deixou de recusar quem
+não é admin.
+
+```bash
+npx supabase functions deploy team
+```
+
 **O build do site na Netlify.** É o único passo por dar, e é por ele que passa
 tudo o que o CRM ganhou: a Agenda em calendário, o filtro "Por cobrar", a fase
 "A meio da lavagem", os números nos follow-ups e as fases nas Definições. Até lá
@@ -118,6 +127,7 @@ No **SQL Editor** do Supabase, uma de cada vez, por ordem. Estão em
 | `0026_saber_quem_ficou_a_dever.sql` | Marca de pagamento no serviço, e o total por cobrar no dashboard |
 | `0027_fase_meio_da_lavagem.sql` | A fase "a meio" no fluxo. **Corre sozinha** |
 | `0028_mensagens_automaticas_por_fase.sql` | Que fases avisam o cliente, e o dashboard a contar a fase nova |
+| `0029_o_gestor_gere_a_equipa.sql` | O Gestor passa a gerir contas — sem tocar nas de administrador |
 
 **A `0016` faz um `update` a sério** — atribui ao João os serviços por atribuir.
 Antes de a correr, vale a pena ver quantos são:
@@ -369,6 +379,13 @@ vão coladas no build, a partir do `frontend/.env.local`.
 - [ ] Pôr `{{veiculo}}` num modelo de reativação e tentar guardar: tem de
       recusar, a dizer que essa mensagem não sabe preencher a variável.
 - [ ] Com a sessão do João (funcionário), as Definições continuam fechadas.
+- [ ] Com uma sessão de **Gestor**: a Equipa aparece no menu, dá para mudar o
+      email e a palavra-passe de um funcionário, e dá para o desativar.
+- [ ] Com essa mesma sessão, a linha de um **administrador** tem os botões
+      desligados, e a caixa de escolha do papel não aparece a ninguém que não
+      seja administrador.
+- [ ] Ainda com o Gestor, no Console: um `PATCH` a `profiles` com
+      `{"role":"admin"}` na própria linha não produz efeito.
 - [ ] Num serviço concluído, "Marcar como pago" carimba a data, e "Afinal não
       pagou" desfaz.
 - [ ] O filtro **Por cobrar** na lista de serviços traz os acabados por pagar,

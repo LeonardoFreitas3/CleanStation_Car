@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { UserCheck, UserX, Info, UserPlus, X, Eye, EyeOff, KeyRound } from 'lucide-react';
+import { AtSign, UserCheck, UserX, Info, UserPlus, X, Eye, EyeOff, KeyRound } from 'lucide-react';
 import {
-  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, createMember, listTeam, setActive, setPassword,
-  updateRole,
+  ROLE_CLASS, ROLE_DESCRIPTION, ROLE_LABEL, changeEmail, createMember, listTeam, setActive,
+  setPassword, updateRole,
 } from '../services/team';
 import type { TeamMember } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
@@ -35,6 +35,10 @@ export default function Team() {
   const [created, setCreated] = useState<string | null>(null);
 
   // Qual das linhas tem o campo aberto. Null = nenhuma.
+  const [emailFor, setEmailFor] = useState<string | null>(null);
+  const [emailValue, setEmailValue] = useState('');
+  const [emailDone, setEmailDone] = useState<string | null>(null);
+
   const [passwordFor, setPasswordFor] = useState<string | null>(null);
   const [passwordValue, setPasswordValue] = useState('');
   const [changing, setChanging] = useState(false);
@@ -102,6 +106,28 @@ export default function Team() {
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível alterar a função.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const alterarEmail = async (e: React.FormEvent, m: TeamMember) => {
+    e.preventDefault();
+    const email = emailValue.trim().toLowerCase();
+
+    if (email === m.email) { setError('Esse já é o email desta conta.'); return; }
+
+    setBusy(m.id);
+    setError(null);
+    try {
+      await changeEmail(m.id, email);
+      setEmailFor(null);
+      setEmailValue('');
+      setEmailDone(m.id);
+      setTimeout(() => setEmailDone(null), 4000);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível alterar o email.');
     } finally {
       setBusy(null);
     }
@@ -218,6 +244,13 @@ export default function Team() {
       <div className="space-y-3">
         {members.map((m) => {
           const isSelf = m.id === profile?.id;
+
+          // O gestor gere funcionarios e outros gestores; a conta de um
+          // administrador esta fora do alcance dele. A Edge Function e a
+          // politica da 0029 recusam de qualquer maneira — isto e para nao lhe
+          // oferecer um botao que vai dar erro.
+          const souAdmin = profile?.role === 'admin';
+          const foraDoAlcance = !souAdmin && m.role === 'admin';
           const working = busy === m.id;
 
           return (
@@ -245,22 +278,46 @@ export default function Team() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <Select
-                    label=""
-                    value={m.role}
-                    onChange={(e) => changeRole(m, e.target.value as UserRole)}
-                    options={ROLES}
-                    disabled={working || !m.active}
-                    className="w-40"
-                  />
+                  {/* Mudar papeis continua a ser so do administrador: a 0029
+                      deixa o gestor ligar e desligar contas, nao promover
+                      ninguem. Mostrar-lhe a caixa era mostrar uma escolha que a
+                      base de dados desfazia em silencio. */}
+                  {souAdmin ? (
+                    <Select
+                      label=""
+                      value={m.role}
+                      onChange={(e) => changeRole(m, e.target.value as UserRole)}
+                      options={ROLES}
+                      disabled={working || !m.active}
+                      className="w-40"
+                    />
+                  ) : (
+                    <span className={`px-2 py-0.5 text-[10px] tracking-[0.15em] uppercase font-semibold border rounded-sm ${ROLE_CLASS[m.role]}`}>
+                      {ROLE_LABEL[m.role]}
+                    </span>
+                  )}
                   <Button
                     variant="secondary"
+                    disabled={foraDoAlcance}
+                    title={foraDoAlcance ? 'Só um administrador altera a conta de outro administrador' : 'Mudar o email com que esta pessoa entra'}
+                    onClick={() => {
+                      setEmailFor(emailFor === m.id ? null : m.id);
+                      setEmailValue(m.email);
+                      setEmailDone(null);
+                    }}
+                  >
+                    <AtSign className="w-4 h-4" />
+                    Email
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={foraDoAlcance}
                     onClick={() => {
                       setPasswordFor(passwordFor === m.id ? null : m.id);
                       setPasswordValue('');
                       setPasswordDone(null);
                     }}
-                    title="Definir uma palavra-passe nova"
+                    title={foraDoAlcance ? 'Só um administrador altera a conta de outro administrador' : 'Definir uma palavra-passe nova'}
                   >
                     <KeyRound className="w-4 h-4" />
                     Palavra-passe
@@ -272,14 +329,43 @@ export default function Team() {
                     // Desativar-se a si proprio expulsava-o na hora. A base de
                     // dados tambem impede ficar sem administradores, mas mais
                     // vale nao chegar la.
-                    disabled={isSelf}
-                    title={isSelf ? 'Não pode desativar a sua própria conta' : undefined}
+                    disabled={isSelf || foraDoAlcance}
+                    title={isSelf
+                      ? 'Não pode desativar a sua própria conta'
+                      : (foraDoAlcance ? 'Só um administrador desativa outro administrador' : undefined)}
                   >
                     {m.active ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                     {m.active ? 'Desativar' : 'Ativar'}
                   </Button>
                 </div>
               </div>
+
+              {emailFor === m.id && (
+                <form
+                  onSubmit={(e) => alterarEmail(e, m)}
+                  className="mt-4 pt-4 border-t border-white/10 flex items-end gap-3 flex-wrap"
+                >
+                  <Field
+                    label={`Email novo de ${m.full_name || m.email}`}
+                    type="email"
+                    value={emailValue}
+                    onChange={(e) => setEmailValue(e.target.value)}
+                    autoComplete="off"
+                    required
+                    className="flex-1 min-w-[240px]"
+                  />
+                  <Button type="submit" loading={working}>Guardar</Button>
+                  <Button variant="secondary" onClick={() => setEmailFor(null)}>Cancelar</Button>
+                  <p className="w-full text-white/30 text-xs">
+                    É com este email que a pessoa entra no CRM. As sessões já abertas continuam
+                    válidas — para cortar o acesso, desative a conta.
+                  </p>
+                </form>
+              )}
+
+              {emailDone === m.id && (
+                <p className="mt-3 text-emerald-400/80 text-xs">Email alterado.</p>
+              )}
 
               {passwordFor === m.id && (
                 <form

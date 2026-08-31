@@ -42,7 +42,7 @@ function admin() {
  * um atacante manda o que quiser lá dentro, mas não forja uma sessão nem se
  * promove a admin no meio do caminho.
  */
-async function requireAdmin(req: Request): Promise<{ id: string } | Response> {
+async function requireGestor(req: Request): Promise<{ id: string; role: string } | Response> {
   const auth = req.headers.get('Authorization') ?? '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
   if (!token) return json({ error: 'Sessão em falta' }, 401);
@@ -59,11 +59,30 @@ async function requireAdmin(req: Request): Promise<{ id: string } | Response> {
 
   // Desativado não conta, mesmo sendo admin: é assim que se tira o acesso a
   // quem sai, e mexer em contas é o que ele nunca mais pode fazer.
-  if (!profile || profile.role !== 'admin' || !profile.active) {
-    return json({ error: 'Apenas administradores podem gerir contas' }, 403);
+  if (!profile || !profile.active || (profile.role !== 'admin' && profile.role !== 'manager')) {
+    return json({ error: 'Apenas administradores e gestores podem gerir contas' }, 403);
   }
 
-  return { id: user.user.id };
+  return { id: user.user.id, role: profile.role };
+}
+
+/**
+ * O gestor não mexe na conta de um administrador.
+ *
+ * É a outra metade da linha que a 0029 traça na tabela: lá, a política impede-o
+ * de tocar na *linha* do administrador; aqui, impede-o de lhe mudar a
+ * palavra-passe ou o email, que não passam pela tabela `profiles` — vivem no
+ * Auth e só se lá chega com a service_role, que é o que esta função tem.
+ *
+ * Sem isto, um gestor mudava a palavra-passe do dono e entrava-lhe na conta.
+ */
+async function podeMexer(caller: { role: string }, alvo: string): Promise<boolean> {
+  if (caller.role === 'admin') return true;
+
+  const { data } = await admin().from('profiles').select('role').eq('id', alvo).maybeSingle();
+
+  // Conta que não existe: recusa. Um alvo desconhecido não é permissão.
+  return Boolean(data) && data!.role !== 'admin';
 }
 
 // ── Criar conta ──────────────────────────────────────────────────────────────
@@ -115,16 +134,16 @@ async function handleCreate(body: Record<string, unknown>) {
 
 // ── Alterar palavra-passe ────────────────────────────────────────────────────
 
-async function handlePassword(body: Record<string, unknown>) {
+async function handlePassword(caller: { role: string }, body: Record<string, unknown>) {
   const id = String(body.id ?? '').trim();
   const password = String(body.password ?? '');
 
-  // O id vem do frontend, mas é sempre de alguém que está na lista da equipa —
-  // e mesmo que não fosse, o pior que se faz é mudar a palavra-passe de uma
-  // conta deste projeto, coisa que quem chega aqui já é admin para fazer.
   if (!/^[0-9a-f-]{36}$/i.test(id)) return json({ error: 'Conta inválida' }, 400);
   if (password.length < MIN_PASSWORD) {
     return json({ error: `A palavra-passe tem de ter pelo menos ${MIN_PASSWORD} caracteres` }, 400);
+  }
+  if (!await podeMexer(caller, id)) {
+    return json({ error: 'Não pode alterar a conta de um administrador.' }, 403);
   }
 
   const { error } = await admin().auth.admin.updateUserById(id, { password });
@@ -133,6 +152,48 @@ async function handlePassword(body: Record<string, unknown>) {
   // As sessões abertas dessa pessoa continuam válidas: o Supabase não as
   // termina ao mudar a palavra-passe. Quem for afastado tem de ser desativado
   // na Equipa — é isso que lhe corta o acesso, não a palavra-passe nova.
+  return json({ ok: true });
+}
+
+// ── Alterar email ────────────────────────────────────────────────────────────
+
+/**
+ * O email é o nome de utilizador: muda no Auth, que é quem valida a sessão, e
+ * na tabela `profiles`, que é de onde a lista da Equipa o lê. Mudar só um dos
+ * dois dava uma pessoa a entrar com um email e a aparecer no ecrã com outro.
+ *
+ * `email_confirm: true` porque quem está a mudar é quem manda na oficina, e a
+ * conta tem de continuar a servir a seguir. Sem isso ficava a aguardar uma
+ * confirmação que ninguém ia ler — a mesma razão que o handleCreate já dá.
+ *
+ * As sessões abertas continuam válidas, como na palavra-passe. Quem for
+ * afastado desativa-se na Equipa; é isso que corta o acesso.
+ */
+async function handleEmail(caller: { role: string }, body: Record<string, unknown>) {
+  const id = String(body.id ?? '').trim();
+  const email = String(body.email ?? '').trim().toLowerCase();
+
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return json({ error: 'Conta inválida' }, 400);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'Email inválido' }, 400);
+  if (!await podeMexer(caller, id)) {
+    return json({ error: 'Não pode alterar a conta de um administrador.' }, 403);
+  }
+
+  const db = admin();
+  const { error } = await db.auth.admin.updateUserById(id, { email, email_confirm: true });
+
+  if (error) {
+    const already = /already been registered|already exists|duplicate/i.test(error.message);
+    return json(
+      { error: already ? 'Já existe uma conta com esse email.' : 'Não foi possível alterar o email.' },
+      already ? 409 : 500,
+    );
+  }
+
+  // O perfil a seguir ao Auth, e não antes: se o Auth recusar, a tabela não
+  // pode ficar a dizer um email que não serve para entrar.
+  await db.from('profiles').update({ email }).eq('id', id);
+
   return json({ ok: true });
 }
 
@@ -145,13 +206,14 @@ Deno.serve(async (req) => {
   const action = new URL(req.url).pathname.split('/').filter(Boolean).pop();
 
   try {
-    const caller = await requireAdmin(req);
+    const caller = await requireGestor(req);
     if (caller instanceof Response) return caller;
 
     const body = await req.json().catch(() => ({}));
 
     if (action === 'create') return await handleCreate(body);
-    if (action === 'password') return await handlePassword(body);
+    if (action === 'password') return await handlePassword(caller, body);
+    if (action === 'email') return await handleEmail(caller, body);
     return json({ error: 'Endpoint desconhecido' }, 404);
   } catch (e) {
     // O detalhe vai para os logs e não para a resposta: as mensagens do Auth
