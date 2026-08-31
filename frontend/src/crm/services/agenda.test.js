@@ -1,7 +1,7 @@
 // A agenda erra em silencio: uma folga que nao aparece no dia certo continua a
 // mostrar um ecra bonito, so que errado. Correr com `npm test`.
 
-import { dayKey, dayOccupancy, feriados, isEncerrado, nextFreeHour, setHorario, timeOffDays, weekDays, weekStart, estadoDosBlocos } from './agenda';
+import { dayKey, dayOccupancy, feriados, isEncerrado, nextFreeHour, posicaoNoDia, setHorario, timeOffDays, weekDays, weekStart, estadoDosBlocos } from './agenda';
 
 const local = (s) => new Date(s);
 
@@ -251,5 +251,51 @@ describe('porque e que os bloqueios do Google faltam', () => {
 
   test('sem resposta nenhuma tambem e passageiro', () => {
     expect(estadoDosBlocos(null)).toBe('indisponivel');
+  });
+});
+
+// Onde cada bloco cai na coluna do dia, no calendario da semana. Errar aqui nao
+// da erro nenhum: desenha o servico a hora errada, e quem olha para a agenda
+// acredita nela.
+
+describe('posicao de um bloco na coluna do dia', () => {
+  // 09:00 as 20:00 sao onze horas de coluna.
+  const dia = new Date('2026-08-27T00:00:00');
+
+  test('uma lavagem das 10 as 12 comeca a um onze avos e ocupa dois', () => {
+    const p = posicaoNoDia('2026-08-27T10:00:00', '2026-08-27T12:00:00', dia);
+    expect(p.top).toBeCloseTo(100 / 11, 4);
+    expect(p.height).toBeCloseTo(200 / 11, 4);
+  });
+
+  test('a abertura fica no topo', () => {
+    expect(posicaoNoDia('2026-08-27T09:00:00', '2026-08-27T10:00:00', dia).top).toBe(0);
+  });
+
+  test('um servico de dia inteiro enche a coluna', () => {
+    const p = posicaoNoDia('2026-08-27T00:00:00', '2026-08-28T00:00:00', dia);
+    expect(p.top).toBe(0);
+    expect(p.height).toBe(100);
+  });
+
+  // Cortar em vez de recusar: uma detalhada dura 24h e uma folga de tres dias
+  // atravessa a noite. As duas ocupam o que der em cada dia.
+  test('o que atravessa a noite e cortado a janela de cada dia', () => {
+    const p = posicaoNoDia('2026-08-27T18:00:00', '2026-08-28T12:00:00', dia);
+    expect(p.top).toBeCloseTo(900 / 11, 4);
+    expect(p.height).toBeCloseTo(200 / 11, 4);
+  });
+
+  test('fora do horario nao tem sitio na coluna', () => {
+    expect(posicaoNoDia('2026-08-27T03:00:00', '2026-08-27T05:00:00', dia)).toBeNull();
+    expect(posicaoNoDia('2026-08-27T21:00:00', '2026-08-27T22:00:00', dia)).toBeNull();
+  });
+
+  test('encostado ao fecho, sem duracao dentro do dia, tambem nao', () => {
+    expect(posicaoNoDia('2026-08-27T20:00:00', '2026-08-27T23:00:00', dia)).toBeNull();
+  });
+
+  test('um bloco de outro dia nao aparece nesta coluna', () => {
+    expect(posicaoNoDia('2026-08-25T10:00:00', '2026-08-25T12:00:00', dia)).toBeNull();
   });
 });

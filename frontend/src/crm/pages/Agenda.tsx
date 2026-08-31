@@ -7,6 +7,7 @@ import {
 } from '../services/agenda';
 import type { BlocksState, Week } from '../services/agenda';
 import { SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL } from '../services/services';
+import { WeekCalendar } from '../components/WeekCalendar';
 import { Alert, Button, Card, Checkbox, Field, PageTitle, Spinner } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -285,7 +286,18 @@ export default function Agenda() {
       {loading && !week ? (
         <div className="py-20 flex justify-center"><Spinner size={26} /></div>
       ) : (
-        <div className="space-y-3">
+        <>
+          {/* O calendário e a lista são o mesmo dado com dois desenhos, e quem
+              escolhe é a largura do ecrã — não uma opção que alguém tenha de
+              carregar. Sete colunas de horas num telemóvel não se lêem; a lista
+              num ecrã grande desperdiça a semana inteira. */}
+          {week && (
+            <div className="hidden lg:block mb-6">
+              <WeekCalendar week={week} />
+            </div>
+          )}
+
+          <div className="space-y-3 lg:hidden">
           {days.map((d) => {
             const key = dayKey(d);
             const services = byDay.services.get(key) ?? [];
@@ -424,7 +436,8 @@ export default function Agenda() {
               </Card>
             );
           })}
-        </div>
+          </div>
+        </>
       )}
     </>
   );

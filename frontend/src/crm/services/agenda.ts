@@ -245,7 +245,7 @@ export function isEncerrado(day: Date): boolean {
 
 /** Servico agendado sem duracao indicada. Duas horas e a lavagem comum — o
  *  mesmo valor por omissao que a Edge Function das marcacoes usa. */
-const DURACAO_OMISSAO = 120;
+export const DURACAO_OMISSAO = 120;
 
 export interface Occupancy {
   /** Minutos ocupados dentro do horario de abertura. */
@@ -276,6 +276,41 @@ function fundir(intervalos: Intervalo[]): Intervalo[] {
     else out.push({ ...i });
   }
   return out;
+}
+
+export interface Posicao {
+  /** Percentagem a contar do topo da coluna do dia. */
+  top: number;
+  /** Altura em percentagem da janela de abertura. */
+  height: number;
+}
+
+/**
+ * Onde e que um periodo cai na coluna de um dia, para o desenhar em calendario.
+ *
+ * Devolve null quando nao toca o horario de abertura daquele dia — um evento
+ * das 3 da manha nao tem sitio numa coluna que comeca as 9, e desenha-lo com
+ * altura negativa punha-o de pernas para o ar em cima do resto.
+ *
+ * Corta a janela do dia em vez de recusar o que a atravessa: uma lavagem
+ * detalhada dura 24 horas e uma folga de tres dias atravessa a noite. As duas
+ * ocupam a coluna toda desse dia, que e o que se quer ver — a mesma decisao que
+ * o dayOccupancy ja tomava ao somar minutos.
+ */
+export function posicaoNoDia(startIso: string, endIso: string, day: Date): Posicao | null {
+  const abre = new Date(day); abre.setHours(OPENS, 0, 0, 0);
+  const fecha = new Date(day); fecha.setHours(CLOSES, 0, 0, 0);
+
+  const total = fecha.getTime() - abre.getTime();
+  const inicio = Math.max(new Date(startIso).getTime(), abre.getTime());
+  const fim = Math.min(new Date(endIso).getTime(), fecha.getTime());
+
+  if (fim <= inicio) return null;
+
+  return {
+    top: ((inicio - abre.getTime()) / total) * 100,
+    height: ((fim - inicio) / total) * 100,
+  };
 }
 
 /**
