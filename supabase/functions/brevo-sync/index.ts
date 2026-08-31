@@ -21,6 +21,7 @@
 // atualizar, o contacto tem de sair de lá.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
+import { estaInativo } from './inativos.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -105,7 +106,7 @@ interface Cliente {
  * existisse devolvia 400 e ficava por atualizar para sempre.
  */
 async function sincronizar(c: Cliente, lista: number): Promise<'entrou' | 'saiu' | 'atualizado'> {
-  const inativo = (c.days_since_last_visit ?? Number.MAX_SAFE_INTEGER) >= DIAS_INATIVO;
+  const inativo = estaInativo(c.days_since_last_visit, DIAS_INATIVO);
 
   await brevo('/contacts', {
     method: 'POST',
@@ -126,8 +127,12 @@ async function sincronizar(c: Cliente, lista: number): Promise<'entrou' | 'saiu'
     }),
   });
 
-  // Voltou a aparecer: sai da lista, senão a automação continuava a tratá-lo
-  // como desaparecido. O Brevo não tem "remover" no upsert, é chamada própria.
+  // Voltou a aparecer — ou nunca chegou a desaparecer: sai da lista, senão a
+  // automação continuava a tratá-lo como desaparecido. O Brevo não tem
+  // "remover" no upsert, é chamada própria.
+  //
+  // É também isto que repara sozinho quem foi posto na lista por engano: a
+  // passagem seguinte tira-o, sem ser preciso limpar nada à mão no Brevo.
   if (!inativo) {
     await brevo(`/contacts/lists/${lista}/contacts/remove`, {
       method: 'POST',
