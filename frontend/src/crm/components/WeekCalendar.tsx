@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
 import {
   CLOSES, DURACAO_OMISSAO, OPENS, dayKey, isEncerrado, posicaoNoDia,
 } from '../services/agenda';
 import type { Week } from '../services/agenda';
+import type { ServiceWithRelations } from '../types';
 
 const DIA_CURTO = new Intl.DateTimeFormat('pt-PT', { weekday: 'short' });
 const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digit' });
@@ -26,7 +26,8 @@ interface Item {
   detalhe: string;
   startIso: string;
   endIso: string;
-  href?: string;
+  /** So os servicos. As folgas e o que vem do Google nao tem ficha ca. */
+  servico?: ServiceWithRelations;
   classe: string;
 }
 
@@ -42,7 +43,7 @@ function itensDoDia(week: Week, day: Date): Item[] {
       detalhe: [s.client?.name, s.vehicle?.plate].filter(Boolean).join(' · '),
       startIso: s.scheduled_at,
       endIso: new Date(inicio.getTime() + (s.duration_minutes ?? DURACAO_OMISSAO) * 60_000).toISOString(),
-      href: `/crm/servicos/${s.id}`,
+      servico: s,
       classe: 'bg-blue-950/70 border-blue-700/60 hover:border-blue-500',
     });
   }
@@ -75,7 +76,9 @@ function itensDoDia(week: Week, day: Date): Item[] {
   return itens.filter((i) => posicaoNoDia(i.startIso, i.endIso, day) !== null);
 }
 
-export function WeekCalendar({ week }: { week: Week }) {
+export function WeekCalendar({
+  week, onServico,
+}: { week: Week; onServico: (s: ServiceWithRelations) => void }) {
   const horas = Array.from({ length: CLOSES - OPENS }, (_, i) => OPENS + i);
   const hoje = dayKey(new Date());
 
@@ -142,14 +145,28 @@ export function WeekCalendar({ week }: { week: Week }) {
                   </>
                 );
 
-                return (
-                  <div
+                const caixa = `absolute left-0.5 right-0.5 border rounded-sm px-1.5 py-1 overflow-hidden transition ${i.classe}`;
+                const estilo = { top: `${pos.top}%`, height: `${pos.height}%`, minHeight: '1.5rem' };
+                const dica = `${HORA.format(new Date(i.startIso))} · ${i.titulo}${i.detalhe ? ` · ${i.detalhe}` : ''}`;
+
+                // Carregar num servico abre as mensagens, que e o que se quer
+                // fazer a olhar para a agenda. A ficha fica a um toque, no
+                // cabecalho da modal — nao se perde, deixa e de ser o primeiro
+                // passo para uma coisa que se faz dezenas de vezes por dia.
+                return i.servico ? (
+                  <button
                     key={i.key}
-                    className={`absolute left-0.5 right-0.5 border rounded-sm px-1.5 py-1 overflow-hidden transition ${i.classe}`}
-                    style={{ top: `${pos.top}%`, height: `${pos.height}%`, minHeight: '1.5rem' }}
-                    title={`${HORA.format(new Date(i.startIso))} · ${i.titulo}${i.detalhe ? ` · ${i.detalhe}` : ''}`}
+                    type="button"
+                    onClick={() => onServico(i.servico!)}
+                    className={`${caixa} text-left w-auto`}
+                    style={estilo}
+                    title={`${dica} — mensagens`}
                   >
-                    {i.href ? <Link to={i.href} className="block h-full">{conteudo}</Link> : conteudo}
+                    {conteudo}
+                  </button>
+                ) : (
+                  <div key={i.key} className={caixa} style={estilo} title={dica}>
+                    {conteudo}
                   </div>
                 );
               })}

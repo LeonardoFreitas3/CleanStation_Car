@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MessageCircle, X, Send, ArrowUpRight } from 'lucide-react';
 import { listTemplates, logMessage, renderTemplate } from '../services/messages';
 import type { MessageTemplate } from '../services/messages';
 import { whatsappNumber } from '../lib/format';
@@ -64,10 +65,24 @@ export function MessageSender({
     <div className="fixed inset-0 z-[80] bg-black/85 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="w-full sm:max-w-lg bg-zinc-900 border border-white/10 rounded-t-lg sm:rounded-md max-h-[92vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <span className="text-[11px] tracking-[0.25em] uppercase font-semibold text-white/80">
-            Enviar mensagem
-          </span>
-          <button onClick={onClose} aria-label="Fechar" className="text-white/45 hover:text-white transition p-1">
+          <div className="min-w-0">
+            <span className="text-[11px] tracking-[0.25em] uppercase font-semibold text-white/80">
+              Enviar mensagem
+            </span>
+            {/* Aberta a partir da Agenda, esta modal e tudo o que se ve do
+                servico. Sem isto, chegar a ficha obrigava a fechar, procurar na
+                grelha outra vez e carregar noutro sitio. */}
+            <Link
+              to={`/crm/servicos/${service.id}`}
+              onClick={onClose}
+              className="block text-white/45 hover:text-blue-400 text-xs mt-1 truncate transition"
+            >
+              {service.service_name}
+              {service.client ? ` · ${service.client.name}` : ''}
+              <ArrowUpRight className="w-3 h-3 inline ml-1" />
+            </Link>
+          </div>
+          <button onClick={onClose} aria-label="Fechar" className="text-white/45 hover:text-white transition p-1 shrink-0">
             <X className="w-5 h-5" />
           </button>
         </div>

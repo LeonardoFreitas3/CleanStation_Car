@@ -7,6 +7,8 @@ import {
 } from '../services/agenda';
 import type { BlocksState, Week } from '../services/agenda';
 import { SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL } from '../services/services';
+import type { ServiceWithRelations } from '../types';
+import { MessageSender } from '../components/MessageSender';
 import { WeekCalendar } from '../components/WeekCalendar';
 import { Alert, Button, Card, Checkbox, Field, PageTitle, Spinner } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
@@ -56,6 +58,11 @@ export default function Agenda() {
   const [week, setWeek] = useState<Week | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Carregar num servico do calendario abre as mensagens. Guarda-se o servico
+  // inteiro e nao o id: a grelha ja o tem carregado, e ir busca-lo outra vez ao
+  // servidor era uma espera por um dado que esta ali a mao.
+  const [mensagens, setMensagens] = useState<ServiceWithRelations | null>(null);
 
   const [formOpen, setFormOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -293,7 +300,7 @@ export default function Agenda() {
               num ecrã grande desperdiça a semana inteira. */}
           {week && (
             <div className="hidden lg:block mb-6">
-              <WeekCalendar week={week} />
+              <WeekCalendar week={week} onServico={setMensagens} />
             </div>
           )}
 
@@ -438,6 +445,10 @@ export default function Agenda() {
           })}
           </div>
         </>
+      )}
+
+      {mensagens && (
+        <MessageSender service={mensagens} onClose={() => setMensagens(null)} />
       )}
     </>
   );
