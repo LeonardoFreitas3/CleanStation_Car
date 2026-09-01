@@ -25,6 +25,11 @@ A impressão digital do bug, para quem vier a seguir: o contacto na lista com
 `VISITAS` a 0, `ULTIMA_VISITA` em branco e `DIAS_SEM_VISITA` vazio. Se
 reaparecer alguém assim, a correção regrediu.
 
+**Cuidado com a leitura desses zeros.** Um deles era uma cliente que *tinha* cá
+estado — o serviço dela é que nunca foi avançado até "concluído" no CRM, e o
+`client_overview` só conta como visita o que chega a `concluido` ou `entregue`.
+Zero visitas quer dizer "o CRM não sabe", não "não veio". Ver a secção abaixo.
+
 Se voltar a acontecer algo parecido, a maneira de saber qual dos quatro emails
 automáticos saiu: a `lembretes` escreve tudo o que manda na `message_logs`; a
 `brevo-sync` não, porque quem envia é a automação do Brevo. Se não estiver aqui,
