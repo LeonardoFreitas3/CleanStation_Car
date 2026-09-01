@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, Pencil, Share2, RotateCcw,
+  ArrowLeft, ArrowRight, Car, MessageCircle, Ban, Calendar, Pencil, Share2, RotateCcw, CheckCheck,
   BadgeEuro, Undo2,
 } from 'lucide-react';
 import {
-  SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus, setPaid,
+  SERVICE_FLOW, SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, getService, nextStatus, setPaid,
   updateServiceStatus,
 } from '../services/services';
 import { getSupabase } from '../lib/supabase';
@@ -65,6 +65,43 @@ export default function ServiceDetail() {
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível atualizar o estado.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /**
+   * Salta as fases todas ate ao fim.
+   *
+   * Do agendado ate ao concluido sao oito toques, um por fase, e o que acontecia
+   * era ficarem servicos pendurados a meio — carros lavados que o CRM dava como
+   * por fazer. Isso nao e so cosmetico: uma visita so conta quando o servico
+   * chega a `concluido` ou `entregue`, e dai para baixo cai tudo — as visitas do
+   * cliente, a etiqueta de VIP, os follow-ups, a faturacao do mes, o "Por
+   * cobrar", o lembrete de manutencao e o pedido de avaliacao.
+   *
+   * Nao substitui o avanco fase a fase, que continua a ser o caminho certo
+   * quando se quer avisar o cliente em cada etapa. Fica ao lado, para quando o
+   * trabalho ja acabou e o registo ficou para tras.
+   *
+   * Pede confirmacao porque o fluxo so anda para a frente: nao ha um botao para
+   * voltar atras se se saltar por engano.
+   */
+  const concluir = async () => {
+    if (!service) return;
+    if (!window.confirm(
+      'Marcar este serviço como concluído?\n\n'
+      + 'As fases pelo meio ficam por registar, e as mensagens automáticas dessas '
+      + 'fases não saem. O fluxo só anda para a frente — isto não se desfaz.',
+    )) return;
+
+    setBusy(true);
+    setError(null);
+    try {
+      await updateServiceStatus(service.id, 'concluido');
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível concluir o serviço.');
     } finally {
       setBusy(false);
     }
@@ -241,6 +278,15 @@ export default function ServiceDetail() {
           {next && (
             <Button size="lg" onClick={advance} loading={busy} className="w-full">
               Avançar para {SERVICE_STATUS_LABEL[next]} <ArrowRight className="w-4 h-4" />
+            </Button>
+          )}
+
+          {/* So quando falta mais do que um degrau: a um passo do fim, o botao
+              de cima ja faz o mesmo e dois botoes a dizer a mesma coisa e
+              hesitacao, nao escolha. */}
+          {SERVICE_FLOW.indexOf('concluido') - SERVICE_FLOW.indexOf(service.status) > 1 && (
+            <Button variant="secondary" onClick={concluir} loading={busy} className="w-full">
+              <CheckCheck className="w-4 h-4" /> Concluir, sem passar pelas fases
             </Button>
           )}
 
