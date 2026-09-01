@@ -4,7 +4,7 @@ A ordem importa. Onde importa mesmo, está dito porquê.
 
 ---
 
-## O email que saía errado — resolvido a 31/08
+## O email que saía errado — resolvido e confirmado
 
 Fica aqui o registo, porque o sintoma vai voltar a aparecer na caixa de entrada
 de quem já o recebeu e convém saber-se o que foi.
@@ -16,11 +16,14 @@ serviço concluído, e a `brevo-sync` tratava esse null como "inativo há uma
 eternidade". A mesma regra no SQL — a `follow_ups()` do `0019` — sempre esteve
 certa; foi a segunda cópia que divergiu.
 
-Corrigido no `ab55ddc` e **publicado**. Quem foi posto na lista por engano sai
-sozinho na sincronização seguinte: o ramo da remoção já existia.
+Corrigido no `ab55ddc`, publicado a 31/08 e **confirmado a 01/09**: a tarefa
+diária correu com a correção e tirou da lista os dois contactos que lá estavam
+por engano, sem ser preciso mexer em nada no Brevo. O ramo da remoção já
+existia.
 
-**Falta só uma coisa, se a desligaste:** voltar a ligar a automação da lista no
-Brevo. Já é seguro.
+A impressão digital do bug, para quem vier a seguir: o contacto na lista com
+`VISITAS` a 0, `ULTIMA_VISITA` em branco e `DIAS_SEM_VISITA` vazio. Se
+reaparecer alguém assim, a correção regrediu.
 
 Se voltar a acontecer algo parecido, a maneira de saber qual dos quatro emails
 automáticos saiu: a `lembretes` escreve tudo o que manda na `message_logs`; a
