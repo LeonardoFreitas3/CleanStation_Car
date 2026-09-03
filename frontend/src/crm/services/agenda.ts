@@ -28,6 +28,28 @@ export function weekDays(anchor: Date): Date[] {
   });
 }
 
+/**
+ * A grelha do mes: semanas inteiras de segunda a domingo, incluindo os dias
+ * dos meses vizinhos que fecham a primeira e a ultima linha.
+ *
+ * Sao 35 ou 42 dias conforme o mes, e nao 42 sempre: um mes que cabe em cinco
+ * linhas nao ganha nada com uma sexta linha vazia no fundo do ecra.
+ */
+export function monthDays(anchor: Date): Date[] {
+  const primeiro = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+  const ultimo = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
+
+  const cursor = weekStart(primeiro);
+  const out: Date[] = [];
+  // O fim da semana a que o ultimo dia do mes pertence.
+  const fim = weekStart(ultimo).getTime() + 6 * 86_400_000;
+  while (cursor.getTime() <= fim) {
+    out.push(new Date(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return out;
+}
+
 /** Chave YYYY-MM-DD em hora local. toISOString() nao serve: converte para UTC. */
 export function dayKey(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -363,10 +385,15 @@ export function dayOccupancy(day: Date, week: Pick<Week, 'services' | 'timeOff' 
   };
 }
 
-export async function loadWeek(anchor: Date): Promise<Week> {
-  const days = weekDays(anchor);
+/**
+ * Carrega o que se ve num intervalo de dias — uma semana ou um mes.
+ *
+ * Recebe os dias ja feitos em vez de uma ancora e uma vista: a conta de que
+ * dias sao vive no weekDays/monthDays, e a leitura nao tem de saber a diferenca.
+ */
+export async function loadRange(days: Date[]): Promise<Week> {
   const from = days[0].toISOString();
-  const to = new Date(days[6].getTime() + 24 * 3600_000).toISOString();
+  const to = new Date(days[days.length - 1].getTime() + 24 * 3600_000).toISOString();
 
   const db = getSupabase();
   const [services, off, blocks] = await Promise.all([
@@ -376,7 +403,7 @@ export async function loadWeek(anchor: Date): Promise<Week> {
       .gte('scheduled_at', from)
       .lt('scheduled_at', to)
       .order('scheduled_at'),
-    // Sobreposicao com a semana, nao "comeca dentro da semana": uma folga que
+    // Sobreposicao com o intervalo, nao "comeca dentro dele": uma folga que
     // arranca no domingo anterior tem de aparecer na segunda.
     db.from('time_off')
       .select('*')

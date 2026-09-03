@@ -19,8 +19,8 @@ const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digi
  * horário, a grelha muda com ela.
  */
 
-/** O que se desenha numa coluna, venha de onde vier. */
-interface Item {
+/** O que se desenha num dia, venha de onde vier. Partilhado com o MonthCalendar. */
+export interface Item {
   key: string;
   titulo: string;
   detalhe: string;
@@ -31,7 +31,9 @@ interface Item {
   classe: string;
 }
 
-function itensDoDia(week: Week, day: Date): Item[] {
+/** Tudo o que cai num dia, por ordem de hora. Sem filtro de horario: quem
+ *  desenha e que sabe se um evento fora de horas lhe serve. */
+export function itensDoDia(week: Week, day: Date): Item[] {
   const itens: Item[] = [];
 
   for (const s of week.services) {
@@ -73,7 +75,10 @@ function itensDoDia(week: Week, day: Date): Item[] {
     });
   }
 
-  return itens.filter((i) => posicaoNoDia(i.startIso, i.endIso, day) !== null);
+  return itens
+    .filter((i) => dayKey(new Date(i.startIso)) === dayKey(day)
+      || posicaoNoDia(i.startIso, i.endIso, day) !== null)
+    .sort((a, b) => a.startIso.localeCompare(b.startIso));
 }
 
 export function WeekCalendar({
@@ -119,7 +124,10 @@ export function WeekCalendar({
 
         {week.days.map((d) => {
           const fechado = isEncerrado(d);
-          const itens = itensDoDia(week, d);
+          // Na grelha de horas so entra o que toca o horario de abertura: um
+          // evento das 3 da manha nao tem sitio numa coluna que comeca as 9.
+          const itens = itensDoDia(week, d)
+            .filter((i) => posicaoNoDia(i.startIso, i.endIso, d) !== null);
 
           return (
             <div

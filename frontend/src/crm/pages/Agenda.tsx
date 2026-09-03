@@ -1,20 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { BellRing, BellOff, CalendarClock, CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { BellRing, BellOff, CalendarClock, CalendarDays, CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
 import {
-  createTimeOff, dayKey, dayOccupancy, deleteTimeOff, isEncerrado, loadWeek,
-  nextFreeHour, timeOffDays,
+  createTimeOff, dayKey, dayOccupancy, deleteTimeOff, isEncerrado, loadRange,
+  monthDays, nextFreeHour, timeOffDays, weekDays,
 } from '../services/agenda';
 import type { BlocksState, Week } from '../services/agenda';
 import { SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL } from '../services/services';
 import type { ServiceWithRelations } from '../types';
 import { MessageSender } from '../components/MessageSender';
 import { WeekCalendar } from '../components/WeekCalendar';
+import { MonthCalendar } from '../components/MonthCalendar';
 import { Alert, Button, Card, Checkbox, Field, PageTitle, Spinner } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 
 const DAY_LABEL = new Intl.DateTimeFormat('pt-PT', { weekday: 'long', day: '2-digit', month: 'long' });
 const RANGE_LABEL = new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short' });
+const MONTH_LABEL = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' });
 const HOUR = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digit' });
 
 const hour = (iso: string) => HOUR.format(new Date(iso));
@@ -54,7 +56,16 @@ const AVISO_BLOCOS: Record<BlocksState, React.ReactNode> = {
 
 export default function Agenda() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [anchor, setAnchor] = useState(() => new Date());
+  /**
+   * Semana ou mes.
+   *
+   * A semana responde a "o que ha para fazer"; o mes responde a "quando e que
+   * ha espaco" — e e a vista com que toda a gente ja olha para um calendario no
+   * telemovel. Nao substitui a semana: e la que se veem as horas.
+   */
+  const [vista, setVista] = useState<'semana' | 'mes'>('semana');
   const [week, setWeek] = useState<Week | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,10 +84,10 @@ export default function Agenda() {
   const [endTime, setEndTime] = useState('20:00');
   const [reason, setReason] = useState('');
 
-  const load = useCallback(async (at: Date) => {
+  const load = useCallback(async (at: Date, v: 'semana' | 'mes') => {
     setLoading(true);
     try {
-      setWeek(await loadWeek(at));
+      setWeek(await loadRange(v === 'mes' ? monthDays(at) : weekDays(at)));
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível carregar a agenda.');
@@ -85,7 +96,7 @@ export default function Agenda() {
     }
   }, []);
 
-  useEffect(() => { load(anchor); }, [anchor, load]);
+  useEffect(() => { load(anchor, vista); }, [anchor, vista, load]);
 
   // Indexar uma vez por semana carregada, em vez de percorrer as listas todas
   // dentro do map dos sete dias.
@@ -128,9 +139,12 @@ export default function Agenda() {
     }, { livres: 0, total: 0 });
   }, [week]);
 
-  const shiftWeek = (weeks: number) => setAnchor((a) => {
+  const shift = (passos: number) => setAnchor((a) => {
     const d = new Date(a);
-    d.setDate(d.getDate() + weeks * 7);
+    // No mes salta-se para o dia 1 antes de andar: a partir de 31 de janeiro,
+    // setMonth(+1) da 3 de marco, e o mes de fevereiro nunca se via.
+    if (vista === 'mes') { d.setDate(1); d.setMonth(d.getMonth() + passos); }
+    else d.setDate(d.getDate() + passos * 7);
     return d;
   });
 
@@ -162,7 +176,7 @@ export default function Agenda() {
       });
       setFormOpen(false);
       setReason('');
-      await load(anchor);
+      await load(anchor, vista);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível marcar a folga.');
     } finally {
@@ -174,7 +188,7 @@ export default function Agenda() {
     if (!window.confirm(`Apagar a folga de ${label}?\n\nAs horas voltam a ficar disponíveis no site.`)) return;
     try {
       await deleteTimeOff(id);
-      await load(anchor);
+      await load(anchor, vista);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível apagar a folga.');
     }
@@ -186,7 +200,9 @@ export default function Agenda() {
   return (
     <>
       <PageTitle
-        sub={days.length ? `${RANGE_LABEL.format(days[0])} a ${RANGE_LABEL.format(days[6])}` : undefined}
+        sub={vista === 'mes'
+          ? MONTH_LABEL.format(anchor)
+          : days.length ? `${RANGE_LABEL.format(days[0])} a ${RANGE_LABEL.format(days[6])}` : undefined}
       >
         Agenda
       </PageTitle>
@@ -198,7 +214,7 @@ export default function Agenda() {
           <span className="text-white/80 font-semibold tabular-nums">
             {Math.round(semana.livres / 60)}h
           </span>
-          {' livres esta semana · '}
+          {vista === 'mes' ? ' livres este mês · ' : ' livres esta semana · '}
           {Math.round(((semana.total - semana.livres) / semana.total) * 100)}% ocupada
           {/* Só a quem pode abrir a pagina: o funcionario nao tem follow-ups, e
               um link que da "Sem permissoes" e pior do que link nenhum. */}
@@ -215,12 +231,20 @@ export default function Agenda() {
 
       <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
         <div className="flex items-center gap-2">
-          <Button variant="secondary" onClick={() => shiftWeek(-1)} aria-label="Semana anterior">
+          <Button variant="secondary" onClick={() => shift(-1)} aria-label={vista === 'mes' ? 'Mês anterior' : 'Semana anterior'}>
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <Button variant="secondary" onClick={() => setAnchor(new Date())}>Hoje</Button>
-          <Button variant="secondary" onClick={() => shiftWeek(1)} aria-label="Semana seguinte">
+          <Button variant="secondary" onClick={() => shift(1)} aria-label={vista === 'mes' ? 'Mês seguinte' : 'Semana seguinte'}>
             <ChevronRight className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => setVista((v) => (v === 'mes' ? 'semana' : 'mes'))}
+            aria-label={vista === 'mes' ? 'Ver por semana' : 'Ver por mês'}
+          >
+            <CalendarDays className="w-4 h-4" />
+            {vista === 'mes' ? 'Semana' : 'Mês'}
           </Button>
         </div>
         <Button onClick={() => setFormOpen((o) => !o)}>
@@ -298,6 +322,19 @@ export default function Agenda() {
               escolhe é a largura do ecrã — não uma opção que alguém tenha de
               carregar. Sete colunas de horas num telemóvel não se lêem; a lista
               num ecrã grande desperdiça a semana inteira. */}
+          {week && vista === 'mes' ? (
+            /* O mes cabe em qualquer ecra — sete colunas de dias, nao de horas —
+               e por isso nao tem lista por baixo. */
+            <MonthCalendar
+              week={week}
+              mes={anchor.getMonth()}
+              onServico={setMensagens}
+              onDia={(d) => navigate(
+                `/crm/servicos/novo?agendar=${dayKey(d)}T${nextFreeHour(d, byDay.services.get(dayKey(d)) ?? [])}`,
+              )}
+            />
+          ) : (
+          <>
           {week && (
             <div className="hidden lg:block mb-6">
               <WeekCalendar week={week} onServico={setMensagens} />
@@ -444,6 +481,8 @@ export default function Agenda() {
             );
           })}
           </div>
+          </>
+          )}
         </>
       )}
 

@@ -1,7 +1,7 @@
 // A agenda erra em silencio: uma folga que nao aparece no dia certo continua a
 // mostrar um ecra bonito, so que errado. Correr com `npm test`.
 
-import { dayKey, dayOccupancy, feriados, isEncerrado, nextFreeHour, posicaoNoDia, setHorario, timeOffDays, weekDays, weekStart, estadoDosBlocos } from './agenda';
+import { dayKey, dayOccupancy, monthDays, feriados, isEncerrado, nextFreeHour, posicaoNoDia, setHorario, timeOffDays, weekDays, weekStart, estadoDosBlocos } from './agenda';
 
 const local = (s) => new Date(s);
 
@@ -26,6 +26,23 @@ describe('semana', () => {
       '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03',
       '2026-09-04', '2026-09-05', '2026-09-06',
     ]);
+  });
+});
+
+describe('mes', () => {
+  const grelha = (iso) => monthDays(local(iso)).map(dayKey);
+
+  test('comeca na segunda antes do dia 1 e acaba no domingo depois do ultimo', () => {
+    // Setembro de 2026: dia 1 e terca, dia 30 e quarta.
+    const dias = grelha('2026-09-15T10:00:00');
+    expect(dias[0]).toBe('2026-08-31');
+    expect(dias[dias.length - 1]).toBe('2026-10-04');
+    expect(dias.length % 7).toBe(0);
+  });
+
+  test('sem linha vazia a mais: fevereiro que comeca a segunda tem quatro semanas', () => {
+    // 2027-02-01 e uma segunda e o mes tem 28 dias — cabe certinho.
+    expect(grelha('2027-02-10T10:00:00').length).toBe(28);
   });
 });
 
