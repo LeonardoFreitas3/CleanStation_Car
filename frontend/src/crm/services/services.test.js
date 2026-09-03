@@ -10,15 +10,17 @@ describe('filtro vindo do endereco', () => {
     expect(parseFilter('todos')).toBe('todos');
   });
 
-  test('sem ?filtro= vale o de sempre', () => {
-    expect(parseFilter(null)).toBe('hoje');
-    expect(parseFilter('')).toBe('hoje');
+  // "Todos" e a vista com que a pagina abre. Com "Hoje" a abrir, um servico que
+  // nao fosse de hoje parecia nao existir ate alguem carregar noutro filtro.
+  test('sem ?filtro= abre em todos', () => {
+    expect(parseFilter(null)).toBe('todos');
+    expect(parseFilter('')).toBe('todos');
   });
 
   test('um valor inventado no endereco nao passa adiante', () => {
-    expect(parseFilter('pagos')).toBe('hoje');
-    expect(parseFilter('POR_COBRAR')).toBe('hoje');
-    expect(parseFilter('por cobrar')).toBe('hoje');
+    expect(parseFilter('pagos')).toBe('todos');
+    expect(parseFilter('POR_COBRAR')).toBe('todos');
+    expect(parseFilter('por cobrar')).toBe('todos');
   });
 
   test('todos os filtros da lista sao aceites por ele', () => {

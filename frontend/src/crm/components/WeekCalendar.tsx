@@ -3,7 +3,7 @@ import {
 } from '../services/agenda';
 import type { Week } from '../services/agenda';
 import type { ServiceWithRelations } from '../types';
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const DIA_CURTO = new Intl.DateTimeFormat('pt-PT', { weekday: 'short' });
 const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digit' });
@@ -91,14 +91,13 @@ export function itensDoDia(week: Week, day: Date): Item[] {
 }
 
 export function WeekCalendar({
-  week, onServico, onMarcar, onApagar,
+  week, onAbrir, onMarcar,
 }: {
   week: Week;
-  onServico: (s: ServiceWithRelations) => void;
+  /** Abrir o balão daquele bloco. O rect diz-lhe onde se encostar. */
+  onAbrir: (item: Item, rect: DOMRect) => void;
   /** Marcar um serviço naquele dia. Hora null = a primeira que estiver livre. */
   onMarcar: (day: Date, hora: number | null) => void;
-  /** Apagar uma folga ou um evento do Google. Quem confirma é quem recebe. */
-  onApagar: (item: Item) => void;
 }) {
   const horas = Array.from({ length: CLOSES - OPENS }, (_, i) => OPENS + i);
   const hoje = dayKey(new Date());
@@ -202,35 +201,21 @@ export function WeekCalendar({
                 const estilo = { top: `${pos.top}%`, height: `${pos.height}%`, minHeight: '1.5rem' };
                 const dica = `${HORA.format(new Date(i.startIso))} · ${i.titulo}${i.detalhe ? ` · ${i.detalhe}` : ''}`;
 
-                // Carregar num servico abre as mensagens, que e o que se quer
-                // fazer a olhar para a agenda. A ficha fica a um toque, no
-                // cabecalho da modal — nao se perde, deixa e de ser o primeiro
-                // passo para uma coisa que se faz dezenas de vezes por dia.
-                return i.servico ? (
+                // Todos os blocos respondem da mesma maneira: abrem o balao.
+                // Antes o servico ia direito as mensagens e a folga nao fazia
+                // nada — dois gestos diferentes para coisas com o mesmo aspeto.
+                // O que se pode fazer a cada um decide-se dentro do balao.
+                return (
                   <button
                     key={i.key}
                     type="button"
-                    onClick={() => onServico(i.servico!)}
+                    onClick={(e) => onAbrir(i, e.currentTarget.getBoundingClientRect())}
                     className={`${caixa} text-left w-auto`}
                     style={estilo}
-                    title={`${dica} — mensagens`}
+                    title={dica}
                   >
                     {conteudo}
                   </button>
-                ) : (
-                  <div key={i.key} className={`${caixa} group`} style={estilo} title={dica}>
-                    {conteudo}
-                    {i.origem && (
-                      <button
-                        type="button"
-                        onClick={() => onApagar(i)}
-                        aria-label={`Apagar ${i.titulo}`}
-                        className="absolute top-0 right-0 w-6 h-6 flex items-center justify-center text-white/30 hover:text-red-400 focus-visible:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
                 );
               })}
             </div>

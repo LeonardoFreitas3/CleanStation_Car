@@ -1,9 +1,7 @@
 import { dayKey, isEncerrado } from '../services/agenda';
 import type { Week } from '../services/agenda';
-import type { ServiceWithRelations } from '../types';
 import { itensDoDia } from './WeekCalendar';
 import type { Item } from './WeekCalendar';
-import { X } from 'lucide-react';
 
 const DIA_CURTO = new Intl.DateTimeFormat('pt-PT', { weekday: 'short' });
 const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digit' });
@@ -20,15 +18,14 @@ const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digi
  * pixeis. Quem quer ver a hora carrega no dia, ou passa a semana.
  */
 export function MonthCalendar({
-  week, mes, onServico, onDia, onApagar,
+  week, mes, onAbrir, onDia,
 }: {
   week: Week;
   /** O mes que se esta a ver (0-11): os dias de fora ficam esbatidos. */
   mes: number;
-  onServico: (s: ServiceWithRelations) => void;
+  /** Abrir o balão daquele bloco. O rect diz-lhe onde se encostar. */
+  onAbrir: (item: Item, rect: DOMRect) => void;
   onDia: (d: Date) => void;
-  /** Apagar uma folga ou um evento do Google. Quem confirma é quem recebe. */
-  onApagar: (item: Item) => void;
 }) {
   const hoje = dayKey(new Date());
 
@@ -98,24 +95,16 @@ export function MonthCalendar({
                 const caixa = `relative z-10 w-full text-left text-[10px] leading-tight px-1 py-0.5 mb-0.5 border rounded-sm ${i.classe}`;
                 const dica = `${HORA.format(new Date(i.startIso))} · ${i.titulo}${i.detalhe ? ` · ${i.detalhe}` : ''}`;
 
-                return i.servico ? (
-                  <button key={i.key} type="button" onClick={() => onServico(i.servico!)} className={caixa} title={`${dica} — mensagens`}>
+                return (
+                  <button
+                    key={i.key}
+                    type="button"
+                    onClick={(e) => onAbrir(i, e.currentTarget.getBoundingClientRect())}
+                    className={caixa}
+                    title={dica}
+                  >
                     {conteudo}
                   </button>
-                ) : (
-                  <div key={i.key} className={`${caixa} flex items-center gap-1`} title={dica}>
-                    {conteudo}
-                    {i.origem && (
-                      <button
-                        type="button"
-                        onClick={() => onApagar(i)}
-                        aria-label={`Apagar ${i.titulo}`}
-                        className="shrink-0 text-white/30 hover:text-red-400 transition"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
                 );
               })}
 

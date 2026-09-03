@@ -61,8 +61,9 @@ export type ServiceFilter =
 // esconde nada: e por onde se comeca quando se anda a procura de um servico e
 // nao se sabe em que estado ele esta.
 //
-// Nao muda a vista com que a pagina abre — essa continua a ser "Hoje", que e o
-// que interessa a quem chega de manha. Quem decide isso e o parseFilter.
+// E tambem a vista com que a pagina abre, decidida no parseFilter: com "Hoje"
+// a abrir, um servico que nao fosse de hoje parecia nao existir ate alguem
+// carregar noutro filtro.
 export const SERVICE_FILTERS: Array<{ value: ServiceFilter; label: string }> = [
   { value: 'todos', label: 'Todos' },
   { value: 'hoje', label: 'Hoje' },
@@ -83,7 +84,7 @@ export const SERVICE_FILTERS: Array<{ value: ServiceFilter; label: string }> = [
  * nao passar adiante e devolver uma lista sem filtro nenhum.
  */
 export function parseFilter(raw: string | null): ServiceFilter {
-  return SERVICE_FILTERS.some((f) => f.value === raw) ? (raw as ServiceFilter) : 'hoje';
+  return SERVICE_FILTERS.some((f) => f.value === raw) ? (raw as ServiceFilter) : 'todos';
 }
 
 // O !employee_id nao e decorativo: services tem DUAS chaves estrangeiras para

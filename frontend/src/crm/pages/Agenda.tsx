@@ -12,6 +12,7 @@ import { MessageSender } from '../components/MessageSender';
 import { WeekCalendar } from '../components/WeekCalendar';
 import type { Item } from '../components/WeekCalendar';
 import { MonthCalendar } from '../components/MonthCalendar';
+import { EventPopover } from '../components/EventPopover';
 import { Alert, Button, Card, Checkbox, Field, PageTitle, Spinner } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -71,9 +72,13 @@ export default function Agenda() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Carregar num servico do calendario abre as mensagens. Guarda-se o servico
-  // inteiro e nao o id: a grelha ja o tem carregado, e ir busca-lo outra vez ao
-  // servidor era uma espera por um dado que esta ali a mao.
+  // Carregar num bloco do calendario abre o balao ao lado dele. Guarda-se o
+  // bloco inteiro e nao o id: a grelha ja o tem carregado, e ir busca-lo outra
+  // vez ao servidor era uma espera por um dado que esta ali a mao. O rect e o
+  // sitio onde ele estava — e o que diz ao balao onde se encostar.
+  const [balao, setBalao] = useState<{ item: Item; rect: DOMRect } | null>(null);
+
+  // As mensagens pre-definidas, abertas a partir do balao.
   const [mensagens, setMensagens] = useState<ServiceWithRelations | null>(null);
 
   const [formOpen, setFormOpen] = useState(false);
@@ -375,9 +380,8 @@ export default function Agenda() {
             <MonthCalendar
               week={week}
               mes={anchor.getMonth()}
-              onServico={setMensagens}
+              onAbrir={(item, rect) => setBalao({ item, rect })}
               onDia={(d) => marcar(d, null)}
-              onApagar={apagarBloco}
             />
           ) : (
           <>
@@ -385,9 +389,8 @@ export default function Agenda() {
             <div className="hidden lg:block mb-6">
               <WeekCalendar
                 week={week}
-                onServico={setMensagens}
+                onAbrir={(item, rect) => setBalao({ item, rect })}
                 onMarcar={marcar}
-                onApagar={apagarBloco}
               />
             </div>
           )}
@@ -551,6 +554,24 @@ export default function Agenda() {
           </>
           )}
         </>
+      )}
+
+      {balao && (
+        <EventPopover
+          item={balao.item}
+          rect={balao.rect}
+          onFechar={() => setBalao(null)}
+          onMensagens={() => {
+            const s = balao.item.servico;
+            setBalao(null);
+            if (s) setMensagens(s);
+          }}
+          onApagar={() => {
+            const item = balao.item;
+            setBalao(null);
+            apagarBloco(item);
+          }}
+        />
       )}
 
       {mensagens && (
