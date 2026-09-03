@@ -19,7 +19,9 @@
     "favicon": "node scripts/gen-favicon.mjs",
     "typecheck": "tsc --noEmit",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "build:pages": "node scripts/pages.mjs",
+    "deploy:pages": "npm run build:pages && gh-pages -d build-pages -f"
   },
   "browserslist": {
     "production": [
