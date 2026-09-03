@@ -1,23 +1,66 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Plus, Car, User, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Plus, Car, User, ChevronLeft, ChevronRight, CircleAlert } from 'lucide-react';
 import {
-  SERVICE_FILTERS, SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL, listServices, parseFilter,
+  SERVICE_FILTERS, SERVICE_FLOW, SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL,
+  listServices, parseFilter,
 } from '../services/services';
+import { dayKey } from '../services/agenda';
 import type { ServiceFilter } from '../services/services';
 import { listAssignable } from '../services/team';
 import type { Assignable } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
-import { eur } from '../lib/format';
+import { duracao, eur } from '../lib/format';
 import { Alert, Button, PageTitle, Spinner } from '../components/ui';
 import type { ServiceWithRelations } from '../types';
 
 const PAGE_SIZE = 25;
 
-function hourOf(iso: string | null): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digit' });
+const DIA_LONGO = new Intl.DateTimeFormat('pt-PT', { weekday: 'long', day: '2-digit', month: 'long' });
+
+/**
+ * O dia a que uma linha pertence.
+ *
+ * A hora marcada quando existe; senao o dia em que foi registada. Um servico
+ * sem hora tem de cair nalgum lado — deixa-lo de fora do agrupamento fazia-o
+ * desaparecer da lista sem dizer porque.
+ */
+const diaDaLinha = (s: ServiceWithRelations) =>
+  dayKey(new Date(s.scheduled_at ?? s.created_at));
+
+/** "Hoje", "Amanha", "Ontem", ou o dia por extenso. */
+function tituloDoDia(key: string): string {
+  const hoje = new Date();
+  const rotulo = (offset: number) => {
+    const d = new Date(hoje);
+    d.setDate(d.getDate() + offset);
+    return dayKey(d);
+  };
+
+  if (key === rotulo(0)) return 'Hoje';
+  if (key === rotulo(1)) return 'Amanhã';
+  if (key === rotulo(-1)) return 'Ontem';
+  // O YYYY-MM-DD e local: parte-se a mao em vez de new Date(key), que le a
+  // string como UTC e recua um dia em Portugal no horario de verao.
+  const [ano, mes, dia] = key.split('-').map(Number);
+  return DIA_LONGO.format(new Date(ano, mes - 1, dia));
 }
+
+/**
+ * Quanto do fluxo ja andou, de 0 a 1.
+ *
+ * Cancelado nao tem progresso: nao parou a meio do caminho, saiu dele.
+ */
+function progresso(s: ServiceWithRelations): number | null {
+  if (s.status === 'cancelado') return null;
+  const i = SERVICE_FLOW.indexOf(s.status);
+  return i < 0 ? null : i / (SERVICE_FLOW.length - 1);
+}
+
+/** Acabado e por pagar. O mesmo criterio do filtro "Por cobrar". */
+const porCobrar = (s: ServiceWithRelations) =>
+  (s.status === 'concluido' || s.status === 'entregue') && !s.paid_at;
 
 export default function Services() {
   const { profile } = useAuth();
@@ -72,6 +115,17 @@ export default function Services() {
 
   const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1);
 
+  // Os dias pela ordem em que as linhas vieram: quem ordena e o Postgres, e
+  // reordenar aqui punha a pagina 2 a discordar da pagina 1.
+  const grupos = useMemo(() => {
+    const mapa = new Map<string, ServiceWithRelations[]>();
+    for (const s of rows) {
+      const k = diaDaLinha(s);
+      mapa.set(k, [...(mapa.get(k) ?? []), s]);
+    }
+    return [...mapa.entries()];
+  }, [rows]);
+
   return (
     <>
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -89,6 +143,7 @@ export default function Services() {
           <button
             key={f.value}
             onClick={() => setFilter(f.value)}
+            aria-pressed={filter === f.value}
             className={`shrink-0 px-4 py-2 text-[11px] tracking-[0.15em] uppercase font-semibold border rounded-sm transition ${
               filter === f.value
                 ? 'bg-blue-950/40 border-blue-600 text-blue-300'
@@ -133,50 +188,121 @@ export default function Services() {
 
       {!loading && rows.length > 0 && (
         <>
-          <div className="space-y-3">
-            {rows.map((s) => (
-              <Link
-                key={s.id}
-                to={`/crm/servicos/${s.id}`}
-                className="block bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition rounded-md p-4"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-white/30 text-xs font-mono">#{s.reference}</span>
-                      <span className={`px-2 py-0.5 text-[10px] tracking-[0.15em] uppercase font-semibold border rounded-sm ${SERVICE_STATUS_CLASS[s.status]}`}>
-                        {SERVICE_STATUS_LABEL[s.status]}
-                      </span>
-                    </div>
-                    <div className="text-white font-semibold mt-2 truncate">{s.service_name}</div>
-                    <div className="text-white/55 text-sm mt-1 truncate">{s.client?.name ?? 'Sem cliente'}</div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-white font-display text-lg font-bold">{eur(s.total)}</div>
-                    {s.scheduled_at && (
-                      <div className="text-white/40 text-xs mt-1 inline-flex items-center gap-1">
-                        <Clock className="w-3 h-3" />{hourOf(s.scheduled_at)}
-                      </div>
-                    )}
-                  </div>
-                </div>
+          {/* Agrupado por dia, e as linhas com a hora a esquerda: a lista
+              passou a ler-se como se le uma agenda. Antes eram cartoes todos
+              iguais, com a referencia — o dado que menos se procura — em
+              primeiro lugar e a hora em letra pequena no canto.
 
-                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/10 text-xs text-white/50 flex-wrap">
-                  {s.vehicle && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Car className="w-3.5 h-3.5 text-blue-400/70" />
-                      {s.vehicle.plate}
-                      {s.vehicle.make && <span className="text-white/35">· {s.vehicle.make} {s.vehicle.model}</span>}
+              Os cabecalhos so aparecem quando ha mais do que um dia: na vista
+              "Hoje" seria uma linha a dizer o que os filtros ja dizem. */}
+          <div className="space-y-6">
+            {grupos.map(([dia, doDia]) => (
+              <div key={dia}>
+                {grupos.length > 1 && (
+                  <h2 className="text-white/45 text-[11px] tracking-[0.18em] uppercase font-semibold mb-2 capitalize">
+                    {tituloDoDia(dia)}
+                    <span className="text-white/25 ml-2 normal-case tracking-normal">
+                      {doDia.length}
                     </span>
-                  )}
-                  {s.employee && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-blue-400/70" />
-                      {s.employee.full_name}
-                    </span>
-                  )}
+                  </h2>
+                )}
+
+                <div className="space-y-2">
+                  {doDia.map((s) => {
+                    const pct = progresso(s);
+                    const falta = porCobrar(s);
+
+                    return (
+                      <Link
+                        key={s.id}
+                        to={`/crm/servicos/${s.id}`}
+                        aria-label={`${s.service_name}, ${s.client?.name ?? 'sem cliente'}, ${SERVICE_STATUS_LABEL[s.status]}`}
+                        className="block relative overflow-hidden bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 focus-visible:border-blue-500 transition rounded-md"
+                      >
+                        <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
+                          {/* A hora primeiro, como na agenda: e por ela que se
+                              procura uma marcacao. Sem hora nao inventa um
+                              travessao — diz o que se passa. */}
+                          <div className="w-14 sm:w-16 shrink-0 text-center">
+                            {s.scheduled_at ? (
+                              <>
+                                <div className="text-white text-base sm:text-lg font-semibold tabular-nums leading-none">
+                                  {HORA.format(new Date(s.scheduled_at))}
+                                </div>
+                                {s.duration_minutes && (
+                                  <div className="text-white/35 text-[10px] mt-1">
+                                    {duracao(s.duration_minutes)}
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div className="text-white/30 text-[10px] tracking-[0.15em] uppercase leading-tight">
+                                Sem hora
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-white text-sm font-semibold truncate">
+                                {s.service_name}
+                              </span>
+                              <span className={`px-2 py-0.5 text-[10px] tracking-[0.12em] uppercase font-semibold border rounded-sm ${SERVICE_STATUS_CLASS[s.status]}`}>
+                                {SERVICE_STATUS_LABEL[s.status]}
+                              </span>
+                            </div>
+
+                            {/* Cliente, carro e quem faz numa linha so. Sao a
+                                mesma pergunta — de quem e este trabalho — e
+                                tres linhas separadas so faziam a lista crescer. */}
+                            <div className="flex items-center gap-3 mt-1 text-xs text-white/55 flex-wrap">
+                              <span className="truncate">{s.client?.name ?? 'Sem cliente'}</span>
+                              {s.vehicle && (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <Car className="w-3.5 h-3.5 text-blue-400/60" aria-hidden="true" />
+                                  {s.vehicle.plate}
+                                </span>
+                              )}
+                              {s.employee && (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <User className="w-3.5 h-3.5 text-blue-400/60" aria-hidden="true" />
+                                  {s.employee.full_name}
+                                </span>
+                              )}
+                              <span className="text-white/25 font-mono">#{s.reference}</span>
+                            </div>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <div className="text-white font-display text-base sm:text-lg font-bold tabular-nums">
+                              {eur(s.total)}
+                            </div>
+                            {/* So aparece onde e uma novidade: numa lista de
+                                cobrancas todas as linhas o estariam a dizer. */}
+                            {falta && filter !== 'por_cobrar' && (
+                              <span className="inline-flex items-center gap-1 mt-1 text-amber-300/80 text-[10px] tracking-[0.12em] uppercase">
+                                <CircleAlert className="w-3 h-3" aria-hidden="true" />
+                                Por cobrar
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Onde vai o trabalho, sem ter de ler a etiqueta. Duas
+                            linhas de fila numa vista de vinte e cinco servicos
+                            dizem mais depressa quem esta quase a acabar. */}
+                        {pct !== null && (
+                          <span
+                            className="absolute bottom-0 left-0 h-0.5 bg-blue-500/50"
+                            style={{ width: `${Math.round(pct * 100)}%` }}
+                            aria-hidden="true"
+                          />
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
 

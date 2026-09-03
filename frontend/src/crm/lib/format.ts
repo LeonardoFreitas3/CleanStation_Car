@@ -22,6 +22,21 @@ export function daysAgo(days: number | null | undefined): string {
   return `Há ${years} ${years === 1 ? 'ano' : 'anos'}`;
 }
 
+/**
+ * Duracao em minutos, escrita como se fala: 90 -> "1h30", 45 -> "45min".
+ *
+ * A partir das 11 horas e "Dia inteiro": e o horario da oficina de ponta a
+ * ponta, e "11h" nao diz mais nada a quem esta a olhar para a agenda.
+ */
+export function duracao(minutes: number | null | undefined): string {
+  if (!minutes) return '';
+  if (minutes >= 660) return 'Dia inteiro';
+  if (minutes < 60) return `${minutes}min`;
+  const h = Math.floor(minutes / 60);
+  const min = minutes % 60;
+  return min ? `${h}h${String(min).padStart(2, '0')}` : `${h}h`;
+}
+
 /** Normaliza para wa.me: so digitos, com indicativo de Portugal por omissao. */
 export function whatsappNumber(phone: string | null | undefined): string | null {
   if (!phone) return null;

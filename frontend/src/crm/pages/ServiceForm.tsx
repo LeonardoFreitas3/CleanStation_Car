@@ -9,7 +9,7 @@ import { createService, getService, updateService } from '../services/services';
 import { listAssignable } from '../services/team';
 import type { Assignable } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
-import { eur } from '../lib/format';
+import { duracao, eur } from '../lib/format';
 import {
   Alert, Button, Card, Field, PageTitle, Select, Spinner, TextArea,
 } from '../components/ui';
@@ -18,14 +18,6 @@ import type { ClientOverview, ServiceType, Vehicle } from '../types';
 // Meia hora a dia inteiro. São as durações reais da oficina; um campo livre em
 // minutos dava margem para enganos que se pagam com marcações em cima.
 const DURATIONS = [30, 60, 90, 120, 180, 240, 360, 480, 660];
-
-function durationLabel(m: number): string {
-  if (m >= 660) return 'Dia inteiro';
-  if (m < 60) return `${m}min`;
-  const h = Math.floor(m / 60);
-  const min = m % 60;
-  return min ? `${h}h${String(min).padStart(2, '0')}` : `${h}h`;
-}
 
 /**
  * As durações da lista, mais a que vier do catálogo se lá não estiver.
@@ -36,7 +28,7 @@ function durationLabel(m: number): string {
  */
 function durationOptions(current: number): { value: string; label: string }[] {
   const todas = DURATIONS.includes(current) ? DURATIONS : [...DURATIONS, current].sort((a, b) => a - b);
-  return todas.map((m) => ({ value: String(m), label: durationLabel(m) }));
+  return todas.map((m) => ({ value: String(m), label: duracao(m) }));
 }
 
 /** Duas horas é a lavagem comum. Igual ao valor por omissão da Edge Function. */
