@@ -139,6 +139,20 @@ export default function Agenda() {
     }, { livres: 0, total: 0 });
   }, [week]);
 
+  /**
+   * Abrir o formulário já com o dia e a hora.
+   *
+   * Hora null é "a primeira livre" — o mesmo que o + da lista propõe. Continua
+   * a ser só uma sugestão: quem marca vê a hora no formulário e muda-a.
+   */
+  const marcar = (d: Date, hora: number | null) => {
+    const key = dayKey(d);
+    const h = hora === null
+      ? nextFreeHour(d, byDay.services.get(key) ?? [])
+      : `${String(hora).padStart(2, '0')}:00`;
+    navigate(`/crm/servicos/novo?agendar=${key}T${h}`);
+  };
+
   const shift = (passos: number) => setAnchor((a) => {
     const d = new Date(a);
     // No mes salta-se para o dia 1 antes de andar: a partir de 31 de janeiro,
@@ -329,15 +343,13 @@ export default function Agenda() {
               week={week}
               mes={anchor.getMonth()}
               onServico={setMensagens}
-              onDia={(d) => navigate(
-                `/crm/servicos/novo?agendar=${dayKey(d)}T${nextFreeHour(d, byDay.services.get(dayKey(d)) ?? [])}`,
-              )}
+              onDia={(d) => marcar(d, null)}
             />
           ) : (
           <>
           {week && (
             <div className="hidden lg:block mb-6">
-              <WeekCalendar week={week} onServico={setMensagens} />
+              <WeekCalendar week={week} onServico={setMensagens} onMarcar={marcar} />
             </div>
           )}
 

@@ -3,6 +3,7 @@ import {
 } from '../services/agenda';
 import type { Week } from '../services/agenda';
 import type { ServiceWithRelations } from '../types';
+import { Plus } from 'lucide-react';
 
 const DIA_CURTO = new Intl.DateTimeFormat('pt-PT', { weekday: 'short' });
 const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digit' });
@@ -82,8 +83,13 @@ export function itensDoDia(week: Week, day: Date): Item[] {
 }
 
 export function WeekCalendar({
-  week, onServico,
-}: { week: Week; onServico: (s: ServiceWithRelations) => void }) {
+  week, onServico, onMarcar,
+}: {
+  week: Week;
+  onServico: (s: ServiceWithRelations) => void;
+  /** Marcar um serviço naquele dia. Hora null = a primeira que estiver livre. */
+  onMarcar: (day: Date, hora: number | null) => void;
+}) {
   const horas = Array.from({ length: CLOSES - OPENS }, (_, i) => OPENS + i);
   const hoje = dayKey(new Date());
 
@@ -107,6 +113,18 @@ export function WeekCalendar({
               <div className={`text-sm font-semibold ${eHoje ? 'text-white' : 'text-white/70'}`}>
                 {d.getDate()}
               </div>
+              {/* O caminho pelo teclado. As horas da grelha ficam fora da
+                  ordem de tabulação de propósito: setenta e sete paragens
+                  antes de chegar ao resto da página não é acessibilidade, é
+                  um labirinto. Aqui são sete, e caem na primeira hora livre. */}
+              <button
+                type="button"
+                onClick={() => onMarcar(d, null)}
+                aria-label={`Marcar serviço em ${dayKey(d)}`}
+                className="text-white/25 hover:text-blue-400 transition"
+              >
+                <Plus className="w-3.5 h-3.5 mx-auto" />
+              </button>
             </div>
           );
         })}
@@ -134,8 +152,25 @@ export function WeekCalendar({
               key={dayKey(d)}
               className={`relative border-l border-white/10 ${fechado ? 'bg-white/[0.02]' : ''}`}
             >
-              {/* As linhas da grelha, por baixo dos blocos. */}
-              {horas.map((h) => <div key={h} className="h-14 border-b border-white/5" />)}
+              {/* As linhas da grelha, por baixo dos blocos — e o sítio onde se
+                  marca. Carregar numa hora vazia abre o formulário já com o dia
+                  e a hora: é o gesto que qualquer calendário tem, e sem ele não
+                  havia como marcar a partir da agenda num ecrã grande, onde a
+                  lista com o + está escondida.
+
+                  As horas ocupadas não recebem o clique — os blocos estão por
+                  cima e vão à ficha, que é o que se quer ao carregar num
+                  serviço. */}
+              {horas.map((h) => (
+                <button
+                  key={h}
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => onMarcar(d, h)}
+                  aria-label={`Marcar serviço em ${dayKey(d)} às ${String(h).padStart(2, '0')}:00`}
+                  className="block w-full h-14 border-b border-white/5 hover:bg-blue-500/5 transition"
+                />
+              ))}
 
               {fechado && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
