@@ -17,10 +17,27 @@ import type { ClientOverview, ServiceType, Vehicle } from '../types';
 
 // Meia hora a dia inteiro. São as durações reais da oficina; um campo livre em
 // minutos dava margem para enganos que se pagam com marcações em cima.
-const DURATION_OPTIONS = [30, 60, 90, 120, 180, 240, 360, 480, 660].map((m) => ({
-  value: String(m),
-  label: m >= 660 ? 'Dia inteiro' : m % 60 === 0 ? `${m / 60}h` : `${Math.floor(m / 60)}h30`,
-}));
+const DURATIONS = [30, 60, 90, 120, 180, 240, 360, 480, 660];
+
+function durationLabel(m: number): string {
+  if (m >= 660) return 'Dia inteiro';
+  if (m < 60) return `${m}min`;
+  const h = Math.floor(m / 60);
+  const min = m % 60;
+  return min ? `${h}h${String(min).padStart(2, '0')}` : `${h}h`;
+}
+
+/**
+ * As durações da lista, mais a que vier do catálogo se lá não estiver.
+ *
+ * A lavagem com selante são 1h45 e a lista não tem 105 minutos. Sem isto, a
+ * caixa não encontrava o valor, mostrava a primeira opção — meia hora — e o
+ * serviço nascia a ocupar um sexto do tempo real sem ninguém ter mexido em nada.
+ */
+function durationOptions(current: number): { value: string; label: string }[] {
+  const todas = DURATIONS.includes(current) ? DURATIONS : [...DURATIONS, current].sort((a, b) => a - b);
+  return todas.map((m) => ({ value: String(m), label: durationLabel(m) }));
+}
 
 /** Duas horas é a lavagem comum. Igual ao valor por omissão da Edge Function. */
 const DEFAULT_DURATION = 120;
@@ -199,12 +216,20 @@ export default function ServiceForm() {
       .catch(() => setVehicles([]));
   }, [client]);
 
-  // Escolher o serviço preenche o preço com o do catálogo, mas deixa editar:
-  // o valor final depende do estado da viatura.
+  // Escolher o serviço preenche o preço e a duração com os do catálogo, mas
+  // deixa editar os dois: o valor final depende do estado da viatura, e o tempo
+  // também.
+  //
+  // A duração vem da 0030. Antes propunha sempre duas horas — o mesmo para uma
+  // lavagem simples e para uma detalhada que fica de um dia para o outro — e
+  // quem se esquecia de a corrigir deixava a agenda a oferecer tempo que já
+  // estava vendido. Serviço sem duração no catálogo mantém as duas horas.
   const selectType = (id: string) => {
     setTypeId(id);
     const t = catalogue.services.find((s) => s.id === id);
-    if (t) setPrice(String(priceOf(t, vehicleSize)));
+    if (!t) return;
+    setPrice(String(priceOf(t, vehicleSize)));
+    setDurationMinutes(t.duration_minutes ?? DEFAULT_DURATION);
   };
 
   // Trocar o porte com um serviço já escolhido reajusta o preço.
@@ -528,14 +553,17 @@ export default function ServiceForm() {
               label="Duração"
               value={String(durationMinutes)}
               onChange={(e) => setDurationMinutes(Number(e.target.value))}
-              options={DURATION_OPTIONS}
+              options={durationOptions(durationMinutes)}
               // Só conta se houver hora marcada: sem data, nada ocupa a oficina.
               disabled={!scheduledAt}
             />
           </div>
           {scheduledAt && (
             <p className="text-white/35 text-xs -mt-2">
-              Estas horas deixam de aparecer nas marcações do site.
+              Estas horas deixam de aparecer nas marcações do site
+              {selectedType?.duration_minutes != null
+                && ' — a duração é a do catálogo, muda-a se este trabalho for diferente'}.
+              {' '}O serviço aparece também no Google Calendar.
             </p>
           )}
 

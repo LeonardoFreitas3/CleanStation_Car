@@ -66,6 +66,8 @@ export async function updateServiceType(
     sort_order?: number;
     /** Null apaga o prazo: deixa de haver lembrete de manutencao para este servico. */
     repeat_after_days?: number | null;
+    /** Null tira a duracao propria: volta a propor as duas horas por omissao. */
+    duration_minutes?: number | null;
   },
 ): Promise<void> {
   const { error } = await getSupabase().from('service_types').update(patch).eq('id', id);
@@ -107,6 +109,24 @@ export function parseRepeatDays(raw: string): number | null {
   const n = Number(s);
   if (!Number.isInteger(n) || n < 7 || n > 730) {
     throw new Error('O prazo tem de ser um número inteiro de dias, entre 7 e 730.');
+  }
+  return n;
+}
+
+/**
+ * Le a duracao escrita a mao nas Definicoes.
+ *
+ * Mesma forma do parseRepeatDays e pelas mesmas razoes: vazio e null — "sem
+ * duracao propria" —, e os limites sao os da migracao 0030. Levanta em vez de
+ * devolver um terceiro estado.
+ */
+export function parseDuration(raw: string): number | null {
+  const s = raw.trim();
+  if (!s) return null;
+
+  const n = Number(s);
+  if (!Number.isInteger(n) || n < 15 || n > 1440) {
+    throw new Error('A duração tem de ser um número inteiro de minutos, entre 15 e 1440.');
   }
   return n;
 }

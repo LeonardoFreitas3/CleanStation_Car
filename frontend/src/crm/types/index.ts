@@ -85,6 +85,11 @@ export interface ServiceType {
    * lembrete de manutencao.
    */
   repeat_after_days: number | null;
+  /**
+   * Quanto costuma demorar, em minutos. Null = sem duracao propria; o
+   * formulario propoe as duas horas de sempre. Ver a migracao 0030.
+   */
+  duration_minutes: number | null;
   active: boolean;
   sort_order: number;
 }

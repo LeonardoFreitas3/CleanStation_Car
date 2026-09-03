@@ -51,17 +51,31 @@ export function MonthCalendar({
           return (
             <div
               key={key}
-              className={`min-h-[4.5rem] sm:min-h-[6rem] border-b border-l border-white/10 p-1 ${
+              className={`relative min-h-[4.5rem] sm:min-h-[6rem] border-b border-l border-white/10 p-1 ${
                 foraDoMes ? 'opacity-35' : isEncerrado(d) ? 'bg-white/[0.02]' : ''
               }`}
             >
-              {/* Carregar no numero marca um servico naquele dia — o mesmo que
-                  o + faz na lista da semana. */}
+              {/* A celula inteira marca, e nao so o numero. Um alvo de 24 pixeis
+                  num dedo e uma adivinha: carregava-se no dia, nao acontecia
+                  nada, e parecia que a vista de mes nao deixava marcar.
+
+                  Fica por baixo (sem z) das etiquetas, que tem z-10: carregar
+                  num servico abre as mensagens, carregar no vazio a volta marca.
+                  Fora da ordem de tabulacao, como na semana — o caminho pelo
+                  teclado e o numero do dia. */}
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={() => onDia(d)}
+                aria-label={`Marcar serviço em ${key}`}
+                className="absolute inset-0 hover:bg-blue-500/5 transition"
+              />
+
               <button
                 type="button"
                 onClick={() => onDia(d)}
                 aria-label={`Marcar serviço em ${key}`}
-                className={`w-6 h-6 mb-0.5 rounded-full text-[11px] tabular-nums transition ${
+                className={`relative z-10 w-6 h-6 mb-0.5 rounded-full text-[11px] tabular-nums transition ${
                   eHoje ? 'bg-blue-600 text-white font-semibold' : 'text-white/60 hover:bg-white/10'
                 }`}
               >
@@ -77,7 +91,7 @@ export function MonthCalendar({
                     {i.titulo}
                   </span>
                 );
-                const caixa = `w-full text-left text-[10px] leading-tight px-1 py-0.5 mb-0.5 border rounded-sm ${i.classe}`;
+                const caixa = `relative z-10 w-full text-left text-[10px] leading-tight px-1 py-0.5 mb-0.5 border rounded-sm ${i.classe}`;
                 const dica = `${HORA.format(new Date(i.startIso))} · ${i.titulo}${i.detalhe ? ` · ${i.detalhe}` : ''}`;
 
                 return i.servico ? (
@@ -90,7 +104,7 @@ export function MonthCalendar({
               })}
 
               {itens.length > visiveis.length && (
-                <span className="block text-[10px] text-white/40 px-1">
+                <span className="relative z-10 block text-[10px] text-white/40 px-1 pointer-events-none">
                   {`+${itens.length - visiveis.length}`}
                 </span>
               )}

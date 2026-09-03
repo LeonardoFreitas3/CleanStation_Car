@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Check, Info, Save, Plus, X, Eye, EyeOff } from 'lucide-react';
 import {
   CATEGORY_LABEL, VEHICLE_PRICE_KEYS, createServiceType, listAllServiceTypes,
-  parseRepeatDays, updateServiceType,
+  parseRepeatDays, parseDuration, updateServiceType,
 } from '../services/serviceTypes';
 import { getSettings, updateSettings } from '../services/settings';
 import { setVipThresholds } from '../services/clients';
@@ -18,6 +18,8 @@ interface Draft {
   prices: Record<string, string>;
   /** Dias ate repetir. Vazio = nunca lembrar. */
   repeat: string;
+  /** Minutos que costuma demorar. Vazio = sem duracao propria. */
+  duracao: string;
 }
 
 /** Campo de preço vazio = "este veículo não faz este serviço", não zero. */
@@ -172,6 +174,7 @@ export default function Settings() {
       VEHICLE_PRICE_KEYS.map(({ key }) => [key, priceValue(t.prices?.[key])]),
     ),
     repeat: t.repeat_after_days == null ? '' : String(t.repeat_after_days),
+    duracao: t.duration_minutes == null ? '' : String(t.duration_minutes),
   };
 
   const patchDraft = (t: ServiceType, patch: Partial<Draft>) =>
@@ -238,10 +241,20 @@ export default function Settings() {
       return;
     }
 
+    let duracao: number | null;
+    try {
+      duracao = parseDuration(row.duracao);
+    } catch (err) {
+      setError(`${err instanceof Error ? err.message : 'Duração inválida.'} (em "${t.name}")`);
+      return;
+    }
+
     setSavingType(t.id);
     setError(null);
     try {
-      await updateServiceType(t.id, { name, base_price: base, prices, repeat_after_days: repeat });
+      await updateServiceType(t.id, {
+        name, base_price: base, prices, repeat_after_days: repeat, duration_minutes: duracao,
+      });
       setDraft((d) => { const { [t.id]: _drop, ...rest } = d; return rest; });
       setSaved(t.id);
       setTimeout(() => setSaved(null), 2500);
@@ -512,6 +525,22 @@ export default function Settings() {
                       Praia" nunca chegava a ser lido. */}
                   {t.category !== 'extras' && (
                     <div className="mt-4 pt-4 border-t border-white/5 grid sm:grid-cols-5 gap-3 items-end">
+                      <Field
+                        label="Demora (minutos)"
+                        type="number"
+                        min={15}
+                        max={1440}
+                        step="5"
+                        placeholder="—"
+                        value={row.duracao}
+                        onChange={(e) => patchDraft(t, { duracao: e.target.value })}
+                      />
+                      <p className="sm:col-span-4 text-white/25 text-xs leading-relaxed">
+                        O tempo que o formulário propõe ao marcar este serviço, e que fica a ocupar a
+                        agenda.{' '}
+                        <span className="text-white/45">Vazio = propõe duas horas.</span>
+                      </p>
+
                       <Field
                         label="Repetir ao fim de (dias)"
                         type="number"

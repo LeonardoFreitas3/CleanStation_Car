@@ -2,7 +2,7 @@
 // um servico. Gerado mal, cria uma linha que nada referencia — e isso nao da
 // erro nenhum, so deixa de funcionar.
 
-import { parseRepeatDays, slugify } from './serviceTypes';
+import { parseDuration, parseRepeatDays, slugify } from './serviceTypes';
 
 describe('slug do servico', () => {
   test('minusculas e hifens no lugar dos espacos', () => {
@@ -61,5 +61,25 @@ describe('prazo de repeticao', () => {
   test('texto nao vira NaN em silencio', () => {
     expect(() => parseRepeatDays('trinta')).toThrow();
     expect(() => parseRepeatDays('30 dias')).toThrow();
+  });
+});
+
+describe('duracao escrita nas definicoes', () => {
+  test('vazio e sem duracao propria, nao zero minutos', () => {
+    expect(parseDuration('')).toBeNull();
+    expect(parseDuration('  ')).toBeNull();
+  });
+
+  test('minutos dentro dos limites passam', () => {
+    expect(parseDuration('105')).toBe(105);
+    expect(parseDuration(' 1440 ')).toBe(1440);
+  });
+
+  test('fora dos limites levanta, em vez de deixar a base de dados recusar', () => {
+    // 10 minutos nao chega para lavar nada; 1500 passa das 24 horas.
+    expect(() => parseDuration('10')).toThrow();
+    expect(() => parseDuration('1500')).toThrow();
+    expect(() => parseDuration('90.5')).toThrow();
+    expect(() => parseDuration('duas horas')).toThrow();
   });
 });
