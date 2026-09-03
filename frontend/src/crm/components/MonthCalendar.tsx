@@ -2,6 +2,8 @@ import { dayKey, isEncerrado } from '../services/agenda';
 import type { Week } from '../services/agenda';
 import type { ServiceWithRelations } from '../types';
 import { itensDoDia } from './WeekCalendar';
+import type { Item } from './WeekCalendar';
+import { X } from 'lucide-react';
 
 const DIA_CURTO = new Intl.DateTimeFormat('pt-PT', { weekday: 'short' });
 const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digit' });
@@ -18,13 +20,15 @@ const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digi
  * pixeis. Quem quer ver a hora carrega no dia, ou passa a semana.
  */
 export function MonthCalendar({
-  week, mes, onServico, onDia,
+  week, mes, onServico, onDia, onApagar,
 }: {
   week: Week;
   /** O mes que se esta a ver (0-11): os dias de fora ficam esbatidos. */
   mes: number;
   onServico: (s: ServiceWithRelations) => void;
   onDia: (d: Date) => void;
+  /** Apagar uma folga ou um evento do Google. Quem confirma é quem recebe. */
+  onApagar: (item: Item) => void;
 }) {
   const hoje = dayKey(new Date());
 
@@ -99,7 +103,19 @@ export function MonthCalendar({
                     {conteudo}
                   </button>
                 ) : (
-                  <div key={i.key} className={caixa} title={dica}>{conteudo}</div>
+                  <div key={i.key} className={`${caixa} flex items-center gap-1`} title={dica}>
+                    {conteudo}
+                    {i.origem && (
+                      <button
+                        type="button"
+                        onClick={() => onApagar(i)}
+                        aria-label={`Apagar ${i.titulo}`}
+                        className="shrink-0 text-white/30 hover:text-red-400 transition"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                 );
               })}
 

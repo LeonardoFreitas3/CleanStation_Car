@@ -3,7 +3,7 @@ import {
 } from '../services/agenda';
 import type { Week } from '../services/agenda';
 import type { ServiceWithRelations } from '../types';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 
 const DIA_CURTO = new Intl.DateTimeFormat('pt-PT', { weekday: 'short' });
 const HORA = new Intl.DateTimeFormat('pt-PT', { hour: '2-digit', minute: '2-digit' });
@@ -29,6 +29,12 @@ export interface Item {
   endIso: string;
   /** So os servicos. As folgas e o que vem do Google nao tem ficha ca. */
   servico?: ServiceWithRelations;
+  /**
+   * De onde veio, para se saber como se apaga. Os servicos nao trazem isto:
+   * apagar um servico e desfazer trabalho registado, faturacao e historico, e
+   * isso decide-se na ficha e nao de passagem pela agenda.
+   */
+  origem?: { tipo: 'folga' | 'google'; id: string };
   classe: string;
 }
 
@@ -58,6 +64,7 @@ export function itensDoDia(week: Week, day: Date): Item[] {
       detalhe: o.reason ?? '',
       startIso: o.starts_at,
       endIso: o.ends_at,
+      origem: { tipo: 'folga', id: o.id },
       classe: 'bg-amber-950/50 border-amber-700/50',
     });
   }
@@ -72,6 +79,7 @@ export function itensDoDia(week: Week, day: Date): Item[] {
       detalhe: 'Google Calendar',
       startIso: b.startIso,
       endIso: b.endIso,
+      origem: { tipo: 'google', id: b.id },
       classe: 'bg-white/[0.06] border-white/20',
     });
   }
@@ -83,12 +91,14 @@ export function itensDoDia(week: Week, day: Date): Item[] {
 }
 
 export function WeekCalendar({
-  week, onServico, onMarcar,
+  week, onServico, onMarcar, onApagar,
 }: {
   week: Week;
   onServico: (s: ServiceWithRelations) => void;
   /** Marcar um serviço naquele dia. Hora null = a primeira que estiver livre. */
   onMarcar: (day: Date, hora: number | null) => void;
+  /** Apagar uma folga ou um evento do Google. Quem confirma é quem recebe. */
+  onApagar: (item: Item) => void;
 }) {
   const horas = Array.from({ length: CLOSES - OPENS }, (_, i) => OPENS + i);
   const hoje = dayKey(new Date());
@@ -208,8 +218,18 @@ export function WeekCalendar({
                     {conteudo}
                   </button>
                 ) : (
-                  <div key={i.key} className={caixa} style={estilo} title={dica}>
+                  <div key={i.key} className={`${caixa} group`} style={estilo} title={dica}>
                     {conteudo}
+                    {i.origem && (
+                      <button
+                        type="button"
+                        onClick={() => onApagar(i)}
+                        aria-label={`Apagar ${i.titulo}`}
+                        className="absolute top-0 right-0 w-6 h-6 flex items-center justify-center text-white/30 hover:text-red-400 focus-visible:text-red-400 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 );
               })}

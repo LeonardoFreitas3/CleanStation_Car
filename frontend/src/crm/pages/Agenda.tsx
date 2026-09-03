@@ -2,14 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BellRing, BellOff, CalendarClock, CalendarDays, CalendarOff, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-react';
 import {
-  createTimeOff, dayKey, dayOccupancy, deleteTimeOff, isEncerrado, loadRange,
-  monthDays, nextFreeHour, timeOffDays, weekDays,
+  apagarEventoDoGoogle, createTimeOff, dayKey, dayOccupancy, deleteTimeOff,
+  isEncerrado, loadRange, monthDays, nextFreeHour, timeOffDays, weekDays,
 } from '../services/agenda';
 import type { BlocksState, Week } from '../services/agenda';
 import { SERVICE_STATUS_CLASS, SERVICE_STATUS_LABEL } from '../services/services';
 import type { ServiceWithRelations } from '../types';
 import { MessageSender } from '../components/MessageSender';
 import { WeekCalendar } from '../components/WeekCalendar';
+import type { Item } from '../components/WeekCalendar';
 import { MonthCalendar } from '../components/MonthCalendar';
 import { Alert, Button, Card, Checkbox, Field, PageTitle, Spinner } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
@@ -198,6 +199,38 @@ export default function Agenda() {
     }
   };
 
+  /**
+   * Apagar um bloco da agenda: uma folga ou um evento que só existe no Google.
+   *
+   * Os dois desaparecem da agenda e libertam as horas no site, mas não são a
+   * mesma coisa e a pergunta di-lo. A folga é uma linha do CRM e apagá-la leva
+   * o espelho no calendário atrás; o evento do Google é o original, e daqui
+   * apaga-se mesmo — não há cópia no CRM para onde voltar.
+   *
+   * Os serviços não passam por aqui de propósito: apagar um serviço é desfazer
+   * trabalho registado, faturação e histórico, e isso decide-se na ficha.
+   */
+  const apagarBloco = async (item: Item) => {
+    if (!item.origem) return;
+
+    const pergunta = item.origem.tipo === 'folga'
+      ? `Apagar a folga "${item.titulo}"?\n\nAs horas voltam a ficar disponíveis no site.`
+      : `Apagar "${item.titulo}" do Google Calendar?\n\n`
+        + 'Este evento só existe no calendário — não tem ficha no CRM, e não há '
+        + 'como o trazer de volta daqui.';
+
+    if (!window.confirm(pergunta)) return;
+
+    setError(null);
+    try {
+      if (item.origem.tipo === 'folga') await deleteTimeOff(item.origem.id);
+      else await apagarEventoDoGoogle(item.origem.id);
+      await load(anchor, vista);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível apagar.');
+    }
+  };
+
   const removeTimeOff = async (id: string, label: string) => {
     if (!window.confirm(`Apagar a folga de ${label}?\n\nAs horas voltam a ficar disponíveis no site.`)) return;
     try {
@@ -344,12 +377,18 @@ export default function Agenda() {
               mes={anchor.getMonth()}
               onServico={setMensagens}
               onDia={(d) => marcar(d, null)}
+              onApagar={apagarBloco}
             />
           ) : (
           <>
           {week && (
             <div className="hidden lg:block mb-6">
-              <WeekCalendar week={week} onServico={setMensagens} onMarcar={marcar} />
+              <WeekCalendar
+                week={week}
+                onServico={setMensagens}
+                onMarcar={marcar}
+                onApagar={apagarBloco}
+              />
             </div>
           )}
 
@@ -431,9 +470,9 @@ export default function Agenda() {
                 ))}
 
                 {/* So o que existe no Google e nao tem ficha ca: um bloqueio
-                    feito pelo telemovel, uma ida ao fornecedor. Sem botao de
-                    apagar de proposito — quem o criou foi o Google, e e la que
-                    se mexe. */}
+                    feito pelo telemovel, uma ida ao fornecedor. O caixote
+                    apaga-o no calendario — nao ha copia ca de onde o repor, e
+                    a confirmacao di-lo antes de o fazer. */}
                 {blocks.map((b) => (
                   <div
                     key={b.id}
@@ -444,6 +483,22 @@ export default function Agenda() {
                       {hour(b.startIso)}–{hour(b.endIso)}
                     </span>
                     <span className="text-white/60 text-sm truncate">{b.summary}</span>
+                    <button
+                      type="button"
+                      onClick={() => apagarBloco({
+                        key: b.id,
+                        titulo: b.summary,
+                        detalhe: '',
+                        startIso: b.startIso,
+                        endIso: b.endIso,
+                        origem: { tipo: 'google', id: b.id },
+                        classe: '',
+                      })}
+                      aria-label={`Apagar ${b.summary} do Google Calendar`}
+                      className="ml-auto text-white/30 hover:text-red-400 transition shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 ))}
 

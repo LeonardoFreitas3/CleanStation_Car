@@ -455,6 +455,36 @@ async function syncTimeOffToCalendar(path: string, body: Record<string, unknown>
   }
 }
 
+/**
+ * Apaga um evento do Google Calendar.
+ *
+ * Serve o que aparece na Agenda como bloqueio: existe no calendario e nao tem
+ * ficha no CRM. Reaproveita o endpoint que ja apagava o espelho das folgas —
+ * do lado do Google e o mesmo gesto, apagar um evento por id, e a funcao
+ * publicada ja o conhece.
+ *
+ * Ao contrario do syncTimeOffToCalendar, esta **levanta**. La o calendario e o
+ * espelho e falhar em silencio custa nao se ver a folga no telemovel; aqui o
+ * calendario e o original, e uma falha calada deixava o evento la a ocupar a
+ * agenda com a pessoa convencida de que o tinha apagado.
+ */
+export async function apagarEventoDoGoogle(eventId: string): Promise<void> {
+  const { data: { session } } = await getSupabase().auth.getSession();
+  if (!session) throw new Error('Sessão expirada. Entre outra vez.');
+
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/booking/time-off-remove`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({ eventId }),
+  });
+
+  if (!res.ok) throw new Error('Não foi possível apagar o evento no Google Calendar.');
+}
+
 export async function createTimeOff(input: {
   starts_at: string;
   ends_at: string;

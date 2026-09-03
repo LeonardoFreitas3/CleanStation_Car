@@ -57,7 +57,14 @@ export const IN_PROGRESS: ServiceStatus[] = SERVICE_FLOW.slice(
 export type ServiceFilter =
   | 'hoje' | 'amanha' | 'semana' | 'em_curso' | 'concluidos' | 'por_cobrar' | 'cancelados' | 'todos';
 
+// A ordem e a dos botoes no ecra. O "Todos" a frente porque e o unico que nao
+// esconde nada: e por onde se comeca quando se anda a procura de um servico e
+// nao se sabe em que estado ele esta.
+//
+// Nao muda a vista com que a pagina abre — essa continua a ser "Hoje", que e o
+// que interessa a quem chega de manha. Quem decide isso e o parseFilter.
 export const SERVICE_FILTERS: Array<{ value: ServiceFilter; label: string }> = [
+  { value: 'todos', label: 'Todos' },
   { value: 'hoje', label: 'Hoje' },
   { value: 'amanha', label: 'Amanhã' },
   { value: 'semana', label: 'Esta semana' },
@@ -65,7 +72,6 @@ export const SERVICE_FILTERS: Array<{ value: ServiceFilter; label: string }> = [
   { value: 'concluidos', label: 'Concluídos' },
   { value: 'por_cobrar', label: 'Por cobrar' },
   { value: 'cancelados', label: 'Cancelados' },
-  { value: 'todos', label: 'Todos' },
 ];
 
 /**
