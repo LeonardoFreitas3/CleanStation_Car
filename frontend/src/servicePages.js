@@ -120,7 +120,7 @@ const PAGINAS = [
       },
       {
         heading: 'Duração',
-        paragrafos: ['Aproximadamente 1h30, dependendo do estado do veículo.'],
+        paragrafos: ['Aproximadamente 1h45, dependendo do estado do veículo.'],
       },
       {
         heading: 'Sujidade fora do normal',

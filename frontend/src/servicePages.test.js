@@ -5,7 +5,7 @@
 
 import { SERVICE_PAGES, PAGE_BY_SERVICE, conteudo, nomeDe, precoDe } from './servicePages';
 import { SERVICES } from './mock';
-import { LEVEL_BY_ID } from './booking/pricing';
+import { LEVEL_BY_ID, DURATIONS, formatDuration } from './booking/pricing';
 import SEO from './paginasSeo.json';
 
 describe('paginas de servico', () => {
@@ -46,9 +46,20 @@ describe('paginas de servico', () => {
   // ("desde 30€", "65€"). Se a tabela mudar e o texto ficar, o Google anuncia
   // um preco que a marcacao ja nao pratica — que e a queixa mais cara que ha.
   test('o preco escrito na descricao e o que a tabela pratica', () => {
-    for (const p of SERVICE_PAGES) {
-      const numeros = [...p.description.matchAll(/(\d+)€/g)].map((m) => Number(m[1]));
-      for (const n of numeros) expect(n).toBe(precoDe(p));
+    for (const pagina of SERVICE_PAGES) {
+      // Nas duas linguas e nas duas ordens: em portugues escreve-se "30€" e em
+      // ingles "€30". So a portuguesa era verificada, e a inglesa podia ficar
+      // com um preco antigo sem ninguem dar por isso.
+      for (const lingua of ['pt', 'en']) {
+        const p = conteudo(pagina, lingua);
+        const numeros = [
+          ...p.description.matchAll(/(\d+)€/g),
+          ...p.description.matchAll(/€(\d+)/g),
+        ].map((m) => Number(m[1]));
+        for (const n of numeros) {
+          expect([pagina.slug, lingua, n]).toEqual([pagina.slug, lingua, precoDe(pagina)]);
+        }
+      }
     }
   });
 
@@ -112,4 +123,32 @@ describe('traducao', () => {
       expect(nomeDe(p, 'en')).not.toBe(nomeDe(p, 'pt'));
     }
   });
+});
+
+// A duracao esta escrita por extenso no texto ("Aproximadamente 1h45") e a
+// serio na tabela do pricing.js, que e quem calcula as vagas da marcacao. A da
+// selante ficou em 1h30 no texto quando a tabela ja dizia 105 minutos: a pagina
+// prometia um tempo e a marcacao ocupava outro.
+describe('duracao escrita nas paginas', () => {
+  const horas = (texto) => [...texto.matchAll(/\d{1,2}h\d{2}/g)].map((m) => m[0]);
+
+  const textoTodo = (p) => [
+    ...p.sections.flatMap((s) => s.paragrafos ?? []),
+    ...p.faq.map((f) => f.a),
+  ].join(' ');
+
+  for (const lingua of ['pt', 'en']) {
+    test(`bate certo com a tabela, em ${lingua}`, () => {
+      for (const pagina of SERVICE_PAGES) {
+        const p = conteudo(pagina, lingua);
+        const daTabela = formatDuration(DURATIONS[pagina.levelId].carro);
+
+        // So as escritas em "XhYY". A premium diz "4 horas" e a detalhada
+        // "1 dia" — sao frases e nao numeros, e o dono e que as escreve.
+        for (const escrita of horas(textoTodo(p))) {
+          expect([pagina.slug, lingua, escrita]).toEqual([pagina.slug, lingua, daTabela]);
+        }
+      }
+    });
+  }
 });

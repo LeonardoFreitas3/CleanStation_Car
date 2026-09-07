@@ -111,7 +111,7 @@ export const EN_PAGES = {
       },
       {
         heading: 'How long it takes',
-        paragrafos: ['Around 1h30, depending on the condition of the vehicle.'],
+        paragrafos: ['Around 1h45, depending on the condition of the vehicle.'],
       },
       {
         heading: 'Dirt beyond the normal',
