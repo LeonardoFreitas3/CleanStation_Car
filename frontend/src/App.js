@@ -18,6 +18,8 @@ import { initAnalytics } from './analytics';
 import { LanguageProvider, useLang } from './i18n';
 import Faq from './components/Faq';
 import { SITE_URL, businessSchema, faqSchema, seoText } from './seo';
+import { useSeoHead } from './useSeoHead';
+import ServicoPagina from './components/ServicoPagina';
 
 // Carregado a pedido: o CRM traz o supabase-js atras, e quem visita o site
 // publico nao tem de descarregar nada disso.
@@ -39,63 +41,27 @@ function Home() {
 
   useEffect(() => { initAnalytics(); }, []);
 
-  useEffect(() => {
-    const seo = seoText(lang);
-    document.documentElement.lang = lang;
-    document.title = seo.title;
-
-    const ensureMeta = (name, content, attr = 'name') => {
-      let el = document.querySelector(`meta[${attr}="${name}"]`);
-      if (!el) { el = document.createElement('meta'); el.setAttribute(attr, name); document.head.appendChild(el); }
-      el.setAttribute('content', content);
-    };
-    ensureMeta('description', seo.description);
-    ensureMeta('keywords', seo.keywords);
-    ensureMeta('robots', 'index, follow, max-image-preview:large');
-    ensureMeta('author', 'Clean Station Car');
-    ensureMeta('geo.region', 'PT-03');
-    ensureMeta('geo.placename', 'Braga');
-    ensureMeta('geo.position', '41.5454;-8.4265');
-    ensureMeta('ICBM', '41.5454, -8.4265');
-
-    ensureMeta('og:site_name', 'Clean Station Car', 'property');
-    ensureMeta('og:title', seo.title, 'property');
-    ensureMeta('og:description', seo.description, 'property');
-    ensureMeta('og:type', 'website', 'property');
-    ensureMeta('og:url', SITE_URL, 'property');
-    ensureMeta('og:locale', lang === 'en' ? 'en_GB' : 'pt_PT', 'property');
-    ensureMeta('og:image', `${SITE_URL}/img/banner.jpg`, 'property');
-    ensureMeta('twitter:card', 'summary_large_image');
-    ensureMeta('twitter:title', seo.title);
-    ensureMeta('twitter:description', seo.description);
-    ensureMeta('twitter:image', `${SITE_URL}/img/banner.jpg`);
-
-    const ensureLink = (id, rel, href, hreflang) => {
-      let el = document.getElementById(id);
-      if (!el) { el = document.createElement('link'); el.id = id; el.rel = rel; document.head.appendChild(el); }
-      el.setAttribute('href', href);
-      if (hreflang) el.setAttribute('hreflang', hreflang);
-    };
-    ensureLink('seo-canonical', 'canonical', SITE_URL);
-    ensureLink('seo-alt-pt', 'alternate', SITE_URL, 'pt-PT');
-    ensureLink('seo-alt-en', 'alternate', SITE_URL, 'en');
-    ensureLink('seo-alt-default', 'alternate', SITE_URL, 'x-default');
-
-    // Dados estruturados. Gerados a partir dos servicos reais em seo.js — a
-    // versao anterior tinha a lista escrita a mao e o Google continuou a
-    // anunciar servicos ja removidos.
-    const injectJsonLd = (id, data) => {
-      document.getElementById(id)?.remove();
-      const el = document.createElement('script');
-      el.id = id;
-      el.type = 'application/ld+json';
-      el.textContent = JSON.stringify(data);
-      document.head.appendChild(el);
-    };
-
-    injectJsonLd('schema-localbusiness', businessSchema(lang));
-    injectJsonLd('schema-faq', faqSchema(lang));
-  }, [lang]);
+  // O <head> desta pagina. A mesma funcao que as paginas de servico usam —
+  // estava aqui escrita a mao, e bastava haver uma segunda pagina para estas
+  // quarenta linhas serem copiadas com o canonical errado.
+  const seo = seoText(lang);
+  useSeoHead({
+    lang,
+    title: seo.title,
+    description: seo.description,
+    keywords: seo.keywords,
+    canonical: SITE_URL,
+    image: `${SITE_URL}/img/banner.jpg`,
+    alternates: [
+      { id: 'seo-alt-pt', href: SITE_URL, hreflang: 'pt-PT' },
+      { id: 'seo-alt-en', href: SITE_URL, hreflang: 'en' },
+      { id: 'seo-alt-default', href: SITE_URL, hreflang: 'x-default' },
+    ],
+    jsonLd: {
+      'schema-localbusiness': businessSchema(lang),
+      'schema-faq': faqSchema(lang),
+    },
+  });
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -159,6 +125,11 @@ function App() {
               </Suspense>
             }
           />
+          {/* As paginas de cada lavagem. Um endereco de um segmento so — e o
+              que se escreve num cartao e o que o Google mostra. A propria
+              componente manda para a inicial o que nao reconhecer, e por isso
+              isto nao rouba nada a quem escreveu mal o endereco. */}
+          <Route path=":slug" element={<ServicoPagina />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

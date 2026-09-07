@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import Logo from './Logo';
 import { useLang } from '../i18n';
+import { useLocation } from 'react-router-dom';
 import { TESTIMONIALS } from '../mock';
 
 // A secção de testemunhos não existe enquanto não houver avaliações reais
@@ -18,6 +19,12 @@ const LINKS = [
 
 export default function Header() {
   const { t, lang, setLang } = useLang();
+  // Numa pagina de servico as ancoras da pagina inicial nao existem, e
+  // "#servicos" nao ia a lado nenhum. Levam a barra a frente: sai-se da pagina,
+  // vai-se a inicial e cai-se na seccao. O PUBLIC_URL e por causa da copia de
+  // teste, que vive numa subpasta.
+  const { pathname } = useLocation();
+  const ancora = (href) => (pathname === '/' ? href : `${process.env.PUBLIC_URL}/${href}`);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState('#home');
@@ -49,7 +56,7 @@ export default function Header() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        <a href="#home" className="flex items-center gap-3 group">
+        <a href={ancora('#home')} className="flex items-center gap-3 group">
           <Logo size={52} />
         </a>
 
@@ -57,7 +64,7 @@ export default function Header() {
           {LINKS.map(l => (
             <a
               key={l.href}
-              href={l.href}
+              href={ancora(l.href)}
               className={`text-[12px] tracking-[0.18em] font-medium transition relative pb-1 ${
                 active === l.href ? 'text-white' : 'text-white/65 hover:text-blue-400'
               }`}
@@ -105,7 +112,7 @@ export default function Header() {
           {LINKS.map(l => (
             <a
               key={l.href}
-              href={l.href}
+              href={ancora(l.href)}
               onClick={() => setOpen(false)}
               className="py-3 text-sm tracking-[0.2em] text-white/80 border-b border-white/5"
             >

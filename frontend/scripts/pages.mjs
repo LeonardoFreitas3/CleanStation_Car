@@ -28,6 +28,13 @@ execSync('npx craco build', {
   env: { ...process.env, PUBLIC_URL: BASE, BUILD_PATH: OUT },
 });
 
+// O mesmo passo que o build de producao faz: sem ele a copia de teste nao
+// tinha as paginas de servico com o <head> certo, e testar-se-ia outra coisa.
+execSync('node scripts/paginas-servico.mjs', {
+  stdio: 'inherit',
+  env: { ...process.env, BUILD_PATH: OUT },
+});
+
 copyFileSync(join(OUT, 'index.html'), join(OUT, '404.html'));
 writeFileSync(join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
 

@@ -1,0 +1,39 @@
+{
+  "_leia-me": [
+    "O titulo, a descricao e a imagem de cada pagina de servico.",
+    "Estao aqui, em JSON, e nao dentro do servicePages.js porque sao lidos por",
+    "dois lados: pela aplicacao, que os poe no <head> quando a rota abre, e pelo",
+    "scripts/paginas-servico.mjs, que os estampa no HTML de cada pagina no fim do",
+    "build. Node nao importa um .js de src (nao ha type:module), e duas copias",
+    "destes textos era garantir que um dia o Google mostrava um titulo e a pagina",
+    "mostrava outro.",
+    "Quem nao executa JavaScript ve so o que o build estampou — e isso inclui o",
+    "WhatsApp e o Facebook a montar a pre-visualizacao de um link partilhado.",
+    "A imagem e so o nome do ficheiro em public/img: o caminho leva PUBLIC_URL a",
+    "frente na aplicacao e o SITE_URL nas etiquetas og, e sao coisas diferentes."
+  ],
+
+  "lavagem-automovel-braga": {
+    "title": "Lavagem Automóvel em Braga | Clean Station",
+    "description": "Lavagem automóvel em Braga com limpeza manual interior e exterior. Lavagem completa desde 30€, com marcação online na Clean Station.",
+    "image": "lavagem.jpg"
+  },
+
+  "lavagem-com-selante-braga": {
+    "title": "Lavagem com Selante em Braga | Clean Station",
+    "description": "Lavagem automóvel com selante em Braga. Limpeza interior e exterior manual com proteção, brilho e efeito hidrofóbico desde 40€.",
+    "image": "proteção.jpg"
+  },
+
+  "lavagem-premium-braga": {
+    "title": "Lavagem Premium de Automóveis em Braga | Clean Station",
+    "description": "Lavagem Premium em Braga com limpeza interior e exterior detalhada, descontaminação dos vidros e proteção premium da pintura. 65€.",
+    "image": "ceramica-longa.jpg"
+  },
+
+  "lavagem-detalhada-braga": {
+    "title": "Lavagem Detalhada de Automóveis em Braga | Clean Station",
+    "description": "Lavagem detalhada automóvel em Braga com remoção dos bancos, higienização profunda, descontaminação da pintura e limpeza interior e exterior.",
+    "image": "detail.jpg"
+  }
+}

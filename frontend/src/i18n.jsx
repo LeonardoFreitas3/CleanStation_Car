@@ -28,6 +28,7 @@ const translations = {
       subtitle: "Soluções completas para cuidar do teu carro ao mais alto nível. Nos polimentos, o valor final é orçamentado depois de avaliarmos a viatura.",
       from: "DESDE",
       contact: "SABER MAIS",
+      seePage: "VER SERVIÇO",
       onRequest: "Sob consulta",
     },
     serviceDetail: {
@@ -115,6 +116,7 @@ const translations = {
       subtitle: "Complete solutions to care for your car at the highest level. For polishing, the final price is quoted after we assess the vehicle.",
       from: "FROM",
       contact: "LEARN MORE",
+      seePage: "SEE SERVICE",
       onRequest: "On request",
     },
     serviceDetail: {

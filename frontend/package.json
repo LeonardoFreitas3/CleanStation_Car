@@ -14,7 +14,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build && node scripts/paginas-servico.mjs",
     "test": "craco test",
     "favicon": "node scripts/gen-favicon.mjs",
     "typecheck": "tsc --noEmit",

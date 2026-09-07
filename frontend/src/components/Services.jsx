@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { SERVICES, CATEGORIES } from '../mock';
+import { PAGE_BY_SERVICE } from '../servicePages';
 import { useLang } from '../i18n';
 import ServiceDetail from './ServiceDetail';
 
@@ -40,12 +42,22 @@ export default function Services() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {catServices.map((s, i) => {
                   const Icon = s.icon;
+                  // As lavagens tem pagina propria: o cartao leva la, e e um
+                  // link a serio — o Google segue-o e quem carrega com o botao
+                  // do meio abre noutro separador. O resto do catalogo continua
+                  // a abrir a ficha em modal, que e tudo o que ha para mostrar.
+                  const pagina = PAGE_BY_SERVICE[s.id];
+                  const Caixa = pagina ? Link : 'div';
+                  const props = pagina
+                    ? { to: `/${pagina.slug}` }
+                    : { onClick: () => setDetailService(s) };
+
                   return (
-                    <div
+                    <Caixa
                       key={s.id}
+                      {...props}
                       className="group relative overflow-hidden bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition-all duration-500 flex flex-col rounded-md cursor-pointer"
                       style={{ animationDelay: `${i * 0.08}s` }}
-                      onClick={() => setDetailService(s)}
                     >
                       <div className="relative h-48 overflow-hidden">
                         <img
@@ -85,11 +97,11 @@ export default function Services() {
                             )}
                           </div>
                           <span className="text-white/40 text-[10px] tracking-[0.15em]">
-                            {t('services.contact')} →
+                            {pagina ? t('services.seePage') : t('services.contact')} →
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </Caixa>
                   );
                 })}
               </div>
