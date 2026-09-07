@@ -1,6 +1,6 @@
-import React, { Suspense, lazy, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
-import { ArrowRight, Check, ChevronRight } from 'lucide-react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Check, ChevronRight } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import WhatsAppButton from './WhatsAppButton';
@@ -8,9 +8,10 @@ import PrivacyPolicy from './PrivacyPolicy';
 import TermsConditions from './TermsConditions';
 import CookiePolicy from './CookiePolicy';
 import CookieBanner from './CookieBanner';
-import { PAGE_BY_SLUG, SERVICE_PAGES, nomeDe, precoDe } from '../servicePages';
+import { PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, precoDe } from '../servicePages';
 import { SITE_URL, businessSchema } from '../seo';
 import { useSeoHead } from '../useSeoHead';
+import { useLang } from '../i18n';
 
 const Booking = lazy(() => import('../booking/Booking'));
 
@@ -22,35 +23,45 @@ const Booking = lazy(() => import('../booking/Booking'));
  * mês tinham quatro desenhos diferentes e três delas com o botão de marcar no
  * sítio errado.
  *
- * Só existe em português, e é de propósito: o que estas páginas procuram
- * responder é "lavagem automóvel braga" escrito por quem mora aqui. Uma
- * tradução inglesa inventada por nós não responde a pesquisa nenhuma — quando
- * houver texto inglês de verdade, entra ao lado deste.
+ * O texto vive em servicePages.js (português) e servicePagesEn.js (inglês); o
+ * endereço é o mesmo nas duas línguas.
  */
 export default function ServicoPagina() {
   const { slug } = useParams();
-  const page = PAGE_BY_SLUG[slug];
+  const { lang } = useLang();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const pagina = PAGE_BY_SLUG[slug];
+  // O texto na língua escolhida. O preço, a imagem e o endereço são os mesmos.
+  const page = pagina ? conteudo(pagina, lang) : null;
 
   const [booking, setBooking] = useState(false);
   const [legalOpen, setLegalOpen] = useState(null);
+
+  // Começar no topo. O router não mexe no scroll ao mudar de rota: quem vinha
+  // da secção dos serviços — que está a meio da página inicial — aterrava a
+  // meio desta, já depois do título. Também corre ao saltar de uma lavagem
+  // para outra, no fim da página.
+  useEffect(() => { window.scrollTo(0, 0); }, [slug]);
 
   // Um endereço que não existe vai para a página inicial, como o resto do site.
   // Antes do useSeoHead, que não pode correr condicionalmente.
   const url = `${SITE_URL}/${slug}`;
 
   useSeoHead({
-    lang: 'pt',
+    lang,
     title: page?.title ?? '',
     description: page?.description ?? '',
     canonical: url,
     image: page ? `${SITE_URL}${page.image}` : `${SITE_URL}/img/banner.jpg`,
     jsonLd: page ? {
-      'schema-localbusiness': businessSchema('pt'),
+      'schema-localbusiness': businessSchema(lang),
       'schema-service': {
         '@context': 'https://schema.org',
         '@type': 'Service',
-        name: nomeDe(page),
-        serviceType: nomeDe(page),
+        name: nomeDe(pagina, lang),
+        serviceType: nomeDe(pagina, lang),
         description: page.description,
         url,
         provider: { '@type': 'AutoWash', name: 'Clean Station Car', url: SITE_URL },
@@ -76,8 +87,8 @@ export default function ServicoPagina() {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_URL },
-          { '@type': 'ListItem', position: 2, name: nomeDe(page), item: url },
+          { '@type': 'ListItem', position: 1, name: lang === 'en' ? 'Home' : 'Início', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: nomeDe(pagina, lang), item: url },
         ],
       },
     } : {},
@@ -94,7 +105,7 @@ export default function ServicoPagina() {
       <main>
         {/* Cabeçalho com imagem. A fotografia é a que o cartão deste serviço já
             usa na página inicial — quem carregou no cartão reconhece onde
-            chegou. Ver a nota no fim do ficheiro sobre as fotografias reais. */}
+            chegou. */}
         <header className="relative">
           <div className="absolute inset-0">
             <img
@@ -106,10 +117,24 @@ export default function ServicoPagina() {
           </div>
 
           <div className="relative max-w-4xl mx-auto px-6 pt-32 pb-16 md:pt-40 md:pb-20">
-            <nav aria-label="Caminho" className="flex items-center gap-2 text-[11px] tracking-[0.2em] text-white/40 uppercase mb-6">
-              <Link to="/" className="hover:text-white transition">Início</Link>
+            {/* Voltar para onde se veio, quando se veio de dentro do site.
+                O location.key é 'default' na primeira página de uma visita —
+                quem chegou de uma pesquisa não tem para onde recuar, e um
+                "voltar" que atira para fora do site é pior do que nenhum.
+                Nesse caso leva à página inicial, que é o que ele quer dizer. */}
+            <button
+              type="button"
+              onClick={() => (location.key === 'default' ? navigate('/') : navigate(-1))}
+              className="inline-flex items-center gap-2 mb-5 px-4 py-2 border border-white/15 hover:border-white/40 text-white/70 hover:text-white text-[11px] tracking-[0.2em] uppercase transition"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+              {lang === 'en' ? 'Back' : 'Voltar'}
+            </button>
+
+            <nav aria-label={lang === 'en' ? 'Breadcrumb' : 'Caminho'} className="flex items-center gap-2 text-[11px] tracking-[0.2em] text-white/40 uppercase mb-6">
+              <Link to="/" className="hover:text-white transition">{lang === 'en' ? 'Home' : 'Início'}</Link>
               <ChevronRight className="w-3 h-3" aria-hidden="true" />
-              <span className="text-white/70">{nomeDe(page)}</span>
+              <span className="text-white/70">{nomeDe(pagina, lang)}</span>
             </nav>
 
             <h1 className="font-display text-white text-3xl md:text-5xl font-black tracking-wide leading-tight">
@@ -127,7 +152,7 @@ export default function ServicoPagina() {
                 pesquisa quer saber quanto custa antes de ler o resto. */}
             <div className="mt-8 flex flex-wrap items-center gap-5">
               <div>
-                <span className="text-blue-400/80 text-[10px] tracking-[0.3em] uppercase">Desde</span>
+                <span className="text-blue-400/80 text-[10px] tracking-[0.3em] uppercase">{lang === 'en' ? 'From' : 'Desde'}</span>
                 <div className="text-white font-display text-4xl font-black">{precoDe(page)}€</div>
               </div>
               <button
@@ -178,7 +203,7 @@ export default function ServicoPagina() {
           {/* ── Perguntas ─────────────────────────────────────────────────── */}
           <section>
             <h2 className="font-display text-white text-xl md:text-2xl font-black tracking-wide">
-              Perguntas frequentes
+              {lang === 'en' ? 'Frequently asked questions' : 'Perguntas frequentes'}
             </h2>
             <span className="accent-bar mt-4 block" />
             <dl className="mt-6 divide-y divide-white/10 border-y border-white/10">
@@ -197,8 +222,9 @@ export default function ServicoPagina() {
               {page.cta}
             </h2>
             <p className="text-white/50 text-sm mt-3 max-w-md mx-auto">
-              Marcação online com disponibilidade em tempo real. Escolhe o dia e a
-              hora e recebes a confirmação por email.
+              {lang === 'en'
+                ? 'Online booking with real-time availability. Pick the day and time and you get the confirmation by email.'
+                : 'Marcação online com disponibilidade em tempo real. Escolhe o dia e a hora e recebes a confirmação por email.'}
             </p>
             <button
               type="button"
@@ -213,7 +239,7 @@ export default function ServicoPagina() {
           {/* ── As outras lavagens ────────────────────────────────────────── */}
           <section>
             <h2 className="font-display text-white text-xl md:text-2xl font-black tracking-wide">
-              Outras lavagens
+              {lang === 'en' ? 'Other washes' : 'Outras lavagens'}
             </h2>
             <span className="accent-bar mt-4 block" />
             <div className="grid sm:grid-cols-3 gap-4 mt-6">
@@ -226,7 +252,7 @@ export default function ServicoPagina() {
                   <div className="relative h-28 overflow-hidden">
                     <img
                       src={o.image}
-                      alt={nomeDe(o)}
+                      alt={nomeDe(o, lang)}
                       loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
                     />
@@ -234,11 +260,13 @@ export default function ServicoPagina() {
                   </div>
                   <div className="p-4">
                     <h3 className="font-display text-white text-sm font-bold tracking-wider">
-                      {nomeDe(o).toUpperCase()}
+                      {nomeDe(o, lang).toUpperCase()}
                     </h3>
                     <div className="mt-2 flex items-baseline justify-between">
                       <span className="text-white font-display text-lg font-bold">{precoDe(o)}€</span>
-                      <span className="text-white/35 text-[10px] tracking-[0.15em] uppercase">Ver →</span>
+                      <span className="text-white/35 text-[10px] tracking-[0.15em] uppercase">
+                        {lang === 'en' ? 'See' : 'Ver'} →
+                      </span>
                     </div>
                   </div>
                 </Link>

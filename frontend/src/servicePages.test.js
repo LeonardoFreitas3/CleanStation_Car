@@ -3,7 +3,7 @@
 // uma pagina bonita com o titulo errado ou um link que manda para a inicial.
 // Nada disso da erro nenhum a quem publica.
 
-import { SERVICE_PAGES, PAGE_BY_SERVICE, nomeDe, precoDe } from './servicePages';
+import { SERVICE_PAGES, PAGE_BY_SERVICE, conteudo, nomeDe, precoDe } from './servicePages';
 import { SERVICES } from './mock';
 import { LEVEL_BY_ID } from './booking/pricing';
 import SEO from './paginasSeo.json';
@@ -68,6 +68,48 @@ describe('paginas de servico', () => {
     for (const p of SERVICE_PAGES) {
       expect(p.slug).toMatch(/^[a-z0-9-]+$/);
       expect(p.slug).toContain('braga');
+    }
+  });
+});
+
+// A traducao inglesa e uma copia com o texto trocado. Se uma seccao se
+// acrescentar em portugues e nao em ingles, a pagina inglesa fica sem ela e
+// ninguem da por isso — quem escreve o texto le uma lingua de cada vez.
+describe('traducao', () => {
+  test('cada pagina tem a versao inglesa, com a mesma estrutura', () => {
+    for (const p of SERVICE_PAGES) {
+      const en = conteudo(p, 'en');
+      expect(en.title).toBeTruthy();
+      expect(en.title).not.toBe(p.title);
+      expect(en.intro.length).toBe(p.intro.length);
+      expect(en.sections.length).toBe(p.sections.length);
+      expect(en.faq.length).toBe(p.faq.length);
+
+      // Uma seccao com lista de um lado e paragrafos do outro nao e a mesma
+      // seccao traduzida — e outra coisa qualquer no lugar dela.
+      p.sections.forEach((sec, i) => {
+        const secEn = en.sections[i];
+        expect(secEn.items?.length ?? 0).toBe(sec.items?.length ?? 0);
+        expect(secEn.paragrafos?.length ?? 0).toBe(sec.paragrafos?.length ?? 0);
+        expect(secEn.grupos?.length ?? 0).toBe(sec.grupos?.length ?? 0);
+        expect(Boolean(secEn.entrada)).toBe(Boolean(sec.entrada));
+      });
+    }
+  });
+
+  test('o preco e a imagem nao mudam com a lingua', () => {
+    for (const p of SERVICE_PAGES) {
+      const en = conteudo(p, 'en');
+      expect(precoDe(en)).toBe(precoDe(p));
+      expect(en.image).toBe(p.image);
+      expect(en.slug).toBe(p.slug);
+    }
+  });
+
+  test('o nome do servico muda de lingua', () => {
+    for (const p of SERVICE_PAGES) {
+      expect(nomeDe(p, 'en')).toBeTruthy();
+      expect(nomeDe(p, 'en')).not.toBe(nomeDe(p, 'pt'));
     }
   });
 });

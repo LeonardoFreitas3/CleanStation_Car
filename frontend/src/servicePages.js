@@ -14,6 +14,7 @@
 
 import { LEVEL_BY_ID } from './booking/pricing';
 import SEO from './paginasSeo.json';
+import { EN_PAGES } from './servicePagesEn';
 
 /**
  * Uma secção é sempre a mesma forma: um título, e depois uma frase de entrada,
@@ -309,8 +310,20 @@ const PAGINAS = [
 export const SERVICE_PAGES = PAGINAS.map((p) => {
   const seo = SEO[p.slug];
   if (!seo) throw new Error(`Falta o SEO de ${p.slug} no paginasSeo.json`);
-  return { ...p, ...seo, image: `${process.env.PUBLIC_URL}/img/${seo.image}` };
+  const en = EN_PAGES[p.slug];
+  if (!en) throw new Error(`Falta a traducao de ${p.slug} no servicePagesEn.js`);
+  return { ...p, ...seo, en, image: `${process.env.PUBLIC_URL}/img/${seo.image}` };
 });
+
+/**
+ * O conteudo na lingua pedida.
+ *
+ * O ingles substitui o texto e mais nada: o slug, o preco e a imagem sao os
+ * mesmos, e o endereco tambem — quem procura "car wash braga" chega ao mesmo
+ * sitio. Um segundo endereco para o mesmo servico era um segundo canonical a
+ * dividir o que o Google ja sabe deste.
+ */
+export const conteudo = (page, lang) => (lang === 'en' ? { ...page, ...page.en } : page);
 
 export const PAGE_BY_SLUG = Object.fromEntries(SERVICE_PAGES.map((p) => [p.slug, p]));
 export const PAGE_BY_LEVEL = Object.fromEntries(SERVICE_PAGES.map((p) => [p.levelId, p]));
@@ -319,5 +332,12 @@ export const PAGE_BY_SERVICE = Object.fromEntries(SERVICE_PAGES.map((p) => [p.se
 /** O preço do carro, que é o "desde" que as páginas anunciam. Vem da tabela. */
 export const precoDe = (page) => LEVEL_BY_ID[page.levelId].prices.carro;
 
-/** O nome curto, para os links entre páginas. Vem da tabela, não se reescreve. */
-export const nomeDe = (page) => LEVEL_BY_ID[page.levelId].label;
+/**
+ * O nome curto, para os links entre páginas e para o caminho no topo.
+ *
+ * Em português vem da tabela de preços, que é a mesma que a marcação usa — o
+ * nome do serviço não se reescreve em dois sítios. Em inglês vem da tradução,
+ * porque a tabela só existe em português.
+ */
+export const nomeDe = (page, lang) =>
+  (lang === 'en' ? page.en.nome : LEVEL_BY_ID[page.levelId].label);
