@@ -136,6 +136,8 @@ No **SQL Editor** do Supabase, uma de cada vez, por ordem. Estão em
 | `0027_fase_meio_da_lavagem.sql` | A fase "a meio" no fluxo. **Corre sozinha** |
 | `0028_mensagens_automaticas_por_fase.sql` | Que fases avisam o cliente, e o dashboard a contar a fase nova |
 | `0029_o_gestor_gere_a_equipa.sql` | O Gestor passa a gerir contas — sem tocar nas de administrador |
+| `0030_duracao_no_catalogo.sql` | Cada serviço passa a saber quanto costuma demorar |
+| `0031_folha_de_horas.sql` | Picar o ponto: entrada, almoço, regresso e saída, e a folha da semana |
 
 **A `0016` faz um `update` a sério** — atribui ao João os serviços por atribuir.
 Antes de a correr, vale a pena ver quantos são:

@@ -16,6 +16,7 @@ import VehicleDetail from './pages/VehicleDetail';
 import AuditLog from './pages/AuditLog';
 import Services from './pages/Services';
 import Agenda from './pages/Agenda';
+import Horas from './pages/Horas';
 import ServiceDetail from './pages/ServiceDetail';
 import ServiceForm from './pages/ServiceForm';
 import FollowUps from './pages/FollowUps';
@@ -95,6 +96,9 @@ export default function CrmApp() {
         >
           <Route index element={<Home />} />
           <Route path="agenda" element={<Agenda />} />
+          {/* Sem RoleGuard: cada um pica o seu ponto. Quem ve as horas de
+              quem decide-se nas politicas da 0031 e nao aqui. */}
+          <Route path="horas" element={<Horas />} />
 
           <Route path="servicos" element={<Services />} />
           <Route path="servicos/novo" element={<ServiceForm />} />
