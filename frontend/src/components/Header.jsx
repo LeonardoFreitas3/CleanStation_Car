@@ -4,15 +4,22 @@ import Logo from './Logo';
 import { useLang } from '../i18n';
 import { useLocation } from 'react-router-dom';
 import { TESTIMONIALS } from '../mock';
+import { PAGE_BY_SLUG } from '../servicePages';
+import { seccaoAtiva } from '../menu';
 
+// Pela ordem por que se encontram a descer a página, e não por uma ordem
+// inventada aqui: o menu dizia SERVIÇOS antes de TESTEMUNHOS e a página tem os
+// testemunhos primeiro. A descer, o sublinhado saltava para trás no meio do
+// caminho e o menu parecia baralhado.
+//
 // A secção de testemunhos não existe enquanto não houver avaliações reais
 // (ver Testimonials.jsx). Sem este filtro o menu tinha um link que não levava
 // a lado nenhum — carregar nele não fazia nada.
 const LINKS = [
   { href: '#home',         key: 'nav.home' },
+  { href: '#testimonials', key: 'nav.testimonials', only: TESTIMONIALS.length > 0 },
   { href: '#services',     key: 'nav.services' },
   { href: '#about',        key: 'nav.about' },
-  { href: '#testimonials', key: 'nav.testimonials', only: TESTIMONIALS.length > 0 },
   { href: '#faq',          key: 'nav.faq' },
   { href: '#contact',      key: 'nav.contact' },
 ].filter((l) => l.only !== false);
@@ -25,29 +32,61 @@ export default function Header() {
   // teste, que vive numa subpasta.
   const { pathname } = useLocation();
   const ancora = (href) => (pathname === '/' ? href : `${process.env.PUBLIC_URL}/${href}`);
+
+  // Uma página de serviço é uma secção do site que ficou com endereço próprio.
+  // Quem lá está veio dos serviços e é isso que o menu tem de dizer — senão
+  // fica sem nada aceso e a pessoa não sabe onde está.
+  const numServico = Boolean(PAGE_BY_SLUG[pathname.replace(/^\//, '')]);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState('#home');
   const toggleLang = () => setLang(lang === 'pt' ? 'en' : 'pt');
 
+  const aceso = numServico ? '#services' : active;
+
+  /**
+   * Onde é que se está, a descer a página.
+   *
+   * Era um IntersectionObserver e o resultado dependia da ordem por que os
+   * avisos chegavam: com duas secções à vista ao mesmo tempo — e há sempre duas
+   * — ficava acesa a última a avisar, que tanto podia ser a de cima como a de
+   * baixo. O sublinhado saltava para a frente e para trás sem a página ter
+   * mudado de sítio.
+   *
+   * Agora é uma conta e não uma corrida: a secção acesa é a última que já
+   * passou a linha, medida a cada scroll. As secções são ordenadas pela posição
+   * real na página e não pela ordem do menu — assim mexer no menu não pode
+   * partir isto.
+   */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 30);
+
+      const seccoes = LINKS
+        .map((l) => ({ href: l.href, el: document.getElementById(l.href.slice(1)) }))
+        .filter((s) => s.el)
+        .map((s) => ({ href: s.href, top: s.el.getBoundingClientRect().top }));
+
+      // A regra vive no menu.js, onde se testa sem levantar um browser.
+      // A um terço do ecrã: uma secção conta como "onde se está" quando o seu
+      // topo já subiu acima dessa linha, e não quando assoma no fundo.
+      const atual = seccaoAtiva(seccoes, {
+        linha: window.innerHeight / 3,
+        noFundo: window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2,
+      });
+
+      // Numa página de serviço não há nenhuma delas: quem manda é o numServico.
+      if (atual) setActive(atual);
+    };
+
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const ids = LINKS.map(l => l.href.slice(1));
-    const els = ids.map(id => document.getElementById(id)).filter(Boolean);
-    if (!els.length) return;
-    const obs = new IntersectionObserver(
-      entries => { entries.forEach(e => { if (e.isIntersecting) setActive('#' + e.target.id); }); },
-      { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
-    );
-    els.forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, []);
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [pathname]);
 
   return (
     <header
@@ -65,12 +104,13 @@ export default function Header() {
             <a
               key={l.href}
               href={ancora(l.href)}
+              aria-current={aceso === l.href ? 'true' : undefined}
               className={`text-[12px] tracking-[0.18em] font-medium transition relative pb-1 ${
-                active === l.href ? 'text-white' : 'text-white/65 hover:text-blue-400'
+                aceso === l.href ? 'text-white' : 'text-white/65 hover:text-blue-400'
               }`}
             >
               {t(l.key)}
-              <span className={`absolute left-0 right-0 -bottom-0.5 h-[2px] bg-blue-600 transition-all ${active === l.href ? 'opacity-100' : 'opacity-0'}`} />
+              <span className={`absolute left-0 right-0 -bottom-0.5 h-[2px] bg-blue-600 transition-all ${aceso === l.href ? 'opacity-100' : 'opacity-0'}`} />
             </a>
           ))}
         </nav>
@@ -114,7 +154,10 @@ export default function Header() {
               key={l.href}
               href={ancora(l.href)}
               onClick={() => setOpen(false)}
-              className="py-3 text-sm tracking-[0.2em] text-white/80 border-b border-white/5"
+              aria-current={aceso === l.href ? 'true' : undefined}
+              className={`py-3 text-sm tracking-[0.2em] border-b border-white/5 ${
+                aceso === l.href ? 'text-blue-400 font-semibold' : 'text-white/80'
+              }`}
             >
               {t(l.key)}
             </a>
