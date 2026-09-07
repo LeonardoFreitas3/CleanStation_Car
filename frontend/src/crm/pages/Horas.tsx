@@ -8,8 +8,8 @@ import {
 } from '../services/horas';
 import type { Picagem, WorkShift } from '../services/horas';
 import { dayKey, weekDays } from '../services/agenda';
-import { listAssignable } from '../services/team';
-import type { Assignable } from '../services/team';
+import { listTeam } from '../services/team';
+import type { TeamMember } from '../services/team';
 import { useAuth } from '../contexts/AuthContext';
 import { Alert, Button, Card, Field, PageTitle, Spinner } from '../components/ui';
 
@@ -32,6 +32,11 @@ const ICONE: Record<Picagem, typeof LogIn> = {
  * paga. Separá-las em duas páginas obrigava o funcionário a saber onde ver as
  * suas horas — e ele só quer carregar num botão à entrada e outro à saída.
  *
+ * **A conta da Clean Station não pica o ponto.** É a conta da empresa e não de
+ * uma pessoa: não tem horário para cumprir nem folha para entregar a ninguém.
+ * Um botão de "Entrar" ali só servia para sujar a folha com um nome que não
+ * trabalha por horas. Vê as folhas e imprime-as, que é para o que serve.
+ *
  * O administrador e o gestor veem a folha de toda a equipa; o funcionário vê a
  * dele. Quem decide isso não é este ecrã, são as políticas da 0031 — aqui só se
  * decide o que se desenha.
@@ -39,11 +44,15 @@ const ICONE: Record<Picagem, typeof LogIn> = {
 export default function Horas() {
   const { profile } = useAuth();
   const gere = profile?.role === 'admin' || profile?.role === 'manager';
+  // Quem tem horas a cumprir. O gestor fica de fora do "não pica" de propósito:
+  // é uma conta de uma pessoa que também está na oficina, ao contrário da conta
+  // da empresa. Se um dia não for, é este `!== 'admin'` que muda.
+  const pica = Boolean(profile) && profile?.role !== 'admin';
 
   const [hoje, setHoje] = useState<WorkShift | null>(null);
   const [ancora, setAncora] = useState(() => new Date());
   const [semana, setSemana] = useState<WorkShift[]>([]);
-  const [equipa, setEquipa] = useState<Assignable[]>([]);
+  const [equipa, setEquipa] = useState<TeamMember[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -55,7 +64,8 @@ export default function Horas() {
     setLoading(true);
     try {
       const [meu, turnos] = await Promise.all([
-        turnoDeHoje(profile.id),
+        // A conta da empresa não tem turno de hoje: nem se pergunta.
+        pica ? turnoDeHoje(profile.id) : Promise.resolve(null),
         // Sem filtro para quem gere: as políticas é que decidem se isso traz a
         // equipa toda ou só quem está a perguntar.
         listarSemana(ancora, gere ? undefined : profile.id),
@@ -68,13 +78,15 @@ export default function Horas() {
     } finally {
       setLoading(false);
     }
-  }, [profile, ancora, gere]);
+  }, [profile, ancora, gere, pica]);
 
   useEffect(() => { load(); }, [load]);
 
+  // Quem aparece na folha. Falhar aqui não pode partir a página: perde-se a
+  // linha de quem não picou nada e vê-se o resto.
   useEffect(() => {
     if (!gere) return;
-    listAssignable().then(setEquipa).catch(() => setEquipa([]));
+    listTeam().then(setEquipa).catch(() => setEquipa([]));
   }, [gere]);
 
   const marcar = async (p: Picagem) => {
@@ -104,7 +116,16 @@ export default function Horas() {
     const mapa = new Map<string, { nome: string; turnos: WorkShift[] }>();
 
     if (gere) {
-      for (const p of equipa) mapa.set(p.id, { nome: p.full_name || '(sem nome)', turnos: [] });
+      // Só quem tem horas a cumprir, e só quem ainda cá está. A conta da empresa
+      // não entra: uma linha com sete travessões todas as semanas não é
+      // informação nenhuma, é ruído por cima da folha de quem trabalha.
+      //
+      // Quem picou mesmo entra sempre, a seguir — mesmo que entretanto tenha
+      // saído da equipa ou mudado de função. As horas foram feitas.
+      for (const p of equipa) {
+        if (p.role === 'admin' || !p.active) continue;
+        mapa.set(p.id, { nome: p.full_name || '(sem nome)', turnos: [] });
+      }
     } else if (profile) {
       mapa.set(profile.id, { nome: profile.full_name || 'As minhas horas', turnos: [] });
     }
@@ -142,6 +163,7 @@ export default function Horas() {
       {error && <div className="mb-6"><Alert tone="error">{error}</Alert></div>}
 
       {/* ── Picar o ponto ─────────────────────────────────────────────────── */}
+      {pica && (
       <Card className="p-5 mb-8 nao-imprimir">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -189,6 +211,7 @@ export default function Horas() {
           )}
         </div>
       </Card>
+      )}
 
       {/* ── A folha ───────────────────────────────────────────────────────── */}
       <div id="folha">
