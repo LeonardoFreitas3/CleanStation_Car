@@ -32,7 +32,6 @@ export interface ConfirmationData {
   email: string;
   reference: number | null;
   serviceTitle: string;
-  isPack: boolean;
   dateLabel: string;
   time: string;
   durationLabel: string;
@@ -75,7 +74,7 @@ function buildHtml(d: ConfirmationData): string {
 
       <table style="width:100%;font-size:14px;border-collapse:collapse">
         ${d.reference ? row('Referência', `#${esc(d.reference)}`, { mono: true }) : ''}
-        ${row('Serviço', esc(d.serviceTitle) + (d.isPack ? ' <span style="color:#666">· pack 2x mês</span>' : ''))}
+        ${row('Serviço', esc(d.serviceTitle))}
         ${row('Data', esc(d.dateLabel))}
         ${row('Hora', esc(d.time))}
         ${row('Duração prevista', esc(d.durationLabel))}

@@ -91,45 +91,11 @@ export function formatDuration(minutes) {
   return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, '0')}`;
 }
 
-/**
- * Packs de manutenção: duas lavagens por mês.
- *
- * Não há pack de lavagem simples nem para motas — não constam da tabela de
- * referência, e inventar um preço aqui era pior do que não o oferecer.
- */
-export const PACKS = [
-  { levelId: 'selante',   prices: { carro: 65,  grande: 95,  suv: 75  } },
-  { levelId: 'premium',   prices: { carro: 105, grande: 155, suv: 125 } },
-  { levelId: 'detalhada', prices: { carro: 220, grande: 300, suv: 260 } },
-];
-
 /** Níveis disponíveis para um tipo de veículo, já com o preço resolvido. */
 export function levelsFor(vehicleId) {
   return WASH_LEVELS
     .filter((l) => l.prices[vehicleId] !== undefined)
     .map((l) => ({ ...l, price: l.prices[vehicleId] }));
-}
-
-/** Packs disponíveis para um tipo de veículo, com o desconto face a 2 lavagens. */
-export function packsFor(vehicleId) {
-  return PACKS
-    .filter((p) => p.prices[vehicleId] !== undefined)
-    .map((p) => {
-      const level = LEVEL_BY_ID[p.levelId];
-      const unit = level.prices[vehicleId];
-      const price = p.prices[vehicleId];
-      // Duas lavagens avulso vs o pack: mostrar a poupança é mais honesto do
-      // que anunciar "desde" sem termo de comparação.
-      const avulso = unit * 2;
-      return {
-        id: `pack-${p.levelId}`,
-        levelId: p.levelId,
-        label: level.label,
-        price,
-        avulso,
-        saving: Math.max(0, avulso - price),
-      };
-    });
 }
 
 export function priceFor(vehicleId, levelId) {
@@ -144,24 +110,15 @@ export function eur(n) {
 /**
  * Orçamento: o preço do nível para aquele tipo de veículo, e mais nada.
  *
- * Houve aqui um multiplicador por "grau de sujidade", que subia o valor 30% ou
- * 75% conforme o número de caixas que o cliente assinalasse. Saiu em agosto de
- * 2026, por decisão do negócio: o preço do site é o preço da tabela, e o que a
- * viatura precise a mais orça-se ao vê-la, como sempre se fez com os
- * polimentos. Ver o comentário do passo que também saiu, no Booking.tsx.
+ * Houve aqui duas coisas que já não há. Um multiplicador por "grau de
+ * sujidade", que subia o valor 30% ou 75% conforme as caixas que o cliente
+ * assinalasse; e os packs de duas lavagens por mês, com preço fechado. Saíram
+ * ambos em agosto de 2026, por decisão do negócio — o preço do site é o da
+ * tabela, e o resto orça-se ao ver a viatura.
  *
- * O @param existe para quem chama isto de TypeScript. Sem ele, o `pack = null`
- * dizia ao compilador que o único valor aceite era null, e passar-lhe um pack
- * a sério — que é para o que serve — deixava de compilar. O tipo do pack sai
- * do próprio packsFor em vez de ser escrito outra vez, para não haver duas
- * versões da mesma coisa.
- *
- * @param {{ vehicleId?: string, levelId?: string,
- *           pack?: ReturnType<typeof packsFor>[number] | null }} params
+ * @param {{ vehicleId?: string, levelId?: string }} params
  */
-export function computeQuote({ vehicleId, levelId, pack = null }) {
-  if (pack) return { base: pack.price, total: pack.price, isPack: true };
-
+export function computeQuote({ vehicleId, levelId }) {
   const base = priceFor(vehicleId, levelId) ?? 0;
-  return { base, total: base, isPack: false };
+  return { base, total: base };
 }

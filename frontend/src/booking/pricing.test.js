@@ -4,7 +4,7 @@
 // e a cobrar mal, possivelmente durante semanas. Correr com `npm test`.
 
 import {
-  computeQuote, levelsFor, packsFor, priceFor, VEHICLE_TYPES,
+  computeQuote, levelsFor, priceFor, VEHICLE_TYPES,
   durationFor, isFullDay, formatDuration,
 } from './pricing';
 
@@ -35,58 +35,28 @@ describe('tabela de preços por tipo de veículo', () => {
   });
 });
 
-describe('packs de manutenção (2x mês)', () => {
-  const PACKS = [
-    ['carro',  { selante: 65,  premium: 105, detalhada: 220 }],
-    ['grande', { selante: 95,  premium: 155, detalhada: 300 }],
-    ['suv',    { selante: 75,  premium: 125, detalhada: 260 }],
-  ];
-
-  test.each(PACKS)('%s', (vehicle, esperado) => {
-    const byLevel = Object.fromEntries(packsFor(vehicle).map((p) => [p.levelId, p.price]));
-    expect(byLevel).toEqual(esperado);
-  });
-
-  it('não há packs para motas', () => {
-    expect(packsFor('mota')).toHaveLength(0);
-  });
-
-  it('o pack é sempre mais barato que duas lavagens avulso', () => {
-    for (const v of ['carro', 'grande', 'suv']) {
-      for (const p of packsFor(v)) {
-        expect(p.price).toBeLessThan(p.avulso);
-        expect(p.saving).toBe(p.avulso - p.price);
-      }
-    }
-  });
-});
-
 // Houve aqui um multiplicador por grau de sujidade, que subia o valor ate 75%
-// conforme as caixas que o cliente assinalasse. Saiu em agosto de 2026: o preco
-// do site e o preco da tabela. Estes testes fixam isso — se um multiplicador
-// voltar por engano, param.
+// conforme as caixas que o cliente assinalasse, e packs de duas lavagens por
+// mes com preco fechado. Sairam os dois em agosto de 2026: o preco do site e o
+// preco da tabela, e mais nada. Estes testes fixam isso — se um multiplicador
+// ou um preco de pack voltarem por engano, param.
 
 describe('orçamento', () => {
   it('é o preço de tabela do nível para aquele veículo, sem acréscimos', () => {
     const q = computeQuote({ vehicleId: 'suv', levelId: 'detalhada' });
     expect(q.base).toBe(160);
     expect(q.total).toBe(160);
-    expect(q.isPack).toBe(false);
   });
 
   it('o preço não muda com o que mais lhe passem', () => {
     const base = computeQuote({ vehicleId: 'carro', levelId: 'selante' }).total;
     expect(base).toBe(40);
-    // Chamadas antigas ainda podem trazer problemIds; nao pode mexer no valor.
-    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', problemIds: ['lixo', 'areia', 'pelos', 'odor'] }).total)
+    // Chamadas antigas ainda podem trazer problemIds ou um pack; nada disso
+    // pode mexer no valor.
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', problemIds: ['lixo', 'areia'] }).total)
       .toBe(base);
-  });
-
-  it('um pack é preço fechado', () => {
-    const pack = packsFor('carro').find((p) => p.levelId === 'premium');
-    const q = computeQuote({ vehicleId: 'carro', pack });
-    expect(q.total).toBe(105);
-    expect(q.isPack).toBe(true);
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', pack: { price: 999 } }).total)
+      .toBe(base);
   });
 
   it('nível indisponível para aquele veículo dá zero, não um valor inventado', () => {

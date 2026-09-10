@@ -66,40 +66,15 @@ Deno.test('um tipo de veículo que não existe é recusado', () => {
   assertThrows(() => resolve('', 'simples'), Error, 'não disponível');
 });
 
-// O multiplicador de sujidade saiu em agosto de 2026, por decisão do negócio.
-// Os packs saíram com ele e voltaram em setembro, e por isso levam tabela
-// própria aqui em baixo: este é o ficheiro que decide o valor cobrado, e é
-// nele que um preço errado passa despercebido mais tempo.
+// Saíram em agosto de 2026, por decisão do negócio. Estavam escritos a dobrar,
+// aqui e no pricing.js, e o sítio onde reaparecem por engano é este — é o que
+// decide o valor cobrado.
 
-Deno.test('o preço é o da tabela: não há multiplicador de sujidade', () => {
+Deno.test('o preço é o da tabela: não há multiplicador de sujidade nem packs', () => {
   const q = resolve('suv', 'detalhada');
   assertEquals(q.price, 160);
-  // Os campos que devolve, e mais nenhum: um grade ou um gradePct de volta
-  // aparecem aqui.
+  // Os campos que devolve, e mais nenhum. Um grade ou um gradePct de volta
+  // aparecem aqui — que é o sítio onde reaparecem por engano, porque é este
+  // ficheiro que decide o valor cobrado.
   assertEquals(Object.keys(q).sort(), ['duration', 'label', 'price']);
-});
-
-Deno.test('pack: preço fechado das duas lavagens por mês', () => {
-  const tabela: Array<[string, string, number]> = [
-    ['carro', 'selante',   65],  ['grande', 'selante',   95],  ['suv', 'selante',   75],
-    ['carro', 'premium',   105], ['grande', 'premium',   155], ['suv', 'premium',   125],
-    ['carro', 'detalhada', 220], ['grande', 'detalhada', 300], ['suv', 'detalhada', 260],
-  ];
-
-  for (const [veiculo, nivel, esperado] of tabela) {
-    assertEquals(resolve(veiculo, nivel, true).price, esperado, `${veiculo}/${nivel}`);
-  }
-});
-
-// O pack são duas lavagens, mas a marcação é de uma: se a duração vier a
-// dobrar, a agenda fecha o dia a um serviço que cabia lá duas vezes.
-Deno.test('o pack não mexe na duração', () => {
-  for (const nivel of ['selante', 'premium', 'detalhada']) {
-    assertEquals(resolve('carro', nivel, true).duration, resolve('carro', nivel).duration, nivel);
-  }
-});
-
-Deno.test('não há pack de lavagem simples nem para motas', () => {
-  assertThrows(() => resolve('carro', 'simples', true), Error, 'Não existe pack');
-  assertThrows(() => resolve('mota', 'simples', true), Error, 'Não existe pack');
 });
