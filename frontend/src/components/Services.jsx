@@ -91,7 +91,11 @@ export default function Services() {
                               </div>
                             ) : (
                               <>
-                                <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('services.from')}</span>
+                                {/* Um pack tem preço fechado — o "DESDE" era das
+                                    lavagens, que variam com o porte da viatura. */}
+                                {s.category !== 'packs' && (
+                                  <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('services.from')}</span>
+                                )}
                                 <div className="text-white font-display text-xl font-bold">{s.price}€</div>
                               </>
                             )}

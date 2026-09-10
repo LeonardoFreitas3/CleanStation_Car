@@ -8,7 +8,16 @@ export default function ServiceDetail({ service, open, onClose }) {
   if (!open || !service) return null;
   const Icon = service.icon;
   const includes = tx(service, 'includes') || service.includes;
-  const waMsg = encodeURIComponent(`Olá! Gostaria de pedir um orçamento para: ${tx(service, 'title')}`);
+
+  // Um pack tem preço fechado e marca-se; os outros serviços orçamentam-se. Muda
+  // o rótulo do botão, a nota do rodapé e a mensagem que segue no WhatsApp — não
+  // adianta o botão dizer "Marcar" e a mensagem pedir um orçamento.
+  const isPack = service.category === 'packs';
+  const waMsg = encodeURIComponent(
+    isPack
+      ? `Olá! Gostaria de marcar o: ${tx(service, 'title')}`
+      : `Olá! Gostaria de pedir um orçamento para: ${tx(service, 'title')}`,
+  );
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
 
   return (
@@ -71,7 +80,7 @@ export default function ServiceDetail({ service, open, onClose }) {
           )}
 
           <div className="mt-6 text-white/40 text-xs italic">
-            {t('serviceDetail.note')}
+            {isPack ? t('serviceDetail.notePack') : t('serviceDetail.note')}
           </div>
         </div>
 
@@ -84,7 +93,9 @@ export default function ServiceDetail({ service, open, onClose }) {
               </div>
             ) : (
               <>
-                <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('serviceDetail.from')}</span>
+                {!isPack && (
+                  <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('serviceDetail.from')}</span>
+                )}
                 <div className="text-white font-display text-2xl sm:text-3xl font-bold">{service.price}€</div>
               </>
             )}
@@ -96,7 +107,7 @@ export default function ServiceDetail({ service, open, onClose }) {
             className="inline-flex items-center gap-2 px-6 py-3 text-xs tracking-[0.22em] font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition"
           >
             <MessageCircle className="w-3.5 h-3.5" />
-            {t('serviceDetail.whatsapp')}
+            {isPack ? t('serviceDetail.book') : t('serviceDetail.whatsapp')}
           </a>
         </div>
       </div>

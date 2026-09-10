@@ -203,6 +203,7 @@ export const SERVICES = [
       'Duas lavagens com selante por mês',
       'Tudo o que inclui a lavagem com selante',
       'Preço fechado, mais baixo do que duas lavagens avulso',
+      'Prioridade na marcação',
       'Marcação por contacto, para combinarmos as datas consigo',
     ],
   },
@@ -218,6 +219,7 @@ export const SERVICES = [
       'Duas lavagens premium por mês',
       'Tudo o que inclui a lavagem premium',
       'Preço fechado, mais baixo do que duas lavagens avulso',
+      'Prioridade na marcação',
       'Marcação por contacto, para combinarmos as datas consigo',
     ],
   },
@@ -233,6 +235,7 @@ export const SERVICES = [
       'Duas lavagens detalhadas por mês',
       'Tudo o que inclui a lavagem detalhada',
       'Preço fechado, mais baixo do que duas lavagens avulso',
+      'Prioridade na marcação',
       'Marcação por contacto, para combinarmos as datas consigo',
     ],
   },
@@ -357,13 +360,6 @@ const EN_SERVICES = {
     desc: 'Restores the original look of rear lights, removing haziness and surface scratches.',
     includes: ['Removes wear and haziness', 'Eliminates surface scratches', 'Restores clarity', 'Improves the look of the vehicle'],
   },
-};
-
-const EN_FEATURES = {
-  'Produtos Premium':     'Premium Products',
-  'Atenção ao Detalhe':   'Attention to Detail',
-  'Resultados Duradouros':'Lasting Results',
-  'Satisfação Garantida': 'Guaranteed Satisfaction',
   'pack-selante': {
     title: 'SEALANT PACK · 2x MONTH',
     desc: 'Two sealant washes a month, at a fixed price',
@@ -371,6 +367,7 @@ const EN_FEATURES = {
       'Two sealant washes a month',
       'Everything the sealant wash includes',
       'Fixed price, lower than two separate washes',
+      'Priority booking',
       'Booking by contact, so we can arrange the dates with you',
     ],
   },
@@ -381,6 +378,7 @@ const EN_FEATURES = {
       'Two premium washes a month',
       'Everything the premium wash includes',
       'Fixed price, lower than two separate washes',
+      'Priority booking',
       'Booking by contact, so we can arrange the dates with you',
     ],
   },
@@ -391,9 +389,17 @@ const EN_FEATURES = {
       'Two detailed washes a month',
       'Everything the detailed wash includes',
       'Fixed price, lower than two separate washes',
+      'Priority booking',
       'Booking by contact, so we can arrange the dates with you',
     ],
   },
+};
+
+const EN_FEATURES = {
+  'Produtos Premium':     'Premium Products',
+  'Atenção ao Detalhe':   'Attention to Detail',
+  'Resultados Duradouros':'Lasting Results',
+  'Satisfação Garantida': 'Guaranteed Satisfaction',
 };
 
 const EN_CATEGORIES = {
