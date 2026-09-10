@@ -41,6 +41,12 @@ const LEVELS: Record<string, Level> = {
   },
 };
 
+const PACKS: Record<string, Partial<Record<VehicleId, number>>> = {
+  selante: { carro: 65, grande: 95, suv: 75 },
+  premium: { carro: 105, grande: 155, suv: 125 },
+  detalhada: { carro: 220, grande: 300, suv: 260 },
+};
+
 export interface Resolved {
   label: string;
   price: number;
@@ -52,13 +58,19 @@ export interface Resolved {
  * uma mota não leva lavagem detalhada, e aceitar isso criava uma marcação
  * impossível de cumprir.
  *
- * Houve aqui duas coisas que saíram em agosto de 2026, por decisão do negócio:
- * um multiplicador pelo "estado da viatura", que subia o preço até 75% conforme
- * o número de problemas assinalados, e os packs de duas lavagens por mês. As
- * duas estavam escritas a dobrar, aqui e no pricing.js do site, e saíram dos
- * dois sítios.
+ * Houve aqui um multiplicador pelo "estado da viatura", que subia o preço 30%
+ * ou 75% conforme o número de problemas que o cliente assinalasse no site. Saiu
+ * em agosto de 2026, por decisão do negócio: o preço é o da tabela, e o que a
+ * viatura precisar a mais orça-se ao vê-la. Saiu também do pricing.js do site,
+ * que tinha a mesma conta escrita a dobrar.
  */
-export function resolve(vehicleType: string, levelId: string): Resolved {
+export function resolve(
+  vehicleType: string,
+  levelId: string,
+  // Por omissão não é pack: quem chama com dois argumentos está a pedir uma
+  // lavagem avulso, e é assim que o resto do ficheiro e os testes lhe chamam.
+  isPack = false,
+): Resolved {
   const level = LEVELS[levelId];
   if (!level) throw new Error(`Serviço desconhecido: ${levelId}`);
 
@@ -66,6 +78,12 @@ export function resolve(vehicleType: string, levelId: string): Resolved {
   const duration = level.durations[vehicle];
   if (duration === undefined) {
     throw new Error(`Serviço "${level.label}" não disponível para este tipo de veículo`);
+  }
+
+  if (isPack) {
+    const packPrice = PACKS[levelId]?.[vehicle];
+    if (packPrice === undefined) throw new Error(`Não existe pack para "${level.label}" neste veículo`);
+    return { label: level.label, price: packPrice, duration };
   }
 
   const base = level.prices[vehicle];
