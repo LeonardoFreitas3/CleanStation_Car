@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/CleanStation_Car/static/css/main.dc04d35a.css",
+    "main.js": "/CleanStation_Car/static/js/main.adc4ea40.js",
+    "static/js/606.8ab82402.chunk.js": "/CleanStation_Car/static/js/606.8ab82402.chunk.js",
+    "static/js/220.927098b2.chunk.js": "/CleanStation_Car/static/js/220.927098b2.chunk.js",
+    "static/js/884.b515aabb.chunk.js": "/CleanStation_Car/static/js/884.b515aabb.chunk.js",
+    "static/js/338.ffe9d7d8.chunk.js": "/CleanStation_Car/static/js/338.ffe9d7d8.chunk.js",
+    "static/js/708.c9b9c265.chunk.js": "/CleanStation_Car/static/js/708.c9b9c265.chunk.js",
+    "static/js/116.a787953c.chunk.js": "/CleanStation_Car/static/js/116.a787953c.chunk.js",
+    "index.html": "/CleanStation_Car/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.dc04d35a.css",
+    "static/js/main.adc4ea40.js"
+  ]
+}
