@@ -195,7 +195,7 @@ export const SERVICES = [
     id: 'pack-selante',
     category: 'packs',
     title: 'PACK SELANTE · 2x MÊS',
-    desc: 'Duas lavagens com selante por mês, a preço fechado',
+    desc: 'Duas lavagens com selante por mês, com prioridade na marcação',
     price: 65,
     icon: ShieldCheck,
     image: `${process.env.PUBLIC_URL}/img/proteção.jpg`,
@@ -211,7 +211,7 @@ export const SERVICES = [
     id: 'pack-premium',
     category: 'packs',
     title: 'PACK PREMIUM · 2x MÊS',
-    desc: 'Duas lavagens premium por mês, a preço fechado',
+    desc: 'Duas lavagens premium por mês, com prioridade na marcação',
     price: 105,
     icon: ShieldPlus,
     image: `${process.env.PUBLIC_URL}/img/ceramica-longa.jpg`,
@@ -227,7 +227,7 @@ export const SERVICES = [
     id: 'pack-detalhada',
     category: 'packs',
     title: 'PACK DETALHADA · 2x MÊS',
-    desc: 'Duas lavagens detalhadas por mês, a preço fechado',
+    desc: 'Duas lavagens detalhadas por mês, com prioridade na marcação',
     price: 220,
     icon: Car,
     image: `${process.env.PUBLIC_URL}/img/detail.jpg`,
@@ -362,7 +362,7 @@ const EN_SERVICES = {
   },
   'pack-selante': {
     title: 'SEALANT PACK · 2x MONTH',
-    desc: 'Two sealant washes a month, at a fixed price',
+    desc: 'Two sealant washes a month, with priority booking',
     includes: [
       'Two sealant washes a month',
       'Everything the sealant wash includes',
@@ -373,7 +373,7 @@ const EN_SERVICES = {
   },
   'pack-premium': {
     title: 'PREMIUM PACK · 2x MONTH',
-    desc: 'Two premium washes a month, at a fixed price',
+    desc: 'Two premium washes a month, with priority booking',
     includes: [
       'Two premium washes a month',
       'Everything the premium wash includes',
@@ -384,7 +384,7 @@ const EN_SERVICES = {
   },
   'pack-detalhada': {
     title: 'DETAILED PACK · 2x MONTH',
-    desc: 'Two detailed washes a month, at a fixed price',
+    desc: 'Two detailed washes a month, with priority booking',
     includes: [
       'Two detailed washes a month',
       'Everything the detailed wash includes',
