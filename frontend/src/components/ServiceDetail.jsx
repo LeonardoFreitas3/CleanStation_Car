@@ -79,9 +79,14 @@ export default function ServiceDetail({ service, open, onClose }) {
             </div>
           )}
 
-          <div className="mt-6 text-white/40 text-xs italic">
-            {isPack ? t('serviceDetail.notePack') : t('serviceDetail.note')}
-          </div>
+          {/* Um pack não leva nota nenhuma. A genérica fala de "valor a partir
+              de" e de avaliação do estado da viatura, e o preço de um pack é
+              único: não varia com o porte nem com o que a viatura precise. */}
+          {!isPack && (
+            <div className="mt-6 text-white/40 text-xs italic">
+              {t('serviceDetail.note')}
+            </div>
+          )}
         </div>
 
         {/* Footer */}

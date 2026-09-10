@@ -202,7 +202,6 @@ export const SERVICES = [
     includes: [
       'Duas lavagens com selante por mês',
       'Tudo o que inclui a lavagem com selante',
-      'Preço fechado, mais baixo do que duas lavagens avulso',
       'Prioridade na marcação',
       'Marcação por contacto, para combinarmos as datas consigo',
     ],
@@ -218,7 +217,6 @@ export const SERVICES = [
     includes: [
       'Duas lavagens premium por mês',
       'Tudo o que inclui a lavagem premium',
-      'Preço fechado, mais baixo do que duas lavagens avulso',
       'Prioridade na marcação',
       'Marcação por contacto, para combinarmos as datas consigo',
     ],
@@ -234,7 +232,6 @@ export const SERVICES = [
     includes: [
       'Duas lavagens detalhadas por mês',
       'Tudo o que inclui a lavagem detalhada',
-      'Preço fechado, mais baixo do que duas lavagens avulso',
       'Prioridade na marcação',
       'Marcação por contacto, para combinarmos as datas consigo',
     ],
@@ -366,7 +363,6 @@ const EN_SERVICES = {
     includes: [
       'Two sealant washes a month',
       'Everything the sealant wash includes',
-      'Fixed price, lower than two separate washes',
       'Priority booking',
       'Booking by contact, so we can arrange the dates with you',
     ],
@@ -377,7 +373,6 @@ const EN_SERVICES = {
     includes: [
       'Two premium washes a month',
       'Everything the premium wash includes',
-      'Fixed price, lower than two separate washes',
       'Priority booking',
       'Booking by contact, so we can arrange the dates with you',
     ],
@@ -388,7 +383,6 @@ const EN_SERVICES = {
     includes: [
       'Two detailed washes a month',
       'Everything the detailed wash includes',
-      'Fixed price, lower than two separate washes',
       'Priority booking',
       'Booking by contact, so we can arrange the dates with you',
     ],

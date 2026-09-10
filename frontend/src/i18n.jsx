@@ -34,8 +34,6 @@ const translations = {
     serviceDetail: {
       includes: "O QUE ESTÁ INCLUÍDO",
       note: "Valor a partir de. Preço final sujeito a avaliação do estado da viatura.",
-      // Os packs têm preço fechado: a nota de cima contradizia o cartão.
-      notePack: "Preço fechado para as duas lavagens do mês.",
       from: "DESDE",
       whatsapp: "PEDIR ORÇAMENTO",
       book: "MARCAR",
@@ -125,7 +123,6 @@ const translations = {
     serviceDetail: {
       includes: "WHAT'S INCLUDED",
       note: "Price from. Final price subject to assessment of the vehicle's condition.",
-      notePack: "Fixed price for the month's two washes.",
       from: "FROM",
       whatsapp: "GET A QUOTE",
       book: "BOOK",
