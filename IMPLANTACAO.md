@@ -64,7 +64,13 @@ não é admin.
 npx supabase functions deploy team
 ```
 
-**O build do site na Netlify.** É o único passo por dar, e é por ele que passa
+**A migração `0032`.** Repõe no catálogo os três packs de manutenção, que o
+`0010` criou e o `649f93f` levou atrás no mesmo dia, sem o dizer. É um upsert
+com `on conflict do update`: corre bem quer eles já lá estejam quer não. O ecrã
+do CRM sempre soube mostrá-los — a categoria `packs` está no `CATEGORY_LABEL` —,
+faltava a tabela tê-los.
+
+**O build do site na Netlify.** É por ele que passa
 tudo o que o CRM ganhou: a Agenda em calendário, o filtro "Por cobrar", a fase
 "A meio da lavagem", os números nos follow-ups e as fases nas Definições. Até lá
 a base de dados sabe tudo isso e o ecrã não mostra nada.
