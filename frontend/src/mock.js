@@ -39,6 +39,7 @@ export const FEATURES = [
 export const CATEGORIES = [
   { id: 'lavagens',       label: 'LAVAGENS',                   labelEn: 'WASHES',                    subtitle: 'Qual a diferença?',              subtitleEn: "What's the difference?",    icon: Droplets  },
   { id: 'polimentos',     label: 'POLIMENTOS E CORREÇÕES',     labelEn: 'POLISHING & CORRECTIONS',   subtitle: 'De volta ao brilho perfeito',     subtitleEn: 'Back to perfect shine',      icon: Gem       },
+  { id: 'packs',          label: 'PACKS DE MANUTENÇÃO',        labelEn: 'MAINTENANCE PACKS',         subtitle: 'Duas lavagens por mês',          subtitleEn: 'Two washes a month',         icon: Layers    },
 ];
 
 export const SERVICES = [
@@ -176,6 +177,65 @@ export const SERVICES = [
       'Melhora o aspeto do veículo',
     ],
   },
+
+  // ── PACKS DE MANUTENÇÃO ───────────────────────────────────────────────────
+  //
+  // São informativos. O preço está aqui para quem quer saber quanto custa, mas
+  // o pack não se marca online: o cartão abre a ficha e a ficha manda para o
+  // WhatsApp, como acontece com os polimentos. Por isso é que não entram no
+  // catálogo do CRM nem no calculador de marcações — não há nada para escolher
+  // num formulário, há uma conversa.
+  //
+  // O valor é o do carro, o mais baixo, e é por isso que leva "DESDE": uma
+  // carrinha grande e um SUV pagam mais. Os números são os do catálogo de
+  // agosto de 2026 e ficam escritos à mão de propósito — não saem do
+  // pricing.js, porque a tabela de lá é a das lavagens avulso, e um pack não é
+  // duas dessas.
+  {
+    id: 'pack-selante',
+    category: 'packs',
+    title: 'PACK SELANTE · 2x MÊS',
+    desc: 'Duas lavagens com selante por mês, a preço fechado',
+    price: 65,
+    icon: ShieldCheck,
+    image: `${process.env.PUBLIC_URL}/img/proteção.jpg`,
+    includes: [
+      'Duas lavagens com selante por mês',
+      'Tudo o que inclui a lavagem com selante',
+      'Preço fechado, mais baixo do que duas lavagens avulso',
+      'Marcação por contacto, para combinarmos as datas consigo',
+    ],
+  },
+  {
+    id: 'pack-premium',
+    category: 'packs',
+    title: 'PACK PREMIUM · 2x MÊS',
+    desc: 'Duas lavagens premium por mês, a preço fechado',
+    price: 105,
+    icon: ShieldPlus,
+    image: `${process.env.PUBLIC_URL}/img/ceramica-longa.jpg`,
+    includes: [
+      'Duas lavagens premium por mês',
+      'Tudo o que inclui a lavagem premium',
+      'Preço fechado, mais baixo do que duas lavagens avulso',
+      'Marcação por contacto, para combinarmos as datas consigo',
+    ],
+  },
+  {
+    id: 'pack-detalhada',
+    category: 'packs',
+    title: 'PACK DETALHADA · 2x MÊS',
+    desc: 'Duas lavagens detalhadas por mês, a preço fechado',
+    price: 220,
+    icon: Car,
+    image: `${process.env.PUBLIC_URL}/img/detail.jpg`,
+    includes: [
+      'Duas lavagens detalhadas por mês',
+      'Tudo o que inclui a lavagem detalhada',
+      'Preço fechado, mais baixo do que duas lavagens avulso',
+      'Marcação por contacto, para combinarmos as datas consigo',
+    ],
+  },
 ];
 
 export const PROCESS = [
@@ -304,11 +364,42 @@ const EN_FEATURES = {
   'Atenção ao Detalhe':   'Attention to Detail',
   'Resultados Duradouros':'Lasting Results',
   'Satisfação Garantida': 'Guaranteed Satisfaction',
+  'pack-selante': {
+    title: 'SEALANT PACK · 2x MONTH',
+    desc: 'Two sealant washes a month, at a fixed price',
+    includes: [
+      'Two sealant washes a month',
+      'Everything the sealant wash includes',
+      'Fixed price, lower than two separate washes',
+      'Booking by contact, so we can arrange the dates with you',
+    ],
+  },
+  'pack-premium': {
+    title: 'PREMIUM PACK · 2x MONTH',
+    desc: 'Two premium washes a month, at a fixed price',
+    includes: [
+      'Two premium washes a month',
+      'Everything the premium wash includes',
+      'Fixed price, lower than two separate washes',
+      'Booking by contact, so we can arrange the dates with you',
+    ],
+  },
+  'pack-detalhada': {
+    title: 'DETAILED PACK · 2x MONTH',
+    desc: 'Two detailed washes a month, at a fixed price',
+    includes: [
+      'Two detailed washes a month',
+      'Everything the detailed wash includes',
+      'Fixed price, lower than two separate washes',
+      'Booking by contact, so we can arrange the dates with you',
+    ],
+  },
 };
 
 const EN_CATEGORIES = {
   'lavagens':       { label: 'WASHES',                     subtitle: "What's the difference?" },
   'polimentos':     { label: 'POLISHING & CORRECTIONS',    subtitle: 'Back to perfect shine' },
+  'packs':          { label: 'MAINTENANCE PACKS',          subtitle: 'Two washes a month' },
 };
 
 const EN_PROCESS = {
