@@ -1,0 +1,7 @@
+# O CRM e a galeria vivem no browser e o Next exporta-os num ficheiro só, o
+# 404.html — que é também o que a Netlify mostra num endereço que não existe, e
+# esse manda para a página inicial. Aqui serve-se o mesmo ficheiro com 200:
+# para estes caminhos não é um erro, é a aplicação.
+/crm        /404.html   200
+/crm/*      /404.html   200
+/galeria/*  /404.html   200

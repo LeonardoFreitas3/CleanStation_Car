@@ -1,0 +1,22 @@
+1:"$Sreact.fragment"
+2:I[51615,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"LanguageProvider"]
+3:I[39756,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"default"]
+4:I[37457,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"default"]
+5:I[5234,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js","/CleanStation_Car/_next/static/chunks/32x-tw-rmyxlh.js"],"default"]
+6:I[47257,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"ClientPageRoot"]
+9:I[97367,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"OutletBoundary"]
+a:"$Sreact.suspense"
+d:I[97367,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"ViewportBoundary"]
+f:I[97367,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"MetadataBoundary"]
+11:I[68027,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"default",1]
+:HL["/CleanStation_Car/_next/static/chunks/10bdsty4n0vgq.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap","style"]
+c:X
+0:{"P":null,"c":["","_not-found",""],"q":"","i":false,"f":[[["",{"children":["/_not-found",{"children":["__PAGE__",{},"$undefined","$undefined",4608]},"$undefined","$undefined",4608]},"$undefined","$undefined",4624],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/CleanStation_Car/_next/static/chunks/10bdsty4n0vgq.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"pt","children":[["$","head",null,{"children":[["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":""}],["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap"}]]}],["$","body",null,{"children":["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$L5",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]]}]]}],{"children":[["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["$","$1","c",{"children":[["$","$L6",null,{"Component":"$5","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@7","$@8"]}}],[["$","script","script-0",{"src":"/CleanStation_Car/_next/static/chunks/32x-tw-rmyxlh.js","async":true,"nonce":"$undefined"}]],["$","$L9",null,{"children":["$","$a",null,{"name":"Next.MetadataOutlet","children":"$@b"}]}]]}],{},null,false,null]},null,false,"$c"]},null,false,null],["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$Ld",null,{"children":"$Le"}],["$","div",null,{"hidden":true,"children":["$","$Lf",null,{"children":["$","$a",null,{"name":"Next.Metadata","children":"$L10"}]}]}],null]}],false]],"m":"$undefined","G":["$11",[["$","link","0",{"rel":"stylesheet","href":"/CleanStation_Car/_next/static/chunks/10bdsty4n0vgq.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"h":null,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"d5rpO0qAuuy_G3qYLjCzl"}
+c:C
+7:{}
+8:"$0:f:0:1:1:children:1:children:0:props:children:0:props:serverProvidedParams:params"
+e:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#000000"}]]
+12:I[27201,["/CleanStation_Car/_next/static/chunks/0ayvxc9hy0-6w.js"],"IconMark"]
+b:null
+10:[["$","meta","0",{"name":"author","content":"Clean Station Car"}],["$","meta","1",{"name":"robots","content":"index, follow, max-image-preview:large"}],["$","meta","2",{"name":"geo.region","content":"PT-03"}],["$","meta","3",{"name":"geo.placename","content":"Braga"}],["$","meta","4",{"name":"geo.position","content":"41.5454;-8.4265"}],["$","meta","5",{"name":"ICBM","content":"41.5454, -8.4265"}],["$","link","6",{"rel":"icon","href":"/img/favicon.ico"}],["$","$L12","7",{}]]
