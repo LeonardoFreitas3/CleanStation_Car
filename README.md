@@ -13,7 +13,7 @@ Duas aplicações no mesmo repositório e no mesmo build:
 
 | | |
 |---|---|
-| Frontend | React 19, React Router 7, Tailwind. Build com `react-scripts` via craco |
+| Frontend | Next 16 em export estático (o site), React 19, Tailwind. O CRM e a galeria continuam no React Router, só no browser |
 | Base de dados | Supabase (Postgres), com RLS em todas as tabelas sensíveis |
 | Lógica de servidor | Supabase Edge Functions, em Deno |
 | Agenda | Google Calendar, por **service account** (JWT assinado) |
@@ -33,6 +33,8 @@ todos no Postgres.
 
 ```
 frontend/src/
+  app/              as páginas do Next: a inicial, uma por lavagem, o sitemap,
+                    e o not-found, que é onde montam o CRM e a galeria
   booking/          formulário de marcação (modal do site) e a tabela de preços
   components/       site público: hero, serviços, FAQ, termos, cookies
   gallery/          página pública das fotografias de um serviço, por token
@@ -68,7 +70,7 @@ npm --prefix frontend install
 ```
 
 ```bash
-npm --prefix frontend start
+npm --prefix frontend run dev
 ```
 
 O site fica em `localhost:3000` e o CRM em `localhost:3000/crm`.
@@ -80,7 +82,11 @@ npm --prefix frontend run typecheck
 ```
 
 ```bash
-npm --prefix frontend test -- --watchAll=false
+npm --prefix frontend test
+```
+
+```bash
+npm --prefix frontend run lint
 ```
 
 As Edge Functions verificam-se com Deno, que não precisa de estar instalado:
@@ -93,7 +99,7 @@ npx --yes deno@2 check supabase/functions/*/index.ts supabase/functions/*/*.test
 npx --yes deno@2 test supabase/functions/
 ```
 
-O CI (`.github/workflows/ci.yml`) corre as quatro coisas em cada push. Existe
+O CI (`.github/workflows/ci.yml`) corre isto tudo, e o build, em cada push. Existe
 porque a `booking` chegou a estar no `main` sem compilar durante dias: o `tsc`
 do frontend não olha para as Edge Functions, e o deploy do Supabase empacota com
 esbuild, que remove os tipos sem os conferir.
@@ -127,8 +133,8 @@ receber a faturação do mês. As guardas vivem dentro das funções SQL.
 com o Node 22; uma máquina com npm 11 resolve conflitos de peer dependency que o
 npm 10 recusa. Um `npm ci --dry-run` que passa localmente **não** garante que o
 CI instala — já aconteceu subir o TypeScript para 5, ver tudo verde aqui, e
-partir o `npm ci` no CI. O `react-scripts@5.0.1` está abandonado e o seu peer de
-TypeScript parou no `^4`; quem quiser TS 5 tira-o primeiro, com o Vite.
+partir o `npm ci` no CI. Instalar com o npm do CI evita a dúvida:
+`npx -y npm@10 install <pacote>`.
 
 **Os comentários explicam o porquê, não o quê.** Se mudares uma decisão que um
 comentário justifica, muda o comentário na mesma alteração.

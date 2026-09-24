@@ -161,11 +161,11 @@ REACT_APP_SUPABASE_URL=https://abcdefgh.supabase.co
 REACT_APP_SUPABASE_ANON_KEY=a-tua-anon-key
 ```
 
-O prefixo `REACT_APP_` é obrigatório — sem ele o Create React App ignora a
-variável. Reinicia o servidor: variáveis de ambiente só são lidas ao arrancar.
+O prefixo `REACT_APP_` é obrigatório — é o que o `next.config.mjs` passa ao
+browser. Reinicia o servidor: variáveis de ambiente só são lidas ao arrancar.
 
 ```bash
-npm --prefix frontend start
+npm --prefix frontend run dev
 ```
 
 Abre `http://localhost:3000/crm` e entra com a conta do passo 4.

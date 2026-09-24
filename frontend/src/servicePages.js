@@ -302,9 +302,8 @@ const PAGINAS = [
 ];
 
 /**
- * O titulo, a descricao e a imagem vem do paginasSeo.json — o mesmo ficheiro
- * que o build le para os estampar no HTML de cada pagina. Uma pagina cujo slug
- * nao esteja la rebenta aqui, no arranque, em vez de sair para producao com o
+ * O titulo, a descricao e a imagem vem do paginasSeo.json. Uma pagina cujo slug
+ * nao esteja la rebenta aqui, no build, em vez de sair para producao com o
  * titulo da pagina inicial.
  */
 export const SERVICE_PAGES = PAGINAS.map((p) => {

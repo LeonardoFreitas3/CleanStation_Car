@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { SERVICES, CATEGORIES } from '../mock';
 import { PAGE_BY_SERVICE } from '../servicePages';
 import { useLang } from '../i18n';
@@ -49,7 +49,7 @@ export default function Services() {
                   const pagina = PAGE_BY_SERVICE[s.id];
                   const Caixa = pagina ? Link : 'div';
                   const props = pagina
-                    ? { to: `/${pagina.slug}` }
+                    ? { href: `/${pagina.slug}` }
                     : { onClick: () => setDetailService(s) };
 
                   return (

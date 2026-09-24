@@ -60,7 +60,10 @@ export default function Footer({ onLegal }) {
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-3 pt-6 text-xs text-white/45">
-          <div>© {new Date().getFullYear()} Clean Station Car. {t('footer.rights')}</div>
+          {/* O ano sai no HTML do build. Num site construído em dezembro e
+              visto em janeiro o browser discordava, e o React redesenhava a
+              página inteira por causa de um número; assim fica o do build. */}
+          <div suppressHydrationWarning>© {new Date().getFullYear()} Clean Station Car. {t('footer.rights')}</div>
           <div className="flex gap-5">
             <button onClick={() => onLegal('privacy')} className="hover:text-blue-400 transition-colors">{t('footer.privacy')}</button>
             <button onClick={() => onLegal('terms')}   className="hover:text-blue-400 transition-colors">{t('footer.terms')}</button>

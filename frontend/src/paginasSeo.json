@@ -1,14 +1,10 @@
 {
   "_leia-me": [
     "O titulo, a descricao e a imagem de cada pagina de servico.",
-    "Estao aqui, em JSON, e nao dentro do servicePages.js porque sao lidos por",
-    "dois lados: pela aplicacao, que os poe no <head> quando a rota abre, e pelo",
-    "scripts/paginas-servico.mjs, que os estampa no HTML de cada pagina no fim do",
-    "build. Node nao importa um .js de src (nao ha type:module), e duas copias",
-    "destes textos era garantir que um dia o Google mostrava um titulo e a pagina",
-    "mostrava outro.",
-    "Quem nao executa JavaScript ve so o que o build estampou — e isso inclui o",
-    "WhatsApp e o Facebook a montar a pre-visualizacao de um link partilhado.",
+    "O servicePages.js junta-os ao resto da pagina, e o app/[slug]/page.jsx",
+    "escreve-os no <head> do HTML que o build gera — e esse HTML e o que o",
+    "WhatsApp e o Facebook leem para montar a pre-visualizacao de um link",
+    "partilhado, porque nao executam JavaScript.",
     "A imagem e so o nome do ficheiro em public/img: o caminho leva PUBLIC_URL a",
     "frente na aplicacao e o SITE_URL nas etiquetas og, e sao coisas diferentes."
   ],

@@ -52,7 +52,7 @@ export default function CrmApp() {
   // herdava o "index, follow" do site publico. O robots.txt tambem proibe
   // /crm, mas isto cobre quem chega por link direto.
   useEffect(() => {
-    // Reaproveita a meta que ja vem no index.html em vez de acrescentar outra:
+    // Reaproveita a meta que ja vem no <head> do site em vez de acrescentar outra:
     // duas metas robots com valores opostos e um sinal contraditorio para os
     // motores de busca, mesmo que na pratica vencesse a mais restritiva.
     let meta = document.querySelector<HTMLMetaElement>('meta[name="robots"]');

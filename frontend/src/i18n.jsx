@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 // ─── Dicionário de traduções (chrome / UI) ───────────────────────────────────
@@ -193,20 +195,27 @@ function resolve(dict, path) {
 const LanguageContext = createContext({ lang: "pt", setLang: () => {}, t: (k) => k, tx: (o, k) => o?.[k] });
 
 export function LanguageProvider({ children }) {
-  const [lang, setLangState] = useState(() => {
+  // Começa sempre em português e só depois lê a escolha guardada. O HTML sai do
+  // build em português; ler o localStorage logo aqui dava ao browser um texto
+  // diferente do que o HTML trazia, e o React deitava a página abaixo para a
+  // desenhar outra vez. Quem escolheu inglês vê o português por um instante.
+  const [lang, setLangState] = useState("pt");
+
+  useEffect(() => {
     try {
-      const stored = localStorage.getItem(LANG_KEY);
-      if (stored === "pt" || stored === "en") return stored;
+      if (localStorage.getItem(LANG_KEY) === "en") setLangState("en");
     } catch { /* ignore */ }
-    return "pt";
-  });
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = lang;
-    try { localStorage.setItem(LANG_KEY, lang); } catch { /* ignore */ }
   }, [lang]);
 
-  const setLang = useCallback((l) => setLangState(l === "en" ? "en" : "pt"), []);
+  const setLang = useCallback((l) => {
+    const escolhida = l === "en" ? "en" : "pt";
+    setLangState(escolhida);
+    try { localStorage.setItem(LANG_KEY, escolhida); } catch { /* ignore */ }
+  }, []);
 
   const t = useCallback(
     (path, vars) => {

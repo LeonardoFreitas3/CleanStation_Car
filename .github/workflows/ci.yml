@@ -41,12 +41,14 @@ jobs:
 
       - run: npm run typecheck
 
-      - run: npm test -- --watchAll=false
+      - run: npm test
 
-      # O build é o que apanha o que o tsc não vê: o ESLint do CRA corre aqui, e
-      # com CI=true — que o GitHub define sozinho — um aviso passa a erro. É
-      # também a única forma de saber que o site ainda compila antes de alguém
-      # arrastar a pasta para a Netlify.
+      # O que o tsc não vê: um hook dentro de um if compila e rebenta em quem
+      # visita. Corria dentro do build do CRA; o do Next não corre ESLint.
+      - run: npm run lint
+
+      # A única forma de saber que o site ainda compila — e que cada página sai
+      # com o seu HTML — antes de alguém arrastar a pasta para a Netlify.
       - run: npm run build
 
   funcoes:

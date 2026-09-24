@@ -1,5 +1,8 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+'use client';
+
+import React, { Suspense, lazy, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, ChevronRight } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
@@ -9,8 +12,6 @@ import TermsConditions from './TermsConditions';
 import CookiePolicy from './CookiePolicy';
 import CookieBanner from './CookieBanner';
 import { PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, precoDe } from '../servicePages';
-import { SITE_URL, businessSchema } from '../seo';
-import { useSeoHead } from '../useSeoHead';
 import { useLang } from '../i18n';
 
 const Booking = lazy(() => import('../booking/Booking'));
@@ -24,77 +25,19 @@ const Booking = lazy(() => import('../booking/Booking'));
  * sítio errado.
  *
  * O texto vive em servicePages.js (português) e servicePagesEn.js (inglês); o
- * endereço é o mesmo nas duas línguas.
+ * endereço é o mesmo nas duas línguas. O <head> e os dados estruturados são
+ * escritos no build, em app/[slug]/page.jsx.
  */
-export default function ServicoPagina() {
-  const { slug } = useParams();
+export default function ServicoPagina({ slug }) {
   const { lang } = useLang();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
 
   const pagina = PAGE_BY_SLUG[slug];
   // O texto na língua escolhida. O preço, a imagem e o endereço são os mesmos.
-  const page = pagina ? conteudo(pagina, lang) : null;
+  const page = conteudo(pagina, lang);
 
   const [booking, setBooking] = useState(false);
   const [legalOpen, setLegalOpen] = useState(null);
-
-  // Começar no topo. O router não mexe no scroll ao mudar de rota: quem vinha
-  // da secção dos serviços — que está a meio da página inicial — aterrava a
-  // meio desta, já depois do título. Também corre ao saltar de uma lavagem
-  // para outra, no fim da página.
-  useEffect(() => { window.scrollTo(0, 0); }, [slug]);
-
-  // Um endereço que não existe vai para a página inicial, como o resto do site.
-  // Antes do useSeoHead, que não pode correr condicionalmente.
-  const url = `${SITE_URL}/${slug}`;
-
-  useSeoHead({
-    lang,
-    title: page?.title ?? '',
-    description: page?.description ?? '',
-    canonical: url,
-    image: page ? `${SITE_URL}${page.image}` : `${SITE_URL}/img/banner.jpg`,
-    jsonLd: page ? {
-      'schema-localbusiness': businessSchema(lang),
-      'schema-service': {
-        '@context': 'https://schema.org',
-        '@type': 'Service',
-        name: nomeDe(pagina, lang),
-        serviceType: nomeDe(pagina, lang),
-        description: page.description,
-        url,
-        provider: { '@type': 'AutoWash', name: 'Clean Station Car', url: SITE_URL },
-        areaServed: { '@type': 'City', name: 'Braga' },
-        offers: {
-          '@type': 'Offer',
-          price: precoDe(page),
-          priceCurrency: 'EUR',
-          availability: 'https://schema.org/InStock',
-          url,
-        },
-      },
-      'schema-faq': {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: page.faq.map((f) => ({
-          '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
-        })),
-      },
-      'schema-breadcrumb': {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: lang === 'en' ? 'Home' : 'Início', item: SITE_URL },
-          { '@type': 'ListItem', position: 2, name: nomeDe(pagina, lang), item: url },
-        ],
-      },
-    } : {},
-  });
-
-  if (!page) return <Navigate to="/" replace />;
 
   const outros = SERVICE_PAGES.filter((p) => p.slug !== page.slug);
 
@@ -118,13 +61,14 @@ export default function ServicoPagina() {
 
           <div className="relative max-w-4xl mx-auto px-6 pt-32 pb-16 md:pt-40 md:pb-20">
             {/* Voltar para onde se veio, quando se veio de dentro do site.
-                O location.key é 'default' na primeira página de uma visita —
-                quem chegou de uma pesquisa não tem para onde recuar, e um
-                "voltar" que atira para fora do site é pior do que nenhum.
-                Nesse caso leva à página inicial, que é o que ele quer dizer. */}
+                O canGoBack só conta páginas deste site — quem chegou de uma
+                pesquisa não tem para onde recuar, e um "voltar" que atira para
+                fora do site é pior do que nenhum. Nesse caso leva à página
+                inicial, que é o que ele quer dizer. Um browser sem a
+                Navigation API vai também para a inicial. */}
             <button
               type="button"
-              onClick={() => (location.key === 'default' ? navigate('/') : navigate(-1))}
+              onClick={() => (window.navigation?.canGoBack ? router.back() : router.push('/'))}
               className="inline-flex items-center gap-2 mb-5 px-4 py-2 border border-white/15 hover:border-white/40 text-white/70 hover:text-white text-[11px] tracking-[0.2em] uppercase transition"
             >
               <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
@@ -132,7 +76,7 @@ export default function ServicoPagina() {
             </button>
 
             <nav aria-label={lang === 'en' ? 'Breadcrumb' : 'Caminho'} className="flex items-center gap-2 text-[11px] tracking-[0.2em] text-white/40 uppercase mb-6">
-              <Link to="/" className="hover:text-white transition">{lang === 'en' ? 'Home' : 'Início'}</Link>
+              <Link href="/" className="hover:text-white transition">{lang === 'en' ? 'Home' : 'Início'}</Link>
               <ChevronRight className="w-3 h-3" aria-hidden="true" />
               <span className="text-white/70">{nomeDe(pagina, lang)}</span>
             </nav>
@@ -246,7 +190,7 @@ export default function ServicoPagina() {
               {outros.map((o) => (
                 <Link
                   key={o.slug}
-                  to={`/${o.slug}`}
+                  href={`/${o.slug}`}
                   className="group bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition rounded-md overflow-hidden"
                 >
                   <div className="relative h-28 overflow-hidden">

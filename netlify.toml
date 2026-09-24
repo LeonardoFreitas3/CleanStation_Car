@@ -1,19 +1,12 @@
 # Lido apenas quando a Netlify constroi a partir do repositorio.
-# Em deploy manual (arrastar a pasta) e ignorado — nesse caso quem trata das
-# rotas e o frontend/public/_redirects, que o build copia para dentro de build/.
+# Em deploy manual (arrastar a pasta) e ignorado. As rotas nao estao aqui por
+# isso: vivem no frontend/public/_redirects, que o build copia para dentro de
+# build/ e que a Netlify le nos dois casos.
 
 [build]
   base    = "frontend"
   command = "npm run build"
   publish = "frontend/build"
-
-# O React trata as rotas no browser. Sem isto, abrir /crm/clientes diretamente
-# faz a Netlify procurar um ficheiro com esse nome, nao encontrar, e devolver
-# 404. Qualquer refresh dentro do CRM partia.
-[[redirects]]
-  from   = "/*"
-  to     = "/index.html"
-  status = 200
 
 [[headers]]
   for = "/*"
@@ -22,9 +15,9 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy        = "strict-origin-when-cross-origin"
 
-# Os assets do CRA levam hash no nome, portanto podem ser guardados para
-# sempre. O index.html nunca, senao ninguem ve uma versao nova.
+# Os assets do Next levam hash no nome, portanto podem ser guardados para
+# sempre. As paginas nunca, senao ninguem ve uma versao nova.
 [[headers]]
-  for = "/static/*"
+  for = "/_next/static/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"

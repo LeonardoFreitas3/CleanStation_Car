@@ -5,37 +5,29 @@
 // justificam este ficheiro existir:
 //
 //   1. PUBLIC_URL. O Pages serve em /CleanStation_Car e nao na raiz. O
-//      basename do router ja le o PUBLIC_URL, portanto as rotas seguem-no.
+//      next.config.mjs faz dele o basePath, e o codigo usa-o nas imagens.
 //   2. BUILD_PATH. Sai para build-pages/ e nao para build/ — o build/ e o que
 //      se arrasta para a Netlify, e se este o escrevesse por cima ficava la
 //      um site com os caminhos do Pages, partido em producao.
 //   3. robots.txt. Disallow total. Esta copia tem o mesmo texto do site real;
 //      indexada, competia com o cleanstationcar.com nas pesquisas.
 //
-// O 404.html e uma copia do index.html: o Pages nao tem reescrita de rotas
-// (o _redirects e da Netlify), e sem ele qualquer endereco fora da raiz —
-// /crm/agenda, por exemplo — dava a pagina de erro do GitHub.
+// O Pages nao tem reescrita de rotas (o _redirects e da Netlify), mas serve o
+// 404.html em qualquer endereco que nao exista — e o 404.html do Next e o que
+// monta o CRM e a galeria. /crm/agenda funciona, com um 404 que ninguem ve.
 
 import { execSync } from 'node:child_process';
-import { copyFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const OUT = 'build-pages';
 const BASE = '/CleanStation_Car';
 
-execSync('npx craco build', {
+execSync('npx next build', {
   stdio: 'inherit',
   env: { ...process.env, PUBLIC_URL: BASE, BUILD_PATH: OUT },
 });
 
-// O mesmo passo que o build de producao faz: sem ele a copia de teste nao
-// tinha as paginas de servico com o <head> certo, e testar-se-ia outra coisa.
-execSync('node scripts/paginas-servico.mjs', {
-  stdio: 'inherit',
-  env: { ...process.env, BUILD_PATH: OUT },
-});
-
-copyFileSync(join(OUT, 'index.html'), join(OUT, '404.html'));
 writeFileSync(join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
 
 console.log(`\nPronto em ${OUT}/. Publicar: npm run deploy:pages`);

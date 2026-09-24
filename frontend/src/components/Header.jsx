@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import Logo from './Logo';
 import { useLang } from '../i18n';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import { TESTIMONIALS } from '../mock';
 import { PAGE_BY_SLUG } from '../servicePages';
 import { seccaoAtiva } from '../menu';
@@ -30,7 +30,7 @@ export default function Header() {
   // "#servicos" nao ia a lado nenhum. Levam a barra a frente: sai-se da pagina,
   // vai-se a inicial e cai-se na seccao. O PUBLIC_URL e por causa da copia de
   // teste, que vive numa subpasta.
-  const { pathname } = useLocation();
+  const pathname = usePathname();
   const ancora = (href) => (pathname === '/' ? href : `${process.env.PUBLIC_URL}/${href}`);
 
   // Uma página de serviço é uma secção do site que ficou com endereço próprio.

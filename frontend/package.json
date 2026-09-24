@@ -2,24 +2,22 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://cleanstationcar.com",
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
     "lucide-react": "^0.507.0",
+    "next": "^16.3.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.1",
-    "react-scripts": "5.0.1",
     "tailwindcss-animate": "^1.0.7"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build && node scripts/paginas-servico.mjs",
-    "test": "craco test",
+    "dev": "next dev",
+    "build": "next build",
+    "test": "jest",
+    "lint": "eslint src --max-warnings=0",
     "favicon": "node scripts/gen-favicon.mjs",
     "typecheck": "tsc --noEmit",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "build:pages": "node scripts/pages.mjs",
     "deploy:pages": "npm run build:pages && gh-pages -d build-pages -f"
   },
@@ -36,13 +34,12 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@craco/craco": "^7.1.0",
     "@eslint/js": "9.23.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20.19.43",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
+    "@typescript-eslint/parser": "^8.70.1",
     "autoprefixer": "^10.4.20",
     "eslint": "9.23.0",
     "eslint-plugin-import": "2.31.0",
@@ -51,10 +48,11 @@
     "eslint-plugin-react-hooks": "5.2.0",
     "gh-pages": "^6.3.0",
     "globals": "15.15.0",
+    "jest": "^30.5.2",
     "postcss": "^8.4.49",
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.17",
-    "typescript": "^4.9.5"
+    "typescript": "~5.9"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

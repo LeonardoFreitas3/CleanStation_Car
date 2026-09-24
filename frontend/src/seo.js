@@ -269,3 +269,39 @@ export function faqSchema(lang) {
     })),
   };
 }
+
+/**
+ * O <head> de uma página, no formato do Next.
+ *
+ * Uma função para todas as páginas: uma cópia que se esquecesse de mudar o
+ * canonical dizia ao Google que duas páginas eram a mesma.
+ *
+ * `idiomas` só na página inicial, a única que existe nas duas línguas. Numa
+ * página que só existe em português, anunciá-los era mandar o Google a um
+ * inglês que não há.
+ */
+export function metadados({ title, description, keywords, url, image, idiomas }) {
+  return {
+    title,
+    description,
+    keywords,
+    alternates: { canonical: url, languages: idiomas },
+    openGraph: {
+      siteName: SITE.name,
+      type: 'website',
+      locale: 'pt_PT',
+      alternateLocale: idiomas ? 'en_GB' : undefined,
+      url,
+      title,
+      description,
+      images: [image],
+    },
+    twitter: { card: 'summary_large_image', title, description, images: [image] },
+  };
+}
+
+/**
+ * Dados estruturados prontos a ir para um <script type="application/ld+json">.
+ * O `<` escapado impede um texto com "</script>" de fechar a etiqueta a meio.
+ */
+export const jsonLd = (dados) => ({ __html: JSON.stringify(dados).replace(/</g, '\\u003c') });
