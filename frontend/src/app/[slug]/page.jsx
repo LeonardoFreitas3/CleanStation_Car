@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
   return metadados({
     title: page.title,
     description: page.description,
-    url: `${SITE_URL}/${page.slug}`,
+    url: `${SITE_URL}/${page.slug}/`,
     image: `${SITE_URL}${encodeURI(page.image)}`,
   });
 }
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { slug } = await params;
   const page = PAGE_BY_SLUG[slug];
-  const url = `${SITE_URL}/${slug}`;
+  const url = `${SITE_URL}/${slug}/`;
   const nome = nomeDe(page, 'pt');
 
   const dados = [

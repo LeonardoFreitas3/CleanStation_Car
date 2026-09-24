@@ -36,7 +36,7 @@ export default function Header() {
   // Uma página de serviço é uma secção do site que ficou com endereço próprio.
   // Quem lá está veio dos serviços e é isso que o menu tem de dizer — senão
   // fica sem nada aceso e a pessoa não sabe onde está.
-  const numServico = Boolean(PAGE_BY_SLUG[pathname.replace(/^\//, '')]);
+  const numServico = Boolean(PAGE_BY_SLUG[pathname.replace(/^\/|\/$/g, '')]);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState('#home');

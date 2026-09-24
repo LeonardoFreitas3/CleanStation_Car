@@ -13,6 +13,13 @@ const basePath = process.env.PUBLIC_URL || '';
 export default (phase) => ({
   basePath,
 
+  // Cada página sai como uma pasta com index.html. Sem isto sai como x.html ao
+  // lado de uma pasta x/, onde o Next guarda os dados da navegação — e fica ao
+  // servidor escolher entre os dois. O GitHub Pages, ao ver uma pasta, responde
+  // 301 para x/. Com pasta e index.html não há escolha a fazer: /x/ serve a
+  // página em qualquer servidor estático, e /x vai lá ter.
+  trailingSlash: true,
+
   // Só no build. No next dev, com o export ligado, um endereço de um segmento
   // que não é página — /crm aberto à mão, um erro de escrita — dava um 500 em
   // vez do 404 que leva ao not-found; e o distDir, que no build é a pasta

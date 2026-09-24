@@ -377,10 +377,9 @@ vão coladas no build, a partir do `frontend/.env.local`.
 - [ ] Marcar uma folga e vê-la aparecer no Google Calendar. Apagá-la e vê-la sair.
 - [ ] Marcar pelo site: a matrícula é obrigatória, e a viatura aparece no CRM.
 - [ ] Criar o link de uma galeria e abri-lo numa janela anónima.
-- [ ] O primeiro build em Next: `curl -sI https://cleanstationcar.com/lavagem-premium-braga`
-      dá `200`, e não um `301` para o endereço com barra no fim. Cada página sai
-      do build como `lavagem-premium-braga.html`, ao lado de uma pasta com o
-      mesmo nome; é a Netlify que tem de escolher o ficheiro.
+- [ ] O primeiro build em Next: `https://cleanstationcar.com/lavagem-premium-braga/`
+      abre a página da lavagem, e o mesmo endereço sem a barra no fim vai lá
+      ter — com um `301` ou direto, conforme a Netlify.
 - [ ] Recarregar dentro do CRM, em `/crm/agenda`: volta o CRM, e não a página
       inicial. É o `_redirects` a servir-lhe o `404.html`.
 - [ ] `curl` do `lembretes` com `?dry=1` — não envia, e diz quem ia receber o quê.

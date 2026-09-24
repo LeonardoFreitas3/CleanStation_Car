@@ -19,7 +19,7 @@
     "favicon": "node scripts/gen-favicon.mjs",
     "typecheck": "tsc --noEmit",
     "build:pages": "node scripts/pages.mjs",
-    "deploy:pages": "npm run build:pages && gh-pages -d build-pages -f"
+    "deploy:pages": "npm run build:pages && gh-pages -d build-pages -f --nojekyll"
   },
   "browserslist": {
     "production": [

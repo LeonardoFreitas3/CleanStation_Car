@@ -15,6 +15,9 @@
 // O Pages nao tem reescrita de rotas (o _redirects e da Netlify), mas serve o
 // 404.html em qualquer endereco que nao exista — e o 404.html do Next e o que
 // monta o CRM e a galeria. /crm/agenda funciona, com um 404 que ninguem ve.
+//
+// O deploy:pages leva --nojekyll. Sem ele o Pages passa tudo pelo Jekyll, que
+// deita fora as pastas comecadas por _ — e o Next poe os scripts todos em _next/.
 
 import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';

@@ -9,6 +9,6 @@ export const dynamic = 'force-static';
 export default function sitemap() {
   return [
     { url: `${SITE_URL}/`, changeFrequency: 'weekly', priority: 1 },
-    ...SERVICE_PAGES.map((p) => ({ url: `${SITE_URL}/${p.slug}`, changeFrequency: 'weekly', priority: 0.8 })),
+    ...SERVICE_PAGES.map((p) => ({ url: `${SITE_URL}/${p.slug}/`, changeFrequency: 'weekly', priority: 0.8 })),
   ];
 }
