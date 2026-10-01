@@ -88,3 +88,6 @@ credentials.json
 *.key
 .credentials
 frontend/build-pages/
+
+# Estado local do Supabase CLI (link, versoes)
+supabase/.temp/
