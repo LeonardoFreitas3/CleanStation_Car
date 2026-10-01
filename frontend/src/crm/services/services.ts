@@ -190,7 +190,7 @@ export async function listServices({
  * corre. Se o Google estiver em baixo, o pior caso e nao se ver a marcacao no
  * telemovel — rebentar aqui transformava isso em "nao consegui marcar".
  */
-async function sincronizarNoCalendario(id: string): Promise<void> {
+export async function sincronizarNoCalendario(id: string): Promise<void> {
   try {
     const { data: { session } } = await getSupabase().auth.getSession();
     if (!session) return;

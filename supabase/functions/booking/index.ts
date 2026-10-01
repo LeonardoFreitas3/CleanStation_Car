@@ -161,7 +161,7 @@ async function handleServiceEvent(req: Request, body: Record<string, unknown>) {
   const { data: s } = await db.from('services')
     .select(`
       scheduled_at, duration_minutes, service_name, status, deleted_at, notes, google_event_id,
-      client:clients ( name, phone, email ),
+      client:clients ( name, phone, email, deleted_at ),
       vehicle:vehicles ( plate, make, model )
     `)
     .eq('id', id).maybeSingle();
@@ -169,8 +169,10 @@ async function handleServiceEvent(req: Request, body: Record<string, unknown>) {
   if (!s) return json({ error: 'Serviço não encontrado' }, 404);
 
   // Um serviço sem hora não ocupa nada, e um cancelado ou apagado deixou de
-  // ocupar. Nos três casos o Google não deve ter nada — e se tiver, sai.
-  const deveExistir = Boolean(s.scheduled_at) && s.status !== 'cancelado' && !s.deleted_at;
+  // ocupar — o mesmo vale se o cliente foi apagado, que não leva os serviços
+  // consigo. Nestes casos o Google não deve ter nada — e se tiver, sai.
+  const cliente = s.client as unknown as { name: string; phone: string | null; email: string | null; deleted_at: string | null } | null;
+  const deveExistir = Boolean(s.scheduled_at) && s.status !== 'cancelado' && !s.deleted_at && !cliente?.deleted_at;
 
   if (!deveExistir) {
     if (s.google_event_id) {
@@ -180,7 +182,6 @@ async function handleServiceEvent(req: Request, body: Record<string, unknown>) {
     return json({ ok: true, eventId: null });
   }
 
-  const cliente = s.client as unknown as { name: string; phone: string | null; email: string | null } | null;
   const viatura = s.vehicle as unknown as { plate: string; make: string | null; model: string | null } | null;
 
   const startIso = new Date(s.scheduled_at as string).toISOString();

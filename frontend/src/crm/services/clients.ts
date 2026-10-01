@@ -2,6 +2,7 @@ import { getSupabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';
 import { FOLLOW_UP_WINDOWS, VIP_THRESHOLDS } from '../lib/config';
 import type { Client, ClientOverview, ClientStatus } from '../types';
+import { sincronizarNoCalendario } from './services';
 
 export type ClientSort = 'recent' | 'name' | 'spent' | 'visits';
 
@@ -143,4 +144,10 @@ export async function softDeleteClient(id: string): Promise<void> {
     .eq('id', id);
 
   if (error) throw new Error(friendlyError(error));
+
+  // Os servicos ficam, mas o cliente deixou de existir: o Google nao pode
+  // continuar a mostrar marcacoes em nome dele. A Edge Function decide.
+  const { data: servicos } = await getSupabase()
+    .from('services').select('id').eq('client_id', id).not('google_event_id', 'is', null);
+  await Promise.all((servicos ?? []).map((r: { id: string }) => sincronizarNoCalendario(r.id)));
 }
