@@ -88,7 +88,7 @@ export function timeOffDays(off: Pick<TimeOff, 'starts_at' | 'ends_at'>): string
  * leitores da mesma verdade, e nao duas verdades.
  */
 export let OPENS = 9;
-export let CLOSES = 20;
+export let CLOSES = 18;
 
 export function setHorario(opens: number, closes: number): void {
   // Fechar antes de abrir dava uma capacidade negativa e uma ocupacao em
@@ -255,14 +255,14 @@ export function feriados(ano: number): Set<string> {
 }
 
 /**
- * Encerrado ao publico: domingo ou feriado.
+ * Encerrado ao publico: sabado, domingo ou feriado.
  *
  * A agenda continua a deixar marcar nestes dias, como ja deixava ao domingo —
  * ha trabalho combinado a parte. O que muda e o site nao os oferecer e a
  * ocupacao nao os contar como dia por vender.
  */
 export function isEncerrado(day: Date): boolean {
-  return day.getDay() === 0 || feriados(day.getFullYear()).has(dayKey(day));
+  return day.getDay() === 0 || day.getDay() === 6 || feriados(day.getFullYear()).has(dayKey(day));
 }
 
 /** Servico agendado sem duracao indicada. Duas horas e a lavagem comum — o

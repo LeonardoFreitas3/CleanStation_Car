@@ -19,7 +19,7 @@ export const SETTINGS_FALLBACK: AppSettings = {
   vip_total_spent: VIP_THRESHOLDS.totalSpent,
   vip_service_count: VIP_THRESHOLDS.serviceCount,
   opens_hour: 9,
-  closes_hour: 20,
+  closes_hour: 18,
   review_url: null,
 };
 

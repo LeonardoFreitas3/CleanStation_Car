@@ -24,7 +24,7 @@ export const SITE_URL = 'https://cleanstationcar.com';
  * Se o horario da oficina mudar, muda tambem em CRM -> Definicoes, que e o que
  * decide as vagas a serio. Este e o que se conta a quem procura.
  */
-const HORARIO = { opens: '09:00', closes: '20:00' };
+const HORARIO = { opens: '09:00', closes: '18:00' };
 export const INSTAGRAM = 'https://www.instagram.com/cleanstation_car/';
 
 /** Nomes dos serviços em texto corrido, para descrições e keywords. */
@@ -137,7 +137,7 @@ export function businessSchema(lang) {
     ],
     openingHoursSpecification: [{
       '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
       opens: HORARIO.opens,
       closes: HORARIO.closes,
     }],
@@ -209,7 +209,7 @@ export function faqItems(lang) {
       },
       {
         q: 'Where are you?',
-        a: `We are in Braga, at ${SITE.address}. Open Monday to Saturday, ${HORARIO.opens} to ${HORARIO.closes}; closed on Sundays. You can see our location and get directions directly on our site.`,
+        a: `We are in Braga, at ${SITE.address}. Open Monday to Friday, ${HORARIO.opens} to ${HORARIO.closes}; closed on weekends. You can see our location and get directions directly on our site.`,
       },
     ];
   }
@@ -253,7 +253,7 @@ export function faqItems(lang) {
     },
     {
       q: 'Onde ficam?',
-      a: `Estamos localizados em Braga, na ${SITE.address}. Abertos de segunda a sábado, das ${HORARIO.opens} às ${HORARIO.closes}; domingos encerrado. Pode consultar a nossa localização e obter indicações diretamente no nosso site.`,
+      a: `Estamos localizados em Braga, na ${SITE.address}. Abertos de segunda a sexta, das ${HORARIO.opens} às ${HORARIO.closes}; fins de semana encerrado. Pode consultar a nossa localização e obter indicações diretamente no nosso site.`,
     },
   ];
 }

@@ -178,11 +178,11 @@ function Calendar({ value, onChange }: { value: string; onChange: (iso: string) 
         {days.map((d, i) => {
           if (!d) return <span key={`x${i}`} />;
           const iso = isoDate(d);
-          // Domingo fechado; dias passados não são opção.
+          // Fim de semana fechado; dias passados não são opção.
           // Nao se marca para o proprio dia: o trabalho tem de ser
           // preparado com antecedencia. O servidor recusa na mesma, isto
           // so evita que o cliente escolha e leve com um erro depois.
-          const closed = d.getDay() === 0 || d <= today;
+          const closed = d.getDay() === 0 || d.getDay() === 6 || d <= today;
           const selected = value === iso;
           return (
             <button
@@ -202,7 +202,7 @@ function Calendar({ value, onChange }: { value: string; onChange: (iso: string) 
         })}
       </div>
       <p className="text-white/30 text-[11px] mt-3">
-        Domingos encerrado. Marcações a partir de amanhã. Horários ocupados não aparecem.
+        Sábados e domingos encerrado. Marcações a partir de amanhã. Horários ocupados não aparecem.
       </p>
     </div>
   );

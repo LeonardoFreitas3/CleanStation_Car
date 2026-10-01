@@ -54,8 +54,8 @@ const translations = {
     testimonials: { title: "O QUE DIZEM OS NOSSOS CLIENTES", seeAll: "Ver todas as avaliações no Google" },
     contact: {
       title: "ONDE ESTAMOS",
-      hoursDays: "Segunda a Sábado",
-      hoursTime: "09:00 – 20:00",
+      hoursDays: "Segunda a Sexta",
+      hoursTime: "09:00 – 18:00",
       ctaTitle: "FALA CONNOSCO",
       ctaPara: "Contacta-nos pelo WhatsApp para pedires um orçamento sem compromisso.",
       whatsapp: "PEDIR ORÇAMENTO",
@@ -143,8 +143,8 @@ const translations = {
     testimonials: { title: "WHAT OUR CLIENTS SAY", seeAll: "See all reviews on Google" },
     contact: {
       title: "WHERE WE ARE",
-      hoursDays: "Monday to Saturday",
-      hoursTime: "09:00 – 20:00",
+      hoursDays: "Monday to Friday",
+      hoursTime: "09:00 – 18:00",
       ctaTitle: "GET IN TOUCH",
       ctaPara: "Contact us on WhatsApp for a no-commitment quote.",
       whatsapp: "GET A QUOTE",

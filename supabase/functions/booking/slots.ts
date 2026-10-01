@@ -11,7 +11,7 @@ export interface Busy { start: string; end: string }
 // estes sao o que vale se a linha nao existir (0014 por correr) ou se a leitura
 // falhar: melhor oferecer o horario habitual do que nao oferecer hora nenhuma.
 export const OPENS = 9;          // 09:00
-export const CLOSES = 20;        // 20:00
+export const CLOSES = 18;        // 18:00
 
 export interface Horario { opens: number; closes: number }
 
@@ -126,11 +126,12 @@ export function feriados(ano: number): Set<string> {
 
 export const isFeriado = (dateIso: string) => feriados(Number(dateIso.slice(0, 4))).has(dateIso);
 
-/** Domingo e feriado encerrados. getUTCDay() com meio-dia UTC evita saltos de
- *  fuso. O CRM continua a deixar marcar nestes dias — ha trabalho combinado a
- *  parte — mas o site nao os oferece a quem nao perguntou. */
+/** Fim de semana e feriado encerrados. getUTCDay() com meio-dia UTC evita
+ *  saltos de fuso. O CRM continua a deixar marcar nestes dias — ha trabalho
+ *  combinado a parte — mas o site nao os oferece a quem nao perguntou. */
 export function isClosed(dateIso: string): boolean {
-  return new Date(`${dateIso}T12:00:00Z`).getUTCDay() === 0 || isFeriado(dateIso);
+  const dia = new Date(`${dateIso}T12:00:00Z`).getUTCDay();
+  return dia === 0 || dia === 6 || isFeriado(dateIso);
 }
 
 /**

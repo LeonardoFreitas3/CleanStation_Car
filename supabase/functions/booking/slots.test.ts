@@ -99,3 +99,8 @@ Deno.test('feriado fecha o dia, mesmo caindo a meio da semana', () => {
 Deno.test('Sao Joao, feriado municipal de Braga', () => {
   assertEquals(isClosed('2026-06-24'), true);
 });
+
+Deno.test('sábado está encerrado', () => {
+  assertEquals(isClosed('2026-09-19'), true);
+  assertEquals(freeSlots('2026-09-19', 60, [], AGORA), []);
+});

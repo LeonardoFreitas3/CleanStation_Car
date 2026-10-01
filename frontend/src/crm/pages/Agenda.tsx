@@ -87,7 +87,7 @@ export default function Agenda() {
   const [startDate, setStartDate] = useState(todayKey);
   const [endDate, setEndDate] = useState(todayKey);
   const [startTime, setStartTime] = useState('09:00');
-  const [endTime, setEndTime] = useState('20:00');
+  const [endTime, setEndTime] = useState('18:00');
   const [reason, setReason] = useState('');
 
   const load = useCallback(async (at: Date, v: 'semana' | 'mes') => {
@@ -544,7 +544,7 @@ export default function Agenda() {
 
                 {!services.length && !off.length && (
                   <p className="text-white/30 text-xs">
-                    {closed ? (d.getDay() === 0 ? 'Encerrado' : 'Feriado') : 'Nada agendado'}
+                    {closed ? (d.getDay() === 0 || d.getDay() === 6 ? 'Encerrado' : 'Feriado') : 'Nada agendado'}
                   </p>
                 )}
               </Card>

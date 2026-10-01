@@ -4,6 +4,8 @@
 import { dayKey, dayOccupancy, monthDays, feriados, isEncerrado, nextFreeHour, posicaoNoDia, setHorario, timeOffDays, weekDays, weekStart, estadoDosBlocos } from './agenda';
 
 const local = (s) => new Date(s);
+// Os testes fixam o horario que as contas assumem; o habitual vem das Definicoes.
+beforeEach(() => setHorario(9, 20));
 
 describe('semana', () => {
   test('comeca a segunda, seja qual for o dia da ancora', () => {
@@ -234,6 +236,7 @@ describe('feriados', () => {
     expect(natal.getDay()).toBe(5);
     expect(isEncerrado(natal)).toBe(true);
   });
+test('sabado e domingo estao encerrados, sexta nao', () => {    expect(isEncerrado(new Date('2026-09-19T00:00:00'))).toBe(true);    expect(isEncerrado(new Date('2026-09-20T00:00:00'))).toBe(true);    expect(isEncerrado(new Date('2026-09-18T00:00:00'))).toBe(false);  });
 
   test('feriado nao conta como dia por vender', () => {
     const vazia = { services: [], timeOff: [], blocks: [] };

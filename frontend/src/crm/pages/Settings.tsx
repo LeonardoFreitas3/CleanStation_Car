@@ -31,7 +31,7 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [opens, setOpens] = useState('9');
-  const [closes, setCloses] = useState('20');
+  const [closes, setCloses] = useState('18');
   const [savingHorario, setSavingHorario] = useState(false);
 
   const [reviewUrl, setReviewUrl] = useState('');
