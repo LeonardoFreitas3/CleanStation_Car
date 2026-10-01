@@ -29,13 +29,13 @@ Deno.test('hora de verão e de inverno dão deslocações diferentes', () => {
 Deno.test('dia livre começa às 09:00 e a última cabe antes do fecho', () => {
   const slots = freeSlots(SEGUNDA, 60, [], AGORA);
   assertEquals(slots[0], '09:00');
-  // Um serviço de 1h não pode começar depois das 19:00 se fecha às 20:00.
-  assertEquals(slots[slots.length - 1], '19:00');
+  // Um serviço de 1h não pode começar depois das 17:00 se fecha às 18:00.
+  assertEquals(slots[slots.length - 1], '17:00');
 });
 
 Deno.test('serviço longo não aparece se não couber até ao fecho', () => {
   const slots = freeSlots(SEGUNDA, 240, [], AGORA);
-  assertEquals(slots[slots.length - 1], '16:00');
+  assertEquals(slots[slots.length - 1], '14:00');
 });
 
 Deno.test('uma marcação existente bloqueia as horas que se sobrepõem', () => {
