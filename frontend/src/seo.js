@@ -27,23 +27,17 @@ export const SITE_URL = 'https://cleanstationcar.com';
 const HORARIO = { opens: '09:00', closes: '18:00' };
 export const INSTAGRAM = 'https://www.instagram.com/cleanstation_car/';
 
-/** Nomes dos serviços em texto corrido, para descrições e keywords. */
-function serviceNames(lang = 'pt') {
-  return SERVICES.map((s) => (lang === 'en' ? s.titleEn || s.title : s.title).toLowerCase());
-}
-
 export function seoText(lang) {
-  const names = serviceNames(lang);
   const cheapest = Math.min(...WASH_LEVELS.map((l) => Math.min(...Object.values(l.prices))));
 
   if (lang === 'en') {
     return {
-      title: 'Clean Station Car – Premium Car Cleaning & Detailing in Braga',
+      title: 'Car Wash and Detailing in Braga | Clean Station Car',
       description:
-        `Car cleaning and detailing in Braga. ${names.slice(0, 4).join(', ')}. `
-        + `From €${cheapest}. Book online with instant availability.`,
+        `Car detailing and car wash in Braga: interior and exterior washes, interior cleaning, `
+        + `polishing and paint protection. From €${cheapest}. Book online with instant availability.`,
       keywords: [
-        'car cleaning Braga', 'car wash Braga', 'car detailing Braga',
+        'car detailing Braga', 'car wash Braga', 'interior car cleaning Braga', 'car polishing Braga',
         'detailed wash', 'headlight polishing', 'paint correction',
         'SUV wash', 'van wash', 'online car wash booking Braga',
       ].join(', '),
@@ -51,13 +45,14 @@ export function seoText(lang) {
   }
 
   return {
-    title: 'Clean Station Car – Limpeza e Detalhe Automóvel Premium em Braga',
+    title: 'Lavagem e Detalhe Automóvel em Braga | Clean Station Car',
     description:
-      `Lavagem e detalhe automóvel em Braga. ${names.slice(0, 4).join(', ')}. `
-      + `Desde ${cheapest}€. Marcação online com disponibilidade em tempo real.`,
+      `Detalhe e lavagem automóvel em Braga: lavagem interior e exterior, limpeza interior, `
+      + `polimento e proteção da pintura. Desde ${cheapest}€. Marcação online com disponibilidade em tempo real.`,
     keywords: [
-      'limpeza automóvel Braga', 'lavagem auto Braga', 'lavagem carro Braga',
-      'detalhe automóvel Braga', 'lavagem detalhada', 'polimento de faróis',
+      'lavagem automóvel Braga', 'detalhe automóvel Braga', 'limpeza interior automóvel Braga',
+      'polimento automóvel Braga', 'lavagem de carros Braga', 'higienização automóvel Braga',
+      'lavagem premium automóvel Braga', 'lavagem detalhada', 'polimento de faróis Braga',
       'polimento de pintura', 'lavagem SUV', 'lavagem carrinha',
       'marcação lavagem auto online', 'car detailing Braga',
     ].join(', '),
@@ -131,6 +126,7 @@ export function businessSchema(lang) {
       addressCountry: 'PT',
     },
     geo: { '@type': 'GeoCoordinates', latitude: 41.5454, longitude: -8.4265 },
+    hasMap: SITE.mapsShareUrl,
     areaServed: [
       { '@type': 'City', name: 'Braga' },
       { '@type': 'AdministrativeArea', name: 'Distrito de Braga' },
@@ -188,7 +184,7 @@ export function faqItems(lang) {
         a: 'The prices shown are base prices. Larger vehicles, or vehicles dirtier than usual, may carry a surcharge — always agreed with you before the work starts.',
       },
       {
-        q: 'Do I have to leave the car at Clean Station?',
+        q: 'Do I have to leave the car at Clean Station Car?',
         a: 'Yes. To guarantee the quality of the work, the vehicle must be dropped off at our premises in Braga.',
       },
       {
@@ -232,7 +228,7 @@ export function faqItems(lang) {
       a: 'Os preços apresentados são preços base. Viaturas de maiores dimensões ou com um nível de sujidade acima do normal podem ter um acréscimo, sempre comunicado antes da realização do serviço.',
     },
     {
-      q: 'Tenho de deixar o carro na Clean Station?',
+      q: 'Tenho de deixar o carro na Clean Station Car?',
       a: 'Sim. Para garantir a qualidade do serviço, a viatura deve ser entregue nas nossas instalações em Braga.',
     },
     {

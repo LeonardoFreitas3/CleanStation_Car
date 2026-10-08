@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { SERVICES, CATEGORIES } from '../mock';
-import { PAGE_BY_SERVICE } from '../servicePages';
+import { PAGE_BY_SERVICE, PAGE_BY_SLUG, conteudo } from '../servicePages';
+
+// As páginas que respondem às pesquisas principais, por esta ordem. O texto do
+// link é o título de cada uma — é a frase que se quer que o Google associe ao
+// endereço.
+const DESTAQUES = [
+  'lavagem-automovel-braga',
+  'detalhe-automovel-braga',
+  'limpeza-interior-automovel-braga',
+  'polimento-automovel-braga',
+  'polimento-farois-braga',
+].map((slug) => PAGE_BY_SLUG[slug]);
 import { useLang } from '../i18n';
 import ServiceDetail from './ServiceDetail';
 
 export default function Services() {
-  const { t, tx } = useLang();
+  const { t, tx, lang } = useLang();
   const [detailService, setDetailService] = useState(null);
 
   return (
@@ -20,6 +31,13 @@ export default function Services() {
           <p className="text-white/55 mt-4 max-w-xl mx-auto text-sm">
             {t('services.subtitle')}
           </p>
+          <nav aria-label={lang === 'en' ? 'Services' : 'Serviços'} className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2">
+            {DESTAQUES.map((p) => (
+              <Link key={p.slug} href={`/${p.slug}`} className="py-1 text-blue-400 hover:text-blue-300 text-xs tracking-[0.15em] underline underline-offset-4">
+                {conteudo(p, lang).h1}
+              </Link>
+            ))}
+          </nav>
         </div>
 
         {CATEGORIES.map((cat) => {

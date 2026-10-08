@@ -10,26 +10,50 @@
   ],
 
   "lavagem-automovel-braga": {
-    "title": "Lavagem Automóvel em Braga | Clean Station",
-    "description": "Lavagem automóvel em Braga com limpeza manual interior e exterior. Lavagem completa desde 30€, com marcação online na Clean Station.",
+    "title": "Lavagem Automóvel em Braga | Clean Station Car",
+    "description": "Lavagem automóvel em Braga com limpeza manual interior e exterior. Lavagem completa desde 30€, com marcação online na Clean Station Car.",
     "image": "lavagem.jpg"
   },
 
   "lavagem-com-selante-braga": {
-    "title": "Lavagem com Selante em Braga | Clean Station",
+    "title": "Lavagem com Selante em Braga | Clean Station Car",
     "description": "Lavagem automóvel com selante em Braga. Limpeza interior e exterior manual com proteção, brilho e efeito hidrofóbico desde 40€.",
     "image": "proteção.jpg"
   },
 
   "lavagem-premium-braga": {
-    "title": "Lavagem Premium de Automóveis em Braga | Clean Station",
+    "title": "Lavagem Premium de Automóveis em Braga | Clean Station Car",
     "description": "Lavagem Premium em Braga com limpeza interior e exterior detalhada, descontaminação dos vidros e proteção premium da pintura. 65€.",
     "image": "ceramica-longa.jpg"
   },
 
   "lavagem-detalhada-braga": {
-    "title": "Lavagem Detalhada de Automóveis em Braga | Clean Station",
+    "title": "Lavagem Detalhada de Automóveis em Braga | Clean Station Car",
     "description": "Lavagem detalhada automóvel em Braga com remoção dos bancos, higienização profunda, descontaminação da pintura e limpeza interior e exterior.",
     "image": "detail.jpg"
+  },
+
+  "detalhe-automovel-braga": {
+    "title": "Detalhe Automóvel em Braga | Clean Station Car",
+    "description": "Detalhe automóvel em Braga: limpeza profunda do interior, higienização dos bancos, descontaminação, polimento e proteção da pintura. Car detailing na Clean Station Car.",
+    "image": "detalhada-completa.jpg"
+  },
+
+  "limpeza-interior-automovel-braga": {
+    "title": "Limpeza Interior Automóvel em Braga | Clean Station Car",
+    "description": "Limpeza interior automóvel em Braga: aspiração, tablier, zonas de difícil acesso e higienização dos bancos e estofos. Marcação online na Clean Station Car.",
+    "image": "interior.jpg"
+  },
+
+  "polimento-automovel-braga": {
+    "title": "Polimento Automóvel em Braga | Clean Station Car",
+    "description": "Polimento automóvel em Braga: polimento 1 etapa e correção avançada de pintura para riscos, swirls e oxidação. Avaliação da pintura na Clean Station Car.",
+    "image": "polimento.jpg"
+  },
+
+  "polimento-farois-braga": {
+    "title": "Polimento de Faróis em Braga | Clean Station Car",
+    "description": "Polimento de faróis em Braga: recuperamos faróis amarelados, opacos ou riscados e luzes traseiras, por par. Orçamento depois de avaliarmos os faróis.",
+    "image": "farois-traseiros.jpg"
   }
 }

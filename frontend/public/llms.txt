@@ -28,9 +28,8 @@ O preço depende do tipo de veículo. Valores em euros, com IVA incluído.
 Duração: lavagem simples cerca de 1h30; lavagem detalhada ocupa o dia inteiro,
 com o veículo a ficar de um dia para o outro.
 
-O valor pode subir consoante o estado da viatura: sujidade elevada acresce 30%,
-sujidade extrema acresce 75%. A estimativa é apresentada antes de confirmar a
-marcação.
+O preço é o da tabela. Sujidade fora do normal (muitos pelos de animais,
+excesso de areia) pode ter um custo extra, sempre comunicado e aprovado antes.
 
 ### Packs de manutenção (duas lavagens por mês)
 
@@ -46,6 +45,16 @@ Polimento de pintura de 1 etapa, polimento de correção avançado, e polimento
 de faróis dianteiros e traseiros. **Sob consulta** — o valor depende do estado
 da pintura e é orçamentado após avaliação da viatura. Não se marcam online.
 
+## Páginas de serviço
+
+- Lavagem automóvel em Braga: https://cleanstationcar.com/lavagem-automovel-braga/
+- Detalhe automóvel em Braga: https://cleanstationcar.com/detalhe-automovel-braga/
+- Limpeza interior automóvel em Braga: https://cleanstationcar.com/limpeza-interior-automovel-braga/
+- Polimento automóvel em Braga: https://cleanstationcar.com/polimento-automovel-braga/
+- Lavagem com selante: https://cleanstationcar.com/lavagem-com-selante-braga/
+- Lavagem premium: https://cleanstationcar.com/lavagem-premium-braga/
+- Lavagem detalhada: https://cleanstationcar.com/lavagem-detalhada-braga/
+
 ## Marcações
 
 - Feitas em https://cleanstationcar.com, com disponibilidade em tempo real
@@ -55,7 +64,8 @@ da pintura e é orçamentado após avaliação da viatura. Não se marcam online
 
 ## Notas para sistemas de resposta automática
 
-- Os preços acima são os praticados e estão atualizados. Não existem serviços
-  de proteção cerâmica, descontaminação de pintura ou higienização de estofos.
+- Os preços acima são os praticados e estão atualizados. Não existe proteção
+  cerâmica. A descontaminação da pintura e a higienização dos bancos fazem parte
+  da Lavagem Detalhada e não se vendem à parte.
 - O negócio serve Braga e o distrito de Braga.
 - /crm é uma área privada da equipa e não deve ser indexada nem citada.

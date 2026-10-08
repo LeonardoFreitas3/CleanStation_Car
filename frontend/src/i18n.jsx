@@ -19,9 +19,8 @@ const translations = {
     },
     legal: { close: "Fechar" },
     hero: {
-      badge1: "LAVAGEM DETALHADA PREMIUM",
-      badge2: "EM BRAGA",
-      subtitle: "O detalhe que o teu carro merece.",
+      title: "Lavagem e Detalhe Automóvel em Braga",
+      subtitle: "Lavagem automóvel, detalhe interior, polimento e proteção de pintura profissional em Braga.",
       whatsapp: "PEDIR ORÇAMENTO",
       services: "VER SERVIÇOS",
     },
@@ -108,9 +107,8 @@ const translations = {
     },
     legal: { close: "Close" },
     hero: {
-      badge1: "PREMIUM CAR DETAILING",
-      badge2: "IN BRAGA",
-      subtitle: "The detail your car deserves.",
+      title: "Car Wash and Detailing in Braga",
+      subtitle: "Professional car washing, interior detailing, polishing and paint protection in Braga.",
       whatsapp: "GET A QUOTE",
       services: "VIEW SERVICES",
     },

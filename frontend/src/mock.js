@@ -55,7 +55,7 @@ export const SERVICES = [
     price: minPrice('simples'),
     priceByVehicle: LEVEL_BY_ID['simples'].prices,
     icon: Droplets,
-    image: `${process.env.PUBLIC_URL}/img/lavagem.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/lavagem-sm.webp`,
     includes: [
       'Lavagem exterior completa',
       'Aspiração do interior',
@@ -71,7 +71,7 @@ export const SERVICES = [
     price: minPrice('selante'),
     priceByVehicle: LEVEL_BY_ID['selante'].prices,
     icon: ShieldCheck,
-    image: `${process.env.PUBLIC_URL}/img/proteção.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/proteção-sm.webp`,
     includes: [
       'Tudo o que inclui a lavagem simples',
       'Aplicação de selante protetor',
@@ -87,7 +87,7 @@ export const SERVICES = [
     price: minPrice('premium'),
     priceByVehicle: LEVEL_BY_ID['premium'].prices,
     icon: ShieldPlus,
-    image: `${process.env.PUBLIC_URL}/img/ceramica-longa.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp`,
     includes: [
       'Tudo o que inclui a lavagem com selante',
       'Selante premium de alta performance',
@@ -103,7 +103,7 @@ export const SERVICES = [
     price: minPrice('detalhada'),
     priceByVehicle: LEVEL_BY_ID['detalhada'].prices,
     icon: Car,
-    image: `${process.env.PUBLIC_URL}/img/detail.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/detail-sm.webp`,
     includes: [
       'Interior detalhado completo',
       'Exterior detalhado completo',
@@ -121,7 +121,7 @@ export const SERVICES = [
     desc: 'Correção leve da pintura para remover pequenos riscos superficiais e devolver brilho.',
     price: 180,
     icon: Wrench,
-    image: `${process.env.PUBLIC_URL}/img/polimento.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/polimento-sm.webp`,
     includes: [
       'Remove marcas leves e riscos superficiais',
       'Reduz hologramas e imperfeições',
@@ -137,7 +137,7 @@ export const SERVICES = [
     desc: 'Processo em várias etapas para pinturas com mais desgaste, riscos profundos e imperfeições severas.',
     price: 300,
     icon: Gem,
-    image: `${process.env.PUBLIC_URL}/img/ceramica-longa.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp`,
     includes: [
       'Remove riscos profundos e marcas de desgaste',
       'Melhora cores e uniformiza a pintura',
@@ -153,7 +153,7 @@ export const SERVICES = [
     desc: 'Recupera faróis amarelados, opacos ou com riscos, melhorando a estética e a iluminação.',
     price: 55,
     icon: Lightbulb,
-    image: `${process.env.PUBLIC_URL}/img/farois-traseiros.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/farois-traseiros-sm.webp`,
     includes: [
       'Remove oxidação e opacidade',
       'Elimina riscos superficiais',
@@ -169,7 +169,7 @@ export const SERVICES = [
     desc: 'Recupera o aspeto original das luzes traseiras, removendo opacidade e riscos superficiais.',
     price: 40,
     icon: CircleDot,
-    image: `${process.env.PUBLIC_URL}/img/lavagem.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/lavagem-sm.webp`,
     includes: [
       'Remove desgaste e opacidade',
       'Elimina riscos superficiais',
@@ -198,7 +198,7 @@ export const SERVICES = [
     desc: 'Duas lavagens com selante por mês, com prioridade na marcação',
     price: 65,
     icon: ShieldCheck,
-    image: `${process.env.PUBLIC_URL}/img/proteção.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/proteção-sm.webp`,
     includes: [
       'Duas lavagens com selante por mês',
       'Tudo o que inclui a lavagem com selante',
@@ -213,7 +213,7 @@ export const SERVICES = [
     desc: 'Duas lavagens premium por mês, com prioridade na marcação',
     price: 105,
     icon: ShieldPlus,
-    image: `${process.env.PUBLIC_URL}/img/ceramica-longa.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp`,
     includes: [
       'Duas lavagens premium por mês',
       'Tudo o que inclui a lavagem premium',
@@ -228,7 +228,7 @@ export const SERVICES = [
     desc: 'Duas lavagens detalhadas por mês, com prioridade na marcação',
     price: 220,
     icon: Car,
-    image: `${process.env.PUBLIC_URL}/img/detail.jpg`,
+    image: `${process.env.PUBLIC_URL}/img/detail-sm.webp`,
     includes: [
       'Duas lavagens detalhadas por mês',
       'Tudo o que inclui a lavagem detalhada',

@@ -3,14 +3,21 @@
 // uma pagina bonita com o titulo errado ou um link que manda para a inicial.
 // Nada disso da erro nenhum a quem publica.
 
-import { SERVICE_PAGES, PAGE_BY_SERVICE, conteudo, nomeDe, precoDe } from './servicePages';
+import { SERVICE_PAGES, PAGE_BY_SERVICE, PAGE_BY_SLUG, LIGACAO, conteudo, nomeDe, precoDe } from './servicePages';
 import { SERVICES } from './mock';
 import { LEVEL_BY_ID, DURATIONS, formatDuration } from './booking/pricing';
 import SEO from './paginasSeo.json';
 
+// So as que tem nivel de lavagem tem preco, duracao e cartao na inicial.
+const COM_NIVEL = SERVICE_PAGES.filter((p) => p.levelId);
+
 describe('paginas de servico', () => {
-  test('sao quatro, uma por nivel de lavagem', () => {
-    expect(SERVICE_PAGES.map((p) => p.levelId)).toEqual(['simples', 'selante', 'premium', 'detalhada']);
+  test('uma por nivel de lavagem, mais detalhe, limpeza interior e polimento', () => {
+    expect(COM_NIVEL.map((p) => p.levelId)).toEqual(['simples', 'selante', 'premium', 'detalhada']);
+    expect(SERVICE_PAGES.filter((p) => !p.levelId).map((p) => p.slug)).toEqual([
+      'detalhe-automovel-braga', 'limpeza-interior-automovel-braga', 'polimento-automovel-braga',
+      'polimento-farois-braga',
+    ]);
   });
 
   test('cada pagina tem titulo, descricao e imagem vindos do JSON', () => {
@@ -18,7 +25,8 @@ describe('paginas de servico', () => {
       expect(SEO[p.slug]).toBeDefined();
       expect(p.title).toBe(SEO[p.slug].title);
       expect(p.description).toBe(SEO[p.slug].description);
-      expect(p.image).toContain(SEO[p.slug].image);
+      expect(p.ogImage).toBe(SEO[p.slug].image);
+      expect(p.image).toMatch(/\.webp$/);
     }
   });
 
@@ -28,17 +36,43 @@ describe('paginas de servico', () => {
   });
 
   test('o cartao da pagina inicial que cada pagina reclama existe mesmo', () => {
-    for (const p of SERVICE_PAGES) {
+    for (const p of COM_NIVEL) {
       expect(SERVICES.some((s) => s.id === p.serviceId)).toBe(true);
       expect(PAGE_BY_SERVICE[p.serviceId]).toBe(p);
     }
   });
 
   test('o nivel existe no catalogo, senao o preco vinha indefinido', () => {
-    for (const p of SERVICE_PAGES) {
+    for (const p of COM_NIVEL) {
       expect(LEVEL_BY_ID[p.levelId]).toBeDefined();
       expect(precoDe(p)).toBeGreaterThan(0);
-      expect(nomeDe(p)).toBeTruthy();
+    }
+    for (const p of SERVICE_PAGES) expect(nomeDe(p)).toBeTruthy();
+  });
+
+  // Um link para uma pagina que nao existe cai no not-found: um 404 que o
+  // Search Console aponta e que ninguem ve a escrever o texto.
+  test('os links no meio do texto vao dar a paginas que existem', () => {
+    for (const pagina of SERVICE_PAGES) {
+      for (const lingua of ['pt', 'en']) {
+        const p = conteudo(pagina, lingua);
+        const textos = [...p.intro, ...p.sections.flatMap((s) => [s.entrada ?? '', s.nota ?? '', ...(s.paragrafos ?? [])])];
+        for (const [, , href] of textos.join(' ').matchAll(LIGACAO)) {
+          expect([pagina.slug, lingua, href]).toEqual([pagina.slug, lingua, expect.stringMatching(/^\/[a-z0-9-]+\/$/)]);
+          expect([pagina.slug, lingua, Boolean(PAGE_BY_SLUG[href.slice(1, -1)])]).toEqual([pagina.slug, lingua, true]);
+        }
+      }
+    }
+  });
+
+  // A cadeia que o plano de SEO pede: lavagem -> detalhe -> interior -> polimento.
+  test('cada pagina principal leva a seguinte', () => {
+    const cadeia = ['lavagem-automovel-braga', 'detalhe-automovel-braga', 'limpeza-interior-automovel-braga', 'polimento-automovel-braga', 'polimento-farois-braga'];
+    for (let i = 0; i < cadeia.length - 1; i += 1) {
+      for (const lingua of ['pt', 'en']) {
+        const p = conteudo(PAGE_BY_SLUG[cadeia[i]], lingua);
+        expect([cadeia[i], lingua, JSON.stringify(p.sections).includes(`(/${cadeia[i + 1]}/)`)]).toEqual([cadeia[i], lingua, true]);
+      }
     }
   });
 
@@ -104,12 +138,13 @@ describe('traducao', () => {
         expect(secEn.paragrafos?.length ?? 0).toBe(sec.paragrafos?.length ?? 0);
         expect(secEn.grupos?.length ?? 0).toBe(sec.grupos?.length ?? 0);
         expect(Boolean(secEn.entrada)).toBe(Boolean(sec.entrada));
+        expect(Boolean(secEn.nota)).toBe(Boolean(sec.nota));
       });
     }
   });
 
   test('o preco e a imagem nao mudam com a lingua', () => {
-    for (const p of SERVICE_PAGES) {
+    for (const p of COM_NIVEL) {
       const en = conteudo(p, 'en');
       expect(precoDe(en)).toBe(precoDe(p));
       expect(en.image).toBe(p.image);
@@ -139,7 +174,7 @@ describe('duracao escrita nas paginas', () => {
 
   for (const lingua of ['pt', 'en']) {
     test(`bate certo com a tabela, em ${lingua}`, () => {
-      for (const pagina of SERVICE_PAGES) {
+      for (const pagina of COM_NIVEL) {
         const p = conteudo(pagina, lingua);
         const daTabela = formatDuration(DURATIONS[pagina.levelId].carro);
 

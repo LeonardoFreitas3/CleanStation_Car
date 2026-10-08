@@ -1,3 +1,4 @@
+import { Cinzel, Inter } from 'next/font/google';
 import '../index.css';
 import { LanguageProvider } from '../i18n';
 import { SITE_URL } from '../seo';
@@ -18,16 +19,17 @@ export const metadata = {
   },
 };
 
+// Servidas pelo próprio site, descarregadas no build. Eram um @import do Google
+// Fonts no index.css, que o build do Next deita fora: desde a passagem para Next
+// os títulos saíam em Georgia e o texto só tinha a Inter a 600.
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', display: 'swap' });
+
 export const viewport = { themeColor: '#000000' };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" />
-      </head>
+    <html lang="pt" className={`${inter.variable} ${cinzel.variable}`}>
       <body>
         <LanguageProvider>{children}</LanguageProvider>
       </body>

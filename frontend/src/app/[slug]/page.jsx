@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
     title: page.title,
     description: page.description,
     url: `${SITE_URL}/${page.slug}/`,
-    image: `${SITE_URL}${encodeURI(page.image)}`,
+    image: `${SITE_URL}/img/${encodeURI(page.ogImage)}`,
   });
 }
 
@@ -22,6 +22,7 @@ export default async function Page({ params }) {
   const page = PAGE_BY_SLUG[slug];
   const url = `${SITE_URL}/${slug}/`;
   const nome = nomeDe(page, 'pt');
+  const preco = precoDe(page);
 
   const dados = [
     businessSchema('pt'),
@@ -32,15 +33,21 @@ export default async function Page({ params }) {
       serviceType: nome,
       description: page.description,
       url,
-      provider: { '@type': 'AutoWash', name: 'Clean Station Car', url: SITE_URL },
+      // O @id liga o serviço ao negócio descrito no businessSchema, em vez de
+      // o Google ver duas empresas com o mesmo nome.
+      provider: { '@id': `${SITE_URL}/#business` },
       areaServed: { '@type': 'City', name: 'Braga' },
-      offers: {
-        '@type': 'Offer',
-        price: precoDe(page),
-        priceCurrency: 'EUR',
-        availability: 'https://schema.org/InStock',
-        url,
-      },
+      // Sem preço de tabela (detalhe, limpeza interior, polimento) não há
+      // oferta: anunciar um valor que não se pratica é pior do que nenhum.
+      ...(preco && {
+        offers: {
+          '@type': 'Offer',
+          price: preco,
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock',
+          url,
+        },
+      }),
     },
     {
       '@context': 'https://schema.org',

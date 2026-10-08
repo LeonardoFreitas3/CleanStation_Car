@@ -37,7 +37,9 @@ export default function Hero({ onBook }) {
         <div className="relative z-10 flex-1 flex items-center pt-28 pb-12">
           <div className="max-w-7xl mx-auto px-6 w-full">
             <div className="max-w-2xl">
-              <h1 className="font-display font-black leading-[0.88] tracking-tight fade-up" style={{ letterSpacing: "0.02em" }}>
+              {/* O logótipo é marca e não título: o H1 é a frase que se procura
+                  no Google, logo abaixo. */}
+              <p className="font-display font-black leading-[0.88] tracking-tight fade-up" style={{ letterSpacing: "0.02em" }}>
                 <span className="chrome-text block text-[clamp(3.2rem,9vw,7.5rem)]">CLEAN</span>
                 <span className="chrome-text block text-[clamp(3.2rem,9vw,7.5rem)] fade-up" style={{ animationDelay: "0.08s" }}>STATION</span>
                 <span className="block mt-3 fade-up" style={{ animationDelay: "0.16s" }}>
@@ -47,12 +49,11 @@ export default function Hero({ onBook }) {
                     <span className="h-px w-16 bg-gradient-to-r from-transparent via-blue-500/90 to-transparent" />
                   </span>
                 </span>
-              </h1>
+              </p>
 
               <div className="mt-10 fade-up" style={{ animationDelay: "0.28s" }}>
-                <p className="text-blue-400 text-xs sm:text-sm tracking-[0.42em] font-semibold">{t('hero.badge1')}</p>
-                <p className="text-blue-400 text-xs sm:text-sm tracking-[0.42em] font-semibold mt-1">{t('hero.badge2')}</p>
-                <p className="text-white/70 text-base mt-5">{t('hero.subtitle')}</p>
+                <h1 className="text-blue-400 text-xs sm:text-sm tracking-[0.42em] font-semibold uppercase leading-loose">{t('hero.title')}</h1>
+                <p className="text-white/70 text-base mt-5 max-w-xl">{t('hero.subtitle')}</p>
               </div>
 
               <div className="mt-10 flex flex-col sm:flex-row gap-4 fade-up" style={{ animationDelay: "0.38s" }}>

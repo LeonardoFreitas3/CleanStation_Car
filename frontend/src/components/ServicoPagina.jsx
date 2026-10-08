@@ -3,7 +3,7 @@
 import React, { Suspense, lazy, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronRight, MessageCircle, Phone, Tag } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import WhatsAppButton from './WhatsAppButton';
@@ -11,7 +11,8 @@ import PrivacyPolicy from './PrivacyPolicy';
 import TermsConditions from './TermsConditions';
 import CookiePolicy from './CookiePolicy';
 import CookieBanner from './CookieBanner';
-import { PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, precoDe } from '../servicePages';
+import { LIGACAO, PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, precoDe } from '../servicePages';
+import { SITE } from '../mock';
 import { useLang } from '../i18n';
 
 const Booking = lazy(() => import('../booking/Booking'));
@@ -19,7 +20,7 @@ const Booking = lazy(() => import('../booking/Booking'));
 /**
  * A página de um serviço.
  *
- * Uma componente para as quatro: o que muda entre elas é texto, e texto vive em
+ * Uma componente para todas: o que muda entre elas é texto, e texto vive em
  * servicePages.js. Escrever quatro páginas à mão era garantir que ao fim de um
  * mês tinham quatro desenhos diferentes e três delas com o botão de marcar no
  * sítio errado.
@@ -40,6 +41,49 @@ export default function ServicoPagina({ slug }) {
   const [legalOpen, setLegalOpen] = useState(null);
 
   const outros = SERVICE_PAGES.filter((p) => p.slug !== page.slug);
+  const preco = precoDe(page);
+
+  // O polimento não se marca online: o botão abre o WhatsApp com o pedido de
+  // orçamento já escrito, como a ficha dele na página inicial.
+  const botao = 'inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-4 text-xs tracking-[0.2em] uppercase font-bold transition';
+  const secundario = 'inline-flex items-center gap-2 border border-white/25 hover:border-white/60 text-white/85 hover:text-white px-5 py-4 text-xs tracking-[0.2em] uppercase font-bold transition';
+  const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${encodeURIComponent(
+    page.whatsapp
+      ? `Olá! Gostaria de pedir um orçamento para: ${nomeDe(pagina, 'pt')}`
+      : `Olá! Gostaria de saber mais sobre: ${nomeDe(pagina, 'pt')}`,
+  )}`;
+
+  // A ação principal e as três de recurso, as mesmas em cima e em baixo: quem
+  // não quer marcar já quer ver os preços, ligar ou escrever.
+  const acao = (
+    <div className="flex flex-wrap items-center gap-3">
+      {page.whatsapp ? (
+        <a href={waUrl} target="_blank" rel="noreferrer" className={botao}>
+          <MessageCircle className="w-4 h-4" aria-hidden="true" />
+          {page.cta}
+        </a>
+      ) : (
+        <button type="button" onClick={() => setBooking(true)} className={botao}>
+          {lang === 'en' ? 'Book now' : 'Marcar agora'}
+          <ArrowRight className="w-4 h-4" aria-hidden="true" />
+        </button>
+      )}
+      <Link href="/#services" className={secundario}>
+        <Tag className="w-4 h-4" aria-hidden="true" />
+        {lang === 'en' ? 'See prices' : 'Ver preços'}
+      </Link>
+      <a href={`tel:${SITE.phone.replace(/\s/g, '')}`} className={secundario}>
+        <Phone className="w-4 h-4" aria-hidden="true" />
+        {lang === 'en' ? 'Call' : 'Ligar'}
+      </a>
+      {!page.whatsapp && (
+        <a href={waUrl} target="_blank" rel="noreferrer" className={secundario}>
+          <MessageCircle className="w-4 h-4" aria-hidden="true" />
+          WhatsApp
+        </a>
+      )}
+    </div>
+  );
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -88,25 +132,20 @@ export default function ServicoPagina({ slug }) {
 
             <div className="mt-6 space-y-4 max-w-2xl">
               {page.intro.map((p) => (
-                <p key={p} className="text-white/65 text-sm md:text-base leading-relaxed">{p}</p>
+                <p key={p} className="text-white/65 text-sm md:text-base leading-relaxed"><Texto>{p}</Texto></p>
               ))}
             </div>
 
             {/* O preço e o botão logo no primeiro ecrã: quem chega de uma
                 pesquisa quer saber quanto custa antes de ler o resto. */}
             <div className="mt-8 flex flex-wrap items-center gap-5">
-              <div>
-                <span className="text-blue-400/80 text-[10px] tracking-[0.3em] uppercase">{lang === 'en' ? 'From' : 'Desde'}</span>
-                <div className="text-white font-display text-4xl font-black">{precoDe(page)}€</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setBooking(true)}
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-4 text-xs tracking-[0.2em] uppercase font-bold transition"
-              >
-                {page.cta}
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </button>
+              {preco && (
+                <div>
+                  <span className="text-blue-400/80 text-[10px] tracking-[0.3em] uppercase">{lang === 'en' ? 'From' : 'Desde'}</span>
+                  <div className="text-white font-display text-4xl font-black">{preco}€</div>
+                </div>
+              )}
+              {acao}
             </div>
           </div>
         </header>
@@ -120,11 +159,11 @@ export default function ServicoPagina({ slug }) {
               <span className="accent-bar mt-4 block" />
 
               {sec.entrada && (
-                <p className="text-white/60 text-sm mt-6 leading-relaxed">{sec.entrada}</p>
+                <p className="text-white/60 text-sm mt-6 leading-relaxed"><Texto>{sec.entrada}</Texto></p>
               )}
 
               {sec.paragrafos?.map((p) => (
-                <p key={p} className="text-white/65 text-sm mt-5 leading-relaxed max-w-2xl">{p}</p>
+                <p key={p} className="text-white/65 text-sm mt-5 leading-relaxed max-w-2xl"><Texto>{p}</Texto></p>
               ))}
 
               {sec.items && <Lista items={sec.items} />}
@@ -140,6 +179,10 @@ export default function ServicoPagina({ slug }) {
                     </div>
                   ))}
                 </div>
+              )}
+
+              {sec.nota && (
+                <p className="text-white/50 text-sm mt-6 leading-relaxed max-w-2xl"><Texto>{sec.nota}</Texto></p>
               )}
             </section>
           ))}
@@ -166,24 +209,21 @@ export default function ServicoPagina({ slug }) {
               {page.cta}
             </h2>
             <p className="text-white/50 text-sm mt-3 max-w-md mx-auto">
-              {lang === 'en'
-                ? 'Online booking with real-time availability. Pick the day and time and you get the confirmation by email.'
-                : 'Marcação online com disponibilidade em tempo real. Escolhe o dia e a hora e recebes a confirmação por email.'}
+              {page.whatsapp
+                ? (lang === 'en'
+                  ? 'Send us a message on WhatsApp. We assess the paint and give you a quote.'
+                  : 'Envie-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-lhe o orçamento.')
+                : (lang === 'en'
+                  ? 'Online booking with real-time availability. Pick the day and time and you get the confirmation by email.'
+                  : 'Marcação online com disponibilidade em tempo real. Escolhe o dia e a hora e recebes a confirmação por email.')}
             </p>
-            <button
-              type="button"
-              onClick={() => setBooking(true)}
-              className="mt-6 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-4 text-xs tracking-[0.2em] uppercase font-bold transition"
-            >
-              {page.cta}
-              <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            </button>
+            <div className="mt-6 flex justify-center">{acao}</div>
           </section>
 
-          {/* ── As outras lavagens ────────────────────────────────────────── */}
+          {/* ── Os outros serviços ────────────────────────────────────────── */}
           <section>
             <h2 className="font-display text-white text-xl md:text-2xl font-black tracking-wide">
-              {lang === 'en' ? 'Other washes' : 'Outras lavagens'}
+              {lang === 'en' ? 'Other services' : 'Outros serviços'}
             </h2>
             <span className="accent-bar mt-4 block" />
             <div className="grid sm:grid-cols-3 gap-4 mt-6">
@@ -195,7 +235,7 @@ export default function ServicoPagina({ slug }) {
                 >
                   <div className="relative h-28 overflow-hidden">
                     <img
-                      src={o.image}
+                      src={o.thumb}
                       alt={nomeDe(o, lang)}
                       loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
@@ -207,7 +247,7 @@ export default function ServicoPagina({ slug }) {
                       {nomeDe(o, lang).toUpperCase()}
                     </h3>
                     <div className="mt-2 flex items-baseline justify-between">
-                      <span className="text-white font-display text-lg font-bold">{precoDe(o)}€</span>
+                      <span className="text-white font-display text-lg font-bold">{precoDe(o) ? `${precoDe(o)}€` : ''}</span>
                       <span className="text-white/35 text-[10px] tracking-[0.15em] uppercase">
                         {lang === 'en' ? 'See' : 'Ver'} →
                       </span>
@@ -229,11 +269,23 @@ export default function ServicoPagina({ slug }) {
 
       {booking && (
         <Suspense fallback={null}>
-          <Booking open onClose={() => setBooking(false)} />
+          <Booking open nivel={page.levelId} onClose={() => setBooking(false)} />
         </Suspense>
       )}
     </div>
   );
+}
+
+/**
+ * Um texto com links para outras páginas do site, escritos como
+ * "[texto](/endereco/)". O servicePages.test confirma que cada endereço existe.
+ */
+function Texto({ children }) {
+  return children.split(new RegExp(`(${LIGACAO.source})`)).map((parte, i, partes) => {
+    // O split com grupos devolve [antes, link inteiro, texto, endereço, depois…]
+    if (i % 4 === 1) return <Link key={i} href={partes[i + 2]} className="text-blue-400 hover:text-blue-300 underline underline-offset-4">{partes[i + 1]}</Link>;
+    return i % 4 === 0 ? parte : null;
+  });
 }
 
 function Lista({ items }) {
