@@ -4,10 +4,11 @@ import {
 } from 'lucide-react';
 import {
   VEHICLE_TYPES, VEHICLE_BY_ID, LEVEL_BY_ID,
-  levelsFor, computeQuote, durationFor, formatDuration, eur,
+  levelsFor, priceFor, computeQuote, durationFor, formatDuration, eur,
 } from './pricing';
 import { fetchAvailability, createBooking } from './api';
 import useModalDialog from '../useModalDialog';
+import { MARCACAO_KEY } from '../components/MarcacaoConfirmada';
 
 // Duas coisas saíram daqui em agosto de 2026, por decisão do negócio, e as
 // duas saíram inteiras — ecrã, cálculo do site e cálculo da Edge Function:
@@ -208,7 +209,10 @@ function Calendar({ value, onChange }: { value: string; onChange: (iso: string) 
   );
 }
 
-export default function Booking({ open, onClose }: { open: boolean; onClose: () => void }) {
+// `nivel`: o serviço da página de onde se veio. Fica escolhido ao escolher o
+// veículo (se esse veículo o tiver) e o passo do nível salta-se — quem carregou
+// em "Marcar" na página da Lavagem Premium já disse o que quer.
+export default function Booking({ open, onClose, nivel = null }: { open: boolean; onClose: () => void; nivel?: string | null }) {
   const [step, setStep] = useState(0);
   const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [levelId, setLevelId] = useState<string | null>(null);
@@ -300,6 +304,16 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
         notes: form.notes.trim() || null,
       });
       setDone(res);
+      // Só aqui, com a marcação já gravada pela API, se vai para a página de
+      // confirmação — que é a conversão do Google Ads. Navegação completa e não
+      // do router: a etiqueta do Google conta carregamentos de página.
+      try {
+        sessionStorage.setItem(MARCACAO_KEY, JSON.stringify({ date, time, reference: res?.reference ?? null }));
+        window.location.assign(`${process.env.PUBLIC_URL}/marcacao-confirmada/`);
+      } catch {
+        // Sem sessionStorage a página mandava para a inicial; fica o ecrã de
+        // confirmação do próprio formulário.
+      }
     } catch (e) {
       // `e` é unknown, e não uma Error: um throw de outra coisa qualquer não
       // tem .message, e o que aparecia ao cliente era um ecrã em branco.
@@ -367,7 +381,7 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
                       <Choice
                         key={v.id}
                         active={vehicleId === v.id}
-                        onClick={() => { setVehicleId(v.id); setLevelId(null); }}
+                        onClick={() => { setVehicleId(v.id); setLevelId(nivel && priceFor(v.id, nivel) !== undefined ? nivel : null); }}
                       >
                         <span className="flex items-center gap-3">
                           <Icon className="w-6 h-6 text-blue-400 shrink-0" strokeWidth={1.4} />
@@ -525,7 +539,7 @@ export default function Booking({ open, onClose }: { open: boolean; onClose: () 
               </button>
             )}
             <button
-              onClick={() => (step === STEPS.length - 1 ? submit() : setStep((s) => s + 1))}
+              onClick={() => (step === STEPS.length - 1 ? submit() : setStep((s) => (s === 0 && nivel && levelId === nivel ? 2 : s + 1)))}
               disabled={!canAdvance || saving}
               className="flex-1 px-5 py-3 bg-blue-700 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs tracking-[0.2em] uppercase font-bold rounded-sm transition inline-flex items-center justify-center gap-2"
             >
