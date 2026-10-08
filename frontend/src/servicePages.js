@@ -449,16 +449,7 @@ const PAGINAS = [
         paragrafos: [
           'O polimento de 1 etapa permite melhorar significativamente o acabamento da pintura, recuperando o brilho e reduzindo pequenas marcas e imperfeições.',
         ],
-        items: [
-          'Lavagem exterior',
-          'Descontaminação da pintura',
-          'Preparação da superfície',
-          'Polimento de 1 etapa',
-          'Redução de marcas e riscos superficiais',
-          'Recuperação de brilho',
-          'Acabamento e proteção da pintura',
-        ],
-        nota: 'Indicado para: veículos com pintura em bom estado geral, mas com falta de brilho, marcas ligeiras de lavagem ou pequenos defeitos.',
+        nota: 'Veja tudo o que inclui no [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/).',
       },
       {
         heading: 'Correção Avançada de Pintura',
@@ -466,18 +457,7 @@ const PAGINAS = [
         paragrafos: [
           'São realizadas várias etapas de correção de acordo com o estado da pintura, procurando remover ou reduzir significativamente os defeitos sem comprometer a segurança do verniz.',
         ],
-        items: [
-          'Lavagem exterior detalhada',
-          'Descontaminação da pintura',
-          'Preparação e inspeção da pintura',
-          'Correção em várias etapas',
-          'Redução de riscos e marcas circulares',
-          'Correção de oxidação e outros defeitos possíveis',
-          'Refinamento da pintura',
-          'Recuperação de brilho e profundidade',
-          'Proteção final',
-        ],
-        nota: 'Indicado para: veículos com pintura mais marcada, riscos visíveis, swirls, oxidação ou para quem procura uma recuperação mais profunda do acabamento.',
+        nota: 'Veja tudo o que inclui na [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/).',
       },
       {
         heading: 'Qual escolher?',
@@ -524,7 +504,131 @@ const PAGINAS = [
   },
 
   {
+    slug: 'polimento-1-etapa-braga',
+    serviceId: 'polimento-1-etapa',
+    nome: 'Polimento 1 Etapa',
+    whatsapp: true,
+    h1: 'Polimento 1 Etapa em Braga',
+    intro: [
+      'Ideal para pinturas com marcas ligeiras, perda de brilho e pequenos defeitos.',
+      'O polimento de 1 etapa permite melhorar significativamente o acabamento da pintura, recuperando o brilho e reduzindo pequenas marcas e imperfeições.',
+    ],
+    sections: [
+      {
+        heading: 'O que está incluído',
+        items: [
+          'Lavagem exterior',
+          'Descontaminação da pintura',
+          'Preparação da superfície',
+          'Polimento de 1 etapa',
+          'Redução de marcas e riscos superficiais',
+          'Recuperação de brilho',
+          'Acabamento e proteção da pintura',
+        ],
+      },
+      {
+        heading: 'Para quem é indicado',
+        paragrafos: [
+          'Veículos com pintura em bom estado geral, mas com falta de brilho, marcas ligeiras de lavagem ou pequenos defeitos.',
+        ],
+      },
+      {
+        heading: 'Resultado',
+        paragrafos: [
+          'Uma pintura mais uniforme, brilhante e cuidada, com redução dos defeitos visíveis e recuperação do acabamento do automóvel.',
+          'O nível de correção recomendado é definido após avaliação do estado da pintura do veículo.',
+        ],
+      },
+      {
+        heading: 'Outros polimentos',
+        paragrafos: [
+          'Para pinturas mais danificadas, com riscos visíveis, swirls ou oxidação, veja a [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/). Todos os polimentos em [Polimento Automóvel em Braga](/polimento-automovel-braga/).',
+        ],
+      },
+    ],
+    cta: 'Marcar avaliação',
+    faq: [
+      {
+        q: 'Para que tipo de pintura é o Polimento 1 Etapa?',
+        a: 'Para pinturas em bom estado geral, mas com falta de brilho, marcas ligeiras de lavagem ou pequenos defeitos.',
+      },
+      {
+        q: 'O Polimento 1 Etapa inclui descontaminação?',
+        a: 'Sim. Inclui lavagem exterior, descontaminação da pintura e preparação da superfície antes do polimento.',
+      },
+      {
+        q: 'Quanto custa o Polimento 1 Etapa?',
+        a: 'O valor é orçamentado depois de avaliarmos o estado da pintura.',
+      },
+    ],
+  },
+
+  {
+    slug: 'correcao-pintura-braga',
+    serviceId: 'polimento-avancado',
+    nome: 'Correção Avançada de Pintura',
+    whatsapp: true,
+    h1: 'Correção Avançada de Pintura em Braga',
+    intro: [
+      'Um serviço mais completo para pinturas com riscos, marcas circulares, oxidação e defeitos mais evidentes.',
+      'São realizadas várias etapas de correção de acordo com o estado da pintura, procurando remover ou reduzir significativamente os defeitos sem comprometer a segurança do verniz.',
+    ],
+    sections: [
+      {
+        heading: 'O que está incluído',
+        items: [
+          'Lavagem exterior detalhada',
+          'Descontaminação da pintura',
+          'Preparação e inspeção da pintura',
+          'Correção em várias etapas',
+          'Redução de riscos e marcas circulares',
+          'Correção de oxidação e outros defeitos possíveis',
+          'Refinamento da pintura',
+          'Recuperação de brilho e profundidade',
+          'Proteção final',
+        ],
+      },
+      {
+        heading: 'Para quem é indicada',
+        paragrafos: [
+          'Veículos com pintura mais marcada, riscos visíveis, swirls, oxidação ou para quem procura uma recuperação mais profunda do acabamento.',
+        ],
+      },
+      {
+        heading: 'Resultado',
+        paragrafos: [
+          'Uma pintura mais uniforme, brilhante e cuidada, com redução dos defeitos visíveis e recuperação do acabamento do automóvel.',
+          'O nível de correção recomendado é definido após avaliação do estado da pintura do veículo.',
+        ],
+      },
+      {
+        heading: 'Outros polimentos',
+        paragrafos: [
+          'Para melhorar o brilho e corrigir defeitos ligeiros, veja o [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/). Todos os polimentos em [Polimento Automóvel em Braga](/polimento-automovel-braga/).',
+        ],
+      },
+    ],
+    cta: 'Marcar avaliação',
+    faq: [
+      {
+        q: 'Quando é preciso uma correção avançada?',
+        a: 'Quando a pintura tem riscos visíveis, marcas circulares (swirls), oxidação ou defeitos mais evidentes.',
+      },
+      {
+        q: 'A correção avançada remove todos os riscos?',
+        a: 'Procura remover ou reduzir significativamente os defeitos, sem comprometer a segurança do verniz. O que é possível corrigir é avaliado antes de começar.',
+      },
+      {
+        q: 'Quanto custa a correção avançada de pintura?',
+        a: 'O valor é orçamentado depois de avaliarmos o estado da pintura.',
+      },
+    ],
+  },
+
+  {
     slug: 'polimento-farois-braga',
+    // Os dois cartões de faróis da inicial, dianteiros e traseiros, levam aqui.
+    serviceId: ['farois-dianteiros', 'farois-traseiros'],
     nome: 'Polimento de Faróis',
     whatsapp: true,
     h1: 'Polimento de Faróis em Braga',
@@ -617,8 +721,9 @@ export const SERVICE_PAGES = PAGINAS.map((p) => {
 export const conteudo = (page, lang) => (lang === 'en' ? { ...page, ...page.en } : page);
 
 export const PAGE_BY_SLUG = Object.fromEntries(SERVICE_PAGES.map((p) => [p.slug, p]));
+// O serviceId pode ser uma lista: a página dos faróis é a de dois cartões.
 export const PAGE_BY_SERVICE = Object.fromEntries(
-  SERVICE_PAGES.filter((p) => p.serviceId).map((p) => [p.serviceId, p]),
+  SERVICE_PAGES.flatMap((p) => [].concat(p.serviceId ?? []).map((id) => [id, p])),
 );
 
 /**

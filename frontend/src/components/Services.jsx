@@ -60,9 +60,9 @@ export default function Services() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {catServices.map((s, i) => {
                   const Icon = s.icon;
-                  // As lavagens tem pagina propria: o cartao leva la, e e um
+                  // As lavagens e os polimentos tem pagina propria: o cartao leva la, e e um
                   // link a serio — o Google segue-o e quem carrega com o botao
-                  // do meio abre noutro separador. O resto do catalogo continua
+                  // do meio abre noutro separador. Os packs continuam
                   // a abrir a ficha em modal, que e tudo o que ha para mostrar.
                   const pagina = PAGE_BY_SERVICE[s.id];
                   const Caixa = pagina ? Link : 'div';

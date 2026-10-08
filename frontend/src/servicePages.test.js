@@ -16,7 +16,7 @@ describe('paginas de servico', () => {
     expect(COM_NIVEL.map((p) => p.levelId)).toEqual(['simples', 'selante', 'premium', 'detalhada']);
     expect(SERVICE_PAGES.filter((p) => !p.levelId).map((p) => p.slug)).toEqual([
       'detalhe-automovel-braga', 'limpeza-interior-automovel-braga', 'polimento-automovel-braga',
-      'polimento-farois-braga',
+      'polimento-1-etapa-braga', 'correcao-pintura-braga', 'polimento-farois-braga',
     ]);
   });
 
@@ -36,9 +36,18 @@ describe('paginas de servico', () => {
   });
 
   test('o cartao da pagina inicial que cada pagina reclama existe mesmo', () => {
-    for (const p of COM_NIVEL) {
-      expect(SERVICES.some((s) => s.id === p.serviceId)).toBe(true);
-      expect(PAGE_BY_SERVICE[p.serviceId]).toBe(p);
+    for (const p of SERVICE_PAGES.filter((x) => x.serviceId)) {
+      for (const id of [].concat(p.serviceId)) {
+        expect([p.slug, id, SERVICES.some((s) => s.id === id)]).toEqual([p.slug, id, true]);
+        expect(PAGE_BY_SERVICE[id]).toBe(p);
+      }
+    }
+  });
+
+  // Como nas lavagens: cada polimento da inicial tem a sua pagina.
+  test('cada cartao de lavagem e de polimento leva a uma pagina', () => {
+    for (const s of SERVICES.filter((x) => x.category !== 'packs')) {
+      expect([s.id, Boolean(PAGE_BY_SERVICE[s.id])]).toEqual([s.id, true]);
     }
   });
 

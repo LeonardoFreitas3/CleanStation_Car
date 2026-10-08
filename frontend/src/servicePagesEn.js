@@ -436,16 +436,7 @@ export const EN_PAGES = {
         paragrafos: [
           '1-stage polishing significantly improves the finish of the paint, bringing back the shine and reducing small marks and imperfections.',
         ],
-        items: [
-          'Exterior wash',
-          'Paint decontamination',
-          'Surface preparation',
-          '1-stage polishing',
-          'Reduction of marks and surface scratches',
-          'Shine recovery',
-          'Paint finish and protection',
-        ],
-        nota: 'Suited to: vehicles whose paint is in good overall condition but lacks shine, with light wash marks or small defects.',
+        nota: 'See everything it includes in [1-Stage Polishing in Braga](/polimento-1-etapa-braga/).',
       },
       {
         heading: 'Advanced Paint Correction',
@@ -453,18 +444,7 @@ export const EN_PAGES = {
         paragrafos: [
           'Several correction stages are carried out according to the condition of the paint, aiming to remove or significantly reduce the defects without compromising the safety of the clear coat.',
         ],
-        items: [
-          'Detailed exterior wash',
-          'Paint decontamination',
-          'Paint preparation and inspection',
-          'Multi-stage correction',
-          'Reduction of scratches and swirl marks',
-          'Correction of oxidation and other defects where possible',
-          'Paint refinement',
-          'Shine and depth recovery',
-          'Final protection',
-        ],
-        nota: 'Suited to: vehicles with more marked paint, visible scratches, swirls, oxidation, or for anyone after a deeper recovery of the finish.',
+        nota: 'See everything it includes in [Advanced Paint Correction in Braga](/correcao-pintura-braga/).',
       },
       {
         heading: 'Which one to choose?',
@@ -505,6 +485,130 @@ export const EN_PAGES = {
       {
         q: 'Does polishing include paint protection?',
         a: 'Yes. Both services finish with the paint finish and protection.',
+      },
+    ],
+  },
+
+  'polimento-1-etapa-braga': {
+    nome: '1-Stage Polishing',
+    title: '1-Stage Car Polishing in Braga | Clean Station Car',
+    description:
+      '1-stage polishing in Braga for paint with light marks and loss of shine: '
+      + 'wash, decontamination, polishing and protection. Quoted after assessment.',
+    h1: '1-Stage Polishing in Braga',
+    intro: [
+      'Ideal for paint with light marks, loss of shine and small defects.',
+      '1-stage polishing significantly improves the finish of the paint, bringing back the shine and reducing small marks and imperfections.',
+    ],
+    sections: [
+      {
+        heading: "What's included",
+        items: [
+          'Exterior wash',
+          'Paint decontamination',
+          'Surface preparation',
+          '1-stage polishing',
+          'Reduction of marks and surface scratches',
+          'Shine recovery',
+          'Paint finish and protection',
+        ],
+      },
+      {
+        heading: 'Who it is for',
+        paragrafos: [
+          'Vehicles whose paint is in good overall condition but lacks shine, with light wash marks or small defects.',
+        ],
+      },
+      {
+        heading: 'The result',
+        paragrafos: [
+          'A more even, glossy and cared-for paint finish, with fewer visible defects and the car’s finish restored.',
+          'The recommended level of correction is set after assessing the condition of the vehicle’s paint.',
+        ],
+      },
+      {
+        heading: 'Other polishing services',
+        paragrafos: [
+          'For more damaged paint, with visible scratches, swirls or oxidation, see [Advanced Paint Correction in Braga](/correcao-pintura-braga/). All our polishing in [Car Polishing in Braga](/polimento-automovel-braga/).',
+        ],
+      },
+    ],
+    cta: 'Book an assessment',
+    faq: [
+      {
+        q: 'What kind of paint is 1-Stage Polishing for?',
+        a: 'Paint in good overall condition that lacks shine, with light wash marks or small defects.',
+      },
+      {
+        q: 'Does 1-Stage Polishing include decontamination?',
+        a: 'Yes. It includes an exterior wash, paint decontamination and surface preparation before polishing.',
+      },
+      {
+        q: 'How much does 1-Stage Polishing cost?',
+        a: 'It is quoted after we assess the condition of the paint.',
+      },
+    ],
+  },
+
+  'correcao-pintura-braga': {
+    nome: 'Advanced Paint Correction',
+    title: 'Advanced Paint Correction in Braga | Clean Station Car',
+    description:
+      'Advanced paint correction in Braga: multi-stage polishing for scratches, swirls '
+      + 'and oxidation, with decontamination and final protection. Quoted after assessment.',
+    h1: 'Advanced Paint Correction in Braga',
+    intro: [
+      'A more complete service for paint with scratches, swirl marks, oxidation and more visible defects.',
+      'Several correction stages are carried out according to the condition of the paint, aiming to remove or significantly reduce the defects without compromising the safety of the clear coat.',
+    ],
+    sections: [
+      {
+        heading: "What's included",
+        items: [
+          'Detailed exterior wash',
+          'Paint decontamination',
+          'Paint preparation and inspection',
+          'Multi-stage correction',
+          'Reduction of scratches and swirl marks',
+          'Correction of oxidation and other defects where possible',
+          'Paint refinement',
+          'Shine and depth recovery',
+          'Final protection',
+        ],
+      },
+      {
+        heading: 'Who it is for',
+        paragrafos: [
+          'Vehicles with more marked paint, visible scratches, swirls, oxidation, or anyone after a deeper recovery of the finish.',
+        ],
+      },
+      {
+        heading: 'The result',
+        paragrafos: [
+          'A more even, glossy and cared-for paint finish, with fewer visible defects and the car’s finish restored.',
+          'The recommended level of correction is set after assessing the condition of the vehicle’s paint.',
+        ],
+      },
+      {
+        heading: 'Other polishing services',
+        paragrafos: [
+          'To improve the shine and correct light defects, see [1-Stage Polishing in Braga](/polimento-1-etapa-braga/). All our polishing in [Car Polishing in Braga](/polimento-automovel-braga/).',
+        ],
+      },
+    ],
+    cta: 'Book an assessment',
+    faq: [
+      {
+        q: 'When is advanced correction needed?',
+        a: 'When the paint has visible scratches, swirl marks, oxidation or more visible defects.',
+      },
+      {
+        q: 'Does advanced correction remove every scratch?',
+        a: 'It aims to remove or significantly reduce the defects without compromising the safety of the clear coat. What can be corrected is assessed before we start.',
+      },
+      {
+        q: 'How much does advanced paint correction cost?',
+        a: 'It is quoted after we assess the condition of the paint.',
       },
     ],
   },
