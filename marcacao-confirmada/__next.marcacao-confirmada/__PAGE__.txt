@@ -1,0 +1,25 @@
+1:"$Sreact.fragment"
+2:I[87275,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js","/CleanStation_Car/_next/static/chunks/0qq1lmthw6weq.js","/CleanStation_Car/_next/static/chunks/2tsn3r-zx2-6h.js"],"default"]
+3:I[97367,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+8:I[97367,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"ViewportBoundary"]
+9:I[97367,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"MetadataBoundary"]
+a:I[27201,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"IconMark"]
+c:I[39756,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"default"]
+d:I[37457,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"default"]
+10:I[51615,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"LanguageProvider"]
+11:I[5234,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js","/CleanStation_Car/_next/static/chunks/14zniwg92ggem.js"],"default"]
+:HL["/CleanStation_Car/_next/static/chunks/3v7gzpqcentf9.css","style"]
+7:X
+f:X
+f:C
+0:{"buildId":"xivzi5J4fLQfiv9F6CGHA","data":[{"rsc":["$","$1","c",{"children":[["$","$L2",null,{}],[["$","script","script-0",{"src":"/CleanStation_Car/_next/static/chunks/0qq1lmthw6weq.js","async":true}],["$","script","script-1",{"src":"/CleanStation_Car/_next/static/chunks/2tsn3r-zx2-6h.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":"$@6","staleTime":"$7","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$L8",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#000000"}]]}],["$","div",null,{"hidden":true,"children":["$","$L9",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Marcação confirmada | Clean Station Car"}],["$","meta","1",{"name":"author","content":"Clean Station Car"}],["$","meta","2",{"name":"robots","content":"noindex, nofollow"}],["$","meta","3",{"name":"geo.region","content":"PT-03"}],["$","meta","4",{"name":"geo.placename","content":"Braga"}],["$","meta","5",{"name":"geo.position","content":"41.5454;-8.4265"}],["$","meta","6",{"name":"ICBM","content":"41.5454, -8.4265"}],["$","link","7",{"rel":"icon","href":"/img/favicon.ico"}],["$","$La","8",{}]]}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"isPartial":"$@b","staleTime":"$7","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Lc",null,{"parallelRouterKey":"children","template":["$","$Ld",null,{}]}]]}],"isPartial":"$@e","staleTime":"$7","varyParams":"$f"},{"rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/CleanStation_Car/_next/static/chunks/3v7gzpqcentf9.css","precedence":"next"}],["$","script","script-0",{"src":"/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js","async":true}]],["$","html",null,{"lang":"pt","className":"inter_98ad3912-module__9GIQTa__variable cinzel_55f81a38-module__gZy80a__variable","children":["$","body",null,{"children":["$","$L10",null,{"children":["$","$Lc",null,{"parallelRouterKey":"children","template":["$","$Ld",null,{}],"notFound":[["$","$L11",null,{}],[]]}]}]}]}]]}],"isPartial":"$@12","staleTime":"$7","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@13","rootVaryParams":null,"needsRuntimeRequest":"$@14"}
+5:null
+7:300
+14:true
+7:C
+13:0
+b:"$undefined"
+e:"$undefined"
+12:"$undefined"
+6:"$undefined"

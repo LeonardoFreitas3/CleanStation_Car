@@ -1,0 +1,27 @@
+1:"$Sreact.fragment"
+2:I[47257,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"ClientPageRoot"]
+3:I[5234,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js","/CleanStation_Car/_next/static/chunks/14zniwg92ggem.js"],"default"]
+6:I[97367,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+b:I[97367,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"ViewportBoundary"]
+c:I[97367,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"MetadataBoundary"]
+d:I[27201,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"IconMark"]
+f:I[39756,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"default"]
+10:I[37457,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"default"]
+13:I[51615,["/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js"],"LanguageProvider"]
+:HL["/CleanStation_Car/_next/static/chunks/3v7gzpqcentf9.css","style"]
+a:X
+12:X
+12:C
+0:{"buildId":"xivzi5J4fLQfiv9F6CGHA","data":[{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/CleanStation_Car/_next/static/chunks/14zniwg92ggem.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":"$@9","staleTime":"$a","varyParams":null},{"rsc":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$Lb",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#000000"}]]}],["$","div",null,{"hidden":true,"children":["$","$Lc",null,{"children":["$","$7",null,{"name":"Next.Metadata","children":[["$","meta","0",{"name":"author","content":"Clean Station Car"}],["$","meta","1",{"name":"robots","content":"index, follow, max-image-preview:large"}],["$","meta","2",{"name":"geo.region","content":"PT-03"}],["$","meta","3",{"name":"geo.placename","content":"Braga"}],["$","meta","4",{"name":"geo.position","content":"41.5454;-8.4265"}],["$","meta","5",{"name":"ICBM","content":"41.5454, -8.4265"}],["$","link","6",{"rel":"icon","href":"/img/favicon.ico"}],["$","$Ld","7",{}]]}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"isPartial":"$@e","staleTime":"$a","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Lf",null,{"parallelRouterKey":"children","template":["$","$L10",null,{}]}]]}],"isPartial":"$@11","staleTime":"$a","varyParams":"$12"},{"rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/CleanStation_Car/_next/static/chunks/3v7gzpqcentf9.css","precedence":"next"}],["$","script","script-0",{"src":"/CleanStation_Car/_next/static/chunks/0y72mt0bvn-t7.js","async":true}]],["$","html",null,{"lang":"pt","className":"inter_98ad3912-module__9GIQTa__variable cinzel_55f81a38-module__gZy80a__variable","children":["$","body",null,{"children":["$","$L13",null,{"children":["$","$Lf",null,{"parallelRouterKey":"children","template":["$","$L10",null,{}],"notFound":[["$","$L3",null,{}],[]]}]}]}]}]]}],"isPartial":"$@14","staleTime":"$a","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@15","rootVaryParams":null,"needsRuntimeRequest":"$@16"}
+4:{}
+5:"$0:data:0:rsc:props:children:0:props:serverProvidedParams:params"
+8:null
+a:300
+16:true
+a:C
+15:0
+e:"$undefined"
+11:"$undefined"
+14:"$undefined"
+9:"$undefined"

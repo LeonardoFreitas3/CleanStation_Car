@@ -1,0 +1,4 @@
+:HL["/CleanStation_Car/_next/static/chunks/3v7gzpqcentf9.css","style"]
+:HL["/CleanStation_Car/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/CleanStation_Car/_next/static/media/cc014fcb166cf364-s.p.2cu9iw-l3ih8o.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"slug","param":{"type":"d","key":"polimento-1-etapa-braga","siblings":["marcacao-confirmada"]},"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"xivzi5J4fLQfiv9F6CGHA"}
