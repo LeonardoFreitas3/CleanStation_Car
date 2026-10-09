@@ -51,7 +51,7 @@ function Home() {
       <CookieBanner onOpenPolicy={() => setLegalOpen('cookies')} />
       {booking && (
         <Suspense fallback={null}>
-          <Booking open onClose={() => setBooking(false)} />
+          <Booking open onClose={() => setBooking(false)} onPrivacy={() => setLegalOpen('privacy')} />
         </Suspense>
       )}
     </div>

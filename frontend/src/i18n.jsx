@@ -1,6 +1,8 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { idiomaDe, traduzir } from "./rotas";
 
 // ─── Dicionário de traduções (chrome / UI) ───────────────────────────────────
 // Os textos de dados (serviços, testemunhos, processo) vivem em mock.js com
@@ -23,34 +25,42 @@ const translations = {
       subtitle: "Lavagem automóvel, detalhe interior, polimento e proteção de pintura profissional em Braga.",
       whatsapp: "PEDIR ORÇAMENTO",
       services: "VER SERVIÇOS",
+      book: "MARCAR AGORA",
     },
     services: {
       title: "OS NOSSOS SERVIÇOS",
-      subtitle: "Soluções completas para cuidar do teu carro ao mais alto nível. Nos polimentos, o valor final é orçamentado depois de avaliarmos a viatura.",
+      subtitle: "Todas as lavagens incluem interior e exterior. O preço depende do tipo de veículo e inclui IVA; sujidade fora do normal pode ter suplemento, sempre aprovado antes do serviço. Os polimentos são orçamentados depois de vermos a viatura.",
       from: "DESDE",
       contact: "SABER MAIS",
       seePage: "VER SERVIÇO",
+      quote: "PEDIR ORÇAMENTO",
       onRequest: "Sob consulta",
+      compareTitle: "Compara as quatro lavagens",
+      compareNote: "Todas incluem limpeza interior e exterior. O selante é um selante: não é um revestimento cerâmico.",
+      vat: "Preços com IVA incluído",
+      priceNote: "Preço para carro. SUV, monovolume e carrinha grande têm valor próprio.",
     },
     serviceDetail: {
       includes: "O QUE ESTÁ INCLUÍDO",
+      conditions: "CONDIÇÕES",
       note: "Valor a partir de. Preço final sujeito a avaliação do estado da viatura.",
       from: "DESDE",
       whatsapp: "PEDIR ORÇAMENTO",
       book: "MARCAR",
+      close: "Fechar ficha do serviço",
     },
     about: {
       title: "SOBRE NÓS",
       p1: "Na Clean Station Car acreditamos que um automóvel merece mais do que uma simples limpeza — merece cuidado, proteção e atenção ao detalhe.",
       p2: "Somos especializados em estética automóvel, oferecendo serviços pensados para recuperar, valorizar e proteger cada viatura, desde lavagens detalhadas até processos avançados de descontaminação, polimento, correção de pintura e proteções profissionais.",
-      p3: "Trabalhamos com foco na qualidade, utilizando técnicas adequadas e produtos profissionais para garantir resultados visíveis, duradouros e seguros para o seu veículo.",
+      p3: "Trabalhamos com foco na qualidade, utilizando técnicas adequadas e produtos profissionais para garantir resultados visíveis, duradouros e seguros para o teu veículo.",
       p4: "Cada carro tem necessidades diferentes, por isso avaliamos cada detalhe para aplicar o tratamento mais indicado, seja para melhorar o aspeto, preservar a pintura ou devolver o conforto ao interior.",
       closing: "Na Clean Station Car, o nosso objetivo é simples: eliminar o que não se vê, proteger o que importa e entregar um resultado que se nota.",
       whatsapp: "FALA CONNOSCO",
     },
     process: { title: "O NOSSO PROCESSO", subtitle: "Cada detalhe importa." },
     faq: { title: "PERGUNTAS FREQUENTES" },
-    testimonials: { title: "O QUE DIZEM OS NOSSOS CLIENTES", seeAll: "Ver todas as avaliações no Google" },
+    testimonials: { title: "O QUE DIZEM OS NOSSOS CLIENTES", seeAll: "Ver todas as avaliações no Google", prev: "Avaliação anterior", next: "Avaliação seguinte" },
     contact: {
       title: "ONDE ESTAMOS",
       hoursDays: "Segunda a Sexta",
@@ -78,11 +88,16 @@ const translations = {
     },
     whatsapp: {
       msg: "Olá! Gostaria de fazer uma marcação na Clean Station Car.",
+      quote: "Olá! Gostaria de pedir um orçamento na Clean Station Car.",
+      info: "Olá! Gostaria de saber mais sobre os serviços da Clean Station Car.",
+      about: "Olá! Gostaria de saber mais sobre: {servico}",
+      quoteFor: "Olá! Gostaria de pedir um orçamento para: {servico}",
+      book: "Olá! Gostaria de marcar o: {servico}",
       aria: "Contactar via WhatsApp",
     },
     cookie: {
       title: "Utilizamos cookies",
-      body: "Usamos cookies essenciais para o funcionamento do site e, com o seu consentimento, cookies analíticos para melhorar a experiência.",
+      body: "Usamos cookies essenciais para o funcionamento do site e, com o teu consentimento, cookies analíticos para melhorar a experiência.",
       policy: "Política de Cookies",
       necessary: "Cookies Necessários",
       necessaryDesc: "Essenciais para o funcionamento. Não podem ser desativados.",
@@ -111,21 +126,29 @@ const translations = {
       subtitle: "Professional car washing, interior detailing, polishing and paint protection in Braga.",
       whatsapp: "GET A QUOTE",
       services: "VIEW SERVICES",
+      book: "BOOK NOW",
     },
     services: {
       title: "OUR SERVICES",
-      subtitle: "Complete solutions to care for your car at the highest level. For polishing, the final price is quoted after we assess the vehicle.",
+      subtitle: "Every wash includes interior and exterior. The price depends on the type of vehicle and includes VAT; dirt beyond the normal may carry a supplement, always approved before the service. Polishing is quoted after we see the vehicle.",
       from: "FROM",
       contact: "LEARN MORE",
       seePage: "SEE SERVICE",
+      quote: "GET A QUOTE",
       onRequest: "On request",
+      compareTitle: "Compare the four washes",
+      compareNote: "All of them include interior and exterior cleaning. The sealant is a sealant, not a ceramic coating.",
+      vat: "Prices include VAT",
+      priceNote: "Price for a car. SUVs, MPVs and large vans have their own price.",
     },
     serviceDetail: {
       includes: "WHAT'S INCLUDED",
+      conditions: "CONDITIONS",
       note: "Price from. Final price subject to assessment of the vehicle's condition.",
       from: "FROM",
       whatsapp: "GET A QUOTE",
       book: "BOOK",
+      close: "Close service details",
     },
     about: {
       title: "ABOUT US",
@@ -138,7 +161,7 @@ const translations = {
     },
     process: { title: "OUR PROCESS", subtitle: "Every detail matters." },
     faq: { title: "FREQUENTLY ASKED QUESTIONS" },
-    testimonials: { title: "WHAT OUR CLIENTS SAY", seeAll: "See all reviews on Google" },
+    testimonials: { title: "WHAT OUR CLIENTS SAY", seeAll: "See all reviews on Google", prev: "Previous review", next: "Next review" },
     contact: {
       title: "WHERE WE ARE",
       hoursDays: "Monday to Friday",
@@ -166,6 +189,11 @@ const translations = {
     },
     whatsapp: {
       msg: "Hello! I'd like to book an appointment at Clean Station Car.",
+      quote: "Hello! I'd like to ask for a quote at Clean Station Car.",
+      info: "Hello! I'd like to know more about Clean Station Car's services.",
+      about: "Hello! I'd like to know more about: {servico}",
+      quoteFor: "Hello! I'd like a quote for: {servico}",
+      book: "Hello! I'd like to book the: {servico}",
       aria: "Contact via WhatsApp",
     },
     cookie: {
@@ -184,26 +212,26 @@ const translations = {
   },
 };
 
-const LANG_KEY = "csc_lang";
-
 function resolve(dict, path) {
   return path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), dict);
 }
 
 const LanguageContext = createContext({ lang: "pt", setLang: () => {}, t: (k) => k, tx: (o, k) => o?.[k] });
 
+/**
+ * A língua é a do endereço: /en/... é inglês, o resto é português. Lida do
+ * caminho e não passada por um layout por língua: um provider por língua
+ * encaixado no da raiz corria os dois efeitos e o de fora ganhava — o HTML
+ * saía em inglês com lang="pt". O HTML sai do build já na língua certa; era
+ * uma escolha guardada no browser, e o inglês só aparecia depois de o
+ * JavaScript correr, com a página toda a mudar à frente de quem a lia.
+ *
+ * Mudar de língua é ir para o mesmo endereço na outra língua (rotas.js).
+ */
 export function LanguageProvider({ children }) {
-  // Começa sempre em português e só depois lê a escolha guardada. O HTML sai do
-  // build em português; ler o localStorage logo aqui dava ao browser um texto
-  // diferente do que o HTML trazia, e o React deitava a página abaixo para a
-  // desenhar outra vez. Quem escolheu inglês vê o português por um instante.
-  const [lang, setLangState] = useState("pt");
-
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(LANG_KEY) === "en") setLangState("en");
-    } catch { /* ignore */ }
-  }, []);
+  const router = useRouter();
+  const pathname = usePathname();
+  const lang = idiomaDe(pathname);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -211,9 +239,8 @@ export function LanguageProvider({ children }) {
 
   const setLang = useCallback((l) => {
     const escolhida = l === "en" ? "en" : "pt";
-    setLangState(escolhida);
-    try { localStorage.setItem(LANG_KEY, escolhida); } catch { /* ignore */ }
-  }, []);
+    if (escolhida !== lang) router.push(traduzir(pathname, escolhida));
+  }, [lang, pathname, router]);
 
   const t = useCallback(
     (path, vars) => {

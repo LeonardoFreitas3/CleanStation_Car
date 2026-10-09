@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { TESTIMONIALS } from '../mock';
 import { PAGE_BY_SLUG } from '../servicePages';
 import { seccaoAtiva } from '../menu';
+import { absoluto, ancora as ancoraDe, inicio, traduzir } from '../rotas';
 
 // Pela ordem por que se encontram a descer a página, e não por uma ordem
 // inventada aqui: o menu dizia SERVIÇOS antes de TESTEMUNHOS e a página tem os
@@ -29,18 +30,24 @@ export default function Header() {
   // Numa pagina de servico as ancoras da pagina inicial nao existem, e
   // "#servicos" nao ia a lado nenhum. Levam a barra a frente: sai-se da pagina,
   // vai-se a inicial e cai-se na seccao. O PUBLIC_URL e por causa da copia de
-  // teste, que vive numa subpasta.
+  // teste, que vive numa subpasta. Na inicial fica so a ancora, para o browser
+  // rolar em vez de recarregar.
   const pathname = usePathname();
-  const ancora = (href) => (pathname === '/' ? href : `${process.env.PUBLIC_URL}/${href}`);
+  const naInicial = pathname === inicio(lang) || pathname === inicio(lang).replace(/\/$/, '');
+  const ancora = (href) => (naInicial ? href : absoluto(ancoraDe(lang, href)));
 
   // Uma página de serviço é uma secção do site que ficou com endereço próprio.
   // Quem lá está veio dos serviços e é isso que o menu tem de dizer — senão
   // fica sem nada aceso e a pessoa não sabe onde está.
-  const numServico = Boolean(PAGE_BY_SLUG[pathname.replace(/^\/|\/$/g, '')]);
+  const numServico = Boolean(PAGE_BY_SLUG[traduzir(pathname, 'pt').replace(/^\/|\/$/g, '')]);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState('#home');
-  const toggleLang = () => setLang(lang === 'pt' ? 'en' : 'pt');
+  // A outra língua é outro endereço (rotas.js); o botão é um link a sério,
+  // que o Google segue e que abre noutro separador com o botão do meio.
+  const outraLingua = lang === 'pt' ? 'en' : 'pt';
+  const hrefOutraLingua = absoluto(traduzir(pathname, outraLingua));
+  const toggleLang = (e) => { e.preventDefault(); setLang(outraLingua); };
 
   const aceso = numServico ? '#services' : active;
 
@@ -116,30 +123,36 @@ export default function Header() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
-          <button
+          <a
+            href={hrefOutraLingua}
+            hrefLang={outraLingua}
             onClick={toggleLang}
-            aria-label={t('lang.aria')}
+            aria-label={`${lang === 'pt' ? 'EN' : 'PT'} · ${t('lang.switchTo')}`}
             title={t('lang.switchTo')}
             className="inline-flex items-center gap-1.5 px-3 py-2 text-[11px] tracking-[0.2em] font-bold text-white/70 border border-white/20 hover:border-blue-500 hover:text-blue-400 transition"
           >
             <Globe className="w-3.5 h-3.5" />
             {lang === 'pt' ? 'EN' : 'PT'}
-          </button>
+          </a>
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <button
+          <a
+            href={hrefOutraLingua}
+            hrefLang={outraLingua}
             onClick={toggleLang}
-            aria-label={t('lang.aria')}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] tracking-[0.2em] font-bold text-white/80 border border-white/20"
+            aria-label={`${lang === 'pt' ? 'EN' : 'PT'} · ${t('lang.switchTo')}`}
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 text-[11px] tracking-[0.2em] font-bold text-white/80 border border-white/20"
           >
             <Globe className="w-3.5 h-3.5" />
             {lang === 'pt' ? 'EN' : 'PT'}
-          </button>
+          </a>
           <button
             className="text-white p-2"
             onClick={() => setOpen(v => !v)}
             aria-label="Menu"
+            aria-expanded={open}
+            aria-controls="menu-movel"
           >
             {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -147,7 +160,7 @@ export default function Header() {
       </div>
 
       {/* Mobile */}
-      <div className={`lg:hidden overflow-hidden transition-all duration-300 ${open ? 'max-h-[400px]' : 'max-h-0'}`}>
+      <div id="menu-movel" className={`lg:hidden overflow-hidden transition-all duration-300 ${open ? 'max-h-[400px]' : 'max-h-0'}`} inert={open ? undefined : true}>
         <div className="px-6 py-4 bg-black/95 border-t border-white/5 flex flex-col gap-1">
           {LINKS.map(l => (
             <a

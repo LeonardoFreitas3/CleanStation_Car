@@ -7,7 +7,7 @@ const SPLASH_IMAGE = `${process.env.PUBLIC_URL}/img/detail.webp`;
 
 export default function AboutSection() {
   const { t } = useLang();
-  const waMsg = encodeURIComponent(t('whatsapp.msg'));
+  const waMsg = encodeURIComponent(t('whatsapp.info'));
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
 
   return (

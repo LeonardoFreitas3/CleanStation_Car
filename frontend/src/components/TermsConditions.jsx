@@ -19,20 +19,20 @@ export default function TermsConditions({ open, onClose }) {
         </p>
 
         <h2>2. Services Provided</h2>
-        <p>Clean Station Car provides detailed washing, interior sanitisation, polishing and ceramic protection of motor vehicles, at the indicated premises or by previously agreed call-out.</p>
+        <p>Clean Station Car provides car washing, interior cleaning and sanitising, polishing and paint protection with sealants, at the indicated premises or by previously agreed call-out.</p>
 
         <h2>3. Bookings</h2>
         <ul>
           <li>Bookings can be made online, by phone or in person.</li>
-          <li>Booking confirmation is sent by email to the address provided.</li>
+          <li>Online bookings are confirmed on screen as soon as they are saved and, when an email address is provided, also by email.</li>
           <li>Customers must arrive on time. Delays of more than 20 minutes may require rescheduling.</li>
           <li>Cancellations must be communicated at least <strong>24 hours in advance</strong>.</li>
         </ul>
 
         <h2>4. Prices</h2>
         <ul>
-          <li>The prices shown are indicative and may vary according to the condition, size and type of vehicle.</li>
-          <li>The final price is confirmed after assessment of the vehicle.</li>
+          <li>The prices shown are "from" prices for a car; SUVs, MPVs and large vans have their own price, shown when booking.</li>
+          <li>A vehicle dirtier than usual may carry a supplement, always approved by the customer before the service starts. Polishing is quoted after assessment of the paint.</li>
           <li>Prices include VAT at the legal rate in force.</li>
         </ul>
 
@@ -70,20 +70,20 @@ export default function TermsConditions({ open, onClose }) {
       </p>
 
       <h2>2. Serviços Prestados</h2>
-      <p>A Clean Station Car presta serviços de lavagem detalhada, higienização interior, polimento e proteção cerâmica de veículos automóveis, nas instalações indicadas ou mediante deslocação acordada previamente.</p>
+      <p>A Clean Station Car presta serviços de lavagem automóvel, limpeza e higienização interior, polimento e proteção da pintura com selantes, nas instalações indicadas ou mediante deslocação acordada previamente.</p>
 
       <h2>3. Marcações</h2>
       <ul>
         <li>As marcações são realizadas online, por telefone ou presencialmente.</li>
-        <li>A confirmação da marcação é enviada por email para o endereço fornecido.</li>
+        <li>As marcações online são confirmadas no ecrã assim que ficam gravadas e, quando é indicado um email, também por email.</li>
         <li>O cliente deve comparecer pontualmente. Atrasos superiores a 20 minutos podem implicar reagendamento.</li>
         <li>Cancelamentos devem ser comunicados com pelo menos <strong>24 horas de antecedência</strong>.</li>
       </ul>
 
       <h2>4. Preços</h2>
       <ul>
-        <li>Os preços apresentados são indicativos e podem variar conforme o estado, dimensão e tipo de veículo.</li>
-        <li>O preço final é confirmado após avaliação do veículo.</li>
+        <li>Os preços apresentados são "desde", para carro; SUV, monovolumes e carrinhas grandes têm valor próprio, mostrado na marcação.</li>
+        <li>Uma viatura com sujidade fora do normal pode ter um suplemento, sempre aprovado pelo cliente antes de o serviço começar. Os polimentos são orçamentados após avaliação da pintura.</li>
         <li>Os preços incluem IVA à taxa legal em vigor.</li>
       </ul>
 

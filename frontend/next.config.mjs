@@ -20,6 +20,11 @@ export default (phase) => ({
   // página em qualquer servidor estático, e /x vai lá ter.
   trailingSlash: true,
 
+  // O 404 vem do app/global-not-found.jsx: com dois layouts de raiz (um por
+  // língua) o not-found normal não tem de onde se compor, e sem isto o Next
+  // punha a página genérica dele no 404.html — que é onde o CRM monta.
+  experimental: { globalNotFound: true },
+
   // Só no build. No next dev, com o export ligado, um endereço de um segmento
   // que não é página — /crm aberto à mão, um erro de escrita — dava um 500 em
   // vez do 404 que leva ao not-found; e o distDir, que no build é a pasta

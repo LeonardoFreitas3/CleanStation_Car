@@ -64,6 +64,14 @@ não é admin.
 npx supabase functions deploy team
 ```
 
+**A `booking` outra vez, junto com o site (outubro de 2026).** Ganhou a guarda
+contra marcações repetidas — a mesma matrícula à mesma hora devolve a marcação
+que já existe em vez de responder "hora ocupada". O site novo conta com isso:
+
+```bash
+npx supabase functions deploy booking
+```
+
 **O build do site na Netlify.** É o único passo por dar, e é por ele que passa
 tudo o que o CRM ganhou: a Agenda em calendário, o filtro "Por cobrar", a fase
 "A meio da lavagem", os números nos follow-ups e as fases nas Definições. Até lá

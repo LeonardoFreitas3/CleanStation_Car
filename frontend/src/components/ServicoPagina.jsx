@@ -1,9 +1,9 @@
 'use client';
 
-import React, { Suspense, lazy, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, ChevronRight, MessageCircle, Phone, Tag } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronRight, LayoutGrid, MessageCircle, Phone, Scale, Tag } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import WhatsAppButton from './WhatsAppButton';
@@ -14,6 +14,7 @@ import CookieBanner from './CookieBanner';
 import { LIGACAO, PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, precoDe } from '../servicePages';
 import { SITE } from '../mock';
 import { useLang } from '../i18n';
+import { ancora, inicio, pagina as rotaPagina, prefixo } from '../rotas';
 
 const Booking = lazy(() => import('../booking/Booking'));
 
@@ -26,35 +27,56 @@ const Booking = lazy(() => import('../booking/Booking'));
  * sítio errado.
  *
  * O texto vive em servicePages.js (português) e servicePagesEn.js (inglês); o
- * endereço é o mesmo nas duas línguas. O <head> e os dados estruturados são
- * escritos no build, em app/[slug]/page.jsx.
+ * endereço inglês leva /en/ à frente (rotas.js). O <head> e os dados
+ * estruturados são escritos no build, em paginas.jsx.
  */
 export default function ServicoPagina({ slug }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const router = useRouter();
 
   const pagina = PAGE_BY_SLUG[slug];
-  // O texto na língua escolhida. O preço, a imagem e o endereço são os mesmos.
+  // O texto na língua escolhida. O preço, a imagem e o slug são os mesmos.
   const page = conteudo(pagina, lang);
 
   const [booking, setBooking] = useState(false);
   const [legalOpen, setLegalOpen] = useState(null);
 
+  // Voltar só quando há para onde voltar dentro do site. Quem chega de uma
+  // pesquisa não tem histórico aqui, e um "voltar" que atira para o Google é
+  // pior do que nenhum: nesse caso o botão é "Todos os serviços", que leva à
+  // lista. Decidido depois de montar, porque no HTML do build não há browser.
+  const [podeVoltar, setPodeVoltar] = useState(false);
+  useEffect(() => {
+    const nav = window.navigation;
+    setPodeVoltar(nav ? nav.canGoBack : document.referrer.startsWith(window.location.origin));
+  }, []);
+
+  // A secção pedida no endereço (#traseiros, vindo do cartão da inicial). O
+  // Next, ao chegar por um Link, mantinha o scroll da página de onde se veio e
+  // o rolar suave do CSS acabava a meio: fica-se a ver preto. Instantâneo e à
+  // mão, e o scroll-margin-top trata do menu fixo.
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    const el = id && document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }, [slug]);
+
   const outros = SERVICE_PAGES.filter((p) => p.slug !== page.slug);
   const preco = precoDe(page);
 
   // O polimento não se marca online: o botão abre o WhatsApp com o pedido de
-  // orçamento já escrito, como a ficha dele na página inicial.
+  // orçamento já escrito, como a ficha dele na página inicial. A mensagem vai
+  // na língua de quem a escreve.
   const botao = 'inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-4 text-xs tracking-[0.2em] uppercase font-bold transition';
   const secundario = 'inline-flex items-center gap-2 border border-white/25 hover:border-white/60 text-white/85 hover:text-white px-5 py-4 text-xs tracking-[0.2em] uppercase font-bold transition';
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${encodeURIComponent(
-    page.whatsapp
-      ? `Olá! Gostaria de pedir um orçamento para: ${nomeDe(pagina, 'pt')}`
-      : `Olá! Gostaria de saber mais sobre: ${nomeDe(pagina, 'pt')}`,
+    t(page.whatsapp ? 'whatsapp.quoteFor' : 'whatsapp.about', { servico: nomeDe(pagina, lang) }),
   )}`;
 
-  // A ação principal e as três de recurso, as mesmas em cima e em baixo: quem
-  // não quer marcar já quer ver os preços, ligar ou escrever.
+  // A ação principal e as de recurso, as mesmas em cima e em baixo. Numa
+  // lavagem: marcar, ver os preços, ligar, escrever. Num serviço sob consulta
+  // não há preços para ver: compara-se com o outro polimento, ou pede-se o
+  // orçamento, e liga-se.
   const acao = (
     <div className="flex flex-wrap items-center gap-3">
       {page.whatsapp ? (
@@ -68,10 +90,19 @@ export default function ServicoPagina({ slug }) {
           <ArrowRight className="w-4 h-4" aria-hidden="true" />
         </button>
       )}
-      <Link href="/#services" className={secundario}>
-        <Tag className="w-4 h-4" aria-hidden="true" />
-        {lang === 'en' ? 'See prices' : 'Ver preços'}
-      </Link>
+      {page.whatsapp ? (
+        pagina.comparar && (
+          <Link href={rotaPagina(lang, pagina.comparar)} className={secundario}>
+            <Scale className="w-4 h-4" aria-hidden="true" />
+            {lang === 'en' ? 'Compare polishing' : 'Comparar polimentos'}
+          </Link>
+        )
+      ) : (
+        <Link href={ancora(lang, '#services')} className={secundario}>
+          <Tag className="w-4 h-4" aria-hidden="true" />
+          {lang === 'en' ? 'See prices' : 'Ver preços'}
+        </Link>
+      )}
       <a href={`tel:${SITE.phone.replace(/\s/g, '')}`} className={secundario}>
         <Phone className="w-4 h-4" aria-hidden="true" />
         {lang === 'en' ? 'Call' : 'Ligar'}
@@ -97,32 +128,36 @@ export default function ServicoPagina({ slug }) {
           <div className="absolute inset-0">
             <img
               src={page.image}
-              alt={page.h1}
+              alt=""
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />
           </div>
 
           <div className="relative max-w-4xl mx-auto px-6 pt-32 pb-16 md:pt-40 md:pb-20">
-            {/* Voltar para onde se veio, quando se veio de dentro do site.
-                O canGoBack só conta páginas deste site — quem chegou de uma
-                pesquisa não tem para onde recuar, e um "voltar" que atira para
-                fora do site é pior do que nenhum. Nesse caso leva à página
-                inicial, que é o que ele quer dizer. Um browser sem a
-                Navigation API vai também para a inicial. */}
-            <button
-              type="button"
-              onClick={() => (window.navigation?.canGoBack ? router.back() : router.push('/'))}
-              className="inline-flex items-center gap-2 mb-5 px-4 py-2 border border-white/15 hover:border-white/40 text-white/70 hover:text-white text-[11px] tracking-[0.2em] uppercase transition"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
-              {lang === 'en' ? 'Back' : 'Voltar'}
-            </button>
+            {podeVoltar ? (
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="inline-flex items-center gap-2 mb-5 px-4 py-2 border border-white/15 hover:border-white/40 text-white/70 hover:text-white text-[11px] tracking-[0.2em] uppercase transition"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+                {lang === 'en' ? 'Back' : 'Voltar'}
+              </button>
+            ) : (
+              <Link
+                href={ancora(lang, '#services')}
+                className="inline-flex items-center gap-2 mb-5 px-4 py-2 border border-white/15 hover:border-white/40 text-white/70 hover:text-white text-[11px] tracking-[0.2em] uppercase transition"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" aria-hidden="true" />
+                {lang === 'en' ? 'All services' : 'Todos os serviços'}
+              </Link>
+            )}
 
-            <nav aria-label={lang === 'en' ? 'Breadcrumb' : 'Caminho'} className="flex items-center gap-2 text-[11px] tracking-[0.2em] text-white/40 uppercase mb-6">
-              <Link href="/" className="hover:text-white transition">{lang === 'en' ? 'Home' : 'Início'}</Link>
+            <nav aria-label={lang === 'en' ? 'Breadcrumb' : 'Caminho'} className="flex items-center gap-2 text-[11px] tracking-[0.2em] text-white/55 uppercase mb-6">
+              <Link href={inicio(lang)} className="hover:text-white transition">{lang === 'en' ? 'Home' : 'Início'}</Link>
               <ChevronRight className="w-3 h-3" aria-hidden="true" />
-              <span className="text-white/70">{nomeDe(pagina, lang)}</span>
+              <span className="text-white/70" aria-current="page">{nomeDe(pagina, lang)}</span>
             </nav>
 
             <h1 className="font-display text-white text-3xl md:text-5xl font-black tracking-wide leading-tight">
@@ -132,7 +167,7 @@ export default function ServicoPagina({ slug }) {
 
             <div className="mt-6 space-y-4 max-w-2xl">
               {page.intro.map((p) => (
-                <p key={p} className="text-white/65 text-sm md:text-base leading-relaxed"><Texto>{p}</Texto></p>
+                <p key={p} className="text-white/65 text-sm md:text-base leading-relaxed"><Texto lang={lang}>{p}</Texto></p>
               ))}
             </div>
 
@@ -143,27 +178,33 @@ export default function ServicoPagina({ slug }) {
                 <div>
                   <span className="text-blue-400/80 text-[10px] tracking-[0.3em] uppercase">{lang === 'en' ? 'From' : 'Desde'}</span>
                   <div className="text-white font-display text-4xl font-black">{preco}€</div>
+                  <span className="block text-white/50 text-[10px] tracking-[0.1em]">{t('services.vat')}</span>
                 </div>
               )}
               {acao}
             </div>
+            {preco && (
+              <p className="text-white/55 text-xs mt-4 max-w-2xl">{t('services.priceNote')}</p>
+            )}
           </div>
         </header>
 
         <div className="max-w-4xl mx-auto px-6 py-16 md:py-20 space-y-14">
           {page.sections.map((sec) => (
-            <section key={sec.heading}>
+            // O id, quando existe, é o destino de um cartão da inicial: os
+            // faróis dianteiros e traseiros abrem cada um a sua secção.
+            <section key={sec.heading} id={sec.id}>
               <h2 className="font-display text-white text-xl md:text-2xl font-black tracking-wide">
                 {sec.heading}
               </h2>
               <span className="accent-bar mt-4 block" />
 
               {sec.entrada && (
-                <p className="text-white/60 text-sm mt-6 leading-relaxed"><Texto>{sec.entrada}</Texto></p>
+                <p className="text-white/60 text-sm mt-6 leading-relaxed"><Texto lang={lang}>{sec.entrada}</Texto></p>
               )}
 
               {sec.paragrafos?.map((p) => (
-                <p key={p} className="text-white/65 text-sm mt-5 leading-relaxed max-w-2xl"><Texto>{p}</Texto></p>
+                <p key={p} className="text-white/65 text-sm mt-5 leading-relaxed max-w-2xl"><Texto lang={lang}>{p}</Texto></p>
               ))}
 
               {sec.items && <Lista items={sec.items} />}
@@ -171,10 +212,10 @@ export default function ServicoPagina({ slug }) {
               {/* Exterior e interior lado a lado, que é como o cliente pensa no
                   carro: por fora e por dentro. */}
               {sec.grupos && (
-                <div className="grid sm:grid-cols-2 gap-8 mt-6">
+                <div className={`grid gap-8 mt-6 ${sec.grupos.length > 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
                   {sec.grupos.map((g) => (
                     <div key={g.titulo}>
-                      <h3 className="text-white/45 text-[10px] tracking-[0.3em] uppercase">{g.titulo}</h3>
+                      <h3 className="text-white/60 text-[10px] tracking-[0.3em] uppercase">{g.titulo}</h3>
                       <Lista items={g.items} />
                     </div>
                   ))}
@@ -182,7 +223,7 @@ export default function ServicoPagina({ slug }) {
               )}
 
               {sec.nota && (
-                <p className="text-white/50 text-sm mt-6 leading-relaxed max-w-2xl"><Texto>{sec.nota}</Texto></p>
+                <p className="text-white/50 text-sm mt-6 leading-relaxed max-w-2xl"><Texto lang={lang}>{sec.nota}</Texto></p>
               )}
             </section>
           ))}
@@ -210,12 +251,10 @@ export default function ServicoPagina({ slug }) {
             </h2>
             <p className="text-white/50 text-sm mt-3 max-w-md mx-auto">
               {page.whatsapp
-                ? (lang === 'en'
-                  ? 'Send us a message on WhatsApp. We assess the paint and give you a quote.'
-                  : 'Envie-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-lhe o orçamento.')
+                ? page.ctaTexto
                 : (lang === 'en'
-                  ? 'Online booking with real-time availability. Pick the day and time and you get the confirmation by email.'
-                  : 'Marcação online com disponibilidade em tempo real. Escolhe o dia e a hora e recebes a confirmação por email.')}
+                  ? 'Online booking with real-time availability. Pick the day and time: the confirmation shows on screen and, if you leave your email, you also get it by email.'
+                  : 'Marcação online com disponibilidade em tempo real. Escolhe o dia e a hora: a confirmação aparece no ecrã e, se deixares o email, recebe-la também por email.')}
             </p>
             <div className="mt-6 flex justify-center">{acao}</div>
           </section>
@@ -230,13 +269,13 @@ export default function ServicoPagina({ slug }) {
               {outros.map((o) => (
                 <Link
                   key={o.slug}
-                  href={`/${o.slug}`}
+                  href={rotaPagina(lang, o.slug)}
                   className="group bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 transition rounded-md overflow-hidden"
                 >
                   <div className="relative h-28 overflow-hidden">
                     <img
                       src={o.thumb}
-                      alt={nomeDe(o, lang)}
+                      alt=""
                       loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
                     />
@@ -247,8 +286,13 @@ export default function ServicoPagina({ slug }) {
                       {nomeDe(o, lang).toUpperCase()}
                     </h3>
                     <div className="mt-2 flex items-baseline justify-between">
-                      <span className="text-white font-display text-lg font-bold">{precoDe(o) ? `${precoDe(o)}€` : ''}</span>
-                      <span className="text-white/35 text-[10px] tracking-[0.15em] uppercase">
+                      {/* "Desde": é o preço do carro, como no cartão da inicial. */}
+                      <span className="text-white font-display text-lg font-bold">
+                        {precoDe(o)
+                          ? <><span className="text-blue-400/80 text-[9px] tracking-[0.25em] font-sans font-semibold mr-1.5">{t('services.from')}</span>{precoDe(o)}€</>
+                          : <span className="text-white/60 text-xs font-sans font-normal">{t('services.onRequest')}</span>}
+                      </span>
+                      <span className="text-white/50 text-[10px] tracking-[0.15em] uppercase">
                         {lang === 'en' ? 'See' : 'Ver'} →
                       </span>
                     </div>
@@ -269,7 +313,7 @@ export default function ServicoPagina({ slug }) {
 
       {booking && (
         <Suspense fallback={null}>
-          <Booking open nivel={page.levelId} onClose={() => setBooking(false)} />
+          <Booking open nivel={page.levelId} onClose={() => setBooking(false)} onPrivacy={() => setLegalOpen('privacy')} />
         </Suspense>
       )}
     </div>
@@ -279,11 +323,13 @@ export default function ServicoPagina({ slug }) {
 /**
  * Um texto com links para outras páginas do site, escritos como
  * "[texto](/endereco/)". O servicePages.test confirma que cada endereço existe.
+ * Em inglês o endereço leva /en à frente: o texto inglês escreve o mesmo
+ * endereço que o português, e a língua resolve-se aqui.
  */
-function Texto({ children }) {
+function Texto({ children, lang }) {
   return children.split(new RegExp(`(${LIGACAO.source})`)).map((parte, i, partes) => {
     // O split com grupos devolve [antes, link inteiro, texto, endereço, depois…]
-    if (i % 4 === 1) return <Link key={i} href={partes[i + 2]} className="text-blue-400 hover:text-blue-300 underline underline-offset-4">{partes[i + 1]}</Link>;
+    if (i % 4 === 1) return <Link key={i} href={`${prefixo(lang)}${partes[i + 2]}`} className="text-blue-400 hover:text-blue-300 underline underline-offset-4">{partes[i + 1]}</Link>;
     return i % 4 === 0 ? parte : null;
   });
 }

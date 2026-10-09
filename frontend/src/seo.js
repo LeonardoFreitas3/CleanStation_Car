@@ -169,7 +169,7 @@ export function faqItems(lang) {
     return [
       {
         q: 'What is included in each wash?',
-        a: 'All our washes include interior and exterior cleaning. What changes between services is the level of cleaning, protection and detail applied to the vehicle.',
+        a: 'All our washes include interior and exterior cleaning. The Basic Wash is the maintenance clean; the Wash with Sealant is exactly the same plus a sealant on the paint; the Premium adds detailed interior cleaning, glass decontamination and a premium sealant; the Detailed adds seat removal and sanitising, paint decontamination and deep wheel and tyre cleaning.',
       },
       {
         q: 'Do I need to book in advance?',
@@ -177,35 +177,39 @@ export function faqItems(lang) {
       },
       {
         q: 'How long does the wash take?',
-        a: 'It depends on the service chosen and the condition of the vehicle. An estimated duration is shown when you book.',
+        a: 'Basic Wash about 1h30, Wash with Sealant about 1h45, Premium about 4 hours and Detailed a full day. Larger vehicles take longer, and the estimated duration is shown when you book.',
       },
       {
         q: 'Are prices the same for every car?',
-        a: 'The prices shown are base prices. Larger vehicles, or vehicles dirtier than usual, may carry a surcharge — always agreed with you before the work starts.',
+        a: 'No. The prices shown are "from" prices, for a car; SUVs, MPVs and large vans have their own price, shown when you book. All prices include VAT. A vehicle dirtier than usual may carry a supplement, always approved with you before the work starts.',
       },
       {
         q: 'Do I have to leave the car at Clean Station Car?',
-        a: 'Yes. To guarantee the quality of the work, the vehicle must be dropped off at our premises in Braga.',
+        a: 'Yes. The service is carried out at our premises in Braga. Any call-out is only by prior agreement.',
       },
       {
         q: 'Do you clean upholstery and seats?',
-        a: 'Yes. Depending on the service chosen, we carry out a deeper clean of the seats and the rest of the interior.',
+        a: 'Yes. In the Detailed Wash the seats are removed and sanitised one by one. The other washes clean the interior without removing the seats.',
       },
       {
         q: "What's the difference between the Premium Wash and the Detailed Wash?",
-        a: 'The Detailed Wash includes a higher level of cleaning, with seat removal, glass and paint decontamination, and premium protection applied.',
+        a: 'The Detailed Wash adds to the Premium the removal and sanitising of the seats, paint decontamination and deep cleaning of wheels and tyres.',
       },
       {
         q: 'Do you do paint polishing?',
-        a: 'Yes. We carry out polishing and paint correction. For these services the price depends on the condition of the paint and the result you want.',
+        a: 'Yes. 1-stage polishing for shine and light marks, and advanced paint correction for more visible defects, always within the limits of the clear coat. The price is quoted after we assess the paint.',
       },
       {
         q: 'Can I cancel or change my booking?',
-        a: 'Yes. Contact us in advance to change or cancel your booking.',
+        a: 'Yes. Contact us at least 24 hours in advance to change or cancel your booking.',
+      },
+      {
+        q: 'How do I know my booking went through?',
+        a: 'The confirmation appears on screen as soon as the booking is saved and, if you leave your email, you also get it by email.',
       },
       {
         q: 'Where are you?',
-        a: `We are in Braga, at ${SITE.address}. Open Monday to Friday, ${HORARIO.opens} to ${HORARIO.closes}; closed on weekends. You can see our location and get directions directly on our site.`,
+        a: `We are in Braga, at ${SITE.address}. Open Monday to Friday, ${HORARIO.opens} to ${HORARIO.closes}; closed on weekends and public holidays. You can see our location and get directions directly on our site.`,
       },
     ];
   }
@@ -213,43 +217,47 @@ export function faqItems(lang) {
   return [
     {
       q: 'O que está incluído em cada lavagem?',
-      a: 'Todas as nossas lavagens incluem limpeza interior e exterior. A diferença entre os serviços está no nível de limpeza, proteção e detalhe realizado em cada viatura.',
+      a: 'Todas as nossas lavagens incluem limpeza interior e exterior. A Simples é a limpeza de manutenção; a Com Selante é exatamente a Simples mais selante na pintura; a Premium acrescenta limpeza interior detalhada, descontaminação dos vidros e selante premium; a Detalhada acrescenta remoção e higienização dos bancos, descontaminação da pintura e limpeza profunda de jantes e pneus.',
     },
     {
       q: 'Preciso de marcar com antecedência?',
-      a: 'Sim. Recomendamos a marcação antecipada para garantir a disponibilidade do horário pretendido. Pode fazer a sua marcação online de forma rápida e simples.',
+      a: 'Sim. Recomendamos a marcação antecipada para garantir a disponibilidade do horário pretendido. Podes marcar online de forma rápida e simples.',
     },
     {
       q: 'Quanto tempo demora a lavagem?',
-      a: 'O tempo depende do serviço escolhido e do estado da viatura. No momento da marcação é apresentada uma estimativa de duração.',
+      a: 'Lavagem Simples cerca de 1h30, Com Selante cerca de 1h45, Premium cerca de 4 horas e Detalhada um dia. Veículos maiores demoram mais, e a duração estimada aparece no momento da marcação.',
     },
     {
       q: 'Os preços são iguais para todos os carros?',
-      a: 'Os preços apresentados são preços base. Viaturas de maiores dimensões ou com um nível de sujidade acima do normal podem ter um acréscimo, sempre comunicado antes da realização do serviço.',
+      a: 'Não. Os preços apresentados são "desde", para carro; SUV, monovolume e carrinha grande têm valor próprio, mostrado na marcação. Todos os preços incluem IVA. Uma viatura com sujidade fora do normal pode ter um suplemento, sempre aprovado contigo antes de começar.',
     },
     {
       q: 'Tenho de deixar o carro na Clean Station Car?',
-      a: 'Sim. Para garantir a qualidade do serviço, a viatura deve ser entregue nas nossas instalações em Braga.',
+      a: 'Sim. O serviço é feito nas nossas instalações em Braga. Qualquer deslocação é só mediante acordo prévio.',
     },
     {
       q: 'Fazem lavagem de estofos e bancos?',
-      a: 'Sim. Dependendo do serviço escolhido, realizamos uma limpeza mais profunda dos bancos e restantes elementos do interior.',
+      a: 'Sim. Na Lavagem Detalhada os bancos são removidos e higienizados um a um. As outras lavagens limpam o interior sem remover os bancos.',
     },
     {
       q: 'Qual é a diferença entre a Lavagem Premium e a Lavagem Detalhada?',
-      a: 'A Lavagem Detalhada inclui um nível de limpeza superior, com remoção dos bancos, descontaminação dos vidros e da pintura e aplicação de proteção premium.',
+      a: 'A Lavagem Detalhada acrescenta à Premium a remoção e higienização dos bancos, a descontaminação da pintura e a limpeza profunda de jantes e pneus.',
     },
     {
       q: 'Fazem polimento automóvel?',
-      a: 'Sim. Realizamos serviços de polimento e correção de pintura. Para estes serviços, o valor depende do estado da pintura e do resultado pretendido.',
+      a: 'Sim. Polimento de 1 etapa para brilho e marcas ligeiras, e correção avançada de pintura para defeitos mais evidentes, sempre dentro dos limites do verniz. O valor é orçamentado depois de avaliarmos a pintura.',
     },
     {
       q: 'Posso cancelar ou alterar a minha marcação?',
-      a: 'Sim. Contacte-nos com antecedência para alterar ou cancelar a sua marcação.',
+      a: 'Sim. Contacta-nos com pelo menos 24 horas de antecedência para alterar ou cancelar a tua marcação.',
+    },
+    {
+      q: 'Como sei que a marcação ficou feita?',
+      a: 'A confirmação aparece no ecrã assim que a marcação fica gravada e, se deixares o email, recebe-la também por email.',
     },
     {
       q: 'Onde ficam?',
-      a: `Estamos localizados em Braga, na ${SITE.address}. Abertos de segunda a sexta, das ${HORARIO.opens} às ${HORARIO.closes}; fins de semana encerrado. Pode consultar a nossa localização e obter indicações diretamente no nosso site.`,
+      a: `Estamos em Braga, na ${SITE.address}. Abertos de segunda a sexta, das ${HORARIO.opens} às ${HORARIO.closes}; fins de semana e feriados encerrado. Podes consultar a nossa localização e obter indicações diretamente no nosso site.`,
     },
   ];
 }
@@ -267,16 +275,28 @@ export function faqSchema(lang) {
 }
 
 /**
+ * As duas versões de um endereço, para o hreflang e para o sitemap. O x-default
+ * é o português: é a língua da oficina e de quase toda a gente que procura.
+ */
+export const idiomasDe = (caminho) => ({
+  'pt-PT': `${SITE_URL}${caminho}`,
+  en: `${SITE_URL}/en${caminho}`,
+  'x-default': `${SITE_URL}${caminho}`,
+});
+
+/**
  * O <head> de uma página, no formato do Next.
  *
  * Uma função para todas as páginas: uma cópia que se esquecesse de mudar o
  * canonical dizia ao Google que duas páginas eram a mesma.
  *
- * `idiomas` só na página inicial, a única que existe nas duas línguas. Numa
- * página que só existe em português, anunciá-los era mandar o Google a um
- * inglês que não há.
+ * `caminho` é o endereço sem língua ("/lavagem-premium-braga/"); o canonical
+ * é o da língua pedida e o hreflang aponta para as duas. Antes o inglês
+ * apontava para o mesmo endereço que o português — um inglês que não existia.
  */
-export function metadados({ title, description, keywords, url, image, idiomas }) {
+export function metadados({ title, description, keywords, caminho, lang = 'pt', image }) {
+  const idiomas = idiomasDe(caminho);
+  const url = idiomas[lang === 'en' ? 'en' : 'pt-PT'];
   return {
     title,
     description,
@@ -285,8 +305,8 @@ export function metadados({ title, description, keywords, url, image, idiomas })
     openGraph: {
       siteName: SITE.name,
       type: 'website',
-      locale: 'pt_PT',
-      alternateLocale: idiomas ? 'en_GB' : undefined,
+      locale: lang === 'en' ? 'en_GB' : 'pt_PT',
+      alternateLocale: lang === 'en' ? 'pt_PT' : 'en_GB',
       url,
       title,
       description,

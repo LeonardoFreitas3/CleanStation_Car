@@ -30,34 +30,53 @@ export const WASH_LEVELS = [
   {
     id: 'simples',
     label: 'Lavagem Simples',
-    desc: 'Limpeza manual completa do interior e exterior do veículo, indicada para uma manutenção regular.',
-    includes: ['Lavagem exterior completa', 'Aspiração do interior', 'Limpeza básica do interior', 'Vidros limpos'],
+    desc: 'Limpeza interior e exterior de manutenção.',
+    includes: ['Lavagem exterior à mão', 'Aspiração do interior', 'Limpeza do tablier e da mala', 'Vidros limpos'],
     prices: { carro: 30, grande: 45, suv: 35, mota: 30 },
   },
   {
     id: 'selante',
     label: 'Lavagem com Selante',
-    desc: 'Lavagem completa interior e exterior com aplicação de proteção na pintura, proporcionando mais brilho e efeito hidrofóbico.',
-    includes: ['Tudo da lavagem simples', 'Aplicação de selante protetor', 'Maior brilho e repelência à água', 'Protege a pintura de sujidade'],
+    desc: 'Exatamente a Simples, mais selante na pintura.',
+    includes: ['Tudo da Lavagem Simples', 'Selante aplicado na pintura', 'Mais brilho e efeito hidrofóbico'],
     prices: { carro: 40, grande: 55, suv: 45 },
   },
   {
     id: 'premium',
     label: 'Lavagem Premium',
-    desc: 'Limpeza interior e exterior mais profunda, com atenção aos detalhes, descontaminação dos vidros e proteção premium da pintura.',
-    includes: ['Tudo da lavagem com selante', 'Selante premium de alta performance', 'Brilho intenso e proteção superior', 'Maior duração do efeito protetor'],
+    desc: 'Limpeza interior detalhada, descontaminação dos vidros e selante premium.',
+    includes: ['Tudo da Lavagem Simples', 'Limpeza interior detalhada, até às zonas de difícil acesso', 'Descontaminação dos vidros', 'Selante premium na pintura'],
     prices: { carro: 65, grande: 80, suv: 75 },
   },
   {
     id: 'detalhada',
     label: 'Lavagem Detalhada',
-    desc: 'O nosso serviço mais completo, com remoção dos bancos, higienização profunda, descontaminação da pintura e limpeza detalhada de todo o veículo.',
-    includes: ['Interior detalhado completo', 'Exterior detalhado completo', 'Limpeza de jantes e pneus', 'Cantos e zonas difíceis', 'Acabamento premium'],
+    desc: 'Tudo da Premium, mais remoção e higienização dos bancos, descontaminação da pintura e limpeza profunda de jantes e pneus.',
+    includes: ['Tudo da Lavagem Premium', 'Remoção e higienização dos bancos', 'Descontaminação da pintura', 'Limpeza profunda de jantes e pneus'],
     prices: { carro: 140, grande: 180, suv: 160 },
   },
 ];
 
+/**
+ * O que cada lavagem tem, lado a lado. É a tabela de comparação do site; a
+ * ordem das colunas é a dos níveis. Todas incluem interior e exterior, e o
+ * selante é um selante: não se chama cerâmica ao que não é.
+ */
+export const COMPARACAO = [
+  { label: 'Limpeza interior e exterior',      niveis: ['simples', 'selante', 'premium', 'detalhada'] },
+  { label: 'Selante na pintura',                niveis: ['selante'] },
+  { label: 'Limpeza interior detalhada',        niveis: ['premium', 'detalhada'] },
+  { label: 'Descontaminação dos vidros',        niveis: ['premium', 'detalhada'] },
+  { label: 'Selante premium',                   niveis: ['premium', 'detalhada'] },
+  { label: 'Remoção e higienização dos bancos', niveis: ['detalhada'] },
+  { label: 'Descontaminação da pintura',        niveis: ['detalhada'] },
+  { label: 'Limpeza profunda de jantes e pneus', niveis: ['detalhada'] },
+];
+
 export const LEVEL_BY_ID = Object.fromEntries(WASH_LEVELS.map((l) => [l.id, l]));
+
+/** O "desde" de um nível: o preço mais baixo da tabela, que é o do carro. */
+export const minPrice = (levelId) => Math.min(...Object.values(LEVEL_BY_ID[levelId].prices));
 
 /**
  * Duração de cada nível, em minutos, conforme os tempos reais da oficina.

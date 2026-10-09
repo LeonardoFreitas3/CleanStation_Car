@@ -31,7 +31,7 @@ const PAGINAS = [
     serviceId: 'lavagem-simples',
     h1: 'Lavagem Automóvel em Braga',
     intro: [
-      'Uma solução completa para a manutenção do seu veículo, com limpeza manual do exterior e cuidado do interior.',
+      'Uma solução completa para a manutenção do teu veículo, com limpeza manual do exterior e cuidado do interior.',
       'Na Clean Station Car, cada veículo é tratado individualmente, garantindo uma limpeza cuidada tanto no interior como no exterior.',
     ],
     sections: [
@@ -62,8 +62,8 @@ const PAGINAS = [
       {
         heading: 'Duração',
         paragrafos: [
-          'A duração média é de aproximadamente 1h30.',
-          'Em veículos que apresentem um nível de sujidade superior ao normal, o serviço poderá necessitar de mais tempo. Nestes casos, o cliente será sempre informado previamente.',
+          'A duração média é de aproximadamente 1h30 num carro. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação.',
+          'Em veículos que apresentem um nível de sujidade superior ao normal, o serviço poderá necessitar de mais tempo. Nestes casos, és sempre informado previamente.',
         ],
       },
       {
@@ -77,7 +77,7 @@ const PAGINAS = [
         heading: 'Lavagem profissional automóvel em Braga',
         paragrafos: [
           'Fazemos a lavagem de carros em Braga à mão, viatura a viatura: uma lavagem interior e exterior com o mesmo cuidado por dentro e por fora.',
-          'Se procura uma lavagem profissional automóvel em Braga com mais proteção ou um interior mais minucioso, veja a [Lavagem com Selante](/lavagem-com-selante-braga/) e a [Lavagem Premium](/lavagem-premium-braga/).',
+          'Se procuras uma lavagem profissional automóvel em Braga com mais proteção ou um interior mais minucioso, vê a [Lavagem com Selante](/lavagem-com-selante-braga/) e a [Lavagem Premium](/lavagem-premium-braga/).',
           'Para um cuidado mais completo, conheça o nosso [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
         ],
       },
@@ -93,8 +93,8 @@ const PAGINAS = [
         a: 'Sim. O serviço inclui limpeza interior e exterior.',
       },
       {
-        q: 'O preço pode aumentar?',
-        a: 'Apenas quando o veículo apresenta uma quantidade de sujidade significativamente superior ao normal. Qualquer valor adicional é comunicado previamente.',
+        q: 'O preço pode ser diferente do anunciado?',
+        a: 'O preço depende do tipo de veículo: o valor "desde" é o do carro, e SUV, monovolumes e carrinhas grandes têm valor próprio, mostrado na marcação. Sujidade fora do normal pode ter um suplemento, sempre aprovado contigo antes do serviço. Os preços incluem IVA.',
       },
       {
         q: 'Qual é a diferença para a Lavagem com Selante?',
@@ -145,7 +145,11 @@ const PAGINAS = [
       },
       {
         q: 'A Lavagem com Selante inclui limpeza interior?',
-        a: 'Sim. Inclui a limpeza interior e exterior da Lavagem Simples.',
+        a: 'Sim. É exatamente a Lavagem Simples, interior e exterior, mais o selante na pintura.',
+      },
+      {
+        q: 'O selante é um revestimento cerâmico?',
+        a: 'Não. É um selante de pintura: protege e dá brilho e efeito hidrofóbico, mas não é um coating cerâmico.',
       },
       {
         q: 'Quanto tempo dura a proteção?',
@@ -172,7 +176,7 @@ const PAGINAS = [
         entrada: 'Inclui tudo o que está presente na Lavagem Simples, acrescentando:',
         items: [
           'Descontaminação dos vidros',
-          'Proteção premium da pintura',
+          'Selante premium na pintura',
           'Aspiração mais profunda',
           'Limpeza detalhada do interior',
           'Limpeza de zonas de difícil acesso',
@@ -191,8 +195,8 @@ const PAGINAS = [
         ],
       },
       {
-        heading: 'Proteção da pintura',
-        entrada: 'Aplicação de uma proteção premium que proporciona:',
+        heading: 'Selante premium',
+        entrada: 'Aplicação de um selante premium na pintura, que proporciona:',
         items: [
           'Maior brilho',
           'Maior profundidade visual da pintura',
@@ -223,11 +227,11 @@ const PAGINAS = [
       },
       {
         q: 'A Lavagem Premium inclui proteção da pintura?',
-        a: 'Sim. É aplicada uma proteção premium na pintura.',
+        a: 'Sim. É aplicado um selante premium na pintura. É um selante, não um revestimento cerâmico.',
       },
       {
         q: 'Qual é a diferença entre a Premium e a Detalhada?',
-        a: 'A Lavagem Detalhada é um serviço significativamente mais profundo, incluindo a remoção dos bancos, higienização profunda e descontaminação da pintura.',
+        a: 'A Lavagem Detalhada acrescenta à Premium a remoção e higienização dos bancos, a descontaminação da pintura e a limpeza profunda de jantes e pneus.',
       },
     ],
   },
@@ -266,13 +270,11 @@ const PAGINAS = [
       },
       {
         heading: 'Exterior',
-        entrada: 'Além do processo completo da Lavagem Premium, é realizada:',
+        entrada: 'Além do processo completo da Lavagem Premium, com a descontaminação dos vidros e o selante premium, é realizada:',
         items: [
           'Descontaminação da pintura',
           'Limpeza profunda das jantes',
           'Limpeza dos pneus',
-          'Descontaminação dos vidros',
-          'Proteção da pintura',
         ],
       },
       {
@@ -282,7 +284,7 @@ const PAGINAS = [
       {
         heading: 'Para quem é indicada',
         paragrafos: [
-          'Indicada para veículos que necessitam de uma limpeza profunda e para clientes que procuram o nível máximo de cuidado e detalhe na limpeza do seu veículo.',
+          'Indicada para veículos que necessitam de uma limpeza profunda e para clientes que procuram o nível máximo de cuidado e detalhe na limpeza do teu veículo.',
           'É especialmente indicada para veículos com sujidade acumulada, interiores que necessitam de uma higienização profunda ou veículos que não recebem um tratamento detalhado há bastante tempo.',
         ],
       },
@@ -322,17 +324,30 @@ const PAGINAS = [
     intro: [
       'O detalhe automóvel vai além de uma lavagem: é o trabalho minucioso de limpar, recuperar e proteger cada parte do veículo, por dentro e por fora.',
       'Na Clean Station Car fazemos detailing em Braga com tempo e atenção a cada viatura — da limpeza profunda do interior à descontaminação, ao polimento e à proteção da pintura.',
+      'Esta página junta tratamentos diferentes: as lavagens, com preço de tabela, e os polimentos, que são um serviço à parte, orçamentado depois de vermos a pintura. Nenhuma lavagem inclui polimento.',
     ],
     sections: [
       {
         heading: 'O que inclui o detalhe automóvel',
-        items: [
-          'Limpeza detalhada do interior, incluindo zonas de difícil acesso',
-          'Remoção e higienização profunda dos bancos',
-          'Descontaminação da pintura e dos vidros',
-          'Limpeza profunda de jantes e pneus',
-          'Polimento e correção da pintura',
-          'Proteção da pintura',
+        grupos: [
+          {
+            titulo: 'Nas lavagens Premium e Detalhada',
+            items: [
+              'Limpeza detalhada do interior, incluindo zonas de difícil acesso',
+              'Remoção e higienização profunda dos bancos (Detalhada)',
+              'Descontaminação dos vidros e da pintura (pintura só na Detalhada)',
+              'Limpeza profunda de jantes e pneus (Detalhada)',
+              'Selante premium na pintura',
+            ],
+          },
+          {
+            titulo: 'Contratado à parte',
+            items: [
+              'Polimento de 1 etapa',
+              'Correção avançada de pintura',
+              'Polimento de faróis',
+            ],
+          },
         ],
       },
       {
@@ -348,7 +363,7 @@ const PAGINAS = [
         heading: 'Estética automóvel com atenção ao detalhe',
         paragrafos: [
           'Analisamos o estado de cada veículo antes de começar, para definir o tratamento certo. Se for preciso trabalho adicional, o cliente é sempre informado antes.',
-          'Para uma limpeza mais profunda, consulte o nosso serviço de [limpeza interior automóvel em Braga](/limpeza-interior-automovel-braga/).',
+          'Para uma limpeza mais profunda, consulta o nosso serviço de [limpeza interior automóvel em Braga](/limpeza-interior-automovel-braga/).',
         ],
       },
     ],
@@ -368,7 +383,7 @@ const PAGINAS = [
       },
       {
         q: 'Quanto custa o detalhe automóvel em Braga?',
-        a: 'Depende do serviço. As lavagens têm preço de tabela por tipo de veículo; os polimentos são orçamentados depois de avaliarmos a pintura.',
+        a: 'Depende do serviço. As lavagens têm preço de tabela por tipo de veículo, com IVA incluído; os polimentos são contratados à parte e orçamentados depois de avaliarmos a pintura.',
       },
     ],
   },
@@ -378,18 +393,39 @@ const PAGINAS = [
     nome: 'Limpeza Interior',
     h1: 'Limpeza Interior Automóvel em Braga',
     intro: [
-      'Fazemos a limpeza interior automóvel em Braga com aspiração, limpeza do tablier e das zonas de difícil acesso e, no serviço mais completo, higienização profunda dos bancos.',
-      'Todas as nossas lavagens incluem a limpeza interior do carro; o que muda entre elas é a profundidade do trabalho.',
+      'Fazemos a limpeza interior automóvel em Braga em três níveis: a manutenção das lavagens Simples e Com Selante, a limpeza interior detalhada da Premium e a higienização com remoção dos bancos da Detalhada.',
+      'Todas as nossas lavagens incluem a limpeza interior do carro; o que muda entre elas é a profundidade do trabalho. Só a Detalhada remove os bancos.',
     ],
     sections: [
       {
         heading: 'O que inclui a limpeza interior',
-        items: [
-          'Aspiração das alcatifas, dos tapetes e da mala',
-          'Limpeza do tablier e da consola central',
-          'Limpeza das saídas de ar, comandos e bolsas das portas',
-          'Limpeza dos espaços entre bancos e de zonas de difícil acesso',
-          'Remoção e higienização profunda dos bancos',
+        grupos: [
+          {
+            titulo: 'Manutenção · Simples e Com Selante',
+            items: [
+              'Aspiração das alcatifas, dos tapetes e da mala',
+              'Limpeza do tablier',
+              'Vidros limpos',
+            ],
+          },
+          {
+            titulo: 'Limpeza detalhada · Premium',
+            items: [
+              'Tudo da manutenção, com aspiração mais profunda',
+              'Limpeza das saídas de ar, comandos e bolsas das portas',
+              'Limpeza da consola central e dos espaços entre bancos',
+              'Zonas de difícil acesso',
+            ],
+          },
+          {
+            titulo: 'Higienização · Detalhada',
+            items: [
+              'Tudo da limpeza detalhada',
+              'Remoção dos bancos',
+              'Higienização profunda dos bancos, um a um',
+              'Limpeza das zonas inacessíveis com os bancos montados',
+            ],
+          },
         ],
       },
       {
@@ -411,7 +447,7 @@ const PAGINAS = [
         heading: 'Pelos de animais e sujidade fora do normal',
         paragrafos: [
           'Uma quantidade elevada de pelos de animais, excesso de areia ou outra sujidade que exija trabalho adicional poderá ter um custo extra, sempre comunicado e aprovado previamente.',
-          'Conheça também o nosso [polimento automóvel em Braga](/polimento-automovel-braga/).',
+          'Conhece também o nosso [polimento automóvel em Braga](/polimento-automovel-braga/).',
         ],
       },
     ],
@@ -419,7 +455,7 @@ const PAGINAS = [
     faq: [
       {
         q: 'Fazem limpeza de bancos e estofos?',
-        a: 'Sim. Na Lavagem Detalhada os bancos são removidos e higienizados individualmente.',
+        a: 'Sim. Na Lavagem Detalhada os bancos são removidos e higienizados individualmente. As outras lavagens limpam o interior sem remover os bancos.',
       },
       {
         q: 'Todas as lavagens incluem limpeza interior?',
@@ -438,9 +474,10 @@ const PAGINAS = [
     // Os polimentos não se marcam online: o botão abre o WhatsApp, como a
     // ficha deles na página inicial.
     whatsapp: true,
+    ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-te o orçamento.',
     h1: 'Polimento Automóvel em Braga',
     intro: [
-      'Recupere o brilho e melhore o aspeto da pintura do seu automóvel com um serviço de polimento profissional. Na Clean Station Car, avaliamos o estado da pintura e aplicamos o nível de correção mais adequado ao veículo.',
+      'Recupera o brilho e melhora o aspeto da pintura do teu automóvel com um serviço de polimento profissional. Na Clean Station Car, avaliamos o estado da pintura e aplicamos o nível de correção mais adequado ao veículo.',
     ],
     sections: [
       {
@@ -449,7 +486,7 @@ const PAGINAS = [
         paragrafos: [
           'O polimento de 1 etapa permite melhorar significativamente o acabamento da pintura, recuperando o brilho e reduzindo pequenas marcas e imperfeições.',
         ],
-        nota: 'Veja tudo o que inclui no [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/).',
+        nota: 'Vê tudo o que inclui no [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/).',
       },
       {
         heading: 'Correção Avançada de Pintura',
@@ -457,7 +494,7 @@ const PAGINAS = [
         paragrafos: [
           'São realizadas várias etapas de correção de acordo com o estado da pintura, procurando remover ou reduzir significativamente os defeitos sem comprometer a segurança do verniz.',
         ],
-        nota: 'Veja tudo o que inclui na [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/).',
+        nota: 'Vê tudo o que inclui na [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/).',
       },
       {
         heading: 'Qual escolher?',
@@ -470,15 +507,15 @@ const PAGINAS = [
       {
         heading: 'Resultado',
         paragrafos: [
-          'Uma pintura mais uniforme, brilhante e cuidada, com redução dos defeitos visíveis e recuperação do acabamento do automóvel.',
-          'Marque uma avaliação do seu veículo na Clean Station Car, em Braga.',
+          'Com o Polimento 1 Etapa: mais brilho e marcas ligeiras atenuadas. Com a Correção Avançada: defeitos mais evidentes reduzidos ou removidos, até onde o verniz permite. Nenhum polimento remove todos os riscos, e o que é possível corrigir é dito antes de começar.',
+          'Marca uma avaliação do teu veículo na Clean Station Car, em Braga.',
         ],
       },
       // Fora do texto do dono: são os links que ligam esta página às outras.
       {
         heading: 'Serviços relacionados',
         paragrafos: [
-          'Para faróis amarelados ou opacos, veja o nosso [polimento de faróis em Braga](/polimento-farois-braga/). Para manter o resultado, a [lavagem automóvel em Braga](/lavagem-automovel-braga/) ou o [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
+          'Para faróis amarelados ou opacos, vê o nosso [polimento de faróis em Braga](/polimento-farois-braga/). Para manter o resultado, a [lavagem automóvel em Braga](/lavagem-automovel-braga/) ou o [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
         ],
       },
     ],
@@ -490,7 +527,7 @@ const PAGINAS = [
       },
       {
         q: 'O polimento remove todos os riscos?',
-        a: 'Remove ou reduz significativamente riscos superficiais, marcas circulares e oxidação, sem comprometer a segurança do verniz. O nível de correção é definido depois de avaliarmos a pintura.',
+        a: 'Não. Reduz ou remove riscos superficiais, marcas circulares e oxidação até onde o verniz permite; um risco que chegue à tinta ou ao primário não sai com polimento. O nível de correção é definido depois de avaliarmos a pintura.',
       },
       {
         q: 'Qual é a diferença entre o Polimento 1 Etapa e a Correção Avançada?',
@@ -508,6 +545,10 @@ const PAGINAS = [
     serviceId: 'polimento-1-etapa',
     nome: 'Polimento 1 Etapa',
     whatsapp: true,
+    ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-te o orçamento.',
+    // O botão secundário: comparar com o outro polimento, em vez de "ver
+    // preços" de um serviço que não tem preço de tabela.
+    comparar: 'polimento-automovel-braga',
     h1: 'Polimento 1 Etapa em Braga',
     intro: [
       'Ideal para pinturas com marcas ligeiras, perda de brilho e pequenos defeitos.',
@@ -535,14 +576,14 @@ const PAGINAS = [
       {
         heading: 'Resultado',
         paragrafos: [
-          'Uma pintura mais uniforme, brilhante e cuidada, com redução dos defeitos visíveis e recuperação do acabamento do automóvel.',
+          'Mais brilho e profundidade de cor, com as marcas ligeiras atenuadas. Não é uma correção profunda: riscos mais evidentes pedem a Correção Avançada.',
           'O nível de correção recomendado é definido após avaliação do estado da pintura do veículo.',
         ],
       },
       {
         heading: 'Outros polimentos',
         paragrafos: [
-          'Para pinturas mais danificadas, com riscos visíveis, swirls ou oxidação, veja a [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/). Todos os polimentos em [Polimento Automóvel em Braga](/polimento-automovel-braga/).',
+          'Para pinturas mais danificadas, com riscos visíveis, swirls ou oxidação, vê a [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/). Todos os polimentos em [Polimento Automóvel em Braga](/polimento-automovel-braga/).',
         ],
       },
     ],
@@ -568,6 +609,8 @@ const PAGINAS = [
     serviceId: 'polimento-avancado',
     nome: 'Correção Avançada de Pintura',
     whatsapp: true,
+    ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-te o orçamento.',
+    comparar: 'polimento-automovel-braga',
     h1: 'Correção Avançada de Pintura em Braga',
     intro: [
       'Um serviço mais completo para pinturas com riscos, marcas circulares, oxidação e defeitos mais evidentes.',
@@ -597,14 +640,14 @@ const PAGINAS = [
       {
         heading: 'Resultado',
         paragrafos: [
-          'Uma pintura mais uniforme, brilhante e cuidada, com redução dos defeitos visíveis e recuperação do acabamento do automóvel.',
+          'Defeitos mais evidentes reduzidos ou removidos, até onde o verniz permite — a correção respeita sempre a espessura do verniz, e o que é possível corrigir é avaliado antes de começar.',
           'O nível de correção recomendado é definido após avaliação do estado da pintura do veículo.',
         ],
       },
       {
         heading: 'Outros polimentos',
         paragrafos: [
-          'Para melhorar o brilho e corrigir defeitos ligeiros, veja o [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/). Todos os polimentos em [Polimento Automóvel em Braga](/polimento-automovel-braga/).',
+          'Para melhorar o brilho e corrigir defeitos ligeiros, vê o [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/). Todos os polimentos em [Polimento Automóvel em Braga](/polimento-automovel-braga/).',
         ],
       },
     ],
@@ -629,8 +672,11 @@ const PAGINAS = [
     slug: 'polimento-farois-braga',
     // Os dois cartões de faróis da inicial, dianteiros e traseiros, levam aqui.
     serviceId: ['farois-dianteiros', 'farois-traseiros'],
+    // Cada cartão da inicial abre a sua secção: o id da secção, por cartão.
+    ancoras: { 'farois-dianteiros': 'dianteiros', 'farois-traseiros': 'traseiros' },
     nome: 'Polimento de Faróis',
     whatsapp: true,
+    ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos o estado dos faróis e damos-te o orçamento.',
     h1: 'Polimento de Faróis em Braga',
     intro: [
       'Com o tempo, os faróis ficam amarelados, opacos e riscados: o carro parece mais velho e a luz passa pior à noite.',
@@ -638,21 +684,23 @@ const PAGINAS = [
     ],
     sections: [
       {
+        id: 'dianteiros',
         heading: 'Faróis dianteiros',
         entrada: 'Recupera faróis amarelados, opacos ou com riscos, melhorando a estética e a iluminação.',
         items: [
           'Remove oxidação e opacidade',
-          'Elimina riscos superficiais',
+          'Atenua riscos superficiais',
           'Melhora a passagem de luz',
-          'Deixa os faróis transparentes e como novos',
+          'Devolve a transparência',
         ],
       },
       {
+        id: 'traseiros',
         heading: 'Luzes traseiras',
-        entrada: 'Recupera o aspeto original das luzes traseiras, removendo opacidade e riscos superficiais.',
+        entrada: 'Recupera o aspeto das luzes traseiras, removendo opacidade e riscos superficiais.',
         items: [
           'Remove desgaste e opacidade',
-          'Elimina riscos superficiais',
+          'Atenua riscos superficiais',
           'Recupera a transparência',
           'Melhora o aspeto do veículo',
         ],
@@ -667,7 +715,7 @@ const PAGINAS = [
       {
         heading: 'Serviços relacionados',
         paragrafos: [
-          'Para a pintura, veja o nosso [polimento automóvel em Braga](/polimento-automovel-braga/). Para um tratamento completo do carro, o [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
+          'Para a pintura, vê o nosso [polimento automóvel em Braga](/polimento-automovel-braga/). Para um tratamento completo do carro, o [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
         ],
       },
     ],
@@ -683,7 +731,7 @@ const PAGINAS = [
       },
       {
         q: 'O polimento resolve faróis amarelados?',
-        a: 'Sim. Remove a oxidação e a opacidade que deixam os faróis amarelados, e os riscos superficiais.',
+        a: 'Na maioria dos casos, sim. Remove a oxidação e a opacidade que deixam os faróis amarelados e atenua os riscos superficiais. Um farol fissurado ou com a oxidação por dentro é avaliado antes.',
       },
     ],
   },
@@ -732,7 +780,7 @@ export const PAGE_BY_SERVICE = Object.fromEntries(
  */
 export const precoDe = (page) => (page.levelId ? LEVEL_BY_ID[page.levelId].prices.carro : null);
 
-/** Um link no meio do texto: "[texto](/endereco/)". */
+/** Um link no meio do texto: "[texto](/endereco/)". Em inglês leva /en à frente (rotas.js). */
 export const LIGACAO = /\[([^\]]+)\]\(([^)]+)\)/g;
 
 /**

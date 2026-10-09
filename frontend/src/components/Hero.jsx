@@ -7,7 +7,7 @@ const HERO_CAR = `${process.env.PUBLIC_URL}/img/banner`;
 
 export default function Hero({ onBook }) {
   const { t, tx } = useLang();
-  const waMsg = encodeURIComponent(t('whatsapp.msg'));
+  const waMsg = encodeURIComponent(t('whatsapp.quote'));
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
 
   return (
@@ -15,7 +15,10 @@ export default function Hero({ onBook }) {
       <div className="relative min-h-[100vh] flex flex-col">
         {/* Background */}
         <div className="absolute inset-0 z-0">
+          {/* No telemóvel vai a versão de 768px: a de 1536 era o maior
+              elemento da página a chegar três segundos depois. */}
           <picture>
+            <source media="(max-width: 767px)" srcSet={`${HERO_CAR}-sm.webp`} type="image/webp" />
             <source srcSet={`${HERO_CAR}.webp`} type="image/webp" />
             <img
               src={`${HERO_CAR}.jpg`}
@@ -64,8 +67,8 @@ export default function Hero({ onBook }) {
                   onClick={onBook}
                   className="btn-silver inline-flex items-center justify-center gap-2 px-8 py-4 text-xs tracking-[0.25em] font-bold"
                 >
-                  <CalendarDays className="w-4 h-4" />
-                  MARCAR AGORA
+                  <CalendarDays className="w-4 h-4" aria-hidden="true" />
+                  {t('hero.book')}
                 </button>
                 <a
                   href={waUrl}
@@ -73,7 +76,7 @@ export default function Hero({ onBook }) {
                   rel="noreferrer"
                   className="inline-flex items-center justify-center gap-2 border border-white/55 text-white px-8 py-4 text-xs tracking-[0.25em] font-bold hover:bg-emerald-900/30 hover:border-emerald-500 hover:text-emerald-300 transition"
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <MessageCircle className="w-4 h-4" aria-hidden="true" />
                   {t('hero.whatsapp')}
                 </a>
               </div>

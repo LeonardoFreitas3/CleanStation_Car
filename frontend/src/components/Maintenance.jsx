@@ -111,7 +111,7 @@ export default function Maintenance({ onUnlock }) {
           </a>
         </div>
 
-        <div className="mt-10 pt-8 border-t border-white/10 text-white/45 text-xs leading-relaxed">
+        <div className="mt-10 pt-8 border-t border-white/10 text-white/60 text-xs leading-relaxed">
           <p>{SITE.address}</p>
           <p className="mt-1">{SITE.hours}</p>
           <a
@@ -143,7 +143,7 @@ export default function Maintenance({ onUnlock }) {
                 type="button"
                 onClick={() => { setShowLogin(false); setError(null); }}
                 aria-label="Fechar"
-                className="text-white/35 hover:text-white transition"
+                className="text-white/50 hover:text-white transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -173,7 +173,7 @@ export default function Maintenance({ onUnlock }) {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? 'Esconder palavra-passe' : 'Mostrar palavra-passe'}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-white/40 hover:text-blue-400 transition"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-white/55 hover:text-blue-400 transition"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>

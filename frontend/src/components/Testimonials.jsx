@@ -52,7 +52,7 @@ export default function Testimonials() {
             >
               <Quote className="absolute top-5 right-5 w-8 h-8 text-blue-500/25" strokeWidth={1} />
 
-              <div className="flex gap-1 mb-5" aria-label={`${review.rating} em 5 estrelas`}>
+              <div className="flex gap-1 mb-5" role="img" aria-label={`${review.rating}/5`}>
                 {Array.from({ length: 5 }).map((_, k) => (
                   <Star
                     key={k}
@@ -67,7 +67,7 @@ export default function Testimonials() {
 
               <div className="pt-5 border-t border-white/10 text-center">
                 <div className="text-white font-semibold tracking-wide">{review.name}</div>
-                <div className="text-white/45 text-xs tracking-[0.22em] mt-1">
+                <div className="text-white/60 text-xs tracking-[0.22em] mt-1">
                   {review.car ? review.car.toUpperCase() : review.date}
                 </div>
               </div>
@@ -79,12 +79,12 @@ export default function Testimonials() {
           <div className="flex justify-center items-center gap-4 mt-10">
             <button
               onClick={() => setIdx((i) => (i - 1 + total) % total)}
-              aria-label={t('beforeAfter.prev')}
+              aria-label={t('testimonials.prev')}
               className="w-10 h-10 rounded-full border border-white/20 text-white hover:border-blue-500 hover:bg-blue-900/30 hover:text-blue-400 flex items-center justify-center transition"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
             </button>
-            <div className="flex gap-2">
+            <div className="flex gap-2" aria-hidden="true">
               {TESTIMONIALS.map((r, i) => (
                 <span
                   key={r.name}
@@ -94,10 +94,10 @@ export default function Testimonials() {
             </div>
             <button
               onClick={() => setIdx((i) => (i + 1) % total)}
-              aria-label={t('beforeAfter.next')}
+              aria-label={t('testimonials.next')}
               className="w-10 h-10 rounded-full border border-white/20 text-white hover:border-blue-500 hover:bg-blue-900/30 hover:text-blue-400 flex items-center justify-center transition"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         )}
@@ -108,9 +108,9 @@ export default function Testimonials() {
             href={SITE.reviewsUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 text-white/45 hover:text-blue-400 text-xs tracking-[0.15em] transition"
+            className="inline-flex items-center gap-2 text-white/60 hover:text-blue-400 text-xs tracking-[0.15em] transition"
           >
-            {t('testimonials.seeAll')} <ExternalLink className="w-3.5 h-3.5" />
+            {t('testimonials.seeAll')} <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
           </a>
         </div>
       </div>

@@ -12,9 +12,24 @@ export default function CookieBanner({ onOpenPolicy }) {
   const [analytics, setAnalytics] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(CONSENT_KEY);
-    if (!stored) setTimeout(() => setVisible(true), 1200);
+    // Sem localStorage (janela privada, bloqueado) o aviso aparece de cada vez
+    // — é o que há; o site funciona na mesma.
+    let stored = null;
+    try { stored = localStorage.getItem(CONSENT_KEY); } catch { /* idem */ }
+    if (!stored) {
+      const t = setTimeout(() => setVisible(true), 1200);
+      return () => clearTimeout(t);
+    }
+    return undefined;
   }, []);
+
+  // Enquanto está à vista, o botão flutuante do WhatsApp esconde-se (index.css):
+  // partilhavam o canto e o botão caía em cima do "Aceitar".
+  useEffect(() => {
+    if (!visible) return undefined;
+    document.body.dataset.cookieBanner = '1';
+    return () => { delete document.body.dataset.cookieBanner; };
+  }, [visible]);
 
   const save = (acceptAll) => {
     const analyticsAccepted = acceptAll ? true : analytics;
@@ -23,7 +38,7 @@ export default function CookieBanner({ onOpenPolicy }) {
       analytics: analyticsAccepted,
       date: new Date().toISOString(),
     };
-    localStorage.setItem(CONSENT_KEY, JSON.stringify(consent));
+    try { localStorage.setItem(CONSENT_KEY, JSON.stringify(consent)); } catch { /* idem */ }
     applyConsent(analyticsAccepted);
     setVisible(false);
   };
@@ -31,11 +46,11 @@ export default function CookieBanner({ onOpenPolicy }) {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 md:p-6">
+    <div role="region" aria-label={t('cookie.title')} className="fixed bottom-0 left-0 right-0 z-[100] p-4 md:p-6">
       <div className="max-w-4xl mx-auto bg-zinc-900 border border-white/15 shadow-2xl">
         {/* Main row */}
         <div className="flex items-start gap-4 p-5">
-          <Cookie className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+          <Cookie className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold tracking-wide">
               {t('cookie.title')}
@@ -55,7 +70,7 @@ export default function CookieBanner({ onOpenPolicy }) {
                     <div className="text-white text-xs font-semibold">{t('cookie.necessary')}</div>
                     <div className="text-white/50 text-[11px] mt-0.5">{t('cookie.necessaryDesc')}</div>
                   </div>
-                  <div className="w-10 h-5 bg-blue-700 rounded-full flex items-center px-1 shrink-0">
+                  <div role="switch" aria-checked="true" aria-disabled="true" aria-label={t('cookie.necessary')} className="w-10 h-5 bg-blue-700 rounded-full flex items-center px-1 shrink-0">
                     <div className="w-3 h-3 bg-white rounded-full ml-auto" />
                   </div>
                 </div>
@@ -65,6 +80,10 @@ export default function CookieBanner({ onOpenPolicy }) {
                     <div className="text-white/50 text-[11px] mt-0.5">{t('cookie.analyticsDesc')}</div>
                   </div>
                   <button
+                    type="button"
+                    role="switch"
+                    aria-checked={analytics}
+                    aria-label={t('cookie.analytics')}
                     onClick={() => setAnalytics(v => !v)}
                     className={`w-10 h-5 rounded-full flex items-center px-1 shrink-0 transition-colors ${analytics ? 'bg-blue-700' : 'bg-white/20'}`}
                   >
@@ -77,11 +96,11 @@ export default function CookieBanner({ onOpenPolicy }) {
 
           <button
             onClick={() => save(false)}
-            className="p-1.5 -m-1.5 text-white/40 hover:text-white transition shrink-0"
+            className="p-1.5 -m-1.5 text-white/55 hover:text-white transition shrink-0"
             aria-label={t('cookie.declineTitle')}
             title={t('cookie.declineTitle')}
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
 
@@ -89,6 +108,7 @@ export default function CookieBanner({ onOpenPolicy }) {
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pb-5 pt-0">
           <button
             onClick={() => setExpanded(v => !v)}
+            aria-expanded={expanded}
             className="inline-flex items-center gap-1.5 py-1 text-white/50 hover:text-blue-400 text-[11px] tracking-[0.2em] transition-colors"
           >
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}

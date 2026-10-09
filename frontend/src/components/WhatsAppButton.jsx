@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
       target="_blank"
       rel="noreferrer"
       aria-label={t('whatsapp.aria')}
-      className="fixed bottom-6 right-6 z-[70] group"
+      className="wa-flutuante fixed bottom-6 right-6 z-[70] group"
     >
       <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-30" />
       <span className="relative w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-xl shadow-emerald-900/40 transition">

@@ -16,6 +16,19 @@ html {
     scroll-behavior: smooth;
 }
 
+/* O menu é fixo e tem cerca de 70px: sem isto, ir a uma secção pela âncora
+   deixava o título escondido debaixo dele. */
+section[id],
+[id].ancora {
+    scroll-margin-top: 88px;
+}
+
+/* O botão do WhatsApp e o aviso dos cookies partilham o canto inferior; enquanto
+   o aviso está à vista, o botão sai, em vez de ficar em cima do "Aceitar". */
+body[data-cookie-banner] .wa-flutuante {
+    display: none;
+}
+
 /* Premium serif display font for titles */
 .font-display {
     font-family: var(--font-cinzel), Georgia, serif;

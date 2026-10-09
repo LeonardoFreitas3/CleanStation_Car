@@ -10,9 +10,8 @@
 // "Basic Wash" a um cartão e "Simple Wash" à página do mesmo serviço parece
 // dois sítios diferentes.
 //
-// O endereço não muda com a língua, e é de propósito: quem procura em inglês
-// "car wash braga" chega ao mesmo sítio, e um segundo endereço para o mesmo
-// serviço era um segundo canonical a dividir o que o Google já sabe deste.
+// O endereço inglês é o português com /en/ à frente (rotas.js): o slug não
+// se traduz, e cada língua tem o seu canonical a apontar para a outra.
 
 export const EN_PAGES = {
   'lavagem-automovel-braga': {
@@ -54,8 +53,8 @@ export const EN_PAGES = {
       {
         heading: 'How long it takes',
         paragrafos: [
-          'Around 1h30 on average.',
-          'Vehicles that are dirtier than usual may need more time. When that happens, we always tell the customer beforehand.',
+          'Around 1h30 on average for a car. SUVs, MPVs and large vans take longer, and the estimate is shown when you book.',
+          'Vehicles that are dirtier than usual may need more time. When that happens, we always tell you beforehand.',
         ],
       },
       {
@@ -85,8 +84,8 @@ export const EN_PAGES = {
         a: 'Yes. The service covers both interior and exterior cleaning.',
       },
       {
-        q: 'Can the price go up?',
-        a: 'Only when the vehicle is significantly dirtier than usual. Any additional amount is explained in advance.',
+        q: 'Can the price differ from the one shown?',
+        a: 'The price depends on the type of vehicle: the "from" price is for a car, and SUVs, MPVs and large vans have their own price, shown when you book. Dirt beyond the normal may carry a supplement, always approved with you before the service. Prices include VAT.',
       },
       {
         q: 'How is it different from the Wash with Sealant?',
@@ -136,7 +135,11 @@ export const EN_PAGES = {
       },
       {
         q: 'Does the Wash with Sealant include interior cleaning?',
-        a: 'Yes. It includes the interior and exterior cleaning of the Basic Wash.',
+        a: 'Yes. It is exactly the Basic Wash, interior and exterior, plus the sealant on the paint.',
+      },
+      {
+        q: 'Is the sealant a ceramic coating?',
+        a: 'No. It is a paint sealant: it protects and adds shine and a hydrophobic effect, but it is not a ceramic coating.',
       },
       {
         q: 'How long does the protection last?',
@@ -162,7 +165,7 @@ export const EN_PAGES = {
         entrada: 'Everything in the Basic Wash, plus:',
         items: [
           'Glass decontamination',
-          'Premium paint protection',
+          'Premium sealant on the paint',
           'Deeper vacuuming',
           'Detailed interior cleaning',
           'Cleaning of hard-to-reach areas',
@@ -181,8 +184,8 @@ export const EN_PAGES = {
         ],
       },
       {
-        heading: 'Paint protection',
-        entrada: 'A premium protection is applied, giving:',
+        heading: 'Premium sealant',
+        entrada: 'A premium sealant is applied to the paint, giving:',
         items: [
           'More shine',
           'More visual depth to the paint',
@@ -213,11 +216,11 @@ export const EN_PAGES = {
       },
       {
         q: 'Does the Premium Wash include paint protection?',
-        a: 'Yes. A premium protection is applied to the paint.',
+        a: 'Yes. A premium sealant is applied to the paint. It is a sealant, not a ceramic coating.',
       },
       {
         q: 'How is the Premium different from the Detailed Wash?',
-        a: 'The Detailed Wash is a significantly deeper service, including seat removal, deep sanitising and paint decontamination.',
+        a: 'The Detailed Wash adds to the Premium the removal and sanitising of the seats, paint decontamination and deep cleaning of wheels and tyres.',
       },
     ],
   },
@@ -255,13 +258,11 @@ export const EN_PAGES = {
       },
       {
         heading: 'Exterior',
-        entrada: 'On top of the full Premium Wash process, we also carry out:',
+        entrada: 'On top of the full Premium Wash process, with its glass decontamination and premium sealant, we also carry out:',
         items: [
           'Paint decontamination',
           'Deep wheel cleaning',
           'Tyre cleaning',
-          'Glass decontamination',
-          'Paint protection',
         ],
       },
       {
@@ -306,17 +307,30 @@ export const EN_PAGES = {
     intro: [
       'Car detailing goes beyond a wash: it is the careful work of cleaning, restoring and protecting every part of the vehicle, inside and out.',
       'At Clean Station Car we detail cars in Braga with time and attention for each one — from deep interior cleaning to decontamination, polishing and paint protection.',
+      'This page brings together different treatments: the washes, with a set price, and polishing, which is a separate service quoted after we see the paint. No wash includes polishing.',
     ],
     sections: [
       {
         heading: 'What car detailing includes',
-        items: [
-          'Detailed interior cleaning, including hard-to-reach areas',
-          'Seat removal and deep sanitising',
-          'Paint and glass decontamination',
-          'Deep cleaning of wheels and tyres',
-          'Paint polishing and correction',
-          'Paint protection',
+        grupos: [
+          {
+            titulo: 'In the Premium and Detailed washes',
+            items: [
+              'Detailed interior cleaning, including hard-to-reach areas',
+              'Seat removal and deep sanitising (Detailed)',
+              'Glass and paint decontamination (paint only in the Detailed)',
+              'Deep cleaning of wheels and tyres (Detailed)',
+              'Premium sealant on the paint',
+            ],
+          },
+          {
+            titulo: 'Booked separately',
+            items: [
+              '1-stage polishing',
+              'Advanced paint correction',
+              'Headlight polishing',
+            ],
+          },
         ],
       },
       {
@@ -352,7 +366,7 @@ export const EN_PAGES = {
       },
       {
         q: 'How much does car detailing cost in Braga?',
-        a: 'It depends on the service. Washes have a set price per vehicle type; polishing is quoted after we assess the paint.',
+        a: 'It depends on the service. Washes have a set price per vehicle type, VAT included; polishing is booked separately and quoted after we assess the paint.',
       },
     ],
   },
@@ -365,18 +379,39 @@ export const EN_PAGES = {
       + 'and seat and upholstery sanitising. Book online at Clean Station Car.',
     h1: 'Interior Car Cleaning in Braga',
     intro: [
-      'We clean car interiors in Braga with vacuuming, dashboard and hard-to-reach cleaning and, in our most complete service, deep sanitising of the seats.',
-      'Every one of our washes includes interior cleaning; what changes between them is how deep the work goes.',
+      'We clean car interiors in Braga at three levels: the maintenance clean of the Basic and Sealant washes, the detailed interior cleaning of the Premium, and the sanitising with seat removal of the Detailed.',
+      'Every one of our washes includes interior cleaning; what changes between them is how deep the work goes. Only the Detailed removes the seats.',
     ],
     sections: [
       {
         heading: 'What interior cleaning includes',
-        items: [
-          'Vacuuming of carpets, floor mats and boot',
-          'Dashboard and centre console cleaning',
-          'Cleaning of air vents, controls and door pockets',
-          'Cleaning between the seats and in hard-to-reach areas',
-          'Seat removal and deep sanitising',
+        grupos: [
+          {
+            titulo: 'Maintenance · Basic and Sealant',
+            items: [
+              'Vacuuming of carpets, floor mats and boot',
+              'Dashboard cleaning',
+              'Clean windows',
+            ],
+          },
+          {
+            titulo: 'Detailed cleaning · Premium',
+            items: [
+              'Everything in the maintenance clean, with deeper vacuuming',
+              'Cleaning of air vents, controls and door pockets',
+              'Centre console and gaps between the seats',
+              'Hard-to-reach areas',
+            ],
+          },
+          {
+            titulo: 'Sanitising · Detailed',
+            items: [
+              'Everything in the detailed cleaning',
+              'Seat removal',
+              'Deep sanitising of the seats, one by one',
+              'Cleaning of the areas unreachable with the seats in place',
+            ],
+          },
         ],
       },
       {
@@ -406,7 +441,7 @@ export const EN_PAGES = {
     faq: [
       {
         q: 'Do you clean seats and upholstery?',
-        a: 'Yes. In the Detailed Wash the seats are removed and sanitised one by one.',
+        a: 'Yes. In the Detailed Wash the seats are removed and sanitised one by one. The other washes clean the interior without removing the seats.',
       },
       {
         q: 'Do all washes include interior cleaning?',
@@ -421,6 +456,7 @@ export const EN_PAGES = {
 
   'polimento-automovel-braga': {
     nome: 'Car Polishing',
+    ctaTexto: 'Send us a message on WhatsApp. We assess the paint and give you a quote.',
     title: 'Car Polishing in Braga | Clean Station Car',
     description:
       'Car polishing in Braga: 1-stage polishing and advanced paint correction to '
@@ -457,7 +493,7 @@ export const EN_PAGES = {
       {
         heading: 'The result',
         paragrafos: [
-          'A more even, glossy and cared-for paint finish, with fewer visible defects and the car’s finish restored.',
+          'With 1-Stage Polishing: more shine and light marks softened. With Advanced Correction: more visible defects reduced or removed, as far as the clear coat allows. No polishing removes every scratch, and what can be corrected is explained before we start.',
           'Book an assessment of your vehicle at Clean Station Car, in Braga.',
         ],
       },
@@ -476,7 +512,7 @@ export const EN_PAGES = {
       },
       {
         q: 'Does polishing remove every scratch?',
-        a: 'It removes or significantly reduces surface scratches, swirl marks and oxidation, without compromising the safety of the clear coat. The level of correction is set after we assess the paint.',
+        a: 'No. It reduces or removes surface scratches, swirl marks and oxidation as far as the clear coat allows; a scratch that reaches the colour or the primer will not polish out. The level of correction is set after we assess the paint.',
       },
       {
         q: 'How is 1-Stage Polishing different from Advanced Correction?',
@@ -491,6 +527,7 @@ export const EN_PAGES = {
 
   'polimento-1-etapa-braga': {
     nome: '1-Stage Polishing',
+    ctaTexto: 'Send us a message on WhatsApp. We assess the paint and give you a quote.',
     title: '1-Stage Car Polishing in Braga | Clean Station Car',
     description:
       '1-stage polishing in Braga for paint with light marks and loss of shine: '
@@ -522,7 +559,7 @@ export const EN_PAGES = {
       {
         heading: 'The result',
         paragrafos: [
-          'A more even, glossy and cared-for paint finish, with fewer visible defects and the car’s finish restored.',
+          'More shine and colour depth, with light marks softened. It is not a deep correction: more visible scratches call for the Advanced Correction.',
           'The recommended level of correction is set after assessing the condition of the vehicle’s paint.',
         ],
       },
@@ -552,6 +589,7 @@ export const EN_PAGES = {
 
   'correcao-pintura-braga': {
     nome: 'Advanced Paint Correction',
+    ctaTexto: 'Send us a message on WhatsApp. We assess the paint and give you a quote.',
     title: 'Advanced Paint Correction in Braga | Clean Station Car',
     description:
       'Advanced paint correction in Braga: multi-stage polishing for scratches, swirls '
@@ -585,7 +623,7 @@ export const EN_PAGES = {
       {
         heading: 'The result',
         paragrafos: [
-          'A more even, glossy and cared-for paint finish, with fewer visible defects and the car’s finish restored.',
+          'More visible defects reduced or removed, as far as the clear coat allows — the correction always respects the thickness of the clear coat, and what can be corrected is assessed before we start.',
           'The recommended level of correction is set after assessing the condition of the vehicle’s paint.',
         ],
       },
@@ -615,6 +653,7 @@ export const EN_PAGES = {
 
   'polimento-farois-braga': {
     nome: 'Headlight Polishing',
+    ctaTexto: 'Send us a message on WhatsApp. We assess the condition of the headlights and give you a quote.',
     title: 'Headlight Polishing in Braga | Clean Station Car',
     description:
       'Headlight polishing in Braga: we restore yellowed, hazy or scratched '
@@ -626,21 +665,23 @@ export const EN_PAGES = {
     ],
     sections: [
       {
+        id: 'dianteiros',
         heading: 'Front headlights',
         entrada: 'Restores yellowed, hazy or scratched headlights, improving appearance and illumination.',
         items: [
           'Removes oxidation and haziness',
-          'Eliminates surface scratches',
+          'Softens surface scratches',
           'Improves light output',
-          'Leaves headlights clear and like new',
+          'Restores clarity',
         ],
       },
       {
+        id: 'traseiros',
         heading: 'Rear lights',
-        entrada: 'Restores the original look of rear lights, removing haziness and surface scratches.',
+        entrada: 'Restores the look of rear lights, removing haziness and surface scratches.',
         items: [
           'Removes wear and haziness',
-          'Eliminates surface scratches',
+          'Softens surface scratches',
           'Restores clarity',
           'Improves the look of the vehicle',
         ],
@@ -671,7 +712,7 @@ export const EN_PAGES = {
       },
       {
         q: 'Does polishing fix yellowed headlights?',
-        a: 'Yes. It removes the oxidation and haziness that turn headlights yellow, as well as surface scratches.',
+        a: 'In most cases, yes. It removes the oxidation and haziness that turn headlights yellow and softens surface scratches. A cracked headlight, or one hazy on the inside, is assessed first.',
       },
     ],
   },

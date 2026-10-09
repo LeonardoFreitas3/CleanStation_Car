@@ -33,8 +33,12 @@ todos no Postgres.
 
 ```
 frontend/src/
-  app/              as páginas do Next: a inicial, uma por lavagem, o sitemap,
-                    e o not-found, que é onde montam o CRM e a galeria
+  app/              as páginas do Next: a inicial, uma por serviço, as mesmas
+                    em inglês debaixo de /en/, o sitemap, e o not-found, que é
+                    onde montam o CRM e a galeria
+  paginas.jsx       o <head> e os dados estruturados de cada página, nas duas
+                    línguas; os ficheiros em app/ só chamam isto
+  rotas.js          os endereços nas duas línguas (/x/ e /en/x/)
   booking/          formulário de marcação (modal do site) e a tabela de preços
   components/       site público: hero, serviços, FAQ, termos, cookies
   gallery/          página pública das fotografias de um serviço, por token
@@ -59,6 +63,15 @@ Precisa de um `frontend/.env.local` com as chaves públicas do Supabase:
 ```
 REACT_APP_SUPABASE_URL=https://<project>.supabase.co
 REACT_APP_SUPABASE_ANON_KEY=<anon key>
+```
+
+Opcionais, para o Google. Sem eles o site não carrega etiqueta nenhuma:
+
+```
+REACT_APP_GA_ID=G-XXXXXXXXXX              # GA4
+REACT_APP_ADS_ID=AW-XXXXXXXXX             # Google Ads
+REACT_APP_ADS_CONVERSION=<rótulo>          # conversão "marcação" do Ads (ver frontend/src/analytics.js)
+REACT_APP_REVIEWS_URL=https://g.page/...  # link directo das avaliações do perfil Google
 ```
 
 A anon key é pública por desenho — o que protege os dados é o RLS, não o

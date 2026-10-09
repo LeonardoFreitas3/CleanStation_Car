@@ -5,7 +5,7 @@ import { useLang } from '../i18n';
 
 export default function ContactMap() {
   const { t } = useLang();
-  const waMsg = encodeURIComponent(t('whatsapp.msg'));
+  const waMsg = encodeURIComponent(t('whatsapp.quote'));
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
 
   return (
@@ -73,7 +73,7 @@ export default function ContactMap() {
               href={waUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-xs tracking-[0.25em] font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition"
+              className="mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-xs tracking-[0.25em] font-bold bg-emerald-700 hover:bg-emerald-600 text-white transition"
             >
               <MessageCircle className="w-4 h-4" /> {t('contact.whatsapp')}
             </a>

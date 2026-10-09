@@ -1,11 +1,27 @@
 import React from 'react';
 import { Instagram } from 'lucide-react';
-import { SITE, TESTIMONIALS } from '../mock';
+import { TESTIMONIALS } from '../mock';
 import { useLang } from '../i18n';
+import { absoluto, ancora } from '../rotas';
 import Logo from './Logo';
 
 export default function Footer({ onLegal }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+
+  // Com a barra à frente: numa página de serviço "#about" não ia a lado
+  // nenhum, porque a secção vive na página inicial. "/#about" vai lá ter de
+  // qualquer página, e na inicial é o mesmo que a âncora.
+  const LINKS = [
+    { hash: '#home',         key: 'footer.home' },
+    { hash: '#about',        key: 'footer.about' },
+    { hash: '#services',     key: 'footer.services' },
+    // Só enquanto houver avaliações reais: a secção não é montada sem elas, e
+    // o link não levava a lado nenhum.
+    { hash: '#testimonials', key: 'footer.testimonials', only: TESTIMONIALS.length > 0 },
+    { hash: '#faq',          key: 'footer.faq' },
+    { hash: '#contact',      key: 'footer.contact' },
+  ].filter((l) => l.only !== false);
+
   return (
     <footer className="bg-black border-t border-white/10 pt-16 pb-6">
       <div className="max-w-7xl mx-auto px-6">
@@ -27,16 +43,11 @@ export default function Footer({ onLegal }) {
             {/* py-1 nos links e gap menor: a 17px de altura os alvos ficavam abaixo
                   dos 24px que uma pessoa acerta com o dedo. */}
             <ul className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
-              <li><a href="#home"         className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.home')}</a></li>
-              <li><a href="#about"        className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.about')}</a></li>
-              <li><a href="#services"     className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.services')}</a></li>
-              {/* Só enquanto houver avaliações reais: a secção não é montada
-                  sem elas, e o link não levava a lado nenhum. */}
-              {TESTIMONIALS.length > 0 && (
-                <li><a href="#testimonials" className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.testimonials')}</a></li>
-              )}
-              <li><a href="#faq"          className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.faq')}</a></li>
-              <li><a href="#contact"      className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t('footer.contact')}</a></li>
+              {LINKS.map((l) => (
+                <li key={l.hash}>
+                  <a href={absoluto(ancora(lang, l.hash))} className="inline-block py-1 text-white/65 hover:text-blue-400 transition-colors">{t(l.key)}</a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -59,15 +70,15 @@ export default function Footer({ onLegal }) {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-3 pt-6 text-xs text-white/45">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3 pt-6 text-xs text-white/60">
           {/* O ano sai no HTML do build. Num site construído em dezembro e
               visto em janeiro o browser discordava, e o React redesenhava a
               página inteira por causa de um número; assim fica o do build. */}
           <div suppressHydrationWarning>© {new Date().getFullYear()} Clean Station Car. {t('footer.rights')}</div>
           <div className="flex gap-5">
-            <button onClick={() => onLegal('privacy')} className="hover:text-blue-400 transition-colors">{t('footer.privacy')}</button>
-            <button onClick={() => onLegal('terms')}   className="hover:text-blue-400 transition-colors">{t('footer.terms')}</button>
-            <button onClick={() => onLegal('cookies')} className="hover:text-blue-400 transition-colors">{t('footer.cookies')}</button>
+            <button onClick={() => onLegal('privacy')} className="py-1 hover:text-blue-400 transition-colors">{t('footer.privacy')}</button>
+            <button onClick={() => onLegal('terms')}   className="py-1 hover:text-blue-400 transition-colors">{t('footer.terms')}</button>
+            <button onClick={() => onLegal('cookies')} className="py-1 hover:text-blue-400 transition-colors">{t('footer.cookies')}</button>
           </div>
         </div>
       </div>

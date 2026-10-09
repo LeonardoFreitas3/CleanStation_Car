@@ -3,6 +3,12 @@ import '../index.css';
 import { LanguageProvider } from '../i18n';
 import { SITE_URL } from '../seo';
 
+// O layout de raiz, um por língua: (pt)/layout.jsx e (en)/layout.jsx chamam
+// isto com o `lang` certo. Dois layouts de raiz e não um, por causa do <html
+// lang>: um só layout saía sempre com lang="pt", e as páginas de /en/ só
+// diziam "en" depois de o JavaScript correr — o HTML cru contradizia o
+// hreflang.
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   // Sem título por omissão, de propósito: o CRM escreve o seu no
@@ -19,17 +25,17 @@ export const metadata = {
   },
 };
 
+export const viewport = { themeColor: '#000000' };
+
 // Servidas pelo próprio site, descarregadas no build. Eram um @import do Google
 // Fonts no index.css, que o build do Next deita fora: desde a passagem para Next
 // os títulos saíam em Georgia e o texto só tinha a Inter a 600.
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', display: 'swap' });
 
-export const viewport = { themeColor: '#000000' };
-
-export default function RootLayout({ children }) {
+export default function Raiz({ lang, children }) {
   return (
-    <html lang="pt" className={`${inter.variable} ${cinzel.variable}`}>
+    <html lang={lang} className={`${inter.variable} ${cinzel.variable}`}>
       <body>
         <LanguageProvider>{children}</LanguageProvider>
       </body>

@@ -270,6 +270,29 @@ async function handleCreate(body: Record<string, unknown>) {
     return json({ error: 'A data escolhida já passou' }, 400);
   }
 
+  const db = admin();
+
+  // A mesma viatura à mesma hora é a mesma marcação: um segundo clique em
+  // "Confirmar", um refresh a meio, o formulário reenviado. Sem isto, o
+  // segundo pedido levava com "hora ocupada" — ocupada por ele próprio — e o
+  // cliente marcava outra hora, ficando com duas. Devolve-se a que já existe.
+  // Antes da disponibilidade, de propósito: é a primeira marcação que ocupa a
+  // hora.
+  const { data: repetida } = await db.from('services')
+    .select('reference, google_event_id, vehicle:vehicles!inner(plate_norm)')
+    .eq('vehicle.plate_norm', plateNorm)
+    .eq('scheduled_at', new Date(startIso).toISOString())
+    .is('deleted_at', null)
+    .neq('status', 'cancelado')
+    .limit(1)
+    .maybeSingle();
+  if (repetida) {
+    return json({
+      ok: true, reference: repetida.reference, eventId: repetida.google_event_id,
+      emailSent: false, scheduledAt: startIso, duplicada: true,
+    });
+  }
+
   // Revalidar a disponibilidade. Entre ver a hora livre e carregar em confirmar
   // podem passar minutos, e nesse intervalo outra pessoa pode ter marcado.
   const [ocupado, h] = await Promise.all([busyWindow(date), horario()]);
@@ -301,7 +324,6 @@ async function handleCreate(body: Record<string, unknown>) {
   });
 
   // ── 2. Registo no CRM ──────────────────────────────────────────────────────
-  const db = admin();
   let reference: number | null = null;
 
   try {
