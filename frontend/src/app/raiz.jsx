@@ -38,6 +38,7 @@ export default function Raiz({ lang, children }) {
     <html lang={lang} className={`${inter.variable} ${cinzel.variable}`}>
       <body>
         <LanguageProvider>{children}</LanguageProvider>
+        <script src="https://www.chatlisted.com/v.js" async />
       </body>
     </html>
   );
