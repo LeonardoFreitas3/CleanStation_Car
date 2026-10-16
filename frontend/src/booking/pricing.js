@@ -127,7 +127,21 @@ export function eur(n) {
 }
 
 /**
- * Orçamento: o preço do nível para aquele tipo de veículo, e mais nada.
+ * Cupões aceites na marcação. Espelho de COUPONS em
+ * supabase/functions/booking/catalogue.ts — o site mostra, o servidor decide.
+ */
+export const COUPONS = {
+  TAFIXE: { pct: 15, label: '15% de desconto na lavagem' },
+};
+
+export const normalizeCoupon = (code) => (code ?? '').trim().toUpperCase();
+
+/** O cupão, se o código existir; undefined se não. Vazio também dá undefined. */
+export const couponFor = (code) => COUPONS[normalizeCoupon(code)];
+
+/**
+ * Orçamento: o preço do nível para aquele tipo de veículo, menos o cupão, se
+ * houver um válido.
  *
  * Houve aqui duas coisas que já não há. Um multiplicador por "grau de
  * sujidade", que subia o valor 30% ou 75% conforme as caixas que o cliente
@@ -135,9 +149,11 @@ export function eur(n) {
  * ambos em agosto de 2026, por decisão do negócio — o preço do site é o da
  * tabela, e o resto orça-se ao ver a viatura.
  *
- * @param {{ vehicleId?: string, levelId?: string }} params
+ * @param {{ vehicleId?: string, levelId?: string, coupon?: string }} params
  */
-export function computeQuote({ vehicleId, levelId }) {
+export function computeQuote({ vehicleId, levelId, coupon }) {
   const base = priceFor(vehicleId, levelId) ?? 0;
-  return { base, total: base };
+  const c = couponFor(coupon);
+  const discount = c ? Math.round(base * c.pct) / 100 : 0;
+  return { base, discount, pct: c?.pct ?? 0, total: Math.round((base - discount) * 100) / 100 };
 }

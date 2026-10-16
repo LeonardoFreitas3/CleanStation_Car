@@ -13,7 +13,7 @@ import { formatDuration, freeSlots, isClosed, slotIso, HORARIO_OMISSAO } from '.
 import type { Horario } from './slots.ts';
 import type { Busy } from './slots.ts';
 import { sendConfirmation } from './email.ts';
-import { resolve } from './catalogue.ts';
+import { applyCoupon, resolve } from './catalogue.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -257,7 +257,19 @@ async function handleCreate(body: Record<string, unknown>) {
     return json({ error: e instanceof Error ? e.message : 'Serviço inválido' }, 400);
   }
 
-  const { price, duration } = resolved;
+  const { duration } = resolved;
+
+  // O cupão também se resolve aqui: o site só mostra o desconto, quem decide é
+  // o catálogo. Um código errado é recusado em vez de ignorado — senão o
+  // cliente marcava convencido de que tinha 15% e pagava o preço inteiro.
+  let discount;
+  try {
+    discount = applyCoupon(resolved.price, String(body.coupon ?? ''));
+  } catch (e) {
+    return json({ error: e instanceof Error ? e.message : 'Cupão inválido' }, 400);
+  }
+  const price = discount?.total ?? resolved.price;
+  const couponLine = discount ? `Cupão: ${discount.code} (-${discount.pct}%, -${discount.amount} EUR)` : '';
 
   // hora/minuto por extenso e nao h/m: o `h` desta funcao passou a colidir com
   // o do horario, e duas constantes com o mesmo nome no mesmo bloco nao sao um
@@ -317,8 +329,9 @@ async function handleCreate(body: Record<string, unknown>) {
       `Telefone: ${phone}`,
       `Email: ${email || '-'}`,
       `Notas: ${notes || '-'}`,
+      couponLine,
       `Estimativa: ${price} EUR`,
-    ].join('\n'),
+    ].filter(Boolean).join('\n'),
     startIso,
     endIso,
   });
@@ -408,6 +421,7 @@ async function handleCreate(body: Record<string, unknown>) {
       google_event_id: eventId,
       notes: [
         notes,
+        couponLine,
         `Marcação do site · evento ${eventId}`,
       ].filter(Boolean).join('\n'),
     }).select('reference').single();
@@ -437,6 +451,7 @@ async function handleCreate(body: Record<string, unknown>) {
     durationLabel: formatDuration(duration),
     vehicle: [plate, vehicleInfo].filter(Boolean).join(' · '),
     price,
+    discount: discount ? `${discount.code} · -${discount.pct}% (-${discount.amount}€)` : null,
   });
 
   return json({ ok: true, reference, eventId, emailSent, scheduledAt: startIso });

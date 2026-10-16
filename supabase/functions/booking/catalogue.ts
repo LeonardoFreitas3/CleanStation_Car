@@ -41,6 +41,43 @@ const LEVELS: Record<string, Level> = {
   },
 };
 
+/**
+ * Cupões aceites na marcação. O código é comparado em maiúsculas e sem espaços
+ * à volta; a percentagem desconta sobre o preço de tabela do nível.
+ *
+ * Tem de acompanhar COUPONS em frontend/src/booking/pricing.js.
+ */
+// ponytail: tabela fixa; passa para uma tabela no Supabase quando o dono quiser
+// criar cupões sem publicar o site.
+export const COUPONS: Record<string, { pct: number; label: string }> = {
+  TAFIXE: { pct: 15, label: '15% de desconto na lavagem' },
+};
+
+export const normalizeCoupon = (code: string) => code.trim().toUpperCase();
+
+export interface Discount {
+  code: string;
+  pct: number;
+  /** Euros descontados, arredondados ao cêntimo. */
+  amount: number;
+  /** Preço depois do desconto. */
+  total: number;
+}
+
+/**
+ * Aplica um cupão ao preço. Código vazio devolve null (sem desconto); código
+ * desconhecido lança, para o cliente saber que não ficou com desconto nenhum
+ * em vez de descobrir na caixa.
+ */
+export function applyCoupon(price: number, raw: string): Discount | null {
+  const code = normalizeCoupon(raw);
+  if (!code) return null;
+  const coupon = COUPONS[code];
+  if (!coupon) throw new Error('Cupão inválido');
+  const amount = Math.round(price * coupon.pct) / 100;
+  return { code, pct: coupon.pct, amount, total: Math.round((price - amount) * 100) / 100 };
+}
+
 export interface Resolved {
   label: string;
   price: number;

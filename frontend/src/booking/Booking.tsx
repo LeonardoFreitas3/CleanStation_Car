@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import {
   VEHICLE_TYPES, VEHICLE_BY_ID, LEVEL_BY_ID,
-  levelsFor, priceFor, computeQuote, durationFor, formatDuration, eur,
+  levelsFor, priceFor, computeQuote, couponFor, normalizeCoupon, durationFor, formatDuration, eur,
 } from './pricing';
 import { fetchAvailability, createBooking } from './api';
 import useModalDialog from '../useModalDialog';
@@ -35,6 +35,7 @@ interface FormState {
   plate: string;
   car: string;
   notes: string;
+  coupon: string;
 }
 
 /** O que a Edge Function devolve. So a referencia e o evento sao lidos deste lado. */
@@ -245,7 +246,7 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
   const [slotsError, setSlotsError] = useState(false);
   const [tentativa, setTentativa] = useState(0);
 
-  const [form, setForm] = useState<FormState>({ name: '', phone: '', email: '', plate: '', car: '', notes: '' });
+  const [form, setForm] = useState<FormState>({ name: '', phone: '', email: '', plate: '', car: '', notes: '', coupon: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<BookingResult | null>(null);
@@ -256,7 +257,7 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
   const reset = useCallback(() => {
     setStep(0); setVehicleId(null); setLevelId(null);
     setDate(''); setTime(''); setSlots([]); setSlotsError(false); setError(null); setDone(null);
-    setForm({ name: '', phone: '', email: '', plate: '', car: '', notes: '' });
+    setForm({ name: '', phone: '', email: '', plate: '', car: '', notes: '', coupon: '' });
   }, []);
 
   useEffect(() => { if (open) reset(); }, [open, reset]);
@@ -272,9 +273,13 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
   );
 
   const duration = vehicleId && levelId ? durationFor(vehicleId, levelId) : 60;
+  // O cupão só conta quando o código existe; um código a meio de ser escrito
+  // não mexe no preço.
+  const coupon = couponFor(form.coupon);
+  const couponInvalido = form.coupon.trim() !== '' && !coupon;
   const quote: Quote | null = useMemo(
-    () => (vehicleId && levelId ? computeQuote({ vehicleId, levelId }) : null),
-    [vehicleId, levelId],
+    () => (vehicleId && levelId ? computeQuote({ vehicleId, levelId, coupon: form.coupon }) : null),
+    [vehicleId, levelId, form.coupon],
   );
 
   // Trocar de dia, de veículo ou de serviço obriga a repetir a consulta: a
@@ -344,6 +349,7 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
         time,
         duration,
         price: quote?.total ?? 0,
+        coupon: normalizeCoupon(form.coupon) || null,
         notes: form.notes.trim() || null,
       });
       setDone(res);
@@ -393,6 +399,9 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
         { k: 'Serviço', v: level?.label, passo: 1 },
         { k: 'Entrega', v: date && time ? `${porExtenso(date, time)}, ${time}` : '', passo: 2 },
         { k: 'Duração estimada', v: formatDuration(duration), passo: 1 },
+        ...(quote.discount > 0
+          ? [{ k: 'Desconto', v: `-${eur(quote.discount)} · cupão ${normalizeCoupon(form.coupon)} (-${quote.pct}%)`, passo: 3 }]
+          : []),
         { k: 'Preço estimado', v: `${eur(quote.total)} · IVA incluído`, passo: 0 },
       ].map(({ k, v, passo }) => (
         <div key={k} className="flex items-center gap-3 px-4 py-2.5">
@@ -600,6 +609,28 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
                       placeholder="Algo que devamos saber (opcional)"
                       className="w-full bg-black/60 border border-white/15 focus:border-blue-500 outline-none px-4 py-3 text-white text-sm rounded-sm resize-y placeholder:text-white/25"
                     />
+                  </div>
+
+                  <div>
+                    <label htmlFor="coupon" className="block text-[10px] tracking-[0.28em] text-white/50 mb-2 uppercase">
+                      Cupão de desconto
+                    </label>
+                    <input
+                      id="coupon"
+                      type="text"
+                      autoComplete="off"
+                      autoCapitalize="characters"
+                      value={form.coupon}
+                      onChange={(e) => setForm((s) => ({ ...s, coupon: e.target.value }))}
+                      placeholder="Tens um código? (opcional)"
+                      aria-invalid={couponInvalido}
+                      aria-describedby="coupon-hint"
+                      className={`w-full bg-black/60 border outline-none px-4 py-3 text-white text-sm rounded-sm uppercase placeholder:normal-case placeholder:text-white/25 ${couponInvalido ? 'border-red-700/70 focus:border-red-500' : 'border-white/15 focus:border-blue-500'}`}
+                    />
+                    <p id="coupon-hint" className={`mt-1.5 text-xs ${couponInvalido ? 'text-red-300' : 'text-emerald-300'}`}>
+                      {couponInvalido && 'Cupão não reconhecido. Confirma o código.'}
+                      {coupon && quote && `${coupon.label}: poupas ${eur(quote.discount)}.`}
+                    </p>
                   </div>
 
                   <p className="text-white/50 text-xs leading-relaxed">

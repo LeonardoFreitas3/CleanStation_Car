@@ -37,6 +37,8 @@ export interface ConfirmationData {
   durationLabel: string;
   vehicle: string;
   price: number;
+  /** Linha do cupão, já formatada; null quando não houve desconto. */
+  discount: string | null;
 }
 
 function row(label: string, value: string, opts: { mono?: boolean } = {}): string {
@@ -79,6 +81,7 @@ function buildHtml(d: ConfirmationData): string {
         ${row('Hora', esc(d.time))}
         ${row('Duração prevista', esc(d.durationLabel))}
         ${row('Veículo', esc(d.vehicle) || '—')}
+        ${d.discount ? row('Desconto', esc(d.discount)) : ''}
         <tr>
           <td style="color:#fff;padding:14px 0 6px;border-top:1px solid #333;font-weight:600">Total estimado</td>
           <td style="text-align:right;font-size:20px;font-weight:700;padding-top:14px;border-top:1px solid #333">${esc(d.price)}€</td>

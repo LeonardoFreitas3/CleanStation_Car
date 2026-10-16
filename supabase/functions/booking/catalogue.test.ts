@@ -12,7 +12,7 @@
 //   npx --yes deno@2 test supabase/functions/booking/catalogue.test.ts
 
 import { assertEquals, assertThrows } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { resolve } from './catalogue.ts';
+import { applyCoupon, resolve } from './catalogue.ts';
 
 Deno.test('preço por tipo de veículo, igual à tabela', () => {
   const tabela: Array<[string, string, number]> = [
@@ -77,4 +77,19 @@ Deno.test('o preço é o da tabela: não há multiplicador de sujidade nem packs
   // aparecem aqui — que é o sítio onde reaparecem por engano, porque é este
   // ficheiro que decide o valor cobrado.
   assertEquals(Object.keys(q).sort(), ['duration', 'label', 'price']);
+});
+
+// O cupão desconta sobre o preço de tabela, e é aqui que se decide: o site só
+// mostra. Um código errado é recusado, não ignorado — senão o cliente marcava
+// convencido de que tinha desconto e pagava o preço inteiro.
+
+Deno.test('TAFIXE tira 15% ao preço de tabela', () => {
+  assertEquals(applyCoupon(30, 'TAFIXE'), { code: 'TAFIXE', pct: 15, amount: 4.5, total: 25.5 });
+  assertEquals(applyCoupon(160, ' tafixe ')?.total, 136);
+});
+
+Deno.test('sem cupão não há desconto; cupão errado é recusado', () => {
+  assertEquals(applyCoupon(30, ''), null);
+  assertEquals(applyCoupon(30, '   '), null);
+  assertThrows(() => applyCoupon(30, 'NADA'), Error, 'Cupão inválido');
 });

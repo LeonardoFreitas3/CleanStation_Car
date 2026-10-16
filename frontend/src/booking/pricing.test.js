@@ -5,7 +5,7 @@
 
 import {
   computeQuote, levelsFor, priceFor, VEHICLE_TYPES,
-  durationFor, isFullDay, formatDuration,
+  durationFor, isFullDay, formatDuration, couponFor,
 } from './pricing';
 
 describe('tabela de preços por tipo de veículo', () => {
@@ -102,5 +102,23 @@ describe('integridade dos dados', () => {
 
   it('um nível indisponível não devolve preço', () => {
     expect(priceFor('mota', 'detalhada')).toBeUndefined();
+  });
+});
+
+describe('cupões', () => {
+  it('TAFIXE tira 15% ao preço de tabela', () => {
+    const q = computeQuote({ vehicleId: 'carro', levelId: 'simples', coupon: 'TAFIXE' });
+    expect(q).toEqual({ base: 30, discount: 4.5, pct: 15, total: 25.5 });
+  });
+
+  it('o código aceita minúsculas e espaços à volta', () => {
+    expect(couponFor('  tafixe ')).toBeDefined();
+    expect(computeQuote({ vehicleId: 'suv', levelId: 'detalhada', coupon: ' tafixe' }).total).toBe(136);
+  });
+
+  it('código desconhecido ou vazio não mexe no preço', () => {
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', coupon: 'NADA' }).total).toBe(40);
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', coupon: '' }).discount).toBe(0);
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante' }).discount).toBe(0);
   });
 });
