@@ -22,8 +22,9 @@ O que o ramo muda, para saberes o que estás a publicar:
   (`frontend/public/_redirects`).
 - Polimentos "desde" e sob orçamento (250, 350, 55, 40); Proteção Cerâmica
   Profissional desde 250 €, com página própria (`/protecao-ceramica-braga/`).
-  Packs: 60, 125 e 330 €/mês. A secção "Os Nossos Serviços" passou para o fundo
-  da página inicial, e as páginas das lavagens deixaram de ter "Ver preços".
+  Packs: 60, 125 e 330 €/mês. Na secção "Os Nossos Serviços" (no sítio de
+  sempre) os cartões vêm logo a seguir ao título e o texto explicativo passou
+  para depois deles; as páginas das lavagens deixaram de ter "Ver preços".
 - Quem decide o preço e a duração de uma marcação é
   `supabase/functions/booking/catalogue.ts`, não o site. Por isso a função tem
   de ir para o ar antes do site.

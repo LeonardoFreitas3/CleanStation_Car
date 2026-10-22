@@ -113,16 +113,6 @@ export default function Services() {
             {t('services.title')}
           </h2>
           <span className="accent-bar mx-auto mt-5" />
-          <p className="text-white/55 mt-4 max-w-2xl mx-auto text-sm">
-            {t('services.subtitle')}
-          </p>
-          <nav aria-label={lang === 'en' ? 'Services' : 'Serviços'} className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2">
-            {DESTAQUES.map((p) => (
-              <Link key={p.slug} href={rotaPagina(lang, p.slug)} className="py-1 text-blue-400 hover:text-blue-300 text-xs tracking-[0.15em] underline underline-offset-4">
-                {conteudo(p, lang).h1}
-              </Link>
-            ))}
-          </nav>
         </div>
 
         {CATEGORIES.map((cat) => {
@@ -232,6 +222,21 @@ export default function Services() {
             </div>
           );
         })}
+
+        {/* O texto da secção e os links para as páginas principais vêm
+            depois dos serviços, a pedido do cliente: primeiro vê-se o que há. */}
+        <div className="text-center mt-16">
+          <p className="text-white/55 max-w-2xl mx-auto text-sm">
+            {t('services.subtitle')}
+          </p>
+          <nav aria-label={lang === 'en' ? 'Services' : 'Serviços'} className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2">
+            {DESTAQUES.map((p) => (
+              <Link key={p.slug} href={rotaPagina(lang, p.slug)} className="py-1 text-blue-400 hover:text-blue-300 text-xs tracking-[0.15em] underline underline-offset-4">
+                {conteudo(p, lang).h1}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
 
       <ServiceDetail
