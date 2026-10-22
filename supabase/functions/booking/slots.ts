@@ -184,9 +184,9 @@ export function freeSlots(
   const opening = new Date(slotIso(dateIso, opens, 0)).getTime();
   const closing = new Date(slotIso(dateIso, closes, 0)).getTime();
 
-  // Serviços de dia inteiro (a lavagem detalhada são 24h) não cabem entre as
-  // 09:00 e as 20:00, e exigir que terminassem antes do fecho fazia com que
-  // nunca tivessem hora nenhuma disponível. Tratam-se à parte: entrega ao
+  // Serviços de dia inteiro (a lavagem detalhada chegou a ser de 24h) não cabem
+  // entre a abertura e o fecho, e exigir que terminassem antes do fecho fazia com
+  // que nunca tivessem hora nenhuma disponível. Tratam-se à parte: entrega ao
   // abrir, o dia fica ocupado, e o carro sai no dia seguinte.
   if (isFullDay(durationMinutes, horario)) {
     if (opening < earliest) return [];

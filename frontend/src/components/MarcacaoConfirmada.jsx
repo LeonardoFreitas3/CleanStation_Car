@@ -52,7 +52,7 @@ export default function MarcacaoConfirmada() {
     ['Veículo', marcacao.vehicle],
     ['Serviço', marcacao.service],
     ['Entrega', `${quando}, ${marcacao.time}`],
-    ['Duração estimada', marcacao.duration ? formatDuration(marcacao.duration) : null],
+    ['Duração estimada', marcacao.duration ? `aprox. ${formatDuration(marcacao.duration)}` : null],
     ['Preço estimado', marcacao.price ? `${eur(marcacao.price)} · IVA incluído` : null],
   ].filter(([, v]) => v);
 

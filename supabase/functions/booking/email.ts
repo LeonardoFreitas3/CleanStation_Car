@@ -79,7 +79,7 @@ function buildHtml(d: ConfirmationData): string {
         ${row('Serviço', esc(d.serviceTitle))}
         ${row('Data', esc(d.dateLabel))}
         ${row('Hora', esc(d.time))}
-        ${row('Duração prevista', esc(d.durationLabel))}
+        ${row('Duração prevista', `aprox. ${esc(d.durationLabel)}`)}
         ${row('Veículo', esc(d.vehicle) || '—')}
         ${d.discount ? row('Desconto', esc(d.discount)) : ''}
         <tr>

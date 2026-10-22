@@ -16,10 +16,11 @@ import { applyCoupon, resolve } from './catalogue.ts';
 
 Deno.test('preço por tipo de veículo, igual à tabela', () => {
   const tabela: Array<[string, string, number]> = [
-    ['carro', 'simples', 30], ['grande', 'simples', 45], ['suv', 'simples', 35], ['mota', 'simples', 30],
-    ['carro', 'selante', 40], ['grande', 'selante', 55], ['suv', 'selante', 45],
-    ['carro', 'premium', 65], ['grande', 'premium', 80], ['suv', 'premium', 75],
-    ['carro', 'detalhada', 140], ['grande', 'detalhada', 180], ['suv', 'detalhada', 160],
+    ['carro', 'simples', 35], ['grande', 'simples', 45], ['suv', 'simples', 35], ['mota', 'simples', 35],
+    ['carro', 'premium', 75], ['grande', 'premium', 80], ['suv', 'premium', 75],
+    ['carro', 'detalhada-interior', 130], ['grande', 'detalhada-interior', 130], ['suv', 'detalhada-interior', 130],
+    ['carro', 'detalhada-exterior', 130], ['grande', 'detalhada-exterior', 130], ['suv', 'detalhada-exterior', 130],
+    ['carro', 'detalhada', 200], ['grande', 'detalhada', 200], ['suv', 'detalhada', 200],
   ];
 
   for (const [veiculo, nivel, esperado] of tabela) {
@@ -27,11 +28,12 @@ Deno.test('preço por tipo de veículo, igual à tabela', () => {
   }
 });
 
-Deno.test('duração por tipo de veículo, tempos reais da oficina', () => {
+Deno.test('duração por tipo de veículo, tempos da oficina', () => {
   const tempos: Array<[string, string, number]> = [
     ['carro', 'simples', 90], ['grande', 'simples', 120], ['suv', 'simples', 105], ['mota', 'simples', 105],
-    ['carro', 'selante', 105], ['grande', 'selante', 135], ['suv', 'selante', 120],
     ['carro', 'premium', 240], ['grande', 'premium', 360], ['suv', 'premium', 300],
+    ['carro', 'detalhada-interior', 240], ['carro', 'detalhada-exterior', 240],
+    ['carro', 'detalhada', 480], ['grande', 'detalhada', 480], ['suv', 'detalhada', 480],
   ];
 
   for (const [veiculo, nivel, esperado] of tempos) {
@@ -39,10 +41,16 @@ Deno.test('duração por tipo de veículo, tempos reais da oficina', () => {
   }
 });
 
-Deno.test('a detalhada ocupa o dia inteiro em qualquer veículo', () => {
-  for (const v of ['carro', 'grande', 'suv']) {
-    assertEquals(resolve(v, 'detalhada').duration, 1440, v);
-  }
+Deno.test('a detalhada de uma área diz qual foi a área', () => {
+  assertEquals(resolve('carro', 'detalhada-interior').label, 'Lavagem Detalhada Interior');
+  assertEquals(resolve('carro', 'detalhada-exterior').label, 'Lavagem Detalhada Exterior');
+  assertEquals(resolve('carro', 'detalhada').label, 'Lavagem Detalhada Interior + Exterior');
+});
+
+// O selante passou para dentro da Simples. Um pedido antigo com "selante"
+// (uma página aberta antes da mudança) é recusado, não cobrado a outro preço.
+Deno.test('a lavagem com selante já não existe à parte', () => {
+  assertThrows(() => resolve('carro', 'selante'), Error, 'Serviço desconhecido');
 });
 
 // Estes dois são a razão de a função lançar em vez de devolver um valor por
@@ -51,7 +59,7 @@ Deno.test('a detalhada ocupa o dia inteiro em qualquer veículo', () => {
 
 Deno.test('uma mota só leva lavagem simples', () => {
   assertEquals(resolve('mota', 'simples').label, 'Lavagem Simples');
-  for (const nivel of ['selante', 'premium', 'detalhada']) {
+  for (const nivel of ['premium', 'detalhada-interior', 'detalhada-exterior', 'detalhada']) {
     assertThrows(() => resolve('mota', nivel), Error, 'não disponível', nivel);
   }
 });
@@ -72,7 +80,7 @@ Deno.test('um tipo de veículo que não existe é recusado', () => {
 
 Deno.test('o preço é o da tabela: não há multiplicador de sujidade nem packs', () => {
   const q = resolve('suv', 'detalhada');
-  assertEquals(q.price, 160);
+  assertEquals(q.price, 200);
   // Os campos que devolve, e mais nenhum. Um grade ou um gradePct de volta
   // aparecem aqui — que é o sítio onde reaparecem por engano, porque é este
   // ficheiro que decide o valor cobrado.
@@ -85,7 +93,7 @@ Deno.test('o preço é o da tabela: não há multiplicador de sujidade nem packs
 
 Deno.test('TAFIXE tira 15% ao preço de tabela', () => {
   assertEquals(applyCoupon(30, 'TAFIXE'), { code: 'TAFIXE', pct: 15, amount: 4.5, total: 25.5 });
-  assertEquals(applyCoupon(160, ' tafixe ')?.total, 136);
+  assertEquals(applyCoupon(200, ' tafixe ')?.total, 170);
 });
 
 Deno.test('sem cupão não há desconto; cupão errado é recusado', () => {

@@ -4,17 +4,17 @@
 // e a cobrar mal, possivelmente durante semanas. Correr com `npm test`.
 
 import {
-  computeQuote, levelsFor, priceFor, VEHICLE_TYPES,
+  computeQuote, levelsFor, priceFor, VEHICLE_TYPES, LEVEL_BY_ID,
   durationFor, isFullDay, formatDuration, couponFor,
 } from './pricing';
 
 describe('tabela de preços por tipo de veículo', () => {
   // [nível, carro, carrinha grande, SUV, mota] — undefined = não disponível
   const TABELA = [
-    ['simples',   30,  45,  35,  30],
-    ['selante',   40,  55,  45,  undefined],
-    ['premium',   65,  80,  75,  undefined],
-    ['detalhada', 140, 180, 160, undefined],
+    ['simples',           35,  45,  35,  35],
+    ['premium',           75,  80,  75,  undefined],
+    ['detalhada-parcial', 130, 130, 130, undefined],
+    ['detalhada',         200, 200, 200, undefined],
   ];
 
   test.each(TABELA)('%s: carro %s, grande %s, suv %s, mota %s', (level, carro, grande, suv, mota) => {
@@ -33,6 +33,18 @@ describe('tabela de preços por tipo de veículo', () => {
       expect(levelsFor(id)).toHaveLength(4);
     }
   });
+
+  it('a lavagem com selante já não existe à parte: está na Simples', () => {
+    expect(priceFor('carro', 'selante')).toBeUndefined();
+    expect(LEVEL_BY_ID.simples.nota).toBe('(Inclui selante)');
+    expect(LEVEL_BY_ID.simples.includes).toContain('Selante aplicado na pintura');
+  });
+
+  // Cada área é um nível no catalogue.ts do servidor: um id aqui que lá não
+  // exista dava "Serviço desconhecido" a quem tentasse marcar.
+  it('a detalhada de uma área obriga a escolher interior ou exterior', () => {
+    expect(LEVEL_BY_ID['detalhada-parcial'].areas.map((a) => a.id)).toEqual(['detalhada-interior', 'detalhada-exterior']);
+  });
 });
 
 // Houve aqui um multiplicador por grau de sujidade, que subia o valor ate 75%
@@ -44,18 +56,18 @@ describe('tabela de preços por tipo de veículo', () => {
 describe('orçamento', () => {
   it('é o preço de tabela do nível para aquele veículo, sem acréscimos', () => {
     const q = computeQuote({ vehicleId: 'suv', levelId: 'detalhada' });
-    expect(q.base).toBe(160);
-    expect(q.total).toBe(160);
+    expect(q.base).toBe(200);
+    expect(q.total).toBe(200);
   });
 
   it('o preço não muda com o que mais lhe passem', () => {
-    const base = computeQuote({ vehicleId: 'carro', levelId: 'selante' }).total;
-    expect(base).toBe(40);
+    const base = computeQuote({ vehicleId: 'carro', levelId: 'premium' }).total;
+    expect(base).toBe(75);
     // Chamadas antigas ainda podem trazer problemIds ou um pack; nada disso
     // pode mexer no valor.
-    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', problemIds: ['lixo', 'areia'] }).total)
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'premium', problemIds: ['lixo', 'areia'] }).total)
       .toBe(base);
-    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', pack: { price: 999 } }).total)
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'premium', pack: { price: 999 } }).total)
       .toBe(base);
   });
 
@@ -65,12 +77,12 @@ describe('orçamento', () => {
 });
 
 describe('durações por veículo', () => {
-  // [nível, carro, carrinha grande, SUV, mota] — tempos reais da oficina
+  // [nível, carro, carrinha grande, SUV, mota] — tempos da oficina, aproximados
   const TEMPOS = [
     ['simples', 90, 120, 105, 105],
-    ['selante', 105, 135, 120, null],
     ['premium', 240, 360, 300, null],
-    ['detalhada', 1440, 1440, 1440, null],
+    ['detalhada-parcial', 240, 240, 240, null],
+    ['detalhada', 480, 480, 480, null],
   ];
 
   test.each(TEMPOS)('%s', (level, carro, grande, suv, mota) => {
@@ -80,10 +92,9 @@ describe('durações por veículo', () => {
     if (mota !== null) expect(durationFor('mota', level)).toBe(mota);
   });
 
-  it('só a detalhada ocupa o dia inteiro', () => {
-    expect(isFullDay(durationFor('carro', 'detalhada'))).toBe(true);
-    // 6h é o serviço mais longo que ainda cabe entre as 09:00 e as 20:00
-    expect(isFullDay(durationFor('grande', 'premium'))).toBe(false);
+  it('nenhuma lavagem ocupa o dia inteiro: a detalhada são 8 horas', () => {
+    expect(isFullDay(durationFor('carro', 'detalhada'))).toBe(false);
+    expect(formatDuration(durationFor('carro', 'detalhada'))).toBe('8h');
   });
 
   it('mostra "Dia inteiro" em vez de 1440min', () => {
@@ -108,17 +119,17 @@ describe('integridade dos dados', () => {
 describe('cupões', () => {
   it('TAFIXE tira 15% ao preço de tabela', () => {
     const q = computeQuote({ vehicleId: 'carro', levelId: 'simples', coupon: 'TAFIXE' });
-    expect(q).toEqual({ base: 30, discount: 4.5, pct: 15, total: 25.5 });
+    expect(q).toEqual({ base: 35, discount: 5.25, pct: 15, total: 29.75 });
   });
 
   it('o código aceita minúsculas e espaços à volta', () => {
     expect(couponFor('  tafixe ')).toBeDefined();
-    expect(computeQuote({ vehicleId: 'suv', levelId: 'detalhada', coupon: ' tafixe' }).total).toBe(136);
+    expect(computeQuote({ vehicleId: 'suv', levelId: 'detalhada', coupon: ' tafixe' }).total).toBe(170);
   });
 
   it('código desconhecido ou vazio não mexe no preço', () => {
-    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', coupon: 'NADA' }).total).toBe(40);
-    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante', coupon: '' }).discount).toBe(0);
-    expect(computeQuote({ vehicleId: 'carro', levelId: 'selante' }).discount).toBe(0);
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'premium', coupon: 'NADA' }).total).toBe(75);
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'premium', coupon: '' }).discount).toBe(0);
+    expect(computeQuote({ vehicleId: 'carro', levelId: 'premium' }).discount).toBe(0);
   });
 });

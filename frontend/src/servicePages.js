@@ -13,6 +13,7 @@
 // nível), de propósito: quem está a escolher quer uma linha, não uma página.
 
 import { LEVEL_BY_ID } from './booking/pricing';
+import { SERVICES } from './mock';
 import SEO from './paginasSeo.json';
 import { EN_PAGES } from './servicePagesEn';
 
@@ -31,7 +32,7 @@ const PAGINAS = [
     serviceId: 'lavagem-simples',
     h1: 'Lavagem Automóvel em Braga',
     intro: [
-      'Uma solução completa para a manutenção do teu veículo, com limpeza manual do exterior e cuidado do interior.',
+      'Uma solução completa para a manutenção do teu veículo, com limpeza manual do exterior, cuidado do interior e selante na pintura.',
       'Na Clean Station Car, cada veículo é tratado individualmente, garantindo uma limpeza cuidada tanto no interior como no exterior.',
     ],
     sections: [
@@ -40,7 +41,7 @@ const PAGINAS = [
         grupos: [
           {
             titulo: 'Exterior',
-            items: ['Pré-lavagem', 'Lavagem manual', 'Limpeza das jantes', 'Limpeza dos vidros'],
+            items: ['Pré-lavagem', 'Lavagem manual', 'Limpeza das jantes', 'Limpeza dos vidros', 'Aplicação de selante na pintura'],
           },
           {
             titulo: 'Interior',
@@ -77,7 +78,7 @@ const PAGINAS = [
         heading: 'Lavagem profissional automóvel em Braga',
         paragrafos: [
           'Fazemos a lavagem de carros em Braga à mão, viatura a viatura: uma lavagem interior e exterior com o mesmo cuidado por dentro e por fora.',
-          'Se procuras uma lavagem profissional automóvel em Braga com mais proteção ou um interior mais minucioso, vê a [Lavagem com Selante](/lavagem-com-selante-braga/) e a [Lavagem Premium](/lavagem-premium-braga/).',
+          'Se procuras uma lavagem profissional automóvel em Braga com mais proteção ou um interior mais minucioso, vê a [Lavagem Premium](/lavagem-premium-braga/) e a [Lavagem Detalhada Interior ou Exterior](/lavagem-detalhada-interior-ou-exterior-braga/).',
           'Para um cuidado mais completo, conheça o nosso [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
         ],
       },
@@ -97,63 +98,8 @@ const PAGINAS = [
         a: 'O preço depende do tipo de veículo: o valor "desde" é o do carro, e SUV, monovolumes e carrinhas grandes têm valor próprio, mostrado na marcação. Sujidade fora do normal pode ter um suplemento, sempre aprovado contigo antes do serviço. Os preços incluem IVA.',
       },
       {
-        q: 'Qual é a diferença para a Lavagem com Selante?',
-        a: 'A Lavagem com Selante inclui também uma proteção aplicada na pintura do veículo.',
-      },
-    ],
-  },
-
-  {
-    slug: 'lavagem-com-selante-braga',
-    levelId: 'selante',
-    // O cartao da pagina inicial que leva aqui. Escrito e nao deduzido do
-    // levelId: um id que se muda em silencio partia o link sem dar erro, e o
-    // teste do servicePages confirma que este existe mesmo no mock.
-    serviceId: 'lavagem-selante',
-    h1: 'Lavagem Automóvel com Selante em Braga',
-    intro: [
-      'Para além de uma limpeza completa interior e exterior, este serviço acrescenta uma camada de proteção à pintura do veículo.',
-      'O selante proporciona mais brilho, repelência à água e proteção da pintura, tornando-o uma opção indicada para quem pretende manter o veículo limpo e protegido durante mais tempo.',
-    ],
-    sections: [
-      {
-        heading: 'O que está incluído',
-        entrada: 'Inclui tudo o que está presente na Lavagem Simples, acrescentando:',
-        items: [
-          'Aplicação de selante na pintura',
-          'Maior brilho',
-          'Efeito hidrofóbico',
-          'Proteção adicional da pintura',
-        ],
-      },
-      {
-        heading: 'Duração',
-        paragrafos: ['Aproximadamente 1h45, dependendo do estado do veículo.'],
-      },
-      {
-        heading: 'Sujidade fora do normal',
-        paragrafos: [
-          'Tal como na Lavagem Simples, situações como excesso de pelos de animais, areia ou sujidade fora do normal poderão implicar um custo adicional, sempre comunicado previamente.',
-        ],
-      },
-    ],
-    cta: 'Marcar Lavagem com Selante',
-    faq: [
-      {
-        q: 'O que é o selante?',
-        a: 'É uma proteção aplicada sobre a pintura que ajuda a aumentar o brilho, a repelência à água e a proteção da superfície.',
-      },
-      {
-        q: 'A Lavagem com Selante inclui limpeza interior?',
-        a: 'Sim. É exatamente a Lavagem Simples, interior e exterior, mais o selante na pintura.',
-      },
-      {
-        q: 'O selante é um revestimento cerâmico?',
-        a: 'Não. É um selante de pintura: protege e dá brilho e efeito hidrofóbico, mas não é um coating cerâmico.',
-      },
-      {
-        q: 'Quanto tempo dura a proteção?',
-        a: 'A duração varia de acordo com a utilização, condições ambientais e manutenção do veículo. Por isso, não queremos apresentar uma duração fixa como garantia.',
+        q: 'A Lavagem Simples inclui selante?',
+        a: 'Sim. Inclui selante aplicado na pintura, que dá mais brilho, efeito hidrofóbico e proteção adicional. É um selante de pintura, não um revestimento cerâmico.',
       },
     ],
   },
@@ -230,8 +176,8 @@ const PAGINAS = [
         a: 'Sim. É aplicado um selante premium na pintura. É um selante, não um revestimento cerâmico.',
       },
       {
-        q: 'Qual é a diferença entre a Premium e a Detalhada?',
-        a: 'A Lavagem Detalhada acrescenta à Premium a remoção e higienização dos bancos, a descontaminação da pintura e a limpeza profunda de jantes e pneus.',
+        q: 'Qual é a diferença entre a Premium e a Detalhada Interior + Exterior?',
+        a: 'A Lavagem Detalhada Interior + Exterior acrescenta à Premium a remoção e higienização dos bancos, a descontaminação da pintura e a limpeza profunda de jantes e pneus.',
       },
     ],
   },
@@ -279,7 +225,7 @@ const PAGINAS = [
       },
       {
         heading: 'Duração',
-        paragrafos: ['A duração média é de 1 dia, podendo variar de acordo com o estado e dimensão do veículo.'],
+        paragrafos: ['A duração média é de aproximadamente 8 horas, podendo variar de acordo com o estado e dimensão do veículo.'],
       },
       {
         heading: 'Para quem é indicada',
@@ -289,11 +235,11 @@ const PAGINAS = [
         ],
       },
     ],
-    cta: 'Marcar Lavagem Detalhada',
+    cta: 'Marcar Lavagem Detalhada Interior + Exterior',
     faq: [
       {
-        q: 'Quanto tempo demora uma Lavagem Detalhada?',
-        a: 'Em média, um dia de trabalho, podendo variar de acordo com o estado e dimensão do veículo.',
+        q: 'Quanto tempo demora a Lavagem Detalhada Interior + Exterior?',
+        a: 'Em média, aproximadamente 8 horas, podendo variar de acordo com o estado e dimensão do veículo.',
       },
       {
         q: 'Os bancos são realmente removidos?',
@@ -306,6 +252,78 @@ const PAGINAS = [
       {
         q: 'Qual é a diferença entre a Premium e a Detalhada?',
         a: 'A Detalhada acrescenta um nível de intervenção muito superior, incluindo a remoção dos bancos, higienização profunda, descontaminação da pintura e limpeza profunda de jantes e pneus.',
+      },
+      {
+        q: 'Posso fazer só o interior ou só o exterior?',
+        a: 'Sim. A Lavagem Detalhada Interior ou Exterior faz o mesmo trabalho só na área que escolheres na marcação.',
+      },
+    ],
+  },
+
+  {
+    slug: 'lavagem-detalhada-interior-ou-exterior-braga',
+    levelId: 'detalhada-parcial',
+    // O cartao da pagina inicial que leva aqui. Escrito e nao deduzido do
+    // levelId: um id que se muda em silencio partia o link sem dar erro, e o
+    // teste do servicePages confirma que este existe mesmo no mock.
+    serviceId: 'lavagem-detalhada-interior-ou-exterior',
+    // O texto e o da Lavagem Detalhada, dividido pelas duas areas: nao se faz
+    // aqui nada que la nao se faca.
+    h1: 'Lavagem Detalhada Interior ou Exterior em Braga',
+    intro: [
+      'O trabalho da nossa Lavagem Detalhada, só na área que escolheres: o interior ou o exterior do veículo.',
+      'Cada zona é trabalhada individualmente, incluindo áreas que não são acessíveis numa limpeza convencional.',
+    ],
+    sections: [
+      {
+        heading: 'Interior ou exterior',
+        paragrafos: [
+          'Na marcação escolhes a área: Interior ou Exterior. O serviço inclui apenas a área escolhida.',
+          'Para as duas áreas, vê a [Lavagem Detalhada Interior + Exterior](/lavagem-detalhada-braga/).',
+        ],
+      },
+      {
+        heading: 'Interior',
+        entrada: 'A limpeza detalhada do interior da Lavagem Premium, acrescentando:',
+        items: [
+          'Remoção dos bancos',
+          'Higienização profunda dos bancos',
+          'Limpeza extremamente detalhada do interior',
+          'Acesso e limpeza de zonas normalmente inacessíveis com os bancos montados',
+        ],
+        nota: 'Com os bancos removidos, conseguimos trabalhar de forma muito mais profunda as áreas do habitáculo. Os bancos são higienizados individualmente e é realizada uma limpeza aprofundada das zonas normalmente difíceis de alcançar.',
+      },
+      {
+        heading: 'Exterior',
+        entrada: 'O processo exterior completo da Lavagem Premium, com a descontaminação dos vidros e o selante premium, acrescentando:',
+        items: [
+          'Descontaminação da pintura',
+          'Limpeza profunda das jantes',
+          'Limpeza dos pneus',
+        ],
+      },
+      {
+        heading: 'Duração',
+        paragrafos: ['A duração média é de aproximadamente 4 horas, em qualquer das duas áreas, podendo variar de acordo com o estado e dimensão do veículo.'],
+      },
+    ],
+    cta: 'Marcar Lavagem Detalhada Interior ou Exterior',
+    faq: [
+      {
+        q: 'Inclui o interior e o exterior?',
+        a: 'Não. Inclui apenas a área que escolheres na marcação: interior ou exterior. Para as duas, existe a Lavagem Detalhada Interior + Exterior.',
+      },
+      {
+        q: 'Quanto tempo demora?',
+        a: 'Em média, aproximadamente 4 horas, podendo variar de acordo com o estado e dimensão do veículo.',
+      },
+      {
+        q: 'Os bancos são removidos?',
+        a: 'Sim, na opção Interior. Os bancos são removidos para permitir uma limpeza e higienização mais profundas.',
+      },
+      {
+        q: 'A opção Exterior inclui descontaminação da pintura?',
+        a: 'Sim. A descontaminação da pintura está incluída na opção Exterior.',
       },
     ],
   },
@@ -353,7 +371,8 @@ const PAGINAS = [
       {
         heading: 'Os nossos serviços de car detailing em Braga',
         paragrafos: [
-          'A [Lavagem Detalhada](/lavagem-detalhada-braga/) é o nosso serviço mais completo: os bancos são removidos, o interior é higienizado a fundo e a pintura é descontaminada e protegida.',
+          'A [Lavagem Detalhada Interior + Exterior](/lavagem-detalhada-braga/) é o nosso serviço mais completo: os bancos são removidos, o interior é higienizado a fundo e a pintura é descontaminada e protegida.',
+          'A [Lavagem Detalhada Interior ou Exterior](/lavagem-detalhada-interior-ou-exterior-braga/) faz o mesmo trabalho, só na área que escolheres.',
           'A [Lavagem Premium](/lavagem-premium-braga/) é indicada para quem quer um nível de limpeza acima de uma lavagem convencional, com descontaminação dos vidros e proteção premium da pintura.',
           'Para riscos, hologramas e pintura sem brilho, o [polimento automóvel](/polimento-automovel-braga/) recupera a pintura antes de a proteger.',
           'Para faróis amarelados ou opacos, o [polimento de faróis](/polimento-farois-braga/).',
@@ -379,11 +398,11 @@ const PAGINAS = [
       },
       {
         q: 'Quanto tempo demora o detalhe automóvel?',
-        a: 'A Lavagem Detalhada demora em média um dia, podendo variar de acordo com o estado e a dimensão do veículo.',
+        a: 'A Lavagem Detalhada Interior + Exterior demora em média aproximadamente 8 horas, e a Interior ou Exterior cerca de 4 horas, podendo variar de acordo com o estado e a dimensão do veículo.',
       },
       {
         q: 'Quanto custa o detalhe automóvel em Braga?',
-        a: 'Depende do serviço. As lavagens têm preço de tabela por tipo de veículo, com IVA incluído; os polimentos são contratados à parte e orçamentados depois de avaliarmos a pintura.',
+        a: 'Depende do serviço. As lavagens têm preço de tabela por tipo de veículo, com IVA incluído; os polimentos são contratados à parte, com preço desde, e o valor final é orçamentado depois de avaliarmos a pintura.',
       },
     ],
   },
@@ -393,15 +412,15 @@ const PAGINAS = [
     nome: 'Limpeza Interior',
     h1: 'Limpeza Interior Automóvel em Braga',
     intro: [
-      'Fazemos a limpeza interior automóvel em Braga em três níveis: a manutenção das lavagens Simples e Com Selante, a limpeza interior detalhada da Premium e a higienização com remoção dos bancos da Detalhada.',
-      'Todas as nossas lavagens incluem a limpeza interior do carro; o que muda entre elas é a profundidade do trabalho. Só a Detalhada remove os bancos.',
+      'Fazemos a limpeza interior automóvel em Braga em três níveis: a manutenção da Lavagem Simples, a limpeza interior detalhada da Premium e a higienização com remoção dos bancos da Detalhada.',
+      'As nossas lavagens incluem a limpeza interior do carro, menos a Detalhada feita só no exterior; o que muda entre elas é a profundidade do trabalho. Só a Detalhada remove os bancos.',
     ],
     sections: [
       {
         heading: 'O que inclui a limpeza interior',
         grupos: [
           {
-            titulo: 'Manutenção · Simples e Com Selante',
+            titulo: 'Manutenção · Simples',
             items: [
               'Aspiração das alcatifas, dos tapetes e da mala',
               'Limpeza do tablier',
@@ -431,7 +450,7 @@ const PAGINAS = [
       {
         heading: 'Higienização automóvel e limpeza de estofos',
         paragrafos: [
-          'Na [Lavagem Detalhada](/lavagem-detalhada-braga/) os bancos são removidos e higienizados individualmente. É assim que se faz a limpeza dos bancos do carro e dos estofos a fundo, e se chega às zonas do habitáculo escondidas com os bancos montados.',
+          'Na [Lavagem Detalhada Interior + Exterior](/lavagem-detalhada-braga/), e na [Lavagem Detalhada Interior ou Exterior](/lavagem-detalhada-interior-ou-exterior-braga/) com a opção Interior, os bancos são removidos e higienizados individualmente. É assim que se faz a limpeza dos bancos do carro e dos estofos a fundo, e se chega às zonas do habitáculo escondidas com os bancos montados.',
           'É indicada para interiores com sujidade acumulada, ou que não recebem um tratamento detalhado há bastante tempo.',
         ],
       },
@@ -440,7 +459,7 @@ const PAGINAS = [
         paragrafos: [
           'Para a manutenção regular, a [Lavagem Simples](/lavagem-automovel-braga/) inclui a aspiração e a limpeza do interior.',
           'Para um interior mais minucioso, a [Lavagem Premium](/lavagem-premium-braga/) trabalha as saídas de ar, os comandos, as bolsas das portas e os espaços entre bancos.',
-          'Para a limpeza interior mais completa, com remoção dos bancos, a [Lavagem Detalhada](/lavagem-detalhada-braga/).',
+          'Para a limpeza interior mais completa, com remoção dos bancos, a [Lavagem Detalhada Interior ou Exterior](/lavagem-detalhada-interior-ou-exterior-braga/) com a opção Interior, ou a [Lavagem Detalhada Interior + Exterior](/lavagem-detalhada-braga/), se quiseres também o exterior.',
         ],
       },
       {
@@ -455,11 +474,11 @@ const PAGINAS = [
     faq: [
       {
         q: 'Fazem limpeza de bancos e estofos?',
-        a: 'Sim. Na Lavagem Detalhada os bancos são removidos e higienizados individualmente. As outras lavagens limpam o interior sem remover os bancos.',
+        a: 'Sim. Na Lavagem Detalhada Interior + Exterior, e na Detalhada Interior ou Exterior com a opção Interior, os bancos são removidos e higienizados individualmente. As outras lavagens limpam o interior sem remover os bancos.',
       },
       {
         q: 'Todas as lavagens incluem limpeza interior?',
-        a: 'Sim. Todas as nossas lavagens incluem limpeza interior e exterior; a diferença está no nível de detalhe.',
+        a: 'A Simples, a Premium e a Detalhada Interior + Exterior incluem limpeza interior e exterior; a Detalhada Interior ou Exterior inclui só a área escolhida. A diferença está no nível de detalhe.',
       },
       {
         q: 'Quanto tempo demora a limpeza interior?',
@@ -481,20 +500,23 @@ const PAGINAS = [
     ],
     sections: [
       {
-        heading: 'Polimento 1 Etapa',
+        heading: 'Polimento de 1 Etapa',
+        // O "desde" deste servico, mostrado por baixo do titulo (ServicoPagina).
+        servico: 'polimento-1-etapa',
         entrada: 'Ideal para pinturas com marcas ligeiras, perda de brilho e pequenos defeitos.',
         paragrafos: [
           'O polimento de 1 etapa permite melhorar significativamente o acabamento da pintura, recuperando o brilho e reduzindo pequenas marcas e imperfeições.',
         ],
-        nota: 'Vê tudo o que inclui no [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/).',
+        nota: 'Inclui lavagem detalhada exterior. Vê tudo o que inclui no [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/).',
       },
       {
-        heading: 'Correção Avançada de Pintura',
+        heading: 'Polimento de Correção Avançada',
+        servico: 'polimento-avancado',
         entrada: 'Um serviço mais completo para pinturas com riscos, marcas circulares, oxidação e defeitos mais evidentes.',
         paragrafos: [
           'São realizadas várias etapas de correção de acordo com o estado da pintura, procurando remover ou reduzir significativamente os defeitos sem comprometer a segurança do verniz.',
         ],
-        nota: 'Vê tudo o que inclui na [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/).',
+        nota: 'Inclui lavagem detalhada exterior. Vê tudo o que inclui na [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/).',
       },
       {
         heading: 'Qual escolher?',
@@ -523,7 +545,7 @@ const PAGINAS = [
     faq: [
       {
         q: 'Quanto custa um polimento automóvel?',
-        a: 'O valor depende do estado da pintura e do nível de correção necessário, por isso é orçamentado depois de avaliarmos a viatura.',
+        a: 'Desde 250 € no Polimento de 1 Etapa e desde 350 € no Polimento de Correção Avançada. O valor final depende do estado da pintura e do nível de correção necessário, por isso é orçamentado depois de avaliarmos a viatura.',
       },
       {
         q: 'O polimento remove todos os riscos?',
@@ -543,7 +565,7 @@ const PAGINAS = [
   {
     slug: 'polimento-1-etapa-braga',
     serviceId: 'polimento-1-etapa',
-    nome: 'Polimento 1 Etapa',
+    nome: 'Polimento de 1 Etapa',
     whatsapp: true,
     ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-te o orçamento.',
     // O botão secundário: comparar com o outro polimento, em vez de "ver
@@ -558,7 +580,7 @@ const PAGINAS = [
       {
         heading: 'O que está incluído',
         items: [
-          'Lavagem exterior',
+          'Lavagem detalhada exterior',
           'Descontaminação da pintura',
           'Preparação da superfície',
           'Polimento de 1 etapa',
@@ -566,6 +588,7 @@ const PAGINAS = [
           'Recuperação de brilho',
           'Acabamento e proteção da pintura',
         ],
+        nota: 'Inclui lavagem detalhada exterior.',
       },
       {
         heading: 'Para quem é indicado',
@@ -595,11 +618,11 @@ const PAGINAS = [
       },
       {
         q: 'O Polimento 1 Etapa inclui descontaminação?',
-        a: 'Sim. Inclui lavagem exterior, descontaminação da pintura e preparação da superfície antes do polimento.',
+        a: 'Sim. Inclui lavagem detalhada exterior, descontaminação da pintura e preparação da superfície antes do polimento.',
       },
       {
         q: 'Quanto custa o Polimento 1 Etapa?',
-        a: 'O valor é orçamentado depois de avaliarmos o estado da pintura.',
+        a: 'Desde 250 €. O valor final é orçamentado depois de avaliarmos o estado da pintura.',
       },
     ],
   },
@@ -607,7 +630,7 @@ const PAGINAS = [
   {
     slug: 'correcao-pintura-braga',
     serviceId: 'polimento-avancado',
-    nome: 'Correção Avançada de Pintura',
+    nome: 'Polimento de Correção Avançada',
     whatsapp: true,
     ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-te o orçamento.',
     comparar: 'polimento-automovel-braga',
@@ -630,6 +653,7 @@ const PAGINAS = [
           'Recuperação de brilho e profundidade',
           'Proteção final',
         ],
+        nota: 'Inclui lavagem detalhada exterior.',
       },
       {
         heading: 'Para quem é indicada',
@@ -663,7 +687,7 @@ const PAGINAS = [
       },
       {
         q: 'Quanto custa a correção avançada de pintura?',
-        a: 'O valor é orçamentado depois de avaliarmos o estado da pintura.',
+        a: 'Desde 350 €. O valor final é orçamentado depois de avaliarmos o estado da pintura.',
       },
     ],
   },
@@ -685,6 +709,7 @@ const PAGINAS = [
     sections: [
       {
         id: 'dianteiros',
+        servico: 'farois-dianteiros',
         heading: 'Faróis dianteiros',
         entrada: 'Recupera faróis amarelados, opacos ou com riscos, melhorando a estética e a iluminação.',
         items: [
@@ -696,6 +721,7 @@ const PAGINAS = [
       },
       {
         id: 'traseiros',
+        servico: 'farois-traseiros',
         heading: 'Luzes traseiras',
         entrada: 'Recupera o aspeto das luzes traseiras, removendo opacidade e riscos superficiais.',
         items: [
@@ -723,7 +749,7 @@ const PAGINAS = [
     faq: [
       {
         q: 'Quanto custa o polimento de faróis?',
-        a: 'O valor depende do estado dos faróis e é orçamentado depois de os avaliarmos.',
+        a: 'Desde 55 € o par de faróis dianteiros e desde 40 € o par de luzes traseiras. O valor final depende do estado dos faróis e é orçamentado depois de os avaliarmos.',
       },
       {
         q: 'O polimento de faróis é por unidade?',
@@ -779,6 +805,22 @@ export const PAGE_BY_SERVICE = Object.fromEntries(
  * Null numa página sem nível de lavagem, que não anuncia preço.
  */
 export const precoDe = (page) => (page.levelId ? LEVEL_BY_ID[page.levelId].prices.carro : null);
+
+/**
+ * O "desde" de um serviço sob orçamento (os polimentos), vindo do mock.js, que
+ * é o que o cartão da inicial mostra. Numa página de dois serviços (os faróis)
+ * é o mais baixo. Null onde não há preço — e numa lavagem, que tem o precoDe.
+ */
+export const orcamentoDe = (page) => {
+  const precos = [].concat(page.serviceId ?? [])
+    .map((id) => SERVICES.find((s) => s.id === id))
+    .filter((s) => s?.onRequest && s.price)
+    .map((s) => s.price);
+  return precos.length ? Math.min(...precos) : null;
+};
+
+/** O "desde" do serviço de uma secção (os polimentos e os faróis). */
+export const precoServico = (id) => SERVICES.find((s) => s.id === id)?.price ?? null;
 
 /** Um link no meio do texto: "[texto](/endereco/)". Em inglês leva /en à frente (rotas.js). */
 export const LIGACAO = /\[([^\]]+)\]\(([^)]+)\)/g;

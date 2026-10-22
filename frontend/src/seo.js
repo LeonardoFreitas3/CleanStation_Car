@@ -62,8 +62,9 @@ export function seoText(lang) {
 /**
  * Catálogo de ofertas, gerado a partir dos serviços reais.
  *
- * Os polimentos entram sem preço (onRequest) — anunciar um valor que não se
- * pratica é pior do que não anunciar nenhum.
+ * Os polimentos (onRequest) entram só com o "desde" — minPrice, sem price —,
+ * porque o valor final é orçamentado: anunciar como preço um valor que não é o
+ * final é pior do que não anunciar nenhum.
  */
 function offerCatalog(lang) {
   return {
@@ -92,6 +93,14 @@ function offerCatalog(lang) {
           valueAddedTaxIncluded: true,
         };
       } else {
+        if (s.price) {
+          offer.priceSpecification = {
+            '@type': 'PriceSpecification',
+            minPrice: String(s.price),
+            priceCurrency: 'EUR',
+            valueAddedTaxIncluded: true,
+          };
+        }
         offer.availability = 'https://schema.org/InStock';
       }
 
@@ -169,7 +178,7 @@ export function faqItems(lang) {
     return [
       {
         q: 'What is included in each wash?',
-        a: 'All our washes include interior and exterior cleaning. The Basic Wash is the maintenance clean; the Wash with Sealant is exactly the same plus a sealant on the paint; the Premium adds detailed interior cleaning, glass decontamination and a premium sealant; the Detailed adds seat removal and sanitising, paint decontamination and deep wheel and tyre cleaning.',
+        a: 'The Basic Wash is the interior and exterior maintenance clean, and includes sealant on the paint; the Premium adds detailed interior cleaning, glass decontamination and a premium sealant; the Detailed Wash Interior + Exterior adds seat removal and sanitising, paint decontamination and deep wheel and tyre cleaning. The Detailed Wash Interior or Exterior does that same work on the area you choose only: interior or exterior.',
       },
       {
         q: 'Do I need to book in advance?',
@@ -177,7 +186,7 @@ export function faqItems(lang) {
       },
       {
         q: 'How long does the wash take?',
-        a: 'Basic Wash about 1h30, Wash with Sealant about 1h45, Premium about 4 hours and Detailed a full day. Larger vehicles take longer, and the estimated duration is shown when you book.',
+        a: 'Approximately: Basic Wash 1h30, Premium 4 hours, Detailed Wash Interior or Exterior 4 hours and Detailed Wash Interior + Exterior 8 hours. Larger vehicles may take longer, and the estimated duration is shown when you book.',
       },
       {
         q: 'Are prices the same for every car?',
@@ -189,15 +198,15 @@ export function faqItems(lang) {
       },
       {
         q: 'Do you clean upholstery and seats?',
-        a: 'Yes. In the Detailed Wash the seats are removed and sanitised one by one. The other washes clean the interior without removing the seats.',
+        a: 'Yes. In the Detailed Wash Interior + Exterior, and in the Detailed Wash Interior or Exterior with the Interior option, the seats are removed and sanitised one by one. The other washes clean the interior without removing the seats.',
       },
       {
-        q: "What's the difference between the Premium Wash and the Detailed Wash?",
-        a: 'The Detailed Wash adds to the Premium the removal and sanitising of the seats, paint decontamination and deep cleaning of wheels and tyres.',
+        q: "What's the difference between the Premium Wash and the Detailed Wash Interior + Exterior?",
+        a: 'The Detailed Wash Interior + Exterior adds to the Premium the removal and sanitising of the seats, paint decontamination and deep cleaning of wheels and tyres.',
       },
       {
         q: 'Do you do paint polishing?',
-        a: 'Yes. 1-stage polishing for shine and light marks, and advanced paint correction for more visible defects, always within the limits of the clear coat. The price is quoted after we assess the paint.',
+        a: 'Yes. 1-stage polishing (from 250 €) for shine and light marks, and advanced correction polishing (from 350 €) for more visible defects, always within the limits of the clear coat. Both include a detailed exterior wash. The final price depends on assessing the vehicle and is quoted after we see the paint.',
       },
       {
         q: 'Can I cancel or change my booking?',
@@ -217,7 +226,7 @@ export function faqItems(lang) {
   return [
     {
       q: 'O que está incluído em cada lavagem?',
-      a: 'Todas as nossas lavagens incluem limpeza interior e exterior. A Simples é a limpeza de manutenção; a Com Selante é exatamente a Simples mais selante na pintura; a Premium acrescenta limpeza interior detalhada, descontaminação dos vidros e selante premium; a Detalhada acrescenta remoção e higienização dos bancos, descontaminação da pintura e limpeza profunda de jantes e pneus.',
+      a: 'A Simples é a limpeza de manutenção, interior e exterior, e inclui selante na pintura; a Premium acrescenta limpeza interior detalhada, descontaminação dos vidros e selante premium; a Detalhada Interior + Exterior acrescenta remoção e higienização dos bancos, descontaminação da pintura e limpeza profunda de jantes e pneus. A Detalhada Interior ou Exterior faz esse mesmo trabalho só na área escolhida: interior ou exterior.',
     },
     {
       q: 'Preciso de marcar com antecedência?',
@@ -225,7 +234,7 @@ export function faqItems(lang) {
     },
     {
       q: 'Quanto tempo demora a lavagem?',
-      a: 'Lavagem Simples cerca de 1h30, Com Selante cerca de 1h45, Premium cerca de 4 horas e Detalhada um dia. Veículos maiores demoram mais, e a duração estimada aparece no momento da marcação.',
+      a: 'Aproximadamente: Lavagem Simples 1h30, Premium 4 horas, Detalhada Interior ou Exterior 4 horas e Detalhada Interior + Exterior 8 horas. Veículos maiores podem demorar mais, e a duração estimada aparece no momento da marcação.',
     },
     {
       q: 'Os preços são iguais para todos os carros?',
@@ -237,15 +246,15 @@ export function faqItems(lang) {
     },
     {
       q: 'Fazem lavagem de estofos e bancos?',
-      a: 'Sim. Na Lavagem Detalhada os bancos são removidos e higienizados um a um. As outras lavagens limpam o interior sem remover os bancos.',
+      a: 'Sim. Na Lavagem Detalhada Interior + Exterior, e na Detalhada Interior ou Exterior com a opção Interior, os bancos são removidos e higienizados um a um. As outras lavagens limpam o interior sem remover os bancos.',
     },
     {
-      q: 'Qual é a diferença entre a Lavagem Premium e a Lavagem Detalhada?',
-      a: 'A Lavagem Detalhada acrescenta à Premium a remoção e higienização dos bancos, a descontaminação da pintura e a limpeza profunda de jantes e pneus.',
+      q: 'Qual é a diferença entre a Lavagem Premium e a Lavagem Detalhada Interior + Exterior?',
+      a: 'A Lavagem Detalhada Interior + Exterior acrescenta à Premium a remoção e higienização dos bancos, a descontaminação da pintura e a limpeza profunda de jantes e pneus.',
     },
     {
       q: 'Fazem polimento automóvel?',
-      a: 'Sim. Polimento de 1 etapa para brilho e marcas ligeiras, e correção avançada de pintura para defeitos mais evidentes, sempre dentro dos limites do verniz. O valor é orçamentado depois de avaliarmos a pintura.',
+      a: 'Sim. Polimento de 1 etapa (desde 250 €) para brilho e marcas ligeiras, e polimento de correção avançada (desde 350 €) para defeitos mais evidentes, sempre dentro dos limites do verniz. Os dois incluem lavagem detalhada exterior. O valor final depende da avaliação da viatura e é orçamentado depois de vermos a pintura.',
     },
     {
       q: 'Posso cancelar ou alterar a minha marcação?',

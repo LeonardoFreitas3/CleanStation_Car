@@ -7,7 +7,7 @@
 
 import Inicio from './Home';
 import ServicoPagina from './components/ServicoPagina';
-import { PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, precoDe } from './servicePages';
+import { PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, orcamentoDe, precoDe } from './servicePages';
 import { SITE_URL, businessSchema, faqSchema, jsonLd, metadados, seoText } from './seo';
 import { pagina as rotaPagina, prefixo } from './rotas';
 
@@ -49,6 +49,7 @@ export function PaginaServico({ slug, lang }) {
   const url = `${SITE_URL}${rotaPagina(lang, slug)}`;
   const nome = nomeDe(pagina, lang);
   const preco = precoDe(pagina);
+  const orcamento = orcamentoDe(pagina);
 
   const dados = [
     businessSchema(lang),
@@ -63,7 +64,7 @@ export function PaginaServico({ slug, lang }) {
       // o Google ver duas empresas com o mesmo nome.
       provider: { '@id': `${SITE_URL}/#business` },
       areaServed: { '@type': 'City', name: 'Braga' },
-      // Sem preço de tabela (detalhe, limpeza interior, polimento) não há
+      // Sem preço de tabela (detalhe, limpeza interior, polimento geral) não há
       // oferta: anunciar um valor que não se pratica é pior do que nenhum.
       // Com preço, é o "desde" do carro, com IVA — como no cartão.
       ...(preco && {
@@ -74,6 +75,21 @@ export function PaginaServico({ slug, lang }) {
           priceSpecification: {
             '@type': 'PriceSpecification',
             minPrice: preco,
+            priceCurrency: 'EUR',
+            valueAddedTaxIncluded: true,
+          },
+          availability: 'https://schema.org/InStock',
+          url,
+        },
+      }),
+      // Sob orçamento (os polimentos): só o "desde", sem price — o valor final
+      // não é este.
+      ...(orcamento && {
+        offers: {
+          '@type': 'Offer',
+          priceSpecification: {
+            '@type': 'PriceSpecification',
+            minPrice: orcamento,
             priceCurrency: 'EUR',
             valueAddedTaxIncluded: true,
           },

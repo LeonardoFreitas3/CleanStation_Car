@@ -11,8 +11,8 @@ import PrivacyPolicy from './PrivacyPolicy';
 import TermsConditions from './TermsConditions';
 import CookiePolicy from './CookiePolicy';
 import CookieBanner from './CookieBanner';
-import { LIGACAO, PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, precoDe } from '../servicePages';
-import { SITE } from '../mock';
+import { LIGACAO, PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, orcamentoDe, precoDe, precoServico } from '../servicePages';
+import { SERVICES, SITE } from '../mock';
 import { useLang } from '../i18n';
 import { ancora, inicio, pagina as rotaPagina, prefixo } from '../rotas';
 
@@ -31,7 +31,7 @@ const Booking = lazy(() => import('../booking/Booking'));
  * estruturados são escritos no build, em paginas.jsx.
  */
 export default function ServicoPagina({ slug }) {
-  const { lang, t } = useLang();
+  const { lang, t, tx } = useLang();
   const router = useRouter();
 
   const pagina = PAGE_BY_SLUG[slug];
@@ -63,6 +63,10 @@ export default function ServicoPagina({ slug }) {
 
   const outros = SERVICE_PAGES.filter((p) => p.slug !== page.slug);
   const preco = precoDe(page);
+  // Os polimentos: um "desde", sob orçamento.
+  const orcamento = orcamentoDe(page);
+  // "(Inclui selante)", por baixo do nome, como no cartão da inicial.
+  const nota = tx(SERVICES.find((s) => s.id === pagina.serviceId), 'nota');
 
   // O polimento não se marca online: o botão abre o WhatsApp com o pedido de
   // orçamento já escrito, como a ficha dele na página inicial. A mensagem vai
@@ -163,6 +167,7 @@ export default function ServicoPagina({ slug }) {
             <h1 className="font-display text-white text-3xl md:text-5xl font-black tracking-wide leading-tight">
               {page.h1}
             </h1>
+            {nota && <p className="text-blue-300/80 text-sm mt-2">{nota}</p>}
             <span className="accent-bar mt-5 block" />
 
             <div className="mt-6 space-y-4 max-w-2xl">
@@ -174,29 +179,41 @@ export default function ServicoPagina({ slug }) {
             {/* O preço e o botão logo no primeiro ecrã: quem chega de uma
                 pesquisa quer saber quanto custa antes de ler o resto. */}
             <div className="mt-8 flex flex-wrap items-center gap-5">
-              {preco && (
+              {(preco || orcamento) && (
                 <div>
                   <span className="text-blue-400/80 text-[10px] tracking-[0.3em] uppercase">{lang === 'en' ? 'From' : 'Desde'}</span>
-                  <div className="text-white font-display text-4xl font-black">{preco}€</div>
+                  <div className="text-white font-display text-4xl font-black">
+                    {preco || orcamento}€
+                    {orcamento && <span className="text-white/60 font-sans text-sm font-normal"> · {t('services.quoteBased')}</span>}
+                  </div>
                   <span className="block text-white/50 text-[10px] tracking-[0.1em]">{t('services.vat')}</span>
                 </div>
               )}
               {acao}
             </div>
-            {preco && (
-              <p className="text-white/55 text-xs mt-4 max-w-2xl">{t('services.priceNote')}</p>
+            {(preco || orcamento) && (
+              <p className="text-white/55 text-xs mt-4 max-w-2xl">{t(orcamento ? 'services.quoteNote' : 'services.priceNote')}</p>
             )}
           </div>
         </header>
 
         <div className="max-w-4xl mx-auto px-6 py-16 md:py-20 space-y-14">
-          {page.sections.map((sec) => (
+          {page.sections.map((sec, i) => {
+            // O serviço da secção vem da página portuguesa: a tradução troca o
+            // texto e mais nada.
+            const precoSecao = precoServico(pagina.sections[i]?.servico);
+            return (
             // O id, quando existe, é o destino de um cartão da inicial: os
             // faróis dianteiros e traseiros abrem cada um a sua secção.
             <section key={sec.heading} id={sec.id}>
               <h2 className="font-display text-white text-xl md:text-2xl font-black tracking-wide">
                 {sec.heading}
               </h2>
+              {precoSecao && (
+                <p className="text-white/70 text-sm mt-2">
+                  {lang === 'en' ? 'From' : 'Desde'} {precoSecao}€ · {t('services.quoteBased')}
+                </p>
+              )}
               <span className="accent-bar mt-4 block" />
 
               {sec.entrada && (
@@ -226,7 +243,8 @@ export default function ServicoPagina({ slug }) {
                 <p className="text-white/50 text-sm mt-6 leading-relaxed max-w-2xl"><Texto lang={lang}>{sec.nota}</Texto></p>
               )}
             </section>
-          ))}
+            );
+          })}
 
           {/* ── Perguntas ─────────────────────────────────────────────────── */}
           <section>
@@ -288,9 +306,10 @@ export default function ServicoPagina({ slug }) {
                     <div className="mt-2 flex items-baseline justify-between">
                       {/* "Desde": é o preço do carro, como no cartão da inicial. */}
                       <span className="text-white font-display text-lg font-bold">
-                        {precoDe(o)
-                          ? <><span className="text-blue-400/80 text-[9px] tracking-[0.25em] font-sans font-semibold mr-1.5">{t('services.from')}</span>{precoDe(o)}€</>
+                        {precoDe(o) || orcamentoDe(o)
+                          ? <><span className="text-blue-400/80 text-[9px] tracking-[0.25em] font-sans font-semibold mr-1.5">{t('services.from')}</span>{precoDe(o) || orcamentoDe(o)}€</>
                           : <span className="text-white/60 text-xs font-sans font-normal">{t('services.onRequest')}</span>}
+                        {orcamentoDe(o) && <span className="block text-white/55 text-[10px] font-sans font-normal">{t('services.quoteBased')}</span>}
                       </span>
                       <span className="text-white/50 text-[10px] tracking-[0.15em] uppercase">
                         {lang === 'en' ? 'See' : 'Ver'} →

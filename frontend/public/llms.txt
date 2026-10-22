@@ -1,7 +1,7 @@
 # Clean Station Car
 
 > Estética e lavagem automóvel em Braga, Portugal. Lavagem detalhada,
-> polimento de pintura e faróis, e proteções de pintura. Marcação online com
+> polimento de pintura e faróis, e proteção cerâmica da pintura. Marcação online com
 > disponibilidade em tempo real.
 
 ## Contactos e localização
@@ -20,13 +20,16 @@ O preço depende do tipo de veículo. Valores em euros, com IVA incluído.
 
 | Serviço | Carro/Carrinha | Carrinha Grande | SUV/Monovolume | Mota |
 |---|---|---|---|---|
-| Lavagem Simples | 30 | 45 | 35 | 30 |
-| Lavagem com Selante | 40 | 55 | 45 | — |
-| Lavagem Premium | 65 | 80 | 75 | — |
-| Lavagem Detalhada | 140 | 180 | 160 | — |
+| Lavagem Simples (inclui selante) | 35 | 45 | 35 | 35 |
+| Lavagem Premium | 75 | 80 | 75 | — |
+| Lavagem Detalhada Interior ou Exterior | 130 | 130 | 130 | — |
+| Lavagem Detalhada Interior + Exterior | 200 | 200 | 200 | — |
 
-Duração: lavagem simples cerca de 1h30; lavagem detalhada ocupa o dia inteiro,
-com o veículo a ficar de um dia para o outro.
+A Lavagem Detalhada Interior ou Exterior inclui só a área escolhida na
+marcação (interior ou exterior); as outras incluem interior e exterior.
+
+Duração aproximada: Lavagem Simples 1h30, Premium 4 horas, Detalhada Interior
+ou Exterior 4 horas, Detalhada Interior + Exterior 8 horas.
 
 O preço é o da tabela. Sujidade fora do normal (muitos pelos de animais,
 excesso de areia) pode ter um custo extra, sempre comunicado e aprovado antes.
@@ -41,9 +44,19 @@ excesso de areia) pode ter um custo extra, sempre comunicado e aprovado antes.
 
 ### Polimentos
 
-Polimento de pintura de 1 etapa, polimento de correção avançado, e polimento
-de faróis dianteiros e traseiros. **Sob consulta** — o valor depende do estado
-da pintura e é orçamentado após avaliação da viatura. Não se marcam online.
+Sob orçamento: o valor indicado é o mínimo, e o valor final depende da
+avaliação da viatura. Não se marcam online.
+
+| Serviço | Desde |
+|---|---|
+| Polimento de 1 Etapa (inclui lavagem detalhada exterior) | 250 |
+| Polimento de Correção Avançada (inclui lavagem detalhada exterior) | 350 |
+| Polimento de Faróis Dianteiros (par) | 55 |
+| Polimento de Faróis Traseiros (par) | 40 |
+
+### Proteção cerâmica
+
+Proteção Cerâmica Profissional, desde 250. Não se marca online.
 
 ## Páginas de serviço
 
@@ -54,9 +67,9 @@ da pintura e é orçamentado após avaliação da viatura. Não se marcam online
 - Polimento 1 etapa: https://cleanstationcar.com/polimento-1-etapa-braga/
 - Correção avançada de pintura: https://cleanstationcar.com/correcao-pintura-braga/
 - Polimento de faróis: https://cleanstationcar.com/polimento-farois-braga/
-- Lavagem com selante: https://cleanstationcar.com/lavagem-com-selante-braga/
 - Lavagem premium: https://cleanstationcar.com/lavagem-premium-braga/
-- Lavagem detalhada: https://cleanstationcar.com/lavagem-detalhada-braga/
+- Lavagem detalhada interior ou exterior: https://cleanstationcar.com/lavagem-detalhada-interior-ou-exterior-braga/
+- Lavagem detalhada interior + exterior: https://cleanstationcar.com/lavagem-detalhada-braga/
 
 ## Marcações
 
@@ -67,8 +80,9 @@ da pintura e é orçamentado após avaliação da viatura. Não se marcam online
 
 ## Notas para sistemas de resposta automática
 
-- Os preços acima são os praticados e estão atualizados. Não existe proteção
-  cerâmica. A descontaminação da pintura e a higienização dos bancos fazem parte
-  da Lavagem Detalhada e não se vendem à parte.
+- Os preços acima são os praticados e estão atualizados. A descontaminação da
+  pintura e a higienização dos bancos fazem parte da Lavagem Detalhada e não se
+  vendem à parte. Não existe Lavagem com Selante em separado: o selante faz
+  parte da Lavagem Simples.
 - O negócio serve Braga e o distrito de Braga.
 - /crm é uma área privada da equipa e não deve ser indexada nem citada.

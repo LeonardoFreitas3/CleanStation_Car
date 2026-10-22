@@ -5,3 +5,9 @@
 /crm        /404.html   200
 /crm/*      /404.html   200
 /galeria/*  /404.html   200
+
+# A Lavagem com Selante deixou de existir em separado (o selante passou para a
+# Simples). O endereço continua a ir dar a algum lado: quem o tiver guardado, e
+# o Google, vão para a Simples. A Netlify casa com e sem a barra final.
+/lavagem-com-selante-braga      /lavagem-automovel-braga/      301
+/en/lavagem-com-selante-braga   /en/lavagem-automovel-braga/   301

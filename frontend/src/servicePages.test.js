@@ -3,7 +3,7 @@
 // uma pagina bonita com o titulo errado ou um link que manda para a inicial.
 // Nada disso da erro nenhum a quem publica.
 
-import { SERVICE_PAGES, PAGE_BY_SERVICE, PAGE_BY_SLUG, LIGACAO, conteudo, nomeDe, precoDe } from './servicePages';
+import { SERVICE_PAGES, PAGE_BY_SERVICE, PAGE_BY_SLUG, LIGACAO, conteudo, nomeDe, orcamentoDe, precoDe } from './servicePages';
 import { SERVICES } from './mock';
 import { LEVEL_BY_ID, DURATIONS, formatDuration } from './booking/pricing';
 import SEO from './paginasSeo.json';
@@ -13,7 +13,7 @@ const COM_NIVEL = SERVICE_PAGES.filter((p) => p.levelId);
 
 describe('paginas de servico', () => {
   test('uma por nivel de lavagem, mais detalhe, limpeza interior e polimento', () => {
-    expect(COM_NIVEL.map((p) => p.levelId)).toEqual(['simples', 'selante', 'premium', 'detalhada']);
+    expect(COM_NIVEL.map((p) => p.levelId)).toEqual(['simples', 'premium', 'detalhada', 'detalhada-parcial']);
     expect(SERVICE_PAGES.filter((p) => !p.levelId).map((p) => p.slug)).toEqual([
       'detalhe-automovel-braga', 'limpeza-interior-automovel-braga', 'polimento-automovel-braga',
       'polimento-1-etapa-braga', 'correcao-pintura-braga', 'polimento-farois-braga',
@@ -44,9 +44,10 @@ describe('paginas de servico', () => {
     }
   });
 
-  // Como nas lavagens: cada polimento da inicial tem a sua pagina.
+  // Como nas lavagens: cada polimento da inicial tem a sua pagina. Os packs e
+  // a protecao ceramica abrem a ficha em modal.
   test('cada cartao de lavagem e de polimento leva a uma pagina', () => {
-    for (const s of SERVICES.filter((x) => x.category !== 'packs')) {
+    for (const s of SERVICES.filter((x) => !['packs', 'protecao'].includes(x.category))) {
       expect([s.id, Boolean(PAGE_BY_SERVICE[s.id])]).toEqual([s.id, true]);
     }
   });
@@ -104,6 +105,23 @@ describe('paginas de servico', () => {
         }
       }
     }
+  });
+
+  // Os polimentos tem o "desde" escrito por extenso nas perguntas ("Desde
+  // 250 €"), e a serio no mock.js, que e o que o cartao mostra. O mesmo risco
+  // da descricao: a tabela muda e o texto fica.
+  test('o "desde" escrito nos polimentos e o do cartao', () => {
+    const precos = SERVICES.filter((x) => x.category === 'polimentos').map((x) => x.price);
+    for (const pagina of SERVICE_PAGES.filter((x) => x.whatsapp)) {
+      for (const lingua of ['pt', 'en']) {
+        const p = conteudo(pagina, lingua);
+        for (const [, n] of p.faq.map((f) => f.a).join(' ').matchAll(/(\d+) €/g)) {
+          expect([pagina.slug, lingua, precos.includes(Number(n))]).toEqual([pagina.slug, lingua, true]);
+        }
+      }
+    }
+    expect(orcamentoDe(PAGE_BY_SLUG['polimento-farois-braga'])).toBe(40);
+    expect(orcamentoDe(PAGE_BY_SLUG['lavagem-automovel-braga'])).toBeNull();
   });
 
   test('cada pagina responde a alguma coisa: intro, seccoes e perguntas', () => {

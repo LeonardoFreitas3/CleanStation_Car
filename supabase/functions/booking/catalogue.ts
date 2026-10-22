@@ -16,28 +16,40 @@ interface Level {
   durations: Partial<Record<VehicleId, number>>;
 }
 
+// Os preços são os de outubro de 2026 (ver o comentário do WASH_LEVELS no
+// pricing.js para os valores de carrinha grande e SUV). A Lavagem com Selante
+// saiu: o selante passou para dentro da Simples, e um pedido com "selante" é
+// recusado como serviço desconhecido.
+//
+// A Detalhada Interior ou Exterior é um nível por área: o site mostra um
+// serviço e obriga a escolher a área, e o que chega aqui é a área. Assim o
+// calendário e a ficha do CRM dizem qual das duas foi marcada.
 const LEVELS: Record<string, Level> = {
   simples: {
     label: 'Lavagem Simples',
-    prices: { carro: 30, grande: 45, suv: 35, mota: 30 },
+    prices: { carro: 35, grande: 45, suv: 35, mota: 35 },
     durations: { carro: 90, grande: 120, suv: 105, mota: 105 },
-  },
-  selante: {
-    label: 'Lavagem com Selante',
-    prices: { carro: 40, grande: 55, suv: 45 },
-    durations: { carro: 105, grande: 135, suv: 120 },
   },
   premium: {
     label: 'Lavagem Premium',
-    prices: { carro: 65, grande: 80, suv: 75 },
+    prices: { carro: 75, grande: 80, suv: 75 },
     durations: { carro: 240, grande: 360, suv: 300 },
   },
+  'detalhada-interior': {
+    label: 'Lavagem Detalhada Interior',
+    prices: { carro: 130, grande: 130, suv: 130 },
+    durations: { carro: 240, grande: 240, suv: 240 },
+  },
+  'detalhada-exterior': {
+    label: 'Lavagem Detalhada Exterior',
+    prices: { carro: 130, grande: 130, suv: 130 },
+    durations: { carro: 240, grande: 240, suv: 240 },
+  },
   detalhada: {
-    label: 'Lavagem Detalhada',
-    prices: { carro: 140, grande: 180, suv: 160 },
-    // 24h: o carro fica de um dia para o outro. Ocupa o dia inteiro, e o
-    // calculo de vagas trata este caso a parte.
-    durations: { carro: 1440, grande: 1440, suv: 1440 },
+    label: 'Lavagem Detalhada Interior + Exterior',
+    prices: { carro: 200, grande: 200, suv: 200 },
+    // 8 horas: cabe no dia de trabalho, e entra nas vagas como as outras.
+    durations: { carro: 480, grande: 480, suv: 480 },
   },
 };
 

@@ -6,7 +6,8 @@
 // bloco pela língua e o resto — slug, preço, imagem — não muda.
 //
 // Os nomes dos serviços são os mesmos que o mock.js já usa em inglês (BASIC
-// WASH, WASH WITH SEALANT, PREMIUM WASH, DETAILED WASH). Um site que chama
+// WASH, PREMIUM WASH, DETAILED WASH INTERIOR OR EXTERIOR, DETAILED WASH
+// INTERIOR + EXTERIOR). Um site que chama
 // "Basic Wash" a um cartão e "Simple Wash" à página do mesmo serviço parece
 // dois sítios diferentes.
 //
@@ -18,11 +19,11 @@ export const EN_PAGES = {
     nome: 'Basic Wash',
     title: 'Car Wash in Braga | Clean Station Car',
     description:
-      'Car wash in Braga with manual interior and exterior cleaning. '
-      + 'Complete wash from €30, with online booking at Clean Station Car.',
+      'Car wash in Braga with manual interior and exterior cleaning and sealant. '
+      + 'Complete wash from €35, with online booking at Clean Station Car.',
     h1: 'Car Wash in Braga',
     intro: [
-      'A complete solution for keeping your vehicle in shape, with a manual exterior wash and careful interior cleaning.',
+      'A complete solution for keeping your vehicle in shape, with a manual exterior wash, careful interior cleaning and sealant on the paint.',
       'At Clean Station Car, every vehicle is treated individually, so both the inside and the outside get the same attention.',
     ],
     sections: [
@@ -31,7 +32,7 @@ export const EN_PAGES = {
         grupos: [
           {
             titulo: 'Exterior',
-            items: ['Pre-wash', 'Manual wash', 'Wheel cleaning', 'Window cleaning'],
+            items: ['Pre-wash', 'Manual wash', 'Wheel cleaning', 'Window cleaning', 'Sealant applied to the paint'],
           },
           {
             titulo: 'Interior',
@@ -68,7 +69,7 @@ export const EN_PAGES = {
         heading: 'Professional car wash in Braga',
         paragrafos: [
           'We wash cars in Braga by hand, one vehicle at a time: an interior and exterior wash with the same care inside and out.',
-          'If you want a professional car wash in Braga with more protection or a more thorough interior, see the [Wash with Sealant](/lavagem-com-selante-braga/) and the [Premium Wash](/lavagem-premium-braga/).',
+          'If you want a professional car wash in Braga with more protection or a more thorough interior, see the [Premium Wash](/lavagem-premium-braga/) and the [Detailed Wash Interior or Exterior](/lavagem-detalhada-interior-ou-exterior-braga/).',
           'For more complete care, see our [car detailing in Braga](/detalhe-automovel-braga/).',
         ],
       },
@@ -88,62 +89,8 @@ export const EN_PAGES = {
         a: 'The price depends on the type of vehicle: the "from" price is for a car, and SUVs, MPVs and large vans have their own price, shown when you book. Dirt beyond the normal may carry a supplement, always approved with you before the service. Prices include VAT.',
       },
       {
-        q: 'How is it different from the Wash with Sealant?',
-        a: 'The Wash with Sealant also includes a protective layer applied to the paint.',
-      },
-    ],
-  },
-
-  'lavagem-com-selante-braga': {
-    nome: 'Wash with Sealant',
-    title: 'Car Wash with Sealant in Braga | Clean Station Car',
-    description:
-      'Car wash with sealant in Braga. Manual interior and exterior cleaning '
-      + 'with protection, shine and a hydrophobic effect from €40.',
-    h1: 'Car Wash with Sealant in Braga',
-    intro: [
-      'On top of a complete interior and exterior clean, this service adds a layer of protection to the vehicle’s paint.',
-      'The sealant brings more shine, water repellency and paint protection, which makes it a good choice for keeping the car clean and protected for longer.',
-    ],
-    sections: [
-      {
-        heading: "What's included",
-        entrada: 'Everything in the Basic Wash, plus:',
-        items: [
-          'Sealant applied to the paint',
-          'More shine',
-          'Hydrophobic effect',
-          'Extra paint protection',
-        ],
-      },
-      {
-        heading: 'How long it takes',
-        paragrafos: ['Around 1h45, depending on the condition of the vehicle.'],
-      },
-      {
-        heading: 'Dirt beyond the normal',
-        paragrafos: [
-          'As with the Basic Wash, cases such as excess pet hair, sand or dirt beyond the normal may carry an additional cost, always explained in advance.',
-        ],
-      },
-    ],
-    cta: 'Book the Wash with Sealant',
-    faq: [
-      {
-        q: 'What is the sealant?',
-        a: 'It is a protective layer applied over the paint that helps increase shine, water repellency and protection of the surface.',
-      },
-      {
-        q: 'Does the Wash with Sealant include interior cleaning?',
-        a: 'Yes. It is exactly the Basic Wash, interior and exterior, plus the sealant on the paint.',
-      },
-      {
-        q: 'Is the sealant a ceramic coating?',
-        a: 'No. It is a paint sealant: it protects and adds shine and a hydrophobic effect, but it is not a ceramic coating.',
-      },
-      {
-        q: 'How long does the protection last?',
-        a: 'It depends on how the car is used, the weather it sees and how it is maintained. For that reason we prefer not to promise a fixed duration.',
+        q: 'Does the Basic Wash include sealant?',
+        a: 'Yes. It includes a sealant applied to the paint, which adds shine, a hydrophobic effect and extra protection. It is a paint sealant, not a ceramic coating.',
       },
     ],
   },
@@ -153,7 +100,7 @@ export const EN_PAGES = {
     title: 'Premium Car Wash in Braga | Clean Station Car',
     description:
       'Premium Wash in Braga with detailed interior and exterior cleaning, '
-      + 'glass decontamination and premium paint protection. €65.',
+      + 'glass decontamination and premium paint protection. From €75.',
     h1: 'Premium Car Wash in Braga',
     intro: [
       'A service for anyone looking for a level of cleaning above a conventional wash.',
@@ -219,14 +166,14 @@ export const EN_PAGES = {
         a: 'Yes. A premium sealant is applied to the paint. It is a sealant, not a ceramic coating.',
       },
       {
-        q: 'How is the Premium different from the Detailed Wash?',
-        a: 'The Detailed Wash adds to the Premium the removal and sanitising of the seats, paint decontamination and deep cleaning of wheels and tyres.',
+        q: 'How is the Premium different from the Detailed Wash Interior + Exterior?',
+        a: 'The Detailed Wash Interior + Exterior adds to the Premium the removal and sanitising of the seats, paint decontamination and deep cleaning of wheels and tyres.',
       },
     ],
   },
 
   'lavagem-detalhada-braga': {
-    nome: 'Detailed Wash',
+    nome: 'Detailed Wash Interior + Exterior',
     title: 'Detailed Car Wash in Braga | Clean Station Car',
     description:
       'Detailed car wash in Braga with seat removal, deep sanitising, paint '
@@ -267,7 +214,7 @@ export const EN_PAGES = {
       },
       {
         heading: 'How long it takes',
-        paragrafos: ['A full day on average, depending on the condition and size of the vehicle.'],
+        paragrafos: ['Around 8 hours on average, depending on the condition and size of the vehicle.'],
       },
       {
         heading: 'Who it is for',
@@ -277,11 +224,11 @@ export const EN_PAGES = {
         ],
       },
     ],
-    cta: 'Book the Detailed Wash',
+    cta: 'Book the Detailed Wash Interior + Exterior',
     faq: [
       {
-        q: 'How long does a Detailed Wash take?',
-        a: 'A full working day on average, depending on the condition and size of the vehicle.',
+        q: 'How long does the Detailed Wash Interior + Exterior take?',
+        a: 'Around 8 hours on average, depending on the condition and size of the vehicle.',
       },
       {
         q: 'Are the seats really removed?',
@@ -294,6 +241,75 @@ export const EN_PAGES = {
       {
         q: 'How is the Premium different from the Detailed Wash?',
         a: 'The Detailed Wash adds a much higher level of work, including seat removal, deep sanitising, paint decontamination and deep cleaning of wheels and tyres.',
+      },
+      {
+        q: 'Can I have only the interior or only the exterior done?',
+        a: 'Yes. The Detailed Wash Interior or Exterior does the same work, only on the area you choose when booking.',
+      },
+    ],
+  },
+
+  'lavagem-detalhada-interior-ou-exterior-braga': {
+    nome: 'Detailed Wash Interior or Exterior',
+    title: 'Detailed Wash Interior or Exterior in Braga | Clean Station Car',
+    description:
+      'Detailed car wash in Braga on the interior only, with seat removal and sanitising, '
+      + 'or the exterior only, with paint decontamination. From €130.',
+    h1: 'Detailed Wash Interior or Exterior in Braga',
+    intro: [
+      'The work of our Detailed Wash, only on the area you choose: the inside or the outside of the vehicle.',
+      'Every area is worked on individually, including places a conventional clean cannot reach.',
+    ],
+    sections: [
+      {
+        heading: 'Interior or exterior',
+        paragrafos: [
+          'When booking you choose the area: Interior or Exterior. The service covers only the area you choose.',
+          'For both areas, see the [Detailed Wash Interior + Exterior](/lavagem-detalhada-braga/).',
+        ],
+      },
+      {
+        heading: 'Interior',
+        entrada: 'The detailed interior cleaning of the Premium Wash, plus:',
+        items: [
+          'Seat removal',
+          'Deep sanitising of the seats',
+          'Extremely detailed interior cleaning',
+          'Access to and cleaning of areas that cannot be reached with the seats in place',
+        ],
+        nota: 'With the seats out, we can work the cabin far more deeply. The seats are sanitised individually and the areas that are normally hard to reach get a thorough clean.',
+      },
+      {
+        heading: 'Exterior',
+        entrada: 'The full exterior process of the Premium Wash, with its glass decontamination and premium sealant, plus:',
+        items: [
+          'Paint decontamination',
+          'Deep wheel cleaning',
+          'Tyre cleaning',
+        ],
+      },
+      {
+        heading: 'How long it takes',
+        paragrafos: ['Around 4 hours on average, for either area, depending on the condition and size of the vehicle.'],
+      },
+    ],
+    cta: 'Book the Detailed Wash Interior or Exterior',
+    faq: [
+      {
+        q: 'Does it include the interior and the exterior?',
+        a: 'No. It covers only the area you choose when booking: interior or exterior. For both, there is the Detailed Wash Interior + Exterior.',
+      },
+      {
+        q: 'How long does it take?',
+        a: 'Around 4 hours on average, depending on the condition and size of the vehicle.',
+      },
+      {
+        q: 'Are the seats removed?',
+        a: 'Yes, with the Interior option. The seats are removed so the cleaning and sanitising can go deeper.',
+      },
+      {
+        q: 'Does the Exterior option include paint decontamination?',
+        a: 'Yes. Paint decontamination is included in the Exterior option.',
       },
     ],
   },
@@ -336,7 +352,8 @@ export const EN_PAGES = {
       {
         heading: 'Our car detailing services in Braga',
         paragrafos: [
-          'The [Detailed Wash](/lavagem-detalhada-braga/) is our most complete service: the seats come out, the interior is deeply sanitised and the paint is decontaminated and protected.',
+          'The [Detailed Wash Interior + Exterior](/lavagem-detalhada-braga/) is our most complete service: the seats come out, the interior is deeply sanitised and the paint is decontaminated and protected.',
+          'The [Detailed Wash Interior or Exterior](/lavagem-detalhada-interior-ou-exterior-braga/) does the same work, only on the area you choose.',
           'The [Premium Wash](/lavagem-premium-braga/) is for those who want a level of cleaning above a conventional wash, with glass decontamination and premium paint protection.',
           'For scratches, holograms and dull paint, [car polishing](/polimento-automovel-braga/) restores the paint before protecting it.',
           'For yellowed or hazy headlights, [headlight polishing](/polimento-farois-braga/).',
@@ -362,11 +379,11 @@ export const EN_PAGES = {
       },
       {
         q: 'How long does car detailing take?',
-        a: 'The Detailed Wash takes a full day on average, depending on the condition and size of the vehicle.',
+        a: 'The Detailed Wash Interior + Exterior takes around 8 hours on average, and the Interior or Exterior around 4 hours, depending on the condition and size of the vehicle.',
       },
       {
         q: 'How much does car detailing cost in Braga?',
-        a: 'It depends on the service. Washes have a set price per vehicle type, VAT included; polishing is booked separately and quoted after we assess the paint.',
+        a: 'It depends on the service. Washes have a set price per vehicle type, VAT included; polishing is booked separately, with a "from" price, and the final price is quoted after we assess the paint.',
       },
     ],
   },
@@ -379,15 +396,15 @@ export const EN_PAGES = {
       + 'and seat and upholstery sanitising. Book online at Clean Station Car.',
     h1: 'Interior Car Cleaning in Braga',
     intro: [
-      'We clean car interiors in Braga at three levels: the maintenance clean of the Basic and Sealant washes, the detailed interior cleaning of the Premium, and the sanitising with seat removal of the Detailed.',
-      'Every one of our washes includes interior cleaning; what changes between them is how deep the work goes. Only the Detailed removes the seats.',
+      'We clean car interiors in Braga at three levels: the maintenance clean of the Basic Wash, the detailed interior cleaning of the Premium, and the sanitising with seat removal of the Detailed.',
+      'Our washes include interior cleaning, except the Detailed done on the exterior only; what changes between them is how deep the work goes. Only the Detailed removes the seats.',
     ],
     sections: [
       {
         heading: 'What interior cleaning includes',
         grupos: [
           {
-            titulo: 'Maintenance · Basic and Sealant',
+            titulo: 'Maintenance · Basic',
             items: [
               'Vacuuming of carpets, floor mats and boot',
               'Dashboard cleaning',
@@ -417,7 +434,7 @@ export const EN_PAGES = {
       {
         heading: 'Car sanitising and upholstery cleaning',
         paragrafos: [
-          'In the [Detailed Wash](/lavagem-detalhada-braga/) the seats are removed and sanitised one by one. That is how seats and upholstery get a proper deep clean, and how we reach the parts of the cabin hidden with the seats in place.',
+          'In the [Detailed Wash Interior + Exterior](/lavagem-detalhada-braga/), and in the [Detailed Wash Interior or Exterior](/lavagem-detalhada-interior-ou-exterior-braga/) with the Interior option, the seats are removed and sanitised one by one. That is how seats and upholstery get a proper deep clean, and how we reach the parts of the cabin hidden with the seats in place.',
           'It suits interiors with built-up dirt, or ones that have not had a detailed treatment in a long time.',
         ],
       },
@@ -426,7 +443,7 @@ export const EN_PAGES = {
         paragrafos: [
           'For regular upkeep, the [Basic Wash](/lavagem-automovel-braga/) includes interior vacuuming and cleaning.',
           'For a more thorough interior, the [Premium Wash](/lavagem-premium-braga/) works the air vents, controls, door pockets and gaps between seats.',
-          'For the most complete interior clean, with seat removal, the [Detailed Wash](/lavagem-detalhada-braga/).',
+          'For the most complete interior clean, with seat removal, the [Detailed Wash Interior or Exterior](/lavagem-detalhada-interior-ou-exterior-braga/) with the Interior option, or the [Detailed Wash Interior + Exterior](/lavagem-detalhada-braga/) if you also want the exterior.',
         ],
       },
       {
@@ -441,11 +458,11 @@ export const EN_PAGES = {
     faq: [
       {
         q: 'Do you clean seats and upholstery?',
-        a: 'Yes. In the Detailed Wash the seats are removed and sanitised one by one. The other washes clean the interior without removing the seats.',
+        a: 'Yes. In the Detailed Wash Interior + Exterior, and in the Detailed Wash Interior or Exterior with the Interior option, the seats are removed and sanitised one by one. The other washes clean the interior without removing the seats.',
       },
       {
         q: 'Do all washes include interior cleaning?',
-        a: 'Yes. All our washes include interior and exterior cleaning; the difference is the level of detail.',
+        a: 'The Basic, the Premium and the Detailed Wash Interior + Exterior include interior and exterior cleaning; the Detailed Wash Interior or Exterior covers only the area you choose. The difference is the level of detail.',
       },
       {
         q: 'How long does interior cleaning take?',
@@ -472,15 +489,15 @@ export const EN_PAGES = {
         paragrafos: [
           '1-stage polishing significantly improves the finish of the paint, bringing back the shine and reducing small marks and imperfections.',
         ],
-        nota: 'See everything it includes in [1-Stage Polishing in Braga](/polimento-1-etapa-braga/).',
+        nota: 'Includes a detailed exterior wash. See everything it includes in [1-Stage Polishing in Braga](/polimento-1-etapa-braga/).',
       },
       {
-        heading: 'Advanced Paint Correction',
+        heading: 'Advanced Correction Polishing',
         entrada: 'A more complete service for paint with scratches, swirl marks, oxidation and more visible defects.',
         paragrafos: [
           'Several correction stages are carried out according to the condition of the paint, aiming to remove or significantly reduce the defects without compromising the safety of the clear coat.',
         ],
-        nota: 'See everything it includes in [Advanced Paint Correction in Braga](/correcao-pintura-braga/).',
+        nota: 'Includes a detailed exterior wash. See everything it includes in [Advanced Paint Correction in Braga](/correcao-pintura-braga/).',
       },
       {
         heading: 'Which one to choose?',
@@ -508,7 +525,7 @@ export const EN_PAGES = {
     faq: [
       {
         q: 'How much does car polishing cost?',
-        a: 'It depends on the condition of the paint and the level of correction needed, so it is quoted after we assess the vehicle.',
+        a: 'From 250 € for 1-Stage Polishing and from 350 € for Advanced Correction Polishing. The final price depends on the condition of the paint and the level of correction needed, so it is quoted after we assess the vehicle.',
       },
       {
         q: 'Does polishing remove every scratch?',
@@ -541,7 +558,7 @@ export const EN_PAGES = {
       {
         heading: "What's included",
         items: [
-          'Exterior wash',
+          'Detailed exterior wash',
           'Paint decontamination',
           'Surface preparation',
           '1-stage polishing',
@@ -549,6 +566,7 @@ export const EN_PAGES = {
           'Shine recovery',
           'Paint finish and protection',
         ],
+        nota: 'Includes a detailed exterior wash.',
       },
       {
         heading: 'Who it is for',
@@ -578,17 +596,17 @@ export const EN_PAGES = {
       },
       {
         q: 'Does 1-Stage Polishing include decontamination?',
-        a: 'Yes. It includes an exterior wash, paint decontamination and surface preparation before polishing.',
+        a: 'Yes. It includes a detailed exterior wash, paint decontamination and surface preparation before polishing.',
       },
       {
         q: 'How much does 1-Stage Polishing cost?',
-        a: 'It is quoted after we assess the condition of the paint.',
+        a: 'From 250 €. The final price is quoted after we assess the condition of the paint.',
       },
     ],
   },
 
   'correcao-pintura-braga': {
-    nome: 'Advanced Paint Correction',
+    nome: 'Advanced Correction Polishing',
     ctaTexto: 'Send us a message on WhatsApp. We assess the paint and give you a quote.',
     title: 'Advanced Paint Correction in Braga | Clean Station Car',
     description:
@@ -613,6 +631,7 @@ export const EN_PAGES = {
           'Shine and depth recovery',
           'Final protection',
         ],
+        nota: 'Includes a detailed exterior wash.',
       },
       {
         heading: 'Who it is for',
@@ -646,7 +665,7 @@ export const EN_PAGES = {
       },
       {
         q: 'How much does advanced paint correction cost?',
-        a: 'It is quoted after we assess the condition of the paint.',
+        a: 'From 350 €. The final price is quoted after we assess the condition of the paint.',
       },
     ],
   },
@@ -704,7 +723,7 @@ export const EN_PAGES = {
     faq: [
       {
         q: 'How much does headlight polishing cost?',
-        a: 'It depends on the condition of the headlights and is quoted after we assess them.',
+        a: 'From 55 € for a pair of front headlights and from 40 € for a pair of rear lights. The final price depends on the condition of the headlights and is quoted after we assess them.',
       },
       {
         q: 'Is headlight polishing priced per light?',
