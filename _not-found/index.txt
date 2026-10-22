@@ -1,0 +1,18 @@
+1:"$Sreact.fragment"
+2:I[51615,["/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js"],"LanguageProvider"]
+3:I[96999,["/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js"],"default"]
+4:I[39756,["/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js"],"default"]
+5:I[37457,["/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js"],"default"]
+6:I[97367,["/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+a:I[97367,["/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js"],"ViewportBoundary"]
+c:I[97367,["/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js"],"MetadataBoundary"]
+e:I[68027,[],"default",1]
+:HL["/CleanStation_Car/_next/static/chunks/2dz2k54lu9gl2.css","style"]
+9:X
+0:{"P":null,"c":["","_not-found",""],"q":"","i":false,"f":[[["",{"children":["/_not-found",{"children":["__PAGE__",{},"$undefined","$undefined",4608]},"$undefined","$undefined",4608]},"$undefined","$undefined",4624],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/CleanStation_Car/_next/static/chunks/2dz2k54lu9gl2.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"pt","className":"inter_9035f122-module__l-8SXG__variable cinzel_b833ef3-module__u3TJiW__variable","children":["$","body",null,{"children":[["$","$L2",null,{"children":["$","$L3",null,{}]}],["$","script",null,{"src":"https://www.chatlisted.com/v.js","async":true}]]}]}]]}],{"children":[["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["$","$1","c",{"children":[null,null,["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],{},null,false,null]},null,false,"$9"]},null,false,null],["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$La",null,{"children":"$Lb"}],["$","div",null,{"hidden":true,"children":["$","$Lc",null,{"children":["$","$7",null,{"name":"Next.Metadata","children":"$Ld"}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],false]],"m":"$undefined","G":["$e",[]],"S":true,"h":null,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"-vKOqTNkurH_cjWj3J33x"}
+9:C
+b:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#000000"}]]
+f:I[27201,["/CleanStation_Car/_next/static/chunks/0h_z2a3etwyzp.js"],"IconMark"]
+8:null
+d:[["$","meta","0",{"name":"author","content":"Clean Station Car"}],["$","meta","1",{"name":"robots","content":"index, follow, max-image-preview:large"}],["$","meta","2",{"name":"geo.region","content":"PT-03"}],["$","meta","3",{"name":"geo.placename","content":"Braga"}],["$","meta","4",{"name":"geo.position","content":"41.5454;-8.4265"}],["$","meta","5",{"name":"ICBM","content":"41.5454, -8.4265"}],["$","link","6",{"rel":"icon","href":"/img/favicon.ico"}],["$","$Lf","7",{}]]
