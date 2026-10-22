@@ -16,11 +16,11 @@ import { applyCoupon, resolve } from './catalogue.ts';
 
 Deno.test('preço por tipo de veículo, igual à tabela', () => {
   const tabela: Array<[string, string, number]> = [
-    ['carro', 'simples', 35], ['grande', 'simples', 45], ['suv', 'simples', 35], ['mota', 'simples', 35],
-    ['carro', 'premium', 75], ['grande', 'premium', 80], ['suv', 'premium', 75],
-    ['carro', 'detalhada-interior', 130], ['grande', 'detalhada-interior', 130], ['suv', 'detalhada-interior', 130],
-    ['carro', 'detalhada-exterior', 130], ['grande', 'detalhada-exterior', 130], ['suv', 'detalhada-exterior', 130],
-    ['carro', 'detalhada', 200], ['grande', 'detalhada', 200], ['suv', 'detalhada', 200],
+    ['carro', 'simples', 35], ['grande', 'simples', 45], ['suv', 'simples', 40], ['mota', 'simples', 35],
+    ['carro', 'premium', 75], ['grande', 'premium', 85], ['suv', 'premium', 80],
+    ['carro', 'detalhada-interior', 130], ['grande', 'detalhada-interior', 150], ['suv', 'detalhada-interior', 140],
+    ['carro', 'detalhada-exterior', 130], ['grande', 'detalhada-exterior', 150], ['suv', 'detalhada-exterior', 140],
+    ['carro', 'detalhada', 200], ['grande', 'detalhada', 240], ['suv', 'detalhada', 220],
   ];
 
   for (const [veiculo, nivel, esperado] of tabela) {
@@ -32,8 +32,9 @@ Deno.test('duração por tipo de veículo, tempos da oficina', () => {
   const tempos: Array<[string, string, number]> = [
     ['carro', 'simples', 90], ['grande', 'simples', 120], ['suv', 'simples', 105], ['mota', 'simples', 105],
     ['carro', 'premium', 240], ['grande', 'premium', 360], ['suv', 'premium', 300],
-    ['carro', 'detalhada-interior', 240], ['carro', 'detalhada-exterior', 240],
-    ['carro', 'detalhada', 480], ['grande', 'detalhada', 480], ['suv', 'detalhada', 480],
+    ['carro', 'detalhada-interior', 240], ['grande', 'detalhada-interior', 360], ['suv', 'detalhada-interior', 300],
+    ['carro', 'detalhada-exterior', 240], ['grande', 'detalhada-exterior', 360], ['suv', 'detalhada-exterior', 300],
+    ['carro', 'detalhada', 480], ['grande', 'detalhada', 720], ['suv', 'detalhada', 600],
   ];
 
   for (const [veiculo, nivel, esperado] of tempos) {
@@ -80,7 +81,7 @@ Deno.test('um tipo de veículo que não existe é recusado', () => {
 
 Deno.test('o preço é o da tabela: não há multiplicador de sujidade nem packs', () => {
   const q = resolve('suv', 'detalhada');
-  assertEquals(q.price, 200);
+  assertEquals(q.price, 220);
   // Os campos que devolve, e mais nenhum. Um grade ou um gradePct de volta
   // aparecem aqui — que é o sítio onde reaparecem por engano, porque é este
   // ficheiro que decide o valor cobrado.

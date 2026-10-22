@@ -214,7 +214,7 @@ export const EN_PAGES = {
       },
       {
         heading: 'How long it takes',
-        paragrafos: ['Around 8 hours on average, depending on the condition and size of the vehicle.'],
+        paragrafos: ['Around 8 hours on average for a car. SUVs, MPVs and large vans take longer, and the estimate is shown when you book. It may vary with the condition of the vehicle.'],
       },
       {
         heading: 'Who it is for',
@@ -228,7 +228,7 @@ export const EN_PAGES = {
     faq: [
       {
         q: 'How long does the Detailed Wash Interior + Exterior take?',
-        a: 'Around 8 hours on average, depending on the condition and size of the vehicle.',
+        a: 'Around 8 hours on average for a car. SUVs, MPVs and large vans take longer, and the estimate is shown when you book.',
       },
       {
         q: 'Are the seats really removed?',
@@ -290,7 +290,7 @@ export const EN_PAGES = {
       },
       {
         heading: 'How long it takes',
-        paragrafos: ['Around 4 hours on average, for either area, depending on the condition and size of the vehicle.'],
+        paragrafos: ['Around 4 hours on average for a car, for either area. SUVs, MPVs and large vans take longer, and the estimate is shown when you book.'],
       },
     ],
     cta: 'Book the Detailed Wash Interior or Exterior',
@@ -301,7 +301,7 @@ export const EN_PAGES = {
       },
       {
         q: 'How long does it take?',
-        a: 'Around 4 hours on average, depending on the condition and size of the vehicle.',
+        a: 'Around 4 hours on average for a car. SUVs, MPVs and large vans take longer, and the estimate is shown when you book.',
       },
       {
         q: 'Are the seats removed?',
@@ -379,7 +379,7 @@ export const EN_PAGES = {
       },
       {
         q: 'How long does car detailing take?',
-        a: 'The Detailed Wash Interior + Exterior takes around 8 hours on average, and the Interior or Exterior around 4 hours, depending on the condition and size of the vehicle.',
+        a: 'For a car, the Detailed Wash Interior + Exterior takes around 8 hours on average, and the Interior or Exterior around 4 hours. SUVs, MPVs and large vans take longer, and the estimate is shown when you book.',
       },
       {
         q: 'How much does car detailing cost in Braga?',
@@ -732,6 +732,53 @@ export const EN_PAGES = {
       {
         q: 'Does polishing fix yellowed headlights?',
         a: 'In most cases, yes. It removes the oxidation and haziness that turn headlights yellow and softens surface scratches. A cracked headlight, or one hazy on the inside, is assessed first.',
+      },
+    ],
+  },
+
+  'protecao-ceramica-braga': {
+    nome: 'Professional Ceramic Protection',
+    ctaTexto: 'Send us a message on WhatsApp. We assess the condition of the vehicle and give you a quote.',
+    title: 'Ceramic Protection in Braga | Clean Station Car',
+    description:
+      'Professional ceramic protection in Braga: a durable protective layer over the paint, '
+      + 'with more shine and a water-repellent effect. From €250.',
+    h1: 'Ceramic Protection in Braga',
+    intro: [
+      'A durable protective layer applied over the paint that creates a barrier against external damage.',
+    ],
+    sections: [
+      {
+        heading: "What's included",
+        items: [
+          'Protection against UV rays',
+          'Protection against dirt and chemicals',
+          'Protection against minor surface scratches',
+          'More intense shine and water-repellent effect',
+          'Paint protected for much longer',
+          'Easier to clean the car',
+        ],
+      },
+      {
+        heading: 'Related services',
+        paragrafos: [
+          'See also our [car polishing in Braga](/polimento-automovel-braga/) and [car detailing in Braga](/detalhe-automovel-braga/).',
+        ],
+      },
+    ],
+    cta: 'Get a quote',
+    faq: [
+      {
+        q: 'How much does ceramic protection cost?',
+        a: 'From 250 €. The final price depends on assessing the condition of the vehicle.',
+      },
+      {
+        q: 'Can ceramic protection be booked online?',
+        a: 'No. Send us a message on WhatsApp or give us a call, and we will arrange it with you.',
+      },
+      {
+        q: 'Is the sealant in the washes a ceramic protection?',
+        a: 'No. The washes use a paint sealant; ceramic protection is a separate service.',
       },
     ],
   },

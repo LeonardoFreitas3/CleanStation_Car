@@ -16,8 +16,8 @@ interface Level {
   durations: Partial<Record<VehicleId, number>>;
 }
 
-// Os preços são os de outubro de 2026 (ver o comentário do WASH_LEVELS no
-// pricing.js para os valores de carrinha grande e SUV). A Lavagem com Selante
+// Os preços e as durações são os de outubro de 2026, por veículo, iguais aos do
+// pricing.js. A Lavagem com Selante
 // saiu: o selante passou para dentro da Simples, e um pedido com "selante" é
 // recusado como serviço desconhecido.
 //
@@ -27,29 +27,30 @@ interface Level {
 const LEVELS: Record<string, Level> = {
   simples: {
     label: 'Lavagem Simples',
-    prices: { carro: 35, grande: 45, suv: 35, mota: 35 },
+    prices: { carro: 35, grande: 45, suv: 40, mota: 35 },
     durations: { carro: 90, grande: 120, suv: 105, mota: 105 },
   },
   premium: {
     label: 'Lavagem Premium',
-    prices: { carro: 75, grande: 80, suv: 75 },
+    prices: { carro: 75, grande: 85, suv: 80 },
     durations: { carro: 240, grande: 360, suv: 300 },
   },
   'detalhada-interior': {
     label: 'Lavagem Detalhada Interior',
-    prices: { carro: 130, grande: 130, suv: 130 },
-    durations: { carro: 240, grande: 240, suv: 240 },
+    prices: { carro: 130, grande: 150, suv: 140 },
+    durations: { carro: 240, grande: 360, suv: 300 },
   },
   'detalhada-exterior': {
     label: 'Lavagem Detalhada Exterior',
-    prices: { carro: 130, grande: 130, suv: 130 },
-    durations: { carro: 240, grande: 240, suv: 240 },
+    prices: { carro: 130, grande: 150, suv: 140 },
+    durations: { carro: 240, grande: 360, suv: 300 },
   },
   detalhada: {
     label: 'Lavagem Detalhada Interior + Exterior',
-    prices: { carro: 200, grande: 200, suv: 200 },
-    // 8 horas: cabe no dia de trabalho, e entra nas vagas como as outras.
-    durations: { carro: 480, grande: 480, suv: 480 },
+    prices: { carro: 200, grande: 240, suv: 220 },
+    // No carro, 8 horas cabem no dia de trabalho. Em SUV e carrinha grande nao
+    // cabem, e o calculo de vagas trata-as como dia inteiro (slots.ts).
+    durations: { carro: 480, grande: 720, suv: 600 },
   },
 };
 

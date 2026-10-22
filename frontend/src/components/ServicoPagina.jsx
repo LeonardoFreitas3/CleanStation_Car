@@ -78,9 +78,10 @@ export default function ServicoPagina({ slug }) {
   )}`;
 
   // A ação principal e as de recurso, as mesmas em cima e em baixo. Numa
-  // lavagem: marcar, ver os preços, ligar, escrever. Num serviço sob consulta
-  // não há preços para ver: compara-se com o outro polimento, ou pede-se o
-  // orçamento, e liga-se.
+  // lavagem: marcar, ligar, escrever — sem "ver preços", a pedido do cliente: o
+  // preço já está nesta página e na marcação. Nas páginas sem preço (detalhe,
+  // limpeza interior) o "ver preços" fica. Num serviço sob consulta compara-se
+  // com o outro polimento, ou pede-se o orçamento, e liga-se.
   const acao = (
     <div className="flex flex-wrap items-center gap-3">
       {page.whatsapp ? (
@@ -102,10 +103,12 @@ export default function ServicoPagina({ slug }) {
           </Link>
         )
       ) : (
-        <Link href={ancora(lang, '#services')} className={secundario}>
-          <Tag className="w-4 h-4" aria-hidden="true" />
-          {lang === 'en' ? 'See prices' : 'Ver preços'}
-        </Link>
+        !page.levelId && (
+          <Link href={ancora(lang, '#services')} className={secundario}>
+            <Tag className="w-4 h-4" aria-hidden="true" />
+            {lang === 'en' ? 'See prices' : 'Ver preços'}
+          </Link>
+        )
       )}
       <a href={`tel:${SITE.phone.replace(/\s/g, '')}`} className={secundario}>
         <Phone className="w-4 h-4" aria-hidden="true" />
@@ -192,7 +195,7 @@ export default function ServicoPagina({ slug }) {
               {acao}
             </div>
             {(preco || orcamento) && (
-              <p className="text-white/55 text-xs mt-4 max-w-2xl">{t(orcamento ? 'services.quoteNote' : 'services.priceNote')}</p>
+              <p className="text-white/55 text-xs mt-4 max-w-2xl">{t(page.levelId ? 'services.priceNote' : 'services.quoteNote')}</p>
             )}
           </div>
         </header>

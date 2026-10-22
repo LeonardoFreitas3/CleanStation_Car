@@ -11,14 +11,19 @@ está feito e testado no ramo `claude/quirky-sagan-poykbh`; falta pô-lo no ar. 
 o `README.md` e a parte de cima do `IMPLANTACAO.md` antes de começar.
 
 O que o ramo muda, para saberes o que estás a publicar:
-- Lavagens: Simples 35 € (passa a incluir selante), Premium 75 €, Detalhada
-  Interior ou Exterior 130 € (nova; a área escolhe-se na marcação e vai para o
-  servidor como `detalhada-interior` ou `detalhada-exterior`), Detalhada
-  Interior + Exterior 200 €. Durações 90, 240, 240 e 480 minutos. A Lavagem com
-  Selante saiu e o endereço dela redireciona para a Simples
+- Lavagens, carro / SUV / carrinha grande: Simples 35/40/45 € (passa a incluir
+  selante; mota 35 €), Premium 75/80/85 €, Detalhada Interior ou Exterior
+  130/140/150 € (nova; a área escolhe-se na marcação e vai para o servidor como
+  `detalhada-interior` ou `detalhada-exterior`), Detalhada Interior + Exterior
+  200/220/240 €. Durações por veículo: Simples 1h30/1h45/2h, Premium e
+  Detalhada Interior ou Exterior 4h/5h/6h, Detalhada Interior + Exterior
+  8h/10h/12h (no SUV e na carrinha grande a agenda bloqueia o dia inteiro). A
+  Lavagem com Selante saiu e o endereço dela redireciona para a Simples
   (`frontend/public/_redirects`).
 - Polimentos "desde" e sob orçamento (250, 350, 55, 40); Proteção Cerâmica
-  Profissional desde 250 €.
+  Profissional desde 250 €, com página própria (`/protecao-ceramica-braga/`).
+  Packs: 60, 125 e 330 €/mês. A secção "Os Nossos Serviços" passou para o fundo
+  da página inicial, e as páginas das lavagens deixaram de ter "Ver preços".
 - Quem decide o preço e a duração de uma marcação é
   `supabase/functions/booking/catalogue.ts`, não o site. Por isso a função tem
   de ir para o ar antes do site.
@@ -63,22 +68,22 @@ nem de nenhuma chave.
    publicar com ele; senão diz-me para arrastar o `frontend/build`, como é
    hábito, e espera que eu confirme.
 
-6. **Catálogo do CRM.** A migração
-   `supabase/migrations/0033_tabela_outubro_2026.sql` corre no SQL Editor do
-   Supabase, como as outras (ver o `IMPLANTACAO.md`). Mostra-ma para eu colar e
-   lê comigo o resultado da consulta de verificação do fim.
+6. **Catálogo do CRM.** As migrações
+   `supabase/migrations/0033_tabela_outubro_2026.sql` e
+   `supabase/migrations/0034_precos_por_veiculo_outubro.sql` correm no SQL
+   Editor do Supabase, uma de cada vez e por esta ordem, como as outras (ver o
+   `IMPLANTACAO.md`). Mostra-mas para eu colar e lê comigo o resultado da
+   consulta de verificação do fim de cada uma.
 
 7. **Teste final.** Ajuda-me a fazer uma marcação a sério no
    cleanstationcar.com com a Detalhada Interior ou Exterior → Exterior, num
    carro. A ficha no CRM e o evento no calendário têm de dizer "Lavagem
    Detalhada Exterior", 130 €, 4 horas. Depois lembra-me de apagar o evento e
    a ficha. Confirma também que `/lavagem-com-selante-braga/` redireciona para
-   `/lavagem-automovel-braga/`.
+   `/lavagem-automovel-braga/`, e que a página `/protecao-ceramica-braga/`
+   abre.
 
 8. **Fecho.** Acrescenta ao bloco de estado no topo do `IMPLANTACAO.md` o que
    foi publicado e quando, faz commit no mesmo ramo e propõe-me abrir o pull
-   request para o `main`. Lembra-me dos valores que ficaram por rever: os
-   preços de carrinha grande, SUV e mota, as durações dos veículos maiores, os
-   preços dos packs (o Pack Selante sai mais barato por lavagem que a Simples),
-   o texto da Proteção Cerâmica e o prazo de lembrete das duas detalhadas
-   parciais no CRM.
+   request para o `main`. Lembra-me do que ficou por rever: o texto da
+   Proteção Cerâmica e o prazo de lembrete das duas detalhadas parciais no CRM.

@@ -17,6 +17,7 @@ describe('paginas de servico', () => {
     expect(SERVICE_PAGES.filter((p) => !p.levelId).map((p) => p.slug)).toEqual([
       'detalhe-automovel-braga', 'limpeza-interior-automovel-braga', 'polimento-automovel-braga',
       'polimento-1-etapa-braga', 'correcao-pintura-braga', 'polimento-farois-braga',
+      'protecao-ceramica-braga',
     ]);
   });
 
@@ -44,10 +45,10 @@ describe('paginas de servico', () => {
     }
   });
 
-  // Como nas lavagens: cada polimento da inicial tem a sua pagina. Os packs e
-  // a protecao ceramica abrem a ficha em modal.
-  test('cada cartao de lavagem e de polimento leva a uma pagina', () => {
-    for (const s of SERVICES.filter((x) => !['packs', 'protecao'].includes(x.category))) {
+  // Como nas lavagens: cada polimento e a protecao ceramica tem a sua pagina.
+  // Os packs abrem a ficha em modal.
+  test('cada cartao de lavagem, polimento e protecao leva a uma pagina', () => {
+    for (const s of SERVICES.filter((x) => x.category !== 'packs')) {
       expect([s.id, Boolean(PAGE_BY_SERVICE[s.id])]).toEqual([s.id, true]);
     }
   });
@@ -110,8 +111,8 @@ describe('paginas de servico', () => {
   // Os polimentos tem o "desde" escrito por extenso nas perguntas ("Desde
   // 250 €"), e a serio no mock.js, que e o que o cartao mostra. O mesmo risco
   // da descricao: a tabela muda e o texto fica.
-  test('o "desde" escrito nos polimentos e o do cartao', () => {
-    const precos = SERVICES.filter((x) => x.category === 'polimentos').map((x) => x.price);
+  test('o "desde" escrito nos polimentos e na ceramica e o do cartao', () => {
+    const precos = SERVICES.filter((x) => ['polimentos', 'protecao'].includes(x.category)).map((x) => x.price);
     for (const pagina of SERVICE_PAGES.filter((x) => x.whatsapp)) {
       for (const lingua of ['pt', 'en']) {
         const p = conteudo(pagina, lingua);
@@ -122,6 +123,9 @@ describe('paginas de servico', () => {
     }
     expect(orcamentoDe(PAGE_BY_SLUG['polimento-farois-braga'])).toBe(40);
     expect(orcamentoDe(PAGE_BY_SLUG['lavagem-automovel-braga'])).toBeNull();
+    // A ceramica e um "desde" com preco, nao sob orcamento.
+    expect(precoDe(PAGE_BY_SLUG['protecao-ceramica-braga'])).toBe(250);
+    expect(orcamentoDe(PAGE_BY_SLUG['protecao-ceramica-braga'])).toBeNull();
   });
 
   test('cada pagina responde a alguma coisa: intro, seccoes e perguntas', () => {

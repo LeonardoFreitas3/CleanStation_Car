@@ -26,10 +26,9 @@ export const VEHICLE_BY_ID = Object.fromEntries(VEHICLE_TYPES.map((v) => [v.id, 
  * preço em falta significa "não disponível", e o passo seguinte esconde-o em
  * vez de mostrar um valor inventado.
  *
- * O preço do carro é o "desde" da tabela de outubro de 2026. Essa tabela só dá
- * um valor por serviço: carrinha grande e SUV ficaram com o valor que já
- * tinham quando não era mais baixo que o novo "desde", e com o "desde" quando
- * era. São para rever com a oficina — não há tabela por veículo que os decida.
+ * Valores da tabela de outubro de 2026, por tipo de veículo. O do carro é o
+ * "desde" que o site anuncia. A mota não vem na tabela e fica com o preço do
+ * carro.
  *
  * A Lavagem com Selante deixou de existir em separado: o selante passou para
  * dentro da Simples.
@@ -41,14 +40,14 @@ export const WASH_LEVELS = [
     nota: '(Inclui selante)',
     desc: 'Limpeza interior e exterior de manutenção, com selante na pintura.',
     includes: ['Lavagem exterior à mão', 'Aspiração do interior', 'Limpeza do tablier e da mala', 'Vidros limpos', 'Selante aplicado na pintura'],
-    prices: { carro: 35, grande: 45, suv: 35, mota: 35 },
+    prices: { carro: 35, grande: 45, suv: 40, mota: 35 },
   },
   {
     id: 'premium',
     label: 'Lavagem Premium',
     desc: 'Limpeza interior detalhada, descontaminação dos vidros e selante premium.',
     includes: ['Tudo da Lavagem Simples', 'Limpeza interior detalhada, até às zonas de difícil acesso', 'Descontaminação dos vidros', 'Selante premium na pintura'],
-    prices: { carro: 75, grande: 80, suv: 75 },
+    prices: { carro: 75, grande: 85, suv: 80 },
   },
   {
     // O trabalho da detalhada numa só área. Marca-se escolhendo a área, e é a
@@ -62,14 +61,14 @@ export const WASH_LEVELS = [
       { id: 'detalhada-interior', label: 'Interior', servico: 'Lavagem Detalhada Interior' },
       { id: 'detalhada-exterior', label: 'Exterior', servico: 'Lavagem Detalhada Exterior' },
     ],
-    prices: { carro: 130, grande: 130, suv: 130 },
+    prices: { carro: 130, grande: 150, suv: 140 },
   },
   {
     id: 'detalhada',
     label: 'Lavagem Detalhada Interior + Exterior',
     desc: 'Tudo da Premium, mais remoção e higienização dos bancos, descontaminação da pintura e limpeza profunda de jantes e pneus.',
     includes: ['Tudo da Lavagem Premium', 'Remoção e higienização dos bancos', 'Descontaminação da pintura', 'Limpeza profunda de jantes e pneus'],
-    prices: { carro: 200, grande: 200, suv: 200 },
+    prices: { carro: 200, grande: 240, suv: 220 },
   },
 ];
 
@@ -99,16 +98,19 @@ export const minPrice = (levelId) => Math.min(...Object.values(LEVEL_BY_ID[level
  * Duração de cada nível, em minutos, conforme os tempos da oficina. São
  * aproximados, e o site diz-o.
  *
- * A do carro é a da tabela de outubro de 2026 (1h30, 4h, 4h e 8h). Carrinha
- * grande e SUV mantêm o tempo a mais que já tinham; onde não havia, ficam com o
- * do carro. A detalhada deixou de ser de um dia para o outro: são 8 horas, que
- * cabem no dia de trabalho.
+ * Uma por veículo, e não uma igual para todos: é isto que a agenda bloqueia.
+ * A do carro é a da tabela de outubro de 2026 (1h30, 4h, 4h e 8h). Os
+ * acréscimos de SUV e carrinha grande são os que a oficina já usava; as duas
+ * detalhadas seguem os da Premium (+25% e +50%), decidido com a oficina.
+ *
+ * A detalhada de SUV e carrinha grande (10h e 12h) não cabe no dia de
+ * trabalho: a agenda trata-a como dia inteiro, com entrega à abertura.
  */
 export const DURATIONS = {
   simples:             { carro: 90,  grande: 120, suv: 105, mota: 105 },
   premium:             { carro: 240, grande: 360, suv: 300 },
-  'detalhada-parcial': { carro: 240, grande: 240, suv: 240 },
-  detalhada:           { carro: 480, grande: 480, suv: 480 },
+  'detalhada-parcial': { carro: 240, grande: 360, suv: 300 },
+  detalhada:           { carro: 480, grande: 720, suv: 600 },
 };
 
 /** A partir daqui o serviço não cabe num dia de trabalho: ocupa o dia todo. */

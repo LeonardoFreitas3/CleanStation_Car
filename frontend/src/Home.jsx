@@ -37,11 +37,13 @@ function Home() {
       <main>
         <Hero onBook={() => setBooking(true)} />
         <Testimonials />
-        <Services />
         <AboutSection />
         <Process />
         <Faq />
         <ContactMap />
+        {/* No fundo, a pedido do cliente. O menu e o "Ver serviços" do topo
+            levam la pelo #services. */}
+        <Services />
       </main>
       <Footer onLegal={setLegalOpen} />
       <WhatsAppButton />

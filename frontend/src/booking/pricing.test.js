@@ -5,16 +5,16 @@
 
 import {
   computeQuote, levelsFor, priceFor, VEHICLE_TYPES, LEVEL_BY_ID,
-  durationFor, isFullDay, formatDuration, couponFor,
+  durationFor, isFullDay, formatDuration, couponFor, DURATIONS,
 } from './pricing';
 
 describe('tabela de preços por tipo de veículo', () => {
   // [nível, carro, carrinha grande, SUV, mota] — undefined = não disponível
   const TABELA = [
-    ['simples',           35,  45,  35,  35],
-    ['premium',           75,  80,  75,  undefined],
-    ['detalhada-parcial', 130, 130, 130, undefined],
-    ['detalhada',         200, 200, 200, undefined],
+    ['simples',           35,  45,  40,  35],
+    ['premium',           75,  85,  80,  undefined],
+    ['detalhada-parcial', 130, 150, 140, undefined],
+    ['detalhada',         200, 240, 220, undefined],
   ];
 
   test.each(TABELA)('%s: carro %s, grande %s, suv %s, mota %s', (level, carro, grande, suv, mota) => {
@@ -56,8 +56,8 @@ describe('tabela de preços por tipo de veículo', () => {
 describe('orçamento', () => {
   it('é o preço de tabela do nível para aquele veículo, sem acréscimos', () => {
     const q = computeQuote({ vehicleId: 'suv', levelId: 'detalhada' });
-    expect(q.base).toBe(200);
-    expect(q.total).toBe(200);
+    expect(q.base).toBe(220);
+    expect(q.total).toBe(220);
   });
 
   it('o preço não muda com o que mais lhe passem', () => {
@@ -81,8 +81,8 @@ describe('durações por veículo', () => {
   const TEMPOS = [
     ['simples', 90, 120, 105, 105],
     ['premium', 240, 360, 300, null],
-    ['detalhada-parcial', 240, 240, 240, null],
-    ['detalhada', 480, 480, 480, null],
+    ['detalhada-parcial', 240, 360, 300, null],
+    ['detalhada', 480, 720, 600, null],
   ];
 
   test.each(TEMPOS)('%s', (level, carro, grande, suv, mota) => {
@@ -92,9 +92,22 @@ describe('durações por veículo', () => {
     if (mota !== null) expect(durationFor('mota', level)).toBe(mota);
   });
 
-  it('nenhuma lavagem ocupa o dia inteiro: a detalhada são 8 horas', () => {
-    expect(isFullDay(durationFor('carro', 'detalhada'))).toBe(false);
+  // Os acréscimos por veículo são o que a agenda bloqueia: uma duração igual
+  // para todos deixava uma carrinha grande a ocupar o tempo de um carro.
+  it('veículos maiores demoram mais, nunca menos que o carro', () => {
+    for (const [level, tempos] of Object.entries(DURATIONS)) {
+      for (const v of ['grande', 'suv']) {
+        if (tempos[v] !== undefined) expect([level, v, tempos[v] >= tempos.carro]).toEqual([level, v, true]);
+      }
+    }
+    expect(durationFor('grande', 'premium')).toBeGreaterThan(durationFor('carro', 'premium'));
+  });
+
+  it('a detalhada do carro são 8 horas; em SUV e carrinha grande, mais', () => {
     expect(formatDuration(durationFor('carro', 'detalhada'))).toBe('8h');
+    expect(isFullDay(durationFor('carro', 'detalhada'))).toBe(false);
+    expect(durationFor('suv', 'detalhada')).toBe(600);
+    expect(durationFor('grande', 'detalhada')).toBe(720);
   });
 
   it('mostra "Dia inteiro" em vez de 1440min', () => {
@@ -124,7 +137,7 @@ describe('cupões', () => {
 
   it('o código aceita minúsculas e espaços à volta', () => {
     expect(couponFor('  tafixe ')).toBeDefined();
-    expect(computeQuote({ vehicleId: 'suv', levelId: 'detalhada', coupon: ' tafixe' }).total).toBe(170);
+    expect(computeQuote({ vehicleId: 'suv', levelId: 'detalhada', coupon: ' tafixe' }).total).toBe(187);
   });
 
   it('código desconhecido ou vazio não mexe no preço', () => {

@@ -137,9 +137,9 @@ export const SERVICES = [
 
   // ── PROTEÇÃO CERÂMICA ─────────────────────────────────────────────────────
   //
-  // Sem página própria: o cartão abre a ficha, que manda para o WhatsApp, como
-  // os packs. Não se marca online, e não há duração decidida. O texto é o que
-  // o site já tinha (só restava a versão inglesa); o preço é um "desde".
+  // Tem página própria (servicePages.js), como os polimentos: não se marca
+  // online, e o botão manda para o WhatsApp. Não há duração decidida. O texto é
+  // o que o site já tinha (só restava a versão inglesa); o preço é um "desde".
   {
     id: 'ceramica',
     category: 'protecao',
@@ -168,7 +168,7 @@ export const SERVICES = [
   //
   // O valor é o do carro, o mais baixo, e é por isso que leva "DESDE": uma
   // carrinha grande e um SUV pagam mais. Os números são os do catálogo de
-  // agosto de 2026 e ficam escritos à mão de propósito — não saem do
+  // outubro de 2026 e ficam escritos à mão de propósito — não saem do
   // pricing.js, porque a tabela de lá é a das lavagens avulso, e um pack não é
   // duas dessas.
   //
@@ -176,15 +176,14 @@ export const SERVICES = [
   // porque ainda nao foram decididas pelo negocio. Nao se inventam: ate la, a
   // ficha diz que se combinam no contacto.
   //
-  // Os precos dos packs nao mudaram com a tabela de outubro de 2026, que nao
-  // os inclui: estao por rever. O pack selante passou a ser de Lavagens
-  // Simples, que e onde o selante esta agora.
+  // O pack selante passou a ser de Lavagens Simples, que e onde o selante
+  // esta agora.
   {
     id: 'pack-selante',
     category: 'packs',
     title: 'PACK SELANTE · 2x MÊS',
     desc: 'Duas lavagens com selante por mês, com prioridade na marcação',
-    price: 65,
+    price: 60,
     icon: ShieldCheck,
     image: `${process.env.PUBLIC_URL}/img/proteção-sm.webp`,
     includes: [
@@ -199,7 +198,7 @@ export const SERVICES = [
     category: 'packs',
     title: 'PACK PREMIUM · 2x MÊS',
     desc: 'Duas lavagens premium por mês, com prioridade na marcação',
-    price: 105,
+    price: 125,
     icon: ShieldPlus,
     image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp`,
     includes: [
@@ -214,7 +213,7 @@ export const SERVICES = [
     category: 'packs',
     title: 'PACK DETALHADA · 2x MÊS',
     desc: 'Duas lavagens detalhadas por mês, com prioridade na marcação',
-    price: 220,
+    price: 330,
     icon: Car,
     image: `${process.env.PUBLIC_URL}/img/detail-sm.webp`,
     includes: [

@@ -20,27 +20,31 @@ O preço depende do tipo de veículo. Valores em euros, com IVA incluído.
 
 | Serviço | Carro/Carrinha | Carrinha Grande | SUV/Monovolume | Mota |
 |---|---|---|---|---|
-| Lavagem Simples (inclui selante) | 35 | 45 | 35 | 35 |
-| Lavagem Premium | 75 | 80 | 75 | — |
-| Lavagem Detalhada Interior ou Exterior | 130 | 130 | 130 | — |
-| Lavagem Detalhada Interior + Exterior | 200 | 200 | 200 | — |
+| Lavagem Simples (inclui selante) | 35 | 45 | 40 | 35 |
+| Lavagem Premium | 75 | 85 | 80 | — |
+| Lavagem Detalhada Interior ou Exterior | 130 | 150 | 140 | — |
+| Lavagem Detalhada Interior + Exterior | 200 | 240 | 220 | — |
 
 A Lavagem Detalhada Interior ou Exterior inclui só a área escolhida na
 marcação (interior ou exterior); as outras incluem interior e exterior.
 
-Duração aproximada: Lavagem Simples 1h30, Premium 4 horas, Detalhada Interior
-ou Exterior 4 horas, Detalhada Interior + Exterior 8 horas.
+Duração aproximada num carro: Lavagem Simples 1h30, Premium 4 horas, Detalhada
+Interior ou Exterior 4 horas, Detalhada Interior + Exterior 8 horas. SUV,
+monovolumes e carrinhas grandes demoram mais; a estimativa aparece na marcação.
 
 O preço é o da tabela. Sujidade fora do normal (muitos pelos de animais,
 excesso de areia) pode ter um custo extra, sempre comunicado e aprovado antes.
 
 ### Packs de manutenção (duas lavagens por mês)
 
-| Pack | Carro/Carrinha | Carrinha Grande | SUV/Monovolume |
-|---|---|---|---|
-| Selante | 65 | 95 | 75 |
-| Premium | 105 | 155 | 125 |
-| Detalhada | 220 | 300 | 260 |
+Preço mensal, desde (carro ou carrinha ligeira). Carrinhas grandes e SUV têm
+valor próprio, confirmado no contacto. Não se marcam online.
+
+| Pack | Desde, por mês |
+|---|---|
+| Selante | 60 |
+| Premium | 125 |
+| Detalhada | 330 |
 
 ### Polimentos
 
@@ -56,7 +60,8 @@ avaliação da viatura. Não se marcam online.
 
 ### Proteção cerâmica
 
-Proteção Cerâmica Profissional, desde 250. Não se marca online.
+Proteção Cerâmica Profissional, desde 250. O valor final depende da avaliação
+da viatura. Não se marca online.
 
 ## Páginas de serviço
 
@@ -67,6 +72,7 @@ Proteção Cerâmica Profissional, desde 250. Não se marca online.
 - Polimento 1 etapa: https://cleanstationcar.com/polimento-1-etapa-braga/
 - Correção avançada de pintura: https://cleanstationcar.com/correcao-pintura-braga/
 - Polimento de faróis: https://cleanstationcar.com/polimento-farois-braga/
+- Proteção cerâmica: https://cleanstationcar.com/protecao-ceramica-braga/
 - Lavagem premium: https://cleanstationcar.com/lavagem-premium-braga/
 - Lavagem detalhada interior ou exterior: https://cleanstationcar.com/lavagem-detalhada-interior-ou-exterior-braga/
 - Lavagem detalhada interior + exterior: https://cleanstationcar.com/lavagem-detalhada-braga/

@@ -225,7 +225,7 @@ const PAGINAS = [
       },
       {
         heading: 'Duração',
-        paragrafos: ['A duração média é de aproximadamente 8 horas, podendo variar de acordo com o estado e dimensão do veículo.'],
+        paragrafos: ['A duração média é de aproximadamente 8 horas num carro. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação. Pode variar de acordo com o estado do veículo.'],
       },
       {
         heading: 'Para quem é indicada',
@@ -239,7 +239,7 @@ const PAGINAS = [
     faq: [
       {
         q: 'Quanto tempo demora a Lavagem Detalhada Interior + Exterior?',
-        a: 'Em média, aproximadamente 8 horas, podendo variar de acordo com o estado e dimensão do veículo.',
+        a: 'Em média, aproximadamente 8 horas num carro. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação.',
       },
       {
         q: 'Os bancos são realmente removidos?',
@@ -304,7 +304,7 @@ const PAGINAS = [
       },
       {
         heading: 'Duração',
-        paragrafos: ['A duração média é de aproximadamente 4 horas, em qualquer das duas áreas, podendo variar de acordo com o estado e dimensão do veículo.'],
+        paragrafos: ['A duração média é de aproximadamente 4 horas num carro, em qualquer das duas áreas. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação.'],
       },
     ],
     cta: 'Marcar Lavagem Detalhada Interior ou Exterior',
@@ -315,7 +315,7 @@ const PAGINAS = [
       },
       {
         q: 'Quanto tempo demora?',
-        a: 'Em média, aproximadamente 4 horas, podendo variar de acordo com o estado e dimensão do veículo.',
+        a: 'Em média, aproximadamente 4 horas num carro. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação.',
       },
       {
         q: 'Os bancos são removidos?',
@@ -398,7 +398,7 @@ const PAGINAS = [
       },
       {
         q: 'Quanto tempo demora o detalhe automóvel?',
-        a: 'A Lavagem Detalhada Interior + Exterior demora em média aproximadamente 8 horas, e a Interior ou Exterior cerca de 4 horas, podendo variar de acordo com o estado e a dimensão do veículo.',
+        a: 'Num carro, a Lavagem Detalhada Interior + Exterior demora em média aproximadamente 8 horas, e a Interior ou Exterior cerca de 4 horas. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação.',
       },
       {
         q: 'Quanto custa o detalhe automóvel em Braga?',
@@ -761,6 +761,54 @@ const PAGINAS = [
       },
     ],
   },
+
+  {
+    slug: 'protecao-ceramica-braga',
+    serviceId: 'ceramica',
+    nome: 'Proteção Cerâmica Profissional',
+    // Não se marca online: o botão abre o WhatsApp, como nos polimentos.
+    whatsapp: true,
+    ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos o estado da viatura e damos-te o orçamento.',
+    h1: 'Proteção Cerâmica em Braga',
+    // O texto é o da ficha do cartão (mock.js), que é o que o site já dizia.
+    intro: [
+      'Camada de proteção duradoura aplicada sobre a pintura, que cria uma barreira contra agressões externas.',
+    ],
+    sections: [
+      {
+        heading: 'O que está incluído',
+        items: [
+          'Proteção contra os raios UV',
+          'Proteção contra sujidade e químicos',
+          'Proteção contra pequenos riscos superficiais',
+          'Brilho mais intenso e efeito repelente de água',
+          'Pintura protegida durante muito mais tempo',
+          'Carro mais fácil de limpar',
+        ],
+      },
+      {
+        heading: 'Serviços relacionados',
+        paragrafos: [
+          'Vê também o nosso [polimento automóvel em Braga](/polimento-automovel-braga/) e o [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
+        ],
+      },
+    ],
+    cta: 'Pedir orçamento',
+    faq: [
+      {
+        q: 'Quanto custa a proteção cerâmica?',
+        a: 'Desde 250 €. O valor final depende da avaliação do estado da viatura.',
+      },
+      {
+        q: 'A proteção cerâmica marca-se online?',
+        a: 'Não. Envia-nos uma mensagem pelo WhatsApp ou liga-nos, e combinamos contigo.',
+      },
+      {
+        q: 'O selante das lavagens é uma proteção cerâmica?',
+        a: 'Não. As lavagens levam um selante de pintura; a proteção cerâmica é um serviço à parte.',
+      },
+    ],
+  },
 ];
 
 /**
@@ -801,10 +849,15 @@ export const PAGE_BY_SERVICE = Object.fromEntries(
 );
 
 /**
- * O preço do carro, que é o "desde" que as páginas anunciam. Vem da tabela.
- * Null numa página sem nível de lavagem, que não anuncia preço.
+ * O "desde" que a página anuncia. Numa lavagem é o preço do carro, da tabela;
+ * na proteção cerâmica é o do cartão (mock.js). Null numa página sem preço — e
+ * nos polimentos, que são sob orçamento e têm o orcamentoDe.
  */
-export const precoDe = (page) => (page.levelId ? LEVEL_BY_ID[page.levelId].prices.carro : null);
+export const precoDe = (page) => {
+  if (page.levelId) return LEVEL_BY_ID[page.levelId].prices.carro;
+  const servico = SERVICES.find((s) => s.id === page.serviceId);
+  return servico && !servico.onRequest && servico.price ? servico.price : null;
+};
 
 /**
  * O "desde" de um serviço sob orçamento (os polimentos), vindo do mock.js, que
