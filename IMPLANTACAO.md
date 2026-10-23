@@ -4,6 +4,20 @@ A ordem importa. Onde importa mesmo, está dito porquê.
 
 ---
 
+## Tabela de outubro, sábado e 48 horas — publicado a 23/10/2026
+
+Função `booking`, site na Netlify e migrações `0033` e `0034`, por esta ordem.
+Medido no ar: a função recusa a Lavagem com Selante, abre ao sábado e não
+oferece horas a menos de 48 horas; o site tem a Detalhada Interior ou Exterior
+e a Proteção Cerâmica, e `/lavagem-com-selante-braga/` dá 301 para a Simples;
+o catálogo do CRM bate com o da marcação.
+
+Por rever: o texto da Proteção Cerâmica e o prazo de lembrete das duas
+detalhadas parciais no CRM. A marcação de teste a sério (Detalhada Exterior,
+carro: 130 €, 4 horas) ficou por fazer.
+
+---
+
 ## O email que saía errado — resolvido e confirmado
 
 Fica aqui o registo, porque o sintoma vai voltar a aparecer na caixa de entrada
