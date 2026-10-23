@@ -287,17 +287,6 @@ export async function updateService(
   return data as Service;
 }
 
-/** Soft delete. So admin, pela politica RLS. */
-export async function softDeleteService(id: string): Promise<void> {
-  const { error } = await getSupabase()
-    .from('services')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id);
-
-  if (error) throw new Error(friendlyError(error));
-  await sincronizarNoCalendario(id);
-}
-
 /**
  * Avanca o estado. started_at e completed_at sao carimbados por trigger no
  * Postgres, nao aqui: assim ficam certos venha a alteracao de onde vier.

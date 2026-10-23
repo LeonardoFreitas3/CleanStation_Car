@@ -20,12 +20,7 @@ import Faq from './components/Faq';
 // A pedido: o formulario de marcacao so pesa para quem o abre.
 const Booking = lazy(() => import('./booking/Booking'));
 
-// Site em manutencao enquanto esta em testes. Bandeira de build: quando esta
-// desligada, o MaintenanceGate nem chega a ser descarregado.
-const MAINTENANCE = process.env.REACT_APP_MAINTENANCE === 'true';
-const MaintenanceGate = lazy(() => import('./MaintenanceGate'));
-
-function Home() {
+export default function Home() {
   const [legalOpen, setLegalOpen] = useState(null);
   const [booking, setBooking] = useState(false);
 
@@ -55,15 +50,5 @@ function Home() {
         </Suspense>
       )}
     </div>
-  );
-}
-
-export default function Inicio() {
-  if (!MAINTENANCE) return <Home />;
-
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-black" />}>
-      <MaintenanceGate><Home /></MaintenanceGate>
-    </Suspense>
   );
 }

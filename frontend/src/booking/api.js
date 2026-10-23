@@ -7,8 +7,6 @@
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL ?? '';
 const ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY ?? '';
 
-export const isBookingConfigured = Boolean(SUPABASE_URL && ANON_KEY);
-
 const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/booking`;
 
 async function call(path, body) {

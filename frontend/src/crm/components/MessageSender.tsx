@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, X, Send, ArrowUpRight } from 'lucide-react';
+import { X, Send, ArrowUpRight } from 'lucide-react';
 import { listTemplates, logMessage, renderTemplate } from '../services/messages';
 import type { MessageTemplate } from '../services/messages';
 import { whatsappNumber } from '../lib/format';
@@ -145,13 +145,5 @@ export function MessageSender({
         </div>
       </div>
     </div>
-  );
-}
-
-export function MessageButton({ onClick }: { onClick: () => void }) {
-  return (
-    <Button variant="whatsapp" size="lg" onClick={onClick} className="w-full">
-      <MessageCircle className="w-4 h-4" /> Mensagem
-    </Button>
   );
 }
