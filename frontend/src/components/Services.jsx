@@ -37,11 +37,12 @@ const COMPARACAO_EN = [
  * diz se está incluída. Os dados vêm do pricing.js, como os preços.
  */
 function Comparacao() {
-  const { t, lang } = useLang();
+  const { t, tx, lang } = useLang();
   const niveis = WASH_LEVELS.map((l) => ({
     ...l,
     nome: SERVICES.find((s) => s.priceByVehicle === l.prices),
   }));
+  const area = { interior: 'Interior', exterior: 'Exterior' };
 
   return (
     <div className="mb-16">
@@ -62,6 +63,7 @@ function Comparacao() {
                   <span className="block font-display text-white text-[11px] md:text-xs font-bold tracking-wider leading-snug">
                     {lang === 'en' ? n.nome?.titleEn : n.label.replace(/^Lavagem /, '')}
                   </span>
+                  {n.nome?.nota && <span className="block text-white/55 text-[10px] mt-0.5">{tx(n.nome, 'nota')}</span>}
                   <span className="block text-blue-400/80 text-[9px] tracking-[0.25em] mt-1">{t('services.from')}</span>
                   <span className="block text-white font-display text-base font-bold">{minPrice(n.id)}€</span>
                 </th>
@@ -76,12 +78,16 @@ function Comparacao() {
                 </th>
                 {niveis.map((n) => {
                   const tem = linha.niveis.includes(n.id);
+                  // A de uma área só faz esta linha se for essa a área escolhida.
+                  const soArea = tem && n.areas && linha.area;
                   return (
                     <td key={n.id} className="py-3 px-2 text-center">
-                      {tem
-                        ? <Check className="w-4 h-4 text-blue-400 inline" aria-hidden="true" />
-                        : <Minus className="w-4 h-4 text-white/15 inline" aria-hidden="true" />}
-                      <span className="sr-only">{tem ? (lang === 'en' ? 'Included' : 'Incluído') : (lang === 'en' ? 'Not included' : 'Não incluído')}</span>
+                      {soArea
+                        ? <span className="text-blue-300 text-[10px] tracking-wider">{lang === 'en' ? `${area[soArea]} only` : `Só ${area[soArea]}`}</span>
+                        : tem
+                          ? <Check className="w-4 h-4 text-blue-400 inline" aria-hidden="true" />
+                          : <Minus className="w-4 h-4 text-white/15 inline" aria-hidden="true" />}
+                      {!soArea && <span className="sr-only">{tem ? (lang === 'en' ? 'Included' : 'Incluído') : (lang === 'en' ? 'Not included' : 'Não incluído')}</span>}
                     </td>
                   );
                 })}
@@ -107,16 +113,6 @@ export default function Services() {
             {t('services.title')}
           </h2>
           <span className="accent-bar mx-auto mt-5" />
-          <p className="text-white/55 mt-4 max-w-2xl mx-auto text-sm">
-            {t('services.subtitle')}
-          </p>
-          <nav aria-label={lang === 'en' ? 'Services' : 'Serviços'} className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2">
-            {DESTAQUES.map((p) => (
-              <Link key={p.slug} href={rotaPagina(lang, p.slug)} className="py-1 text-blue-400 hover:text-blue-300 text-xs tracking-[0.15em] underline underline-offset-4">
-                {conteudo(p, lang).h1}
-              </Link>
-            ))}
-          </nav>
         </div>
 
         {CATEGORIES.map((cat) => {
@@ -178,18 +174,23 @@ export default function Services() {
                         <h4 className="font-display text-white text-sm font-bold tracking-wider leading-snug">
                           {tx(s, 'title')}
                         </h4>
+                        {s.nota && <p className="text-blue-300/80 text-[11px] mt-1">{tx(s, 'nota')}</p>}
                         <p className="text-white/50 text-xs mt-2 leading-relaxed flex-1">
                           {tx(s, 'desc')}
                         </p>
 
                         <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
                           <div className="text-left">
-                            {/* Polimentos não têm preço de tabela: dependem do
-                                estado da pintura e são orçamentados à vista. */}
+                            {/* Polimentos: um "desde", sob orçamento — o valor
+                                final depende do estado da viatura. */}
                             {s.onRequest ? (
-                              <div className="text-white font-display text-base font-bold">
-                                {t('services.onRequest')}
-                              </div>
+                              <>
+                                <span className="text-blue-400/80 text-[9px] tracking-[0.3em]">{t('services.from')}</span>
+                                <div className="text-white font-display text-xl font-bold">
+                                  {s.price}€
+                                  <span className="text-white/60 font-sans text-[11px] font-normal tracking-normal"> · {t('services.quoteBased')}</span>
+                                </div>
+                              </>
                             ) : (
                               <>
                                 {/* "DESDE" em tudo o que tem preço: lavagens e
@@ -209,6 +210,10 @@ export default function Services() {
                 })}
               </div>
 
+              {cat.id === 'polimentos' && (
+                <p className="text-white/50 text-[11px] text-center mt-6">{t('services.quoteNote')}</p>
+              )}
+
               {cat.id === 'lavagens' && (
                 <div className="mt-12">
                   <Comparacao />
@@ -217,6 +222,21 @@ export default function Services() {
             </div>
           );
         })}
+
+        {/* O texto da secção e os links para as páginas principais vêm
+            depois dos serviços, a pedido do cliente: primeiro vê-se o que há. */}
+        <div className="text-center mt-16">
+          <p className="text-white/55 max-w-2xl mx-auto text-sm">
+            {t('services.subtitle')}
+          </p>
+          <nav aria-label={lang === 'en' ? 'Services' : 'Serviços'} className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2">
+            {DESTAQUES.map((p) => (
+              <Link key={p.slug} href={rotaPagina(lang, p.slug)} className="py-1 text-blue-400 hover:text-blue-300 text-xs tracking-[0.15em] underline underline-offset-4">
+                {conteudo(p, lang).h1}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
 
       <ServiceDetail

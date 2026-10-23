@@ -11,19 +11,13 @@
 
   "lavagem-automovel-braga": {
     "title": "Lavagem Automóvel em Braga | Clean Station Car",
-    "description": "Lavagem automóvel em Braga com limpeza manual interior e exterior. Lavagem completa desde 30€, com marcação online na Clean Station Car.",
+    "description": "Lavagem automóvel em Braga com limpeza manual interior e exterior e selante. Lavagem completa desde 35€, com marcação online na Clean Station Car.",
     "image": "lavagem.jpg"
-  },
-
-  "lavagem-com-selante-braga": {
-    "title": "Lavagem com Selante em Braga | Clean Station Car",
-    "description": "Lavagem automóvel com selante em Braga. Limpeza interior e exterior manual com proteção, brilho e efeito hidrofóbico desde 40€.",
-    "image": "proteção.jpg"
   },
 
   "lavagem-premium-braga": {
     "title": "Lavagem Premium de Automóveis em Braga | Clean Station Car",
-    "description": "Lavagem Premium em Braga com limpeza interior e exterior detalhada, descontaminação dos vidros e proteção premium da pintura. 65€.",
+    "description": "Lavagem Premium em Braga com limpeza interior e exterior detalhada, descontaminação dos vidros e proteção premium da pintura. Desde 75€.",
     "image": "ceramica-longa.jpg"
   },
 
@@ -31,6 +25,12 @@
     "title": "Lavagem Detalhada de Automóveis em Braga | Clean Station Car",
     "description": "Lavagem detalhada automóvel em Braga com remoção dos bancos, higienização profunda, descontaminação da pintura e limpeza interior e exterior.",
     "image": "detail.jpg"
+  },
+
+  "lavagem-detalhada-interior-ou-exterior-braga": {
+    "title": "Lavagem Detalhada Interior ou Exterior em Braga | Clean Station Car",
+    "description": "Lavagem detalhada em Braga só do interior, com remoção e higienização dos bancos, ou só do exterior, com descontaminação da pintura. Desde 130€.",
+    "image": "interior.jpg"
   },
 
   "detalhe-automovel-braga": {
@@ -67,5 +67,11 @@
     "title": "Polimento de Faróis em Braga | Clean Station Car",
     "description": "Polimento de faróis em Braga: recuperamos faróis amarelados, opacos ou riscados e luzes traseiras, por par. Orçamento depois de avaliarmos os faróis.",
     "image": "farois-traseiros.jpg"
+  },
+
+  "protecao-ceramica-braga": {
+    "title": "Proteção Cerâmica em Braga | Clean Station Car",
+    "description": "Proteção cerâmica profissional em Braga: camada de proteção duradoura sobre a pintura, com mais brilho e efeito repelente de água. Desde 250€.",
+    "image": "proteção.jpg"
   }
 }

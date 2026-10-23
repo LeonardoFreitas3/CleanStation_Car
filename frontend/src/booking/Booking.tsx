@@ -237,6 +237,9 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
   const [step, setStep] = useState(0);
   const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [levelId, setLevelId] = useState<string | null>(null);
+  // A área, na Detalhada Interior ou Exterior: o id do nível que vai para o
+  // servidor (detalhada-interior ou detalhada-exterior). Nula nos outros.
+  const [areaId, setAreaId] = useState<string | null>(null);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [slots, setSlots] = useState<string[]>([]);
@@ -255,7 +258,7 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
   const aEnviar = useRef(false);
 
   const reset = useCallback(() => {
-    setStep(0); setVehicleId(null); setLevelId(null);
+    setStep(0); setVehicleId(null); setLevelId(null); setAreaId(null);
     setDate(''); setTime(''); setSlots([]); setSlotsError(false); setError(null); setDone(null);
     setForm({ name: '', phone: '', email: '', plate: '', car: '', notes: '', coupon: '' });
   }, []);
@@ -309,6 +312,10 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
   // com o `?.` um caso que nao era esse.
   const vehicle = vehicleId ? VEHICLE_BY_ID[vehicleId] : null;
   const level = levelId ? LEVEL_BY_ID[levelId] : null;
+  const area = level?.areas?.find((a) => a.id === areaId) ?? null;
+  // O nome do que se marca: com a área, quando o serviço a tem.
+  const servico = area?.servico ?? level?.label;
+  const aprox = (min: number) => `aprox. ${formatDuration(min)}`;
 
   // Validada por comprimento e nao pelo formato portugues: um carro espanhol em
   // Braga e um cliente como outro qualquer. O servidor valida da mesma maneira —
@@ -317,7 +324,8 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
 
   const canAdvance = [
     Boolean(vehicleId),
-    Boolean(levelId),
+    // A Detalhada Interior ou Exterior não avança sem a área escolhida.
+    Boolean(levelId && (!level?.areas || area)),
     Boolean(date && time),
     Boolean(form.name.trim() && form.phone.replace(/\D/g, '').length >= 9 && plateOk),
   ][step];
@@ -327,7 +335,14 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
   const escolherVeiculo = (id: string) => {
     setVehicleId(id);
     const mantem = levelId ?? nivel;
-    setLevelId(mantem && priceFor(id, mantem) !== undefined ? mantem : null);
+    const fica = mantem && priceFor(id, mantem) !== undefined ? mantem : null;
+    setLevelId(fica);
+    if (!fica) setAreaId(null);
+  };
+
+  const escolherNivel = (id: string) => {
+    if (id !== levelId) setAreaId(null);
+    setLevelId(id);
   };
 
   const submit = async () => {
@@ -343,8 +358,9 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
         vehicleType: vehicleId,
         plate: form.plate.trim(),
         vehicleInfo: form.car.trim() || null,
-        levelId,
-        levelLabel: level?.label,
+        // O servidor conhece cada área como um nível à parte.
+        levelId: areaId ?? levelId,
+        levelLabel: servico,
         date,
         time,
         duration,
@@ -364,7 +380,7 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
           reference: res?.reference ?? null,
           eventId: res?.eventId ?? null,
           vehicle: vehicle?.label,
-          service: level?.label,
+          service: servico,
           duration,
           price: quote?.total ?? 0,
           email: Boolean(form.email.trim()) && res?.emailSent !== false,
@@ -396,9 +412,9 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
     <dl className="border border-white/10 bg-black/40 rounded-sm divide-y divide-white/10 text-sm">
       {[
         { k: 'Veículo', v: vehicle?.label, passo: 0 },
-        { k: 'Serviço', v: level?.label, passo: 1 },
+        { k: 'Serviço', v: servico, passo: 1 },
         { k: 'Entrega', v: date && time ? `${porExtenso(date, time)}, ${time}` : '', passo: 2 },
-        { k: 'Duração estimada', v: formatDuration(duration), passo: 1 },
+        { k: 'Duração estimada', v: aprox(duration), passo: 1 },
         ...(quote.discount > 0
           ? [{ k: 'Desconto', v: `-${eur(quote.discount)} · cupão ${normalizeCoupon(form.coupon)} (-${quote.pct}%)`, passo: 3 }]
           : []),
@@ -494,26 +510,41 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
               {step === 1 && vehicleId && (
                 <div className="space-y-2" role="radiogroup" aria-label="Serviço">
                   {levelsFor(vehicleId).map((l) => (
-                    <Choice
-                      key={l.id}
-                      active={levelId === l.id}
-                      onClick={() => setLevelId(l.id)}
-                      className="w-full"
-                    >
-                      <span className="flex items-start justify-between gap-3 pr-5">
-                        <span className="min-w-0">
-                          <span className="block text-sm font-semibold">{l.label}</span>
-                          <span className="block text-white/60 text-xs mt-1">{l.desc}</span>
-                          <span className="block text-white/30 text-[11px] mt-1.5">
-                            <Clock className="w-3 h-3 inline mr-1" aria-hidden="true" />
-                            {formatDuration(durationFor(vehicleId, l.id))}
+                    <React.Fragment key={l.id}>
+                      <Choice
+                        active={levelId === l.id}
+                        onClick={() => escolherNivel(l.id)}
+                        className="w-full"
+                      >
+                        <span className="flex items-start justify-between gap-3 pr-5">
+                          <span className="min-w-0">
+                            <span className="block text-sm font-semibold">{l.label}</span>
+                            {l.nota && <span className="block text-blue-300/80 text-[11px] mt-0.5">{l.nota}</span>}
+                            <span className="block text-white/60 text-xs mt-1">{l.desc}</span>
+                            <span className="block text-white/30 text-[11px] mt-1.5">
+                              <Clock className="w-3 h-3 inline mr-1" aria-hidden="true" />
+                              {aprox(durationFor(vehicleId, l.id))}
+                            </span>
+                          </span>
+                          <span className="font-display text-blue-300 text-lg font-bold shrink-0">
+                            {eur(l.price)}
                           </span>
                         </span>
-                        <span className="font-display text-blue-300 text-lg font-bold shrink-0">
-                          {eur(l.price)}
-                        </span>
-                      </span>
-                    </Choice>
+                      </Choice>
+                      {/* A área, obrigatória: o serviço só faz uma das duas. */}
+                      {levelId === l.id && l.areas && (
+                        <div className="pl-4 pb-1">
+                          <p id="area-label" className="text-white/60 text-xs mb-2">Escolhe a área (obrigatório):</p>
+                          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-labelledby="area-label">
+                            {l.areas.map((a) => (
+                              <Choice key={a.id} active={areaId === a.id} onClick={() => setAreaId(a.id)}>
+                                <span className="block text-sm font-semibold">{a.label}</span>
+                              </Choice>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </React.Fragment>
                   ))}
                   <p className="text-white/30 text-[11px] pt-1">Preços para {vehicle?.label}, com IVA incluído.</p>
                 </div>
@@ -527,7 +558,7 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
                   {date && (
                     <div className="mt-6">
                       <div className="text-white/60 text-[10px] tracking-[0.3em] uppercase mb-3">
-                        Horas disponíveis · {formatDuration(duration)}
+                        Horas disponíveis · {aprox(duration)}
                       </div>
 
                       {loadingSlots ? (
@@ -658,7 +689,7 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
         {!done && quote && step < 3 && (
           <div className="px-5 py-3 border-t border-white/10 bg-black/40 flex items-center justify-between gap-4">
             <div className="min-w-0 text-xs text-white/50 truncate">
-              {vehicle?.label} · {level?.label} · {formatDuration(duration)}
+              {vehicle?.label} · {servico} · {aprox(duration)}
             </div>
             <div className="text-right shrink-0">
               <div className="text-[9px] tracking-[0.2em] text-white/50 uppercase">Estimativa · IVA incl.</div>
@@ -680,7 +711,9 @@ export default function Booking({ open, onClose, nivel = null, onPrivacy }: Book
             )}
             <button
               type="button"
-              onClick={() => (step === STEPS.length - 1 ? submit() : setStep((s) => (s === 0 && nivel && levelId === nivel ? 2 : s + 1)))}
+              // Vindo da página de um serviço salta-se a escolha do nível — menos
+              // quando é preciso escolher a área, que é nesse passo.
+              onClick={() => (step === STEPS.length - 1 ? submit() : setStep((s) => (s === 0 && nivel && levelId === nivel && !level?.areas ? 2 : s + 1)))}
               disabled={!canAdvance || saving}
               className="flex-1 px-5 py-3 bg-blue-700 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs tracking-[0.2em] uppercase font-bold rounded-sm transition inline-flex items-center justify-center gap-2"
             >

@@ -35,6 +35,7 @@ export const FEATURES = [
 export const CATEGORIES = [
   { id: 'lavagens',       label: 'LAVAGENS',                   labelEn: 'WASHES',                    subtitle: 'Qual a diferença?',              subtitleEn: "What's the difference?",    icon: Droplets  },
   { id: 'polimentos',     label: 'POLIMENTOS E CORREÇÕES',     labelEn: 'POLISHING & CORRECTIONS',   subtitle: 'De volta ao brilho',              subtitleEn: 'Back to the shine',          icon: Gem       },
+  { id: 'protecao',       label: 'PROTEÇÃO CERÂMICA',          labelEn: 'CERAMIC PROTECTION',        subtitle: 'Proteção da pintura',             subtitleEn: 'Paint protection',           icon: ShieldCheck },
   { id: 'packs',          label: 'PACKS DE MANUTENÇÃO',        labelEn: 'MAINTENANCE PACKS',         subtitle: 'Duas lavagens por mês',          subtitleEn: 'Two washes a month',         icon: Layers    },
 ];
 
@@ -46,6 +47,7 @@ const lavagem = (levelId, extra) => {
   return {
     category: 'lavagens',
     title: nivel.label.toUpperCase(),
+    nota: nivel.nota,
     desc: nivel.desc,
     includes: nivel.includes,
     price: minPrice(levelId),
@@ -57,21 +59,23 @@ const lavagem = (levelId, extra) => {
 export const SERVICES = [
   // ── LAVAGENS ──────────────────────────────────────────────────────────────
   lavagem('simples', { id: 'lavagem-simples', icon: Droplets, image: `${process.env.PUBLIC_URL}/img/lavagem-sm.webp` }),
-  lavagem('selante', { id: 'lavagem-selante', icon: ShieldCheck, image: `${process.env.PUBLIC_URL}/img/proteção-sm.webp` }),
   lavagem('premium', { id: 'lavagem-premium', icon: ShieldPlus, image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp` }),
+  lavagem('detalhada-parcial', { id: 'lavagem-detalhada-interior-ou-exterior', icon: Sparkles, image: `${process.env.PUBLIC_URL}/img/interior-sm.webp` }),
   lavagem('detalhada', { id: 'lavagem-detalhada', icon: Car, image: `${process.env.PUBLIC_URL}/img/detail-sm.webp` }),
 
   // ── POLIMENTOS E CORREÇÕES ───────────────────────────────────────────────
   //
-  // Sem preco: dependem do estado da pintura e sao orcamentados depois de ver
-  // a viatura. O que se promete e o que o verniz deixa fazer — nao ha
-  // "remove todos os riscos" nem "como novo".
+  // Sob orcamento: o preco e um "desde", e o valor final depende do estado da
+  // pintura, visto na viatura. O que se promete e o que o verniz deixa fazer —
+  // nao ha "remove todos os riscos" nem "como novo". Nao se marcam online, e
+  // por isso nao tem duracao.
   {
     id: 'polimento-1-etapa',
     onRequest: true,
+    price: 250,
     category: 'polimentos',
     title: 'POLIMENTO DE 1 ETAPA',
-    desc: 'Para devolver o brilho e atenuar marcas ligeiras de lavagem e pequenos defeitos.',
+    desc: 'Para devolver o brilho e atenuar marcas ligeiras de lavagem e pequenos defeitos. Inclui lavagem detalhada exterior.',
     icon: Wrench,
     image: `${process.env.PUBLIC_URL}/img/polimento-sm.webp`,
     includes: [
@@ -84,9 +88,10 @@ export const SERVICES = [
   {
     id: 'polimento-avancado',
     onRequest: true,
+    price: 350,
     category: 'polimentos',
-    title: 'CORREÇÃO AVANÇADA DE PINTURA',
-    desc: 'Várias etapas para riscos, marcas circulares e oxidação mais evidentes, respeitando os limites do verniz.',
+    title: 'POLIMENTO DE CORREÇÃO AVANÇADA',
+    desc: 'Várias etapas para riscos, marcas circulares e oxidação mais evidentes, respeitando os limites do verniz. Inclui lavagem detalhada exterior.',
     icon: Gem,
     image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp`,
     includes: [
@@ -99,6 +104,7 @@ export const SERVICES = [
   {
     id: 'farois-dianteiros',
     onRequest: true,
+    price: 55,
     category: 'polimentos',
     title: 'POLIMENTO DE FARÓIS DIANTEIROS (PAR)',
     desc: 'Recupera faróis amarelados, opacos ou riscados, melhorando a estética e a passagem de luz.',
@@ -115,6 +121,7 @@ export const SERVICES = [
   {
     id: 'farois-traseiros',
     onRequest: true,
+    price: 40,
     category: 'polimentos',
     title: 'POLIMENTO DE FARÓIS TRASEIROS (PAR)',
     desc: 'Recupera o aspeto das luzes traseiras, removendo opacidade e riscos superficiais.',
@@ -128,6 +135,29 @@ export const SERVICES = [
     ],
   },
 
+  // ── PROTEÇÃO CERÂMICA ─────────────────────────────────────────────────────
+  //
+  // Tem página própria (servicePages.js), como os polimentos: não se marca
+  // online, e o botão manda para o WhatsApp. Não há duração decidida. O texto é
+  // o que o site já tinha (só restava a versão inglesa); o preço é um "desde".
+  {
+    id: 'ceramica',
+    category: 'protecao',
+    title: 'PROTEÇÃO CERÂMICA PROFISSIONAL',
+    desc: 'Camada de proteção duradoura aplicada sobre a pintura, que cria uma barreira contra agressões externas.',
+    price: 250,
+    icon: ShieldCheck,
+    image: `${process.env.PUBLIC_URL}/img/proteção-sm.webp`,
+    includes: [
+      'Proteção contra os raios UV',
+      'Proteção contra sujidade e químicos',
+      'Proteção contra pequenos riscos superficiais',
+      'Brilho mais intenso e efeito repelente de água',
+      'Pintura protegida durante muito mais tempo',
+      'Carro mais fácil de limpar',
+    ],
+  },
+
   // ── PACKS DE MANUTENÇÃO ───────────────────────────────────────────────────
   //
   // São informativos. O preço está aqui para quem quer saber quanto custa, mas
@@ -138,24 +168,27 @@ export const SERVICES = [
   //
   // O valor é o do carro, o mais baixo, e é por isso que leva "DESDE": uma
   // carrinha grande e um SUV pagam mais. Os números são os do catálogo de
-  // agosto de 2026 e ficam escritos à mão de propósito — não saem do
+  // outubro de 2026 e ficam escritos à mão de propósito — não saem do
   // pricing.js, porque a tabela de lá é a das lavagens avulso, e um pack não é
   // duas dessas.
   //
   // As condicoes (validade, lavagens nao usadas, renovacao) nao estao escritas
   // porque ainda nao foram decididas pelo negocio. Nao se inventam: ate la, a
   // ficha diz que se combinam no contacto.
+  //
+  // O pack selante passou a ser de Lavagens Simples, que e onde o selante
+  // esta agora.
   {
     id: 'pack-selante',
     category: 'packs',
     title: 'PACK SELANTE · 2x MÊS',
     desc: 'Duas lavagens com selante por mês, com prioridade na marcação',
-    price: 65,
+    price: 60,
     icon: ShieldCheck,
     image: `${process.env.PUBLIC_URL}/img/proteção-sm.webp`,
     includes: [
       'Duas lavagens com selante por mês',
-      'Tudo o que inclui a lavagem com selante',
+      'Tudo o que inclui a Lavagem Simples, com selante',
       'Prioridade na marcação',
       'Marcação por contacto, para combinarmos as datas contigo',
     ],
@@ -165,7 +198,7 @@ export const SERVICES = [
     category: 'packs',
     title: 'PACK PREMIUM · 2x MÊS',
     desc: 'Duas lavagens premium por mês, com prioridade na marcação',
-    price: 105,
+    price: 125,
     icon: ShieldPlus,
     image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp`,
     includes: [
@@ -180,7 +213,7 @@ export const SERVICES = [
     category: 'packs',
     title: 'PACK DETALHADA · 2x MÊS',
     desc: 'Duas lavagens detalhadas por mês, com prioridade na marcação',
-    price: 220,
+    price: 330,
     icon: Car,
     image: `${process.env.PUBLIC_URL}/img/detail-sm.webp`,
     includes: [
@@ -271,32 +304,33 @@ export const EXTRAS = [
 const EN_SERVICES = {
   'lavagem-simples': {
     title: 'BASIC WASH',
-    desc: 'Interior and exterior maintenance clean.',
-    includes: ['Hand exterior wash', 'Interior vacuuming', 'Dashboard and boot cleaning', 'Clean windows'],
-  },
-  'lavagem-selante': {
-    title: 'WASH WITH SEALANT',
-    desc: 'Exactly the Basic Wash, plus a sealant on the paint.',
-    includes: ['Everything in the Basic Wash', 'Sealant applied to the paint', 'More shine and a hydrophobic effect'],
+    nota: '(Includes sealant)',
+    desc: 'Interior and exterior maintenance clean, with sealant on the paint.',
+    includes: ['Hand exterior wash', 'Interior vacuuming', 'Dashboard and boot cleaning', 'Clean windows', 'Sealant applied to the paint'],
   },
   'lavagem-premium': {
     title: 'PREMIUM WASH',
     desc: 'Detailed interior cleaning, glass decontamination and a premium sealant.',
     includes: ['Everything in the Basic Wash', 'Detailed interior cleaning, down to the hard-to-reach areas', 'Glass decontamination', 'Premium sealant on the paint'],
   },
+  'lavagem-detalhada-interior-ou-exterior': {
+    title: 'DETAILED WASH INTERIOR OR EXTERIOR',
+    desc: 'The work of the Detailed Wash on the area you choose only: the interior, with seat removal and sanitising, or the exterior, with paint decontamination and deep wheel and tyre cleaning.',
+    includes: ['Only the area you choose: interior or exterior', 'Interior: seat removal and sanitising', 'Exterior: paint decontamination', 'Exterior: deep wheel and tyre cleaning'],
+  },
   'lavagem-detalhada': {
-    title: 'DETAILED WASH',
+    title: 'DETAILED WASH INTERIOR + EXTERIOR',
     desc: 'Everything in the Premium, plus seat removal and sanitising, paint decontamination and deep wheel and tyre cleaning.',
     includes: ['Everything in the Premium Wash', 'Seat removal and sanitising', 'Paint decontamination', 'Deep wheel and tyre cleaning'],
   },
   'polimento-1-etapa': {
     title: '1-STAGE POLISHING',
-    desc: 'To bring back the shine and soften light wash marks and small defects.',
+    desc: 'To bring back the shine and soften light wash marks and small defects. Includes a detailed exterior wash.',
     includes: ['Softens light marks and surface scratches', 'Reduces holograms', 'Restores shine and colour depth', 'Finishes with paint protection'],
   },
   'polimento-avancado': {
-    title: 'ADVANCED PAINT CORRECTION',
-    desc: 'Several stages for more visible scratches, swirl marks and oxidation, within the limits of the clear coat.',
+    title: 'ADVANCED CORRECTION POLISHING',
+    desc: 'Several stages for more visible scratches, swirl marks and oxidation, within the limits of the clear coat. Includes a detailed exterior wash.',
     includes: ['Reduces more visible scratches and swirl marks', 'Corrects oxidation, as far as the clear coat allows', 'Evens out colour and finish', 'Refinement and final protection'],
   },
   'farois-dianteiros': {
@@ -309,12 +343,17 @@ const EN_SERVICES = {
     desc: 'Restores the look of rear lights, removing haziness and surface scratches.',
     includes: ['Removes wear and haziness', 'Softens surface scratches', 'Restores clarity', 'Improves the look of the vehicle'],
   },
+  'ceramica': {
+    title: 'PROFESSIONAL CERAMIC PROTECTION',
+    desc: 'A durable protective layer applied over the paint that creates a barrier against external damage.',
+    includes: ['Protection against UV rays', 'Protection against dirt and chemicals', 'Protection against minor surface scratches', 'More intense shine and water-repellent effect', 'Paint protected for much longer', 'Easier to clean the car'],
+  },
   'pack-selante': {
     title: 'SEALANT PACK · 2x MONTH',
     desc: 'Two sealant washes a month, with priority booking',
     includes: [
       'Two sealant washes a month',
-      'Everything the sealant wash includes',
+      'Everything the Basic Wash includes, with sealant',
       'Priority booking',
       'Booking by contact, so we can arrange the dates with you',
     ],
@@ -365,7 +404,7 @@ const EN_EXTRAS = {
 
 SERVICES.forEach((s) => {
   const e = EN_SERVICES[s.id];
-  if (e) { s.titleEn = e.title; s.descEn = e.desc; s.includesEn = e.includes; }
+  if (e) { s.titleEn = e.title; s.notaEn = e.nota; s.descEn = e.desc; s.includesEn = e.includes; }
 });
 FEATURES.forEach((f) => { if (EN_FEATURES[f.label]) f.labelEn = EN_FEATURES[f.label]; });
 PROCESS.forEach((p) => { const e = EN_PROCESS[p.n]; if (e) { p.titleEn = e.title; p.descEn = e.desc; } });

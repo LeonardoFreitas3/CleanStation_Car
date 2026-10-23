@@ -25,52 +25,68 @@ export const VEHICLE_BY_ID = Object.fromEntries(VEHICLE_TYPES.map((v) => [v.id, 
  * Uma mota só tem lavagem simples: os restantes níveis não se aplicam. Um
  * preço em falta significa "não disponível", e o passo seguinte esconde-o em
  * vez de mostrar um valor inventado.
+ *
+ * Valores da tabela de outubro de 2026, por tipo de veículo. O do carro é o
+ * "desde" que o site anuncia. A mota não vem na tabela e fica com o preço do
+ * carro.
+ *
+ * A Lavagem com Selante deixou de existir em separado: o selante passou para
+ * dentro da Simples.
  */
 export const WASH_LEVELS = [
   {
     id: 'simples',
     label: 'Lavagem Simples',
-    desc: 'Limpeza interior e exterior de manutenção.',
-    includes: ['Lavagem exterior à mão', 'Aspiração do interior', 'Limpeza do tablier e da mala', 'Vidros limpos'],
-    prices: { carro: 30, grande: 45, suv: 35, mota: 30 },
-  },
-  {
-    id: 'selante',
-    label: 'Lavagem com Selante',
-    desc: 'Exatamente a Simples, mais selante na pintura.',
-    includes: ['Tudo da Lavagem Simples', 'Selante aplicado na pintura', 'Mais brilho e efeito hidrofóbico'],
-    prices: { carro: 40, grande: 55, suv: 45 },
+    nota: '(Inclui selante)',
+    desc: 'Limpeza interior e exterior de manutenção, com selante na pintura.',
+    includes: ['Lavagem exterior à mão', 'Aspiração do interior', 'Limpeza do tablier e da mala', 'Vidros limpos', 'Selante aplicado na pintura'],
+    prices: { carro: 35, grande: 45, suv: 40, mota: 35 },
   },
   {
     id: 'premium',
     label: 'Lavagem Premium',
     desc: 'Limpeza interior detalhada, descontaminação dos vidros e selante premium.',
     includes: ['Tudo da Lavagem Simples', 'Limpeza interior detalhada, até às zonas de difícil acesso', 'Descontaminação dos vidros', 'Selante premium na pintura'],
-    prices: { carro: 65, grande: 80, suv: 75 },
+    prices: { carro: 75, grande: 85, suv: 80 },
+  },
+  {
+    // O trabalho da detalhada numa só área. Marca-se escolhendo a área, e é a
+    // área que vai para o servidor: cada uma é um nível no catalogue.ts, com o
+    // seu nome no calendário e na ficha do CRM.
+    id: 'detalhada-parcial',
+    label: 'Lavagem Detalhada Interior ou Exterior',
+    desc: 'O trabalho da Detalhada só na área escolhida: interior, com remoção e higienização dos bancos, ou exterior, com descontaminação da pintura e limpeza profunda de jantes e pneus.',
+    includes: ['Só a área escolhida: interior ou exterior', 'Interior: remoção e higienização dos bancos', 'Exterior: descontaminação da pintura', 'Exterior: limpeza profunda de jantes e pneus'],
+    areas: [
+      { id: 'detalhada-interior', label: 'Interior', servico: 'Lavagem Detalhada Interior' },
+      { id: 'detalhada-exterior', label: 'Exterior', servico: 'Lavagem Detalhada Exterior' },
+    ],
+    prices: { carro: 130, grande: 150, suv: 140 },
   },
   {
     id: 'detalhada',
-    label: 'Lavagem Detalhada',
+    label: 'Lavagem Detalhada Interior + Exterior',
     desc: 'Tudo da Premium, mais remoção e higienização dos bancos, descontaminação da pintura e limpeza profunda de jantes e pneus.',
     includes: ['Tudo da Lavagem Premium', 'Remoção e higienização dos bancos', 'Descontaminação da pintura', 'Limpeza profunda de jantes e pneus'],
-    prices: { carro: 140, grande: 180, suv: 160 },
+    prices: { carro: 200, grande: 240, suv: 220 },
   },
 ];
 
 /**
  * O que cada lavagem tem, lado a lado. É a tabela de comparação do site; a
- * ordem das colunas é a dos níveis. Todas incluem interior e exterior, e o
- * selante é um selante: não se chama cerâmica ao que não é.
+ * ordem das colunas é a dos níveis. A Detalhada Interior ou Exterior só faz uma
+ * das áreas: nas linhas com `area`, a coluna dela diz qual em vez de um visto.
+ * O selante é um selante: não se chama cerâmica ao que não é.
  */
 export const COMPARACAO = [
-  { label: 'Limpeza interior e exterior',      niveis: ['simples', 'selante', 'premium', 'detalhada'] },
-  { label: 'Selante na pintura',                niveis: ['selante'] },
-  { label: 'Limpeza interior detalhada',        niveis: ['premium', 'detalhada'] },
-  { label: 'Descontaminação dos vidros',        niveis: ['premium', 'detalhada'] },
-  { label: 'Selante premium',                   niveis: ['premium', 'detalhada'] },
-  { label: 'Remoção e higienização dos bancos', niveis: ['detalhada'] },
-  { label: 'Descontaminação da pintura',        niveis: ['detalhada'] },
-  { label: 'Limpeza profunda de jantes e pneus', niveis: ['detalhada'] },
+  { label: 'Limpeza interior e exterior',      niveis: ['simples', 'premium', 'detalhada'] },
+  { label: 'Selante na pintura',                niveis: ['simples'] },
+  { label: 'Limpeza interior detalhada',        niveis: ['premium', 'detalhada-parcial', 'detalhada'], area: 'interior' },
+  { label: 'Descontaminação dos vidros',        niveis: ['premium', 'detalhada-parcial', 'detalhada'], area: 'exterior' },
+  { label: 'Selante premium',                   niveis: ['premium', 'detalhada-parcial', 'detalhada'], area: 'exterior' },
+  { label: 'Remoção e higienização dos bancos', niveis: ['detalhada-parcial', 'detalhada'], area: 'interior' },
+  { label: 'Descontaminação da pintura',        niveis: ['detalhada-parcial', 'detalhada'], area: 'exterior' },
+  { label: 'Limpeza profunda de jantes e pneus', niveis: ['detalhada-parcial', 'detalhada'], area: 'exterior' },
 ];
 
 export const LEVEL_BY_ID = Object.fromEntries(WASH_LEVELS.map((l) => [l.id, l]));
@@ -79,17 +95,22 @@ export const LEVEL_BY_ID = Object.fromEntries(WASH_LEVELS.map((l) => [l.id, l]))
 export const minPrice = (levelId) => Math.min(...Object.values(LEVEL_BY_ID[levelId].prices));
 
 /**
- * Duração de cada nível, em minutos, conforme os tempos reais da oficina.
+ * Duração de cada nível, em minutos, conforme os tempos da oficina. São
+ * aproximados, e o site diz-o.
  *
- * A detalhada são 24h: o carro fica de um dia para o outro. Não é um bloco de
- * horas como os outros — ocupa o dia inteiro, e o cálculo de vagas trata-a à
- * parte (ver FULL_DAY_MINUTES).
+ * Uma por veículo, e não uma igual para todos: é isto que a agenda bloqueia.
+ * A do carro é a da tabela de outubro de 2026 (1h30, 4h, 4h e 8h). Os
+ * acréscimos de SUV e carrinha grande são os que a oficina já usava; as duas
+ * detalhadas seguem os da Premium (+25% e +50%), decidido com a oficina.
+ *
+ * A detalhada de SUV e carrinha grande (10h e 12h) não cabe no dia de
+ * trabalho: a agenda trata-a como dia inteiro, com entrega à abertura.
  */
 export const DURATIONS = {
-  simples:   { carro: 90,  grande: 120, suv: 105, mota: 105 },
-  selante:   { carro: 105, grande: 135, suv: 120 },
-  premium:   { carro: 240, grande: 360, suv: 300 },
-  detalhada: { carro: 1440, grande: 1440, suv: 1440 },
+  simples:             { carro: 90,  grande: 120, suv: 105, mota: 105 },
+  premium:             { carro: 240, grande: 360, suv: 300 },
+  'detalhada-parcial': { carro: 240, grande: 360, suv: 300 },
+  detalhada:           { carro: 480, grande: 720, suv: 600 },
 };
 
 /** A partir daqui o serviço não cabe num dia de trabalho: ocupa o dia todo. */

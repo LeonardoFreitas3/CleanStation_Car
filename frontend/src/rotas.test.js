@@ -2,7 +2,7 @@
 // so manda o Google a uma pagina que nao existe.
 
 import { ancora, idiomaDe, inicio, pagina, traduzir } from './rotas';
-import { COMPARACAO, WASH_LEVELS } from './booking/pricing';
+import { COMPARACAO, LEVEL_BY_ID, WASH_LEVELS } from './booking/pricing';
 
 describe('rotas', () => {
   test('o portugues vive na raiz e o ingles em /en', () => {
@@ -30,16 +30,19 @@ describe('rotas', () => {
 });
 
 // A tabela de comparacao e o que responde a "qual a diferenca?". Uma lavagem
-// sem a primeira linha era uma lavagem a dizer que nao limpa o carro.
+// sem a primeira linha era uma lavagem a dizer que nao limpa o carro — menos a
+// Detalhada Interior ou Exterior, que so faz uma das areas, e cujas linhas dizem
+// qual.
 describe('comparacao das lavagens', () => {
-  test('todas incluem interior e exterior, e cada nivel acrescenta ao anterior', () => {
+  test('as lavagens completas incluem interior e exterior; a de uma area nao', () => {
     const ids = WASH_LEVELS.map((l) => l.id);
-    expect(COMPARACAO[0].niveis).toEqual(ids);
+    expect(COMPARACAO[0].niveis).toEqual(ids.filter((id) => !LEVEL_BY_ID[id].areas));
     for (const linha of COMPARACAO) {
       for (const n of linha.niveis) expect(ids).toContain(n);
+      if (linha.niveis.includes('detalhada-parcial')) expect(['interior', 'exterior']).toContain(linha.area);
     }
     const conta = (id) => COMPARACAO.filter((l) => l.niveis.includes(id)).length;
-    expect(conta('premium')).toBeGreaterThan(conta('selante'));
+    expect(conta('premium')).toBeGreaterThan(conta('simples'));
     expect(conta('detalhada')).toBeGreaterThan(conta('premium'));
   });
 });
