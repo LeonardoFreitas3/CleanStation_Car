@@ -544,7 +544,7 @@ export default function Agenda() {
 
                 {!services.length && !off.length && (
                   <p className="text-white/30 text-xs">
-                    {closed ? (d.getDay() === 0 || d.getDay() === 6 ? 'Encerrado' : 'Feriado') : 'Nada agendado'}
+                    {closed ? (d.getDay() === 0 ? 'Encerrado' : 'Feriado') : 'Nada agendado'}
                   </p>
                 )}
               </Card>

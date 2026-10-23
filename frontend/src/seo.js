@@ -142,7 +142,7 @@ export function businessSchema(lang) {
     ],
     openingHoursSpecification: [{
       '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       opens: HORARIO.opens,
       closes: HORARIO.closes,
     }],
@@ -182,7 +182,7 @@ export function faqItems(lang) {
       },
       {
         q: 'Do I need to book in advance?',
-        a: 'Yes. We recommend booking ahead to secure the time you want. You can book online, quickly and simply.',
+        a: 'Yes. Bookings are made at least 48 hours in advance, so we can prepare the work. You can book online, quickly and simply.',
       },
       {
         q: 'How long does the wash take?',
@@ -218,7 +218,7 @@ export function faqItems(lang) {
       },
       {
         q: 'Where are you?',
-        a: `We are in Braga, at ${SITE.address}. Open Monday to Friday, ${HORARIO.opens} to ${HORARIO.closes}; closed on weekends and public holidays. You can see our location and get directions directly on our site.`,
+        a: `We are in Braga, at ${SITE.address}. Open Monday to Saturday, ${HORARIO.opens} to ${HORARIO.closes}; closed on Sundays and public holidays. You can see our location and get directions directly on our site.`,
       },
     ];
   }
@@ -230,7 +230,7 @@ export function faqItems(lang) {
     },
     {
       q: 'Preciso de marcar com antecedência?',
-      a: 'Sim. Recomendamos a marcação antecipada para garantir a disponibilidade do horário pretendido. Podes marcar online de forma rápida e simples.',
+      a: 'Sim. As marcações fazem-se com pelo menos 48 horas de antecedência, para prepararmos o trabalho. Podes marcar online de forma rápida e simples.',
     },
     {
       q: 'Quanto tempo demora a lavagem?',
@@ -266,7 +266,7 @@ export function faqItems(lang) {
     },
     {
       q: 'Onde ficam?',
-      a: `Estamos em Braga, na ${SITE.address}. Abertos de segunda a sexta, das ${HORARIO.opens} às ${HORARIO.closes}; fins de semana e feriados encerrado. Podes consultar a nossa localização e obter indicações diretamente no nosso site.`,
+      a: `Estamos em Braga, na ${SITE.address}. Abertos de segunda a sábado, das ${HORARIO.opens} às ${HORARIO.closes}; domingos e feriados encerrado. Podes consultar a nossa localização e obter indicações diretamente no nosso site.`,
     },
   ];
 }

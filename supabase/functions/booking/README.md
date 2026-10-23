@@ -82,8 +82,8 @@ domingo, hora de verão e serviços que atravessam a meia-noite.
 
 ## Horário e durações
 
-O horário está em `slots.ts` (segunda a sexta, 09:00–18:00, intervalos de 30
-minutos, uma hora de antecedência mínima).
+O horário está em `slots.ts` (segunda a sábado, 09:00–18:00, intervalos de 30
+minutos, 48 horas de antecedência mínima).
 
 As durações estão em `frontend/src/booking/pricing.js` (`DURATIONS`) e são uma
 **estimativa** — ajusta-as ao ritmo real da oficina. Curtas demais e ficam com

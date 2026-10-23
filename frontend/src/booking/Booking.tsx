@@ -137,6 +137,8 @@ function Calendar({ value, onChange }: { value: string; onChange: (iso: string) 
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const firstBookable = new Date(today);
+  firstBookable.setDate(today.getDate() + 2);
 
   const days = useMemo(() => {
     const first = new Date(month.getFullYear(), month.getMonth(), 1);
@@ -187,12 +189,11 @@ function Calendar({ value, onChange }: { value: string; onChange: (iso: string) 
         {days.map((d, i) => {
           if (!d) return <span key={`x${i}`} />;
           const iso = isoDate(d);
-          // Fim de semana fechado; dias passados não são opção.
-          // Nao se marca para o proprio dia: o trabalho tem de ser
-          // preparado com antecedencia. O servidor recusa na mesma, isto
-          // so evita que o cliente escolha e leve com um erro depois.
+          // Domingo fechado. Marca-se com 48 horas de antecedência, por isso
+          // hoje e amanhã também não são opção. O servidor recusa na mesma,
+          // isto so evita que o cliente escolha e leve com um erro depois.
           // Os feriados tambem: o servidor devolve zero horas nesses dias.
-          const closed = d.getDay() === 0 || d.getDay() === 6 || d <= today;
+          const closed = d.getDay() === 0 || d < firstBookable;
           const selected = value === iso;
           return (
             <button
@@ -215,7 +216,7 @@ function Calendar({ value, onChange }: { value: string; onChange: (iso: string) 
         })}
       </div>
       <p className="text-white/30 text-[11px] mt-3">
-        Sábados, domingos e feriados encerrado. Marcações a partir de amanhã. Horários ocupados não aparecem.
+        Domingos e feriados encerrado. Marcações com 48 horas de antecedência. Horários ocupados não aparecem.
       </p>
     </div>
   );

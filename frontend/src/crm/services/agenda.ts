@@ -255,14 +255,14 @@ export function feriados(ano: number): Set<string> {
 }
 
 /**
- * Encerrado ao publico: sabado, domingo ou feriado.
+ * Encerrado ao publico: domingo ou feriado.
  *
  * A agenda continua a deixar marcar nestes dias, como ja deixava ao domingo —
  * ha trabalho combinado a parte. O que muda e o site nao os oferecer e a
  * ocupacao nao os contar como dia por vender.
  */
 export function isEncerrado(day: Date): boolean {
-  return day.getDay() === 0 || day.getDay() === 6 || feriados(day.getFullYear()).has(dayKey(day));
+  return day.getDay() === 0 || feriados(day.getFullYear()).has(dayKey(day));
 }
 
 /** Servico agendado sem duracao indicada. Duas horas e a lavagem comum — o

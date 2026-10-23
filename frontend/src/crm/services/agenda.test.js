@@ -236,7 +236,7 @@ describe('feriados', () => {
     expect(natal.getDay()).toBe(5);
     expect(isEncerrado(natal)).toBe(true);
   });
-test('sabado e domingo estao encerrados, sexta nao', () => {    expect(isEncerrado(new Date('2026-09-19T00:00:00'))).toBe(true);    expect(isEncerrado(new Date('2026-09-20T00:00:00'))).toBe(true);    expect(isEncerrado(new Date('2026-09-18T00:00:00'))).toBe(false);  });
+test('domingo esta encerrado, sabado e sexta nao', () => {    expect(isEncerrado(new Date('2026-09-19T00:00:00'))).toBe(false);    expect(isEncerrado(new Date('2026-09-20T00:00:00'))).toBe(true);    expect(isEncerrado(new Date('2026-09-18T00:00:00'))).toBe(false);  });
 
   test('feriado nao conta como dia por vender', () => {
     const vazia = { services: [], timeOff: [], blocks: [] };

@@ -9,9 +9,8 @@ import { assertEquals } from 'https://deno.land/std@0.224.0/assert/mod.ts';
 import { feriados, freeSlots, isClosed, lisbonOffset } from './slots.ts';
 
 // Referência fixa, senão os testes mudam de resultado com o passar do dia.
-// Véspera, e não o próprio dia: não se marca para hoje, portanto um "agora"
-// no mesmo dia da marcação devolvia sempre zero vagas.
-const AGORA = new Date('2026-09-13T06:00:00Z'); // domingo, 07:00 em Lisboa
+// Mais de 48 horas antes: com menos, a antecedência mínima cortava as vagas.
+const AGORA = new Date('2026-09-11T06:00:00Z'); // sexta, 07:00 em Lisboa
 const SEGUNDA = '2026-09-14';
 const DOMINGO = '2026-09-13';
 
@@ -50,9 +49,13 @@ Deno.test('uma marcação existente bloqueia as horas que se sobrepõem', () => 
   assertEquals(slots.includes('12:00'), true);
 });
 
-Deno.test('não se marca para o próprio dia', () => {
-  const hoje = new Date('2026-09-14T07:40:00Z');
-  assertEquals(freeSlots(SEGUNDA, 60, [], hoje), []);
+Deno.test('só se marca com 48 horas de antecedência', () => {
+  // Sábado às 10:00 em Lisboa: na segunda, a primeira vaga é às 10:00.
+  const sabado = new Date('2026-09-12T09:00:00Z');
+  assertEquals(freeSlots(SEGUNDA, 60, [], sabado)[0], '10:00');
+  // No próprio dia e no seguinte não há nada.
+  assertEquals(freeSlots(SEGUNDA, 60, [], new Date('2026-09-14T07:40:00Z')), []);
+  assertEquals(freeSlots(SEGUNDA, 60, [], new Date('2026-09-13T08:00:00Z')), []);
 });
 
 Deno.test('serviço da véspera que se estende bloqueia a manhã seguinte', () => {
@@ -100,7 +103,7 @@ Deno.test('Sao Joao, feriado municipal de Braga', () => {
   assertEquals(isClosed('2026-06-24'), true);
 });
 
-Deno.test('sábado está encerrado', () => {
-  assertEquals(isClosed('2026-09-19'), true);
-  assertEquals(freeSlots('2026-09-19', 60, [], AGORA), []);
+Deno.test('sábado está aberto', () => {
+  assertEquals(isClosed('2026-09-19'), false);
+  assertEquals(freeSlots('2026-09-19', 60, [], AGORA)[0], '09:00');
 });

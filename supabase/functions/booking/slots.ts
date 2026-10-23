@@ -17,7 +17,9 @@ export interface Horario { opens: number; closes: number }
 
 export const HORARIO_OMISSAO: Horario = { opens: OPENS, closes: CLOSES };
 export const SLOT_MINUTES = 30;
-export const MIN_NOTICE_MINUTES = 60;
+/** Antecedência mínima de uma marcação: o trabalho prepara-se com tempo —
+ *  produtos, box livre, pessoal. Também afasta o próprio dia e o seguinte. */
+export const MIN_NOTICE_MINUTES = 48 * 60;
 
 /** A partir daqui o serviço não cabe num dia de trabalho: ocupa o dia todo.
  *  Relativo ao horário — encurtar o dia não pode deixar serviços sem hora
@@ -126,12 +128,12 @@ export function feriados(ano: number): Set<string> {
 
 export const isFeriado = (dateIso: string) => feriados(Number(dateIso.slice(0, 4))).has(dateIso);
 
-/** Fim de semana e feriado encerrados. getUTCDay() com meio-dia UTC evita
- *  saltos de fuso. O CRM continua a deixar marcar nestes dias — ha trabalho
- *  combinado a parte — mas o site nao os oferece a quem nao perguntou. */
+/** Domingo e feriado encerrados. getUTCDay() com meio-dia UTC evita saltos
+ *  de fuso. O CRM continua a deixar marcar nestes dias — ha trabalho combinado
+ *  a parte — mas o site nao os oferece a quem nao perguntou. */
 export function isClosed(dateIso: string): boolean {
   const dia = new Date(`${dateIso}T12:00:00Z`).getUTCDay();
-  return dia === 0 || dia === 6 || isFeriado(dateIso);
+  return dia === 0 || isFeriado(dateIso);
 }
 
 /**
@@ -142,16 +144,6 @@ export function isClosed(dateIso: string): boolean {
  */
 export function todayInLisbon(now: Date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Lisbon' }).format(now);
-}
-
-/**
- * Não se marca para o próprio dia.
- *
- * O trabalho tem de ser preparado com antecedência: produtos, box livre,
- * pessoal. Uma marcação para daqui a duas horas apanha a oficina de surpresa.
- */
-export function isTooSoon(dateIso: string, now: Date = new Date()): boolean {
-  return dateIso <= todayInLisbon(now);
 }
 
 function overlaps(aStart: number, aEnd: number, bStart: number, bEnd: number): boolean {
@@ -173,7 +165,6 @@ export function freeSlots(
 ): string[] {
   const { opens, closes } = horario;
   if (isClosed(dateIso)) return [];
-  if (isTooSoon(dateIso, now)) return [];
 
   const busyRanges = busy.map((b) => ({
     start: new Date(b.start).getTime(),
