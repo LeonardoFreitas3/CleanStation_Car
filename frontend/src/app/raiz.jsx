@@ -16,7 +16,13 @@ export const metadata = {
   // era do React, que o repunha na primeira vez que redesenhasse.
   robots: 'index, follow, max-image-preview:large',
   authors: [{ name: 'Clean Station Car' }],
-  icons: { icon: '/img/favicon.ico' },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/icon-192.png',
+  },
   other: {
     'geo.region': 'PT-03',
     'geo.placename': 'Braga',

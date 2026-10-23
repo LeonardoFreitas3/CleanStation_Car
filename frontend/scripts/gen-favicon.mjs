@@ -1,4 +1,6 @@
-// Gera public/img/favicon.ico (16/32/48) a partir de public/img/logo.png.
+// Gera public/favicon.ico (16/32/48) e public/icon-192.png a partir de
+// public/img/logo.png. O Google prefere icones de 48px ou mais, em multiplos
+// de 48: o PNG grande e o que ele usa nos resultados de pesquisa.
 //
 // Duas decisoes que nao sao obvias:
 //   1. So usa o simbolo do carro, nao o logo completo. O "CLEAN STATION" e
@@ -14,7 +16,8 @@ import sharp from 'sharp';
 import { writeFileSync } from 'fs';
 
 const SRC = 'public/img/logo.png';
-const OUT = 'public/img/favicon.ico';
+const OUT = 'public/favicon.ico';
+const OUT_PNG = 'public/icon-192.png';
 const SIZES = [16, 32, 48];
 const ZOOM = 1.0;      // largura do carro / largura util do icone
 const PADDING = 0.05;  // margem interior: os cantos arredondados comem os extremos
@@ -122,3 +125,6 @@ for (const size of SIZES) pngs.push({ size, buf: await render(box, size) });
 const ico = buildIco(pngs);
 writeFileSync(OUT, ico);
 console.log(`${OUT}: ${SIZES.join('/')} px, ${(ico.length / 1024).toFixed(1)} KB`);
+
+writeFileSync(OUT_PNG, await render(box, 192));
+console.log(`${OUT_PNG}: 192 px`);
