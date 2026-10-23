@@ -1,4 +1,4 @@
-// Gera public/favicon.ico (16/32/48) e public/icon-192.png a partir de
+// Gera public/favicon.ico (16/32/48) e public/favicon-192.png a partir de
 // public/img/logo.png. O Google prefere icones de 48px ou mais, em multiplos
 // de 48: o PNG grande e o que ele usa nos resultados de pesquisa.
 //
@@ -10,6 +10,11 @@
 //      encher mais o quadrado, mas isso fatiava os farois nos bordos laterais
 //      e lia-se como defeito de recorte, nao como opcao. Melhor um carro
 //      completo com preto a volta do que um carro cortado.
+//   3. Quadrado preto ate as bordas, sem cantos arredondados. O Google recorta
+//      o favicon num circulo sobre fundo branco: cantos transparentes ficavam
+//      brancos dentro do circulo e o icone parecia cortado. Quem quer cantos
+//      redondos (o iPhone, o Google) arredonda-os sozinho. A margem e a que
+//      deixa o carro inteiro dentro desse circulo.
 //
 // Correr a partir de frontend/:  node scripts/gen-favicon.mjs
 import sharp from 'sharp';
@@ -17,11 +22,10 @@ import { writeFileSync } from 'fs';
 
 const SRC = 'public/img/logo.png';
 const OUT = 'public/favicon.ico';
-const OUT_PNG = 'public/icon-192.png';
+const OUT_PNG = 'public/favicon-192.png';
 const SIZES = [16, 32, 48];
 const ZOOM = 1.0;      // largura do carro / largura util do icone
-const PADDING = 0.05;  // margem interior: os cantos arredondados comem os extremos
-const RADIUS = 0.16;   // canto arredondado, fracao do lado
+const PADDING = 0.1;   // margem interior: o carro tem de caber no circulo do Google
 const BG = '#000000';
 
 // O logo tem margens transparentes e o simbolo do carro fica separado do
@@ -87,8 +91,7 @@ async function render(box, size) {
   }
 
   const bg = Buffer.from(
-    `<svg width="${size}" height="${size}"><rect width="${size}" height="${size}" ` +
-    `rx="${Math.round(size * RADIUS)}" fill="${BG}"/></svg>`
+    `<svg width="${size}" height="${size}"><rect width="${size}" height="${size}" fill="${BG}"/></svg>`
   );
   return sharp(bg).composite([{ input: car, gravity: 'center' }]).png().toBuffer();
 }
