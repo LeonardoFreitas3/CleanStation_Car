@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
 import { SITE } from '../mock';
 import { useLang } from '../i18n';
+import { FOTOS_OFICINA, fotoAlt, fotoSrc } from '../fotos';
+import Lightbox from './Lightbox';
 
 export default function ContactMap() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const [aberta, setAberta] = useState(null);
   const waMsg = encodeURIComponent(t('whatsapp.quote'));
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
 
@@ -60,8 +63,23 @@ export default function ContactMap() {
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.5) 100%)' }} />
         </div>
 
-        {/* RIGHT: Contacto */}
-        <div>
+        {/* RIGHT: a entrada, para se reconhecer ao chegar, e o contacto */}
+        <div className="space-y-5">
+          <button
+            type="button"
+            onClick={() => setAberta(1)}
+            aria-label={lang === 'en' ? 'See the entrance photo' : 'Ver a fotografia da entrada'}
+            className="group relative block w-full aspect-[4/3] overflow-hidden rounded-md border border-white/10"
+          >
+            <img
+              src={fotoSrc('entrada', 'card')}
+              alt={fotoAlt('entrada', lang)}
+              width={800}
+              height={600}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-105"
+              loading="lazy"
+            />
+          </button>
           <div className="border border-white/15 rounded-md p-8 bg-[#0f0f0f]">
             <h4 className="font-display text-white text-2xl md:text-[28px] font-black tracking-wide leading-tight">
               {t('contact.ctaTitle')}
@@ -80,6 +98,8 @@ export default function ContactMap() {
           </div>
         </div>
       </div>
+
+      <Lightbox fotos={FOTOS_OFICINA} indice={aberta} onIndice={setAberta} lang={lang} />
     </section>
   );
 }

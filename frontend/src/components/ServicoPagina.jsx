@@ -11,6 +11,8 @@ import PrivacyPolicy from './PrivacyPolicy';
 import TermsConditions from './TermsConditions';
 import CookiePolicy from './CookiePolicy';
 import CookieBanner from './CookieBanner';
+import Lightbox from './Lightbox';
+import { fotoAlt, fotoSrc } from '../fotos';
 import { LIGACAO, PAGE_BY_SLUG, SERVICE_PAGES, conteudo, nomeDe, orcamentoDe, precoDe, precoServico } from '../servicePages';
 import { SERVICES, SITE } from '../mock';
 import { useLang } from '../i18n';
@@ -40,6 +42,13 @@ export default function ServicoPagina({ slug }) {
 
   const [booking, setBooking] = useState(false);
   const [legalOpen, setLegalOpen] = useState(null);
+
+  // As fotografias da página, galeria e depois os pares, numa só fila: em
+  // tamanho completo passa-se de uma para a seguinte sem voltar atrás.
+  const galeria = pagina.galeria ?? [];
+  const pares = pagina.antesDepois ?? [];
+  const fotos = [...galeria, ...pares.flatMap((p) => [p.antes, p.depois])];
+  const [aberta, setAberta] = useState(null);
 
   // Voltar só quando há para onde voltar dentro do site. Quem chega de uma
   // pesquisa não tem histórico aqui, e um "voltar" que atira para o Google é
@@ -256,7 +265,8 @@ export default function ServicoPagina({ slug }) {
             );
           })}
 
-          {pagina.antesDepois?.length > 0 && <AntesDepois fotos={pagina.antesDepois} lang={lang} />}
+          {galeria.length > 0 && <Galeria fotos={galeria} lang={lang} onAbrir={setAberta} />}
+          {pares.length > 0 && <AntesDepois pares={pares} lang={lang} onAbrir={(i) => setAberta(galeria.length + i)} />}
 
           {/* ── Perguntas ─────────────────────────────────────────────────── */}
           <section>
@@ -341,6 +351,7 @@ export default function ServicoPagina({ slug }) {
       <TermsConditions open={legalOpen === 'terms'} onClose={() => setLegalOpen(null)} />
       <CookiePolicy open={legalOpen === 'cookies'} onClose={() => setLegalOpen(null)} />
       <CookieBanner onOpenPolicy={() => setLegalOpen('cookies')} />
+      <Lightbox fotos={fotos} indice={aberta} onIndice={setAberta} lang={lang} />
 
       {booking && (
         <Suspense fallback={null}>
@@ -419,38 +430,69 @@ function Comparacao({ dados, colunas, lang, t }) {
   );
 }
 
+const titulo = 'font-display text-white text-xl md:text-2xl font-black tracking-wide';
+
 /**
- * Fotografias reais de antes e depois. Só existe quando há fotografias: a
- * página nunca mostra a moldura vazia. O quadro tem a proporção fixa para a
- * página não saltar quando a imagem chega.
+ * Uma miniatura que abre em tamanho completo. O quadro tem a proporção fixa
+ * (3:4, como as fotografias, quase todas verticais) para a página não saltar
+ * quando a imagem chega.
  */
-function AntesDepois({ fotos, lang }) {
+function Miniatura({ nome, lang, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`${lang === 'en' ? 'Enlarge' : 'Ampliar'}: ${fotoAlt(nome, lang)}`}
+      className="group relative block w-full aspect-[3/4] overflow-hidden rounded-md border border-white/10 bg-[#0e0e0e]"
+    >
+      <img
+        src={fotoSrc(nome, 'mini')}
+        alt={fotoAlt(nome, lang)}
+        width={600}
+        height={800}
+        loading="lazy"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-105"
+      />
+    </button>
+  );
+}
+
+/** As outras fotografias do serviço, reais, da oficina. */
+function Galeria({ fotos, lang, onAbrir }) {
+  return (
+    <section>
+      <h2 className={titulo}>{lang === 'en' ? 'Photos' : 'Fotografias'}</h2>
+      <span className="accent-bar mt-4 block" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">
+        {fotos.map((nome, i) => <Miniatura key={nome} nome={nome} lang={lang} onClick={() => onAbrir(i)} />)}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Trabalhos reais, antes e depois. Lado a lado no computador, um por cima do
+ * outro no telemóvel, sempre o antes primeiro. A etiqueta fica fora da
+ * fotografia, e não há comparador de deslizar: os enquadramentos não
+ * coincidem, e sobrepostos pareciam outro carro.
+ */
+function AntesDepois({ pares, lang, onAbrir }) {
   const en = lang === 'en';
   return (
     <section>
-      <h2 className="font-display text-white text-xl md:text-2xl font-black tracking-wide">
-        {en ? 'Before and after' : 'Antes e depois'}
-      </h2>
+      <h2 className={titulo}>{en ? 'Results' : 'Resultados'}</h2>
       <span className="accent-bar mt-4 block" />
-      <div className="mt-6 space-y-6">
-        {fotos.map((f) => {
-          const alt = (en && f.altEn) || f.alt;
-          return (
-            <div key={f.depois} className="grid grid-cols-2 gap-2">
-              {[['antes', en ? 'Before' : 'Antes'], ['depois', en ? 'After' : 'Depois']].map(([k, rotulo]) => (
-                <figure key={k} className="relative aspect-[4/3] overflow-hidden rounded-md bg-[#0e0e0e]">
-                  <img
-                    src={`${process.env.PUBLIC_URL}/img/antes-depois/${f[k]}`}
-                    alt={`${rotulo}: ${alt}`}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  <figcaption className="absolute top-2 left-2 bg-black/70 text-white text-[10px] tracking-[0.2em] uppercase px-2 py-1">{rotulo}</figcaption>
-                </figure>
-              ))}
-            </div>
-          );
-        })}
+      <div className="mt-6 space-y-10">
+        {pares.map((p, i) => (
+          <div key={p.depois} className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3">
+            {[[p.antes, en ? 'Before' : 'Antes'], [p.depois, en ? 'After' : 'Depois']].map(([nome, rotulo], j) => (
+              <figure key={nome}>
+                <figcaption className={`mb-2 text-[10px] tracking-[0.3em] uppercase font-semibold ${j ? 'text-blue-400' : 'text-white/55'}`}>{rotulo}</figcaption>
+                <Miniatura nome={nome} lang={lang} onClick={() => onAbrir(i * 2 + j)} />
+              </figure>
+            ))}
+          </div>
+        ))}
       </div>
     </section>
   );

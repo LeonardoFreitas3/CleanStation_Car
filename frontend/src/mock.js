@@ -5,6 +5,7 @@ import {
   PawPrint, Wind, CloudFog, Layers, Scissors,
 } from 'lucide-react';
 import { LEVEL_BY_ID, minPrice } from './booking/pricing';
+import { fotoSrc } from './fotos';
 
 export const SITE = {
   name: 'Clean Station Car',
@@ -58,10 +59,13 @@ const lavagem = (levelId, extra) => {
 
 export const SERVICES = [
   // ── LAVAGENS ──────────────────────────────────────────────────────────────
-  lavagem('simples', { id: 'lavagem-simples', icon: Droplets, image: `${process.env.PUBLIC_URL}/img/lavagem-sm.webp` }),
-  lavagem('premium', { id: 'lavagem-premium', icon: ShieldPlus, image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp` }),
-  lavagem('detalhada-parcial', { id: 'lavagem-detalhada-interior-ou-exterior', icon: Sparkles, image: `${process.env.PUBLIC_URL}/img/interior-sm.webp` }),
-  lavagem('detalhada', { id: 'lavagem-detalhada', icon: Car, image: `${process.env.PUBLIC_URL}/img/detail-sm.webp` }),
+  // As lavagens e os farois dianteiros ja tem fotografias da oficina; `imageSm`
+  // e a versao para os cartoes no telemovel. A Detalhada Interior ou Exterior
+  // mostra as duas areas lado a lado, uma por metade do cartao.
+  lavagem('simples', { id: 'lavagem-simples', icon: Droplets, image: fotoSrc('bmw-espuma', 'card'), imageSm: fotoSrc('bmw-espuma', 'card-sm') }),
+  lavagem('premium', { id: 'lavagem-premium', icon: ShieldPlus, image: fotoSrc('bmw-frente', 'card'), imageSm: fotoSrc('bmw-frente', 'card-sm') }),
+  lavagem('detalhada-parcial', { id: 'lavagem-detalhada-interior-ou-exterior', icon: Sparkles, image: fotoSrc('megane-interior', 'card-sm'), metades: [fotoSrc('megane-interior', 'meia'), fotoSrc('porsche-traseira', 'meia')] }),
+  lavagem('detalhada', { id: 'lavagem-detalhada', icon: Car, image: fotoSrc('porsche-interior', 'card'), imageSm: fotoSrc('porsche-interior', 'card-sm') }),
 
   // ── POLIMENTOS E CORREÇÕES ───────────────────────────────────────────────
   //
@@ -109,8 +113,8 @@ export const SERVICES = [
     title: 'POLIMENTO DE FARÓIS DIANTEIROS (PAR)',
     desc: 'Recupera faróis amarelados, opacos ou riscados, melhorando a estética e a passagem de luz.',
     icon: Lightbulb,
-    // Nao ha fotografia de farois dianteiros: fica a do polimento ate haver.
-    image: `${process.env.PUBLIC_URL}/img/polimento-sm.webp`,
+    image: fotoSrc('farol-maquina', 'card'),
+    imageSm: fotoSrc('farol-maquina', 'card-sm'),
     includes: [
       'Remove oxidação e opacidade',
       'Atenua riscos superficiais',

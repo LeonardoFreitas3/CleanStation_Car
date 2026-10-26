@@ -7,6 +7,7 @@ import { SERVICE_PAGES, PAGE_BY_SERVICE, PAGE_BY_SLUG, LIGACAO, conteudo, nomeDe
 import { SERVICES } from './mock';
 import { LEVEL_BY_ID, DURATIONS, formatDuration } from './booking/pricing';
 import SEO from './paginasSeo.json';
+import { FOTOS, fotoSrc } from './fotos';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
@@ -102,13 +103,28 @@ describe('paginas de servico', () => {
 
   // Uma fotografia escrita aqui e esquecida em public/ era uma imagem partida
   // no meio da pagina.
-  test('as fotografias de antes e depois existem em public/img/antes-depois', () => {
+  // O caminho a partir de /img/: o PUBLIC_URL da frente nao existe nos testes.
+  const existe = (src) => existsSync(join(__dirname, '../public', src.slice(src.indexOf('/img/'))));
+
+  test('as fotografias das paginas existem e tem descricao', () => {
     for (const p of SERVICE_PAGES) {
-      for (const f of p.antesDepois ?? []) {
-        for (const ficheiro of [f.antes, f.depois]) {
-          expect([p.slug, ficheiro, existsSync(join(__dirname, '../public/img/antes-depois', ficheiro))]).toEqual([p.slug, ficheiro, true]);
-        }
-        expect(f.alt).toBeTruthy();
+      if (p.foto) {
+        for (const v of ['capa', 'card-sm']) expect([p.slug, p.foto, v, existe(fotoSrc(p.foto, v))]).toEqual([p.slug, p.foto, v, true]);
+      }
+      const nomes = [...(p.galeria ?? []), ...(p.antesDepois ?? []).flatMap((f) => [f.antes, f.depois])];
+      // Na mesma pagina, a mesma fotografia uma vez so.
+      expect([p.slug, new Set([p.foto, ...nomes].filter(Boolean)).size]).toEqual([p.slug, nomes.length + (p.foto ? 1 : 0)]);
+      for (const nome of nomes) {
+        expect([p.slug, nome, Boolean(FOTOS[nome]?.alt && FOTOS[nome]?.altEn)]).toEqual([p.slug, nome, true]);
+        for (const v of ['mini', 'full']) expect([p.slug, nome, v, existe(fotoSrc(nome, v))]).toEqual([p.slug, nome, v, true]);
+      }
+    }
+  });
+
+  test('as imagens dos cartoes da inicial existem', () => {
+    for (const s of SERVICES) {
+      for (const src of [s.image, s.imageSm, ...(s.metades ?? [])].filter(Boolean)) {
+        expect([s.id, src, existe(src)]).toEqual([s.id, src, true]);
       }
     }
   });

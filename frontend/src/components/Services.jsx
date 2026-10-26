@@ -50,7 +50,10 @@ function Comparacao() {
         {t('services.compareTitle')}
       </h4>
       <p className="text-white/60 text-xs text-center mt-2">{t('services.compareNote')}</p>
-      <div className="mt-6 overflow-x-auto -mx-6 px-6">
+      {/* relative: os textos sr-only das células são absolutos e, sem um
+          contentor posicionado aqui, escapavam ao scroll e alargavam a página
+          inteira no telemóvel. */}
+      <div className="relative mt-6 overflow-x-auto -mx-6 px-6">
         <table className="w-full min-w-[560px] text-sm border-collapse">
           <caption className="sr-only">{t('services.compareTitle')}</caption>
           <thead>
@@ -134,7 +137,6 @@ export default function Services() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {catServices.map((s, i) => {
-                  const Icon = s.icon;
                   // As lavagens e os polimentos tem pagina propria: o cartao leva la, e e um
                   // link a serio — o Google segue-o e quem carrega com o botao
                   // do meio abre noutro separador. Os packs continuam
@@ -156,30 +158,46 @@ export default function Services() {
                       className="group relative overflow-hidden bg-[#0e0e0e] border border-white/10 hover:border-blue-700/60 focus-visible:border-blue-500 outline-none transition-all duration-500 flex flex-col rounded-md cursor-pointer text-left w-full"
                       style={{ animationDelay: `${i * 0.08}s` }}
                     >
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={s.image}
-                          alt={tx(s, 'title')}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-black/40 to-transparent" />
+                      {/* Primeiro a fotografia, limpa: sem texto nem véu por
+                          cima. A proporção é a mesma em todos os cartões, para
+                          ficarem alinhados. A descrição fica na página de cada
+                          serviço — aqui só o nome, o preço e o botão. */}
+                      <div className="relative aspect-[4/3] overflow-hidden bg-black">
+                        {s.metades ? (
+                          <div className="absolute inset-0 grid grid-cols-2 gap-px">
+                            {s.metades.map((src) => (
+                              <img
+                                key={src}
+                                src={src}
+                                alt=""
+                                width={400}
+                                height={600}
+                                className="w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-105"
+                                loading="lazy"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <img
+                            src={s.image}
+                            srcSet={s.imageSm ? `${s.imageSm} 480w, ${s.image} 800w` : undefined}
+                            sizes={s.imageSm ? '(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw' : undefined}
+                            alt=""
+                            width={800}
+                            height={600}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        )}
                       </div>
 
-                      <div className="px-6 pt-5 flex justify-center">
-                        <Icon className="w-6 h-6 text-blue-400" strokeWidth={1.4} />
-                      </div>
-
-                      <div className="px-6 pt-3 pb-6 text-center flex-1 flex flex-col">
+                      <div className="px-6 pt-5 pb-6 text-center flex-1 flex flex-col">
                         <h4 className="font-display text-white text-sm font-bold tracking-wider leading-snug">
                           {tx(s, 'title')}
                         </h4>
                         {s.nota && <p className="text-blue-300/80 text-[11px] mt-1">{tx(s, 'nota')}</p>}
-                        <p className="text-white/50 text-xs mt-2 leading-relaxed flex-1">
-                          {tx(s, 'desc')}
-                        </p>
 
-                        <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
+                        <div className="mt-auto pt-5 flex items-center justify-between gap-3">
                           <div className="text-left">
                             {/* Polimentos: um "desde", sob orçamento — o valor
                                 final depende do estado da viatura. */}
@@ -200,7 +218,9 @@ export default function Services() {
                               </>
                             )}
                           </div>
-                          <span className="text-white/55 text-[10px] tracking-[0.15em]">
+                          {/* Parece um botão e é o cartão inteiro que é o link:
+                              um <button> dentro de um <a> não é HTML válido. */}
+                          <span className="shrink-0 inline-flex items-center border border-white/20 group-hover:border-blue-500 group-hover:text-white text-white/80 px-3.5 py-2 text-[10px] tracking-[0.15em] uppercase font-semibold transition">
                             {s.onRequest ? t('services.quote') : pagina ? t('services.seePage') : t('services.contact')} →
                           </span>
                         </div>

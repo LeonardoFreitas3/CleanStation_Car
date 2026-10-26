@@ -14,6 +14,7 @@
 
 import { LEVEL_BY_ID } from './booking/pricing';
 import { SERVICES } from './mock';
+import { fotoSrc } from './fotos';
 import SEO from './paginasSeo.json';
 import { EN_PAGES } from './servicePagesEn';
 
@@ -22,12 +23,14 @@ import { EN_PAGES } from './servicePagesEn';
  * uma lista, ou parágrafos — os que existirem. Sem isto cada página inventava a
  * sua própria estrutura e a componente virava um monte de casos especiais.
  *
- * `antesDepois` são as fotografias reais de antes e depois. Vazio, a secção não
- * aparece — nada de molduras vazias nem imagens de banco. Para pôr uma: os
- * dois ficheiros em public/img/antes-depois/ e uma linha
- * `{ antes: 'x-antes.webp', depois: 'x-depois.webp', alt: 'Capot de um ...' }`
- * (com `altEn` para o inglês). O servicePages.test confirma que os ficheiros
- * existem.
+ * As fotografias são nomes do fotos.js, todas reais, da oficina:
+ *   `foto`        o fundo do cabeçalho e a miniatura em "Outros serviços" — a
+ *                 mesma do cartão da inicial, para quem carregou nele reconhecer
+ *                 onde chegou. Sem ela fica a imagem antiga, do paginasSeo.json.
+ *   `galeria`     as outras fotografias do serviço, sem repetir a `foto`.
+ *   `antesDepois` pares do mesmo carro, `{ antes, depois }`. Vazio, a secção
+ *                 não aparece — nada de molduras vazias nem imagens de banco.
+ * O servicePages.test confirma que os ficheiros existem.
  */
 const PAGINAS = [
   {
@@ -37,6 +40,8 @@ const PAGINAS = [
     // levelId: um id que se muda em silencio partia o link sem dar erro, e o
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-simples',
+    foto: 'bmw-espuma',
+    galeria: ['bmw-frente', 'bmw-interior', 'bmw-volante'],
     h1: 'Lavagem Automóvel em Braga',
     intro: [
       'Uma solução completa para a manutenção do teu veículo, com limpeza manual do exterior, cuidado do interior e selante na pintura.',
@@ -118,6 +123,8 @@ const PAGINAS = [
     // levelId: um id que se muda em silencio partia o link sem dar erro, e o
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-premium',
+    foto: 'bmw-frente',
+    galeria: ['bmw-espuma', 'bmw-interior', 'bmw-volante'],
     h1: 'Lavagem Premium de Automóveis em Braga',
     intro: [
       'Um serviço pensado para quem procura um nível de limpeza superior ao de uma lavagem convencional.',
@@ -197,6 +204,8 @@ const PAGINAS = [
     // levelId: um id que se muda em silencio partia o link sem dar erro, e o
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-detalhada',
+    foto: 'porsche-interior',
+    galeria: ['porsche-traseira', 'porsche-frente', 'megane-interior'],
     h1: 'Lavagem Detalhada de Automóveis em Braga',
     intro: [
       'O nosso serviço mais completo de limpeza automóvel, desenvolvido para uma recuperação profunda do interior e exterior do veículo.',
@@ -244,7 +253,7 @@ const PAGINAS = [
         ],
       },
     ],
-    antesDepois: [],
+    antesDepois: [{ antes: 'megane-antes', depois: 'megane-depois' }],
     cta: 'Marcar Lavagem Detalhada Interior + Exterior',
     faq: [
       {
@@ -277,6 +286,8 @@ const PAGINAS = [
     // levelId: um id que se muda em silencio partia o link sem dar erro, e o
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-detalhada-interior-ou-exterior',
+    foto: 'megane-interior',
+    galeria: ['porsche-traseira', 'megane-depois'],
     // O texto e o da Lavagem Detalhada, dividido pelas duas areas: nao se faz
     // aqui nada que la nao se faca.
     h1: 'Lavagem Detalhada Interior ou Exterior em Braga',
@@ -317,7 +328,10 @@ const PAGINAS = [
         paragrafos: ['A duração média é de aproximadamente 4 horas num carro, em qualquer das duas áreas. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação.'],
       },
     ],
-    antesDepois: [],
+    antesDepois: [
+      { antes: 'renault-condutor-antes', depois: 'renault-condutor-depois' },
+      { antes: 'renault-passageiro-antes', depois: 'renault-passageiro-depois' },
+    ],
     cta: 'Marcar Lavagem Detalhada Interior ou Exterior',
     faq: [
       {
@@ -737,6 +751,9 @@ const PAGINAS = [
     serviceId: ['farois-dianteiros', 'farois-traseiros'],
     // Cada cartão da inicial abre a sua secção: o id da secção, por cartão.
     ancoras: { 'farois-dianteiros': 'dianteiros', 'farois-traseiros': 'traseiros' },
+    foto: 'farol-maquina',
+    galeria: ['farol-colaborador'],
+    antesDepois: [{ antes: 'farol-antes', depois: 'farol-depois' }],
     nome: 'Polimento de Faróis',
     whatsapp: true,
     ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos o estado dos faróis e damos-te o orçamento.',
@@ -883,9 +900,9 @@ export const SERVICE_PAGES = PAGINAS.map((p) => {
   return {
     ...p, ...seo, en,
     ogImage: seo.image,
-    image: `${process.env.PUBLIC_URL}/img/${seo.image.replace(/\.jpg$/, '.webp')}`,
+    image: p.foto ? fotoSrc(p.foto, 'capa') : `${process.env.PUBLIC_URL}/img/${seo.image.replace(/\.jpg$/, '.webp')}`,
     // Os cartões mostram a imagem a 300-400px: a de 1600 era o triplo do peso.
-    thumb: `${process.env.PUBLIC_URL}/img/${seo.image.replace(/\.jpg$/, '-sm.webp')}`,
+    thumb: p.foto ? fotoSrc(p.foto, 'card-sm') : `${process.env.PUBLIC_URL}/img/${seo.image.replace(/\.jpg$/, '-sm.webp')}`,
   };
 });
 

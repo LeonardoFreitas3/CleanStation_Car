@@ -2,8 +2,10 @@ import React from "react";
 import { MessageCircle, CalendarDays } from 'lucide-react';
 import { FEATURES, SITE } from "../mock";
 import { useLang } from "../i18n";
+import { fotoSrc } from "../fotos";
 
-const HERO_CAR = `${process.env.PUBLIC_URL}/img/banner`;
+const HERO = fotoSrc('porsche', 'heroi');
+const HERO_SM = fotoSrc('porsche', 'heroi-sm');
 
 export default function Hero({ onBook }) {
   const { t, tx } = useLang();
@@ -13,29 +15,6 @@ export default function Hero({ onBook }) {
   return (
     <section id="home" className="relative bg-black overflow-hidden">
       <div className="relative min-h-[100vh] flex flex-col">
-        {/* Background */}
-        <div className="absolute inset-0 z-0">
-          {/* No telemóvel vai a versão de 768px: a de 1536 era o maior
-              elemento da página a chegar três segundos depois. */}
-          <picture>
-            <source media="(max-width: 767px)" srcSet={`${HERO_CAR}-sm.webp`} type="image/webp" />
-            <source srcSet={`${HERO_CAR}.webp`} type="image/webp" />
-            <img
-              src={`${HERO_CAR}.jpg`}
-              alt="Automóvel após lavagem detalhada na Clean Station Car, em Braga"
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: "65% 60%" }}
-              loading="eager"
-              fetchPriority="high"
-            />
-          </picture>
-          <div className="absolute pointer-events-none" style={{ left: "62%", top: "58%", transform: "translate(-50%, -50%)", width: "70%", height: "60%", background: "radial-gradient(ellipse at center, rgba(255,250,235,0.25) 0%, rgba(255,250,235,0.08) 30%, transparent 65%)", filter: "blur(50px)" }} />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-black/20" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_60%,_transparent_0%,_rgba(0,0,0,0.55)_70%,_#000_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-2/5 opacity-50 pointer-events-none" style={{ background: "radial-gradient(ellipse at 60% 100%, rgba(147,197,253,0.20) 0%, rgba(59,130,246,0.08) 35%, transparent 55%)", filter: "blur(30px)" }} />
-        </div>
-
         {/* Content */}
         <div className="relative z-10 flex-1 flex items-center pt-28 pb-12">
           <div className="max-w-7xl mx-auto px-6 w-full">
@@ -82,6 +61,28 @@ export default function Hero({ onBook }) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* A fotografia é vertical. No computador ocupa a parte direita e o
+            texto fica à esquerda, sobre preto; no telemóvel vem a seguir aos
+            botões, para o texto nunca ficar por cima do carro. Só se escurece a
+            orla que encosta ao texto, para as duas coisas se fundirem. O
+            telemóvel recebe a versão de 640px. */}
+        <div className="relative h-72 -mt-8 md:mt-0 md:absolute md:inset-y-0 md:right-0 md:h-full md:w-[56%]">
+          <picture>
+            <source media="(max-width: 767px)" srcSet={HERO_SM} type="image/webp" />
+            <img
+              src={HERO}
+              alt="Porsche cinzento na oficina da Clean Station Car, em Braga"
+              width={941}
+              height={1100}
+              className="absolute inset-0 w-full h-full object-cover object-[50%_85%]"
+              loading="eager"
+              fetchPriority="high"
+            />
+          </picture>
+          <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black to-transparent md:inset-y-0 md:right-auto md:h-full md:w-2/5 md:bg-gradient-to-r" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/80 to-transparent" />
         </div>
 
         {/* Feature strip */}
