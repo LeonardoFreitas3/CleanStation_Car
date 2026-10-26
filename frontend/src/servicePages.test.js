@@ -8,6 +8,7 @@ import { SERVICES } from './mock';
 import { LEVEL_BY_ID, DURATIONS, formatDuration } from './booking/pricing';
 import SEO from './paginasSeo.json';
 import { FOTOS, fotoSrc } from './fotos';
+import { PARES } from './components/Resultados';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
@@ -106,25 +107,31 @@ describe('paginas de servico', () => {
   // O caminho a partir de /img/: o PUBLIC_URL da frente nao existe nos testes.
   const existe = (src) => existsSync(join(__dirname, '../public', src.slice(src.indexOf('/img/'))));
 
-  test('as fotografias das paginas existem e tem descricao', () => {
+  test('cada pagina tem a sua fotografia, e os ficheiros existem', () => {
     for (const p of SERVICE_PAGES) {
-      if (p.foto) {
-        for (const v of ['capa', 'card-sm']) expect([p.slug, p.foto, v, existe(fotoSrc(p.foto, v))]).toEqual([p.slug, p.foto, v, true]);
-      }
-      const nomes = [...(p.galeria ?? []), ...(p.antesDepois ?? []).flatMap((f) => [f.antes, f.depois])];
-      // Na mesma pagina, a mesma fotografia uma vez so.
-      expect([p.slug, new Set([p.foto, ...nomes].filter(Boolean)).size]).toEqual([p.slug, nomes.length + (p.foto ? 1 : 0)]);
-      for (const nome of nomes) {
-        expect([p.slug, nome, Boolean(FOTOS[nome]?.alt && FOTOS[nome]?.altEn)]).toEqual([p.slug, nome, true]);
-        for (const v of ['mini', 'full']) expect([p.slug, nome, v, existe(fotoSrc(nome, v))]).toEqual([p.slug, nome, v, true]);
-      }
+      expect([p.slug, Boolean(FOTOS[p.foto]?.alt && FOTOS[p.foto]?.altEn)]).toEqual([p.slug, true]);
+      for (const v of ['capa', 'card-sm']) expect([p.slug, p.foto, v, existe(fotoSrc(p.foto, v))]).toEqual([p.slug, p.foto, v, true]);
     }
   });
 
-  test('as imagens dos cartoes da inicial existem', () => {
+  // Pedido do dono: na secção de serviços nenhuma fotografia se repete.
+  test('os cartoes da inicial tem imagens que existem e nenhuma repetida', () => {
+    const vistas = [];
     for (const s of SERVICES) {
-      for (const src of [s.image, s.imageSm, ...(s.metades ?? [])].filter(Boolean)) {
-        expect([s.id, src, existe(src)]).toEqual([s.id, src, true]);
+      const imagens = [s.image, s.imageSm, ...(s.metades ?? [])].filter(Boolean);
+      for (const src of imagens) expect([s.id, src, existe(src)]).toEqual([s.id, src, true]);
+      // A fotografia, sem a variante: card, card-sm e meia são a mesma.
+      vistas.push(...new Set(imagens.map((src) => src.replace(/-(card-sm|card|meia).webp$/, ''))));
+    }
+    const repetidas = vistas.filter((v, i) => vistas.indexOf(v) !== i);
+    expect(repetidas).toEqual([]);
+  });
+
+  test('os pares de resultados existem e tem descricao', () => {
+    for (const p of PARES) {
+      for (const nome of [p.antes, p.depois]) {
+        expect([nome, Boolean(FOTOS[nome]?.alt && FOTOS[nome]?.altEn)]).toEqual([nome, true]);
+        for (const v of ['mini', 'full']) expect([nome, v, existe(fotoSrc(nome, v))]).toEqual([nome, v, true]);
       }
     }
   });

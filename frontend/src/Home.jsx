@@ -4,6 +4,7 @@ import React, { useEffect, useState, lazy, Suspense } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Services from './components/Services';
+import Resultados from './components/Resultados';
 import AboutSection from './components/AboutSection';
 import Process from './components/Process';
 import Testimonials from './components/Testimonials';
@@ -33,6 +34,7 @@ export default function Home() {
         <Hero onBook={() => setBooking(true)} />
         <Testimonials />
         <Services />
+        <Resultados />
         <AboutSection />
         <Process />
         <Faq />

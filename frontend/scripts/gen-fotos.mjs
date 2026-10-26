@@ -34,38 +34,37 @@ const VARIANTES = {
   full: { largura: 1600 }, // em tamanho completo, na galeria
 };
 
+// Cada fotografia aparece uma vez só na secção de serviços da inicial; fora
+// dela (cabeçalhos das páginas, oficina, resultados) pode repetir-se.
 const FOTOS = [
-  { nome: 'porsche-frente', original: 'exec-76a899b7-8a94-4ca2-8e90-e1ece06f6c94.png', fy: 0.7, variantes: ['mini', 'full'] },
-  { nome: 'instalacoes', original: 'B8063F8E-DB72-48C4-B34F-C881BFBBD0DA.jpeg', fy: 0.55, variantes: ['retrato', 'card', 'full'] },
+  { nome: 'porsche-frente', original: 'exec-76a899b7-8a94-4ca2-8e90-e1ece06f6c94.png', fy: 0.75, variantes: ['card', 'card-sm', 'capa'] },
+  { nome: 'instalacoes', original: 'B8063F8E-DB72-48C4-B34F-C881BFBBD0DA.jpeg', fy: 0.55, variantes: ['retrato', 'card', 'card-sm', 'capa', 'full'] },
   { nome: 'entrada', original: '5C757988-ACED-4055-9A26-9DF02AB2DC5E.jpeg', fy: 0.5, variantes: ['card', 'full'] },
 
-  { nome: 'bmw-espuma', original: 'exec-1aae5891-d9b5-452f-b766-e88e8db16a69.png', fy: 0.62, variantes: ['card', 'card-sm', 'capa', 'mini', 'full'] },
-  { nome: 'bmw-frente', original: 'exec-803f184f-99f9-4206-bf9c-7d145ee3eba0.png', fy: 0.52, variantes: ['card', 'card-sm', 'capa', 'mini', 'full'] },
-  { nome: 'bmw-interior', original: 'exec-455ab8ad-9872-4ba2-b50d-7844100f9cd7.png', fy: 0.5, variantes: ['mini', 'full'] },
-  { nome: 'bmw-volante', original: 'exec-5c236247-ebf9-4db0-a9f0-210704b20a01.png', fy: 0.5, variantes: ['mini', 'full'] },
+  { nome: 'bmw-espuma', original: 'exec-1aae5891-d9b5-452f-b766-e88e8db16a69.png', fy: 0.62, variantes: ['card', 'card-sm', 'capa'] },
+  { nome: 'bmw-frente', original: 'exec-803f184f-99f9-4206-bf9c-7d145ee3eba0.png', fy: 0.52, variantes: ['card', 'card-sm', 'capa'] },
+  { nome: 'bmw-interior', original: 'exec-455ab8ad-9872-4ba2-b50d-7844100f9cd7.png', fy: 0.45, variantes: ['card', 'card-sm'] },
+  { nome: 'bmw-volante', original: 'exec-5c236247-ebf9-4db0-a9f0-210704b20a01.png', fy: 0.5, variantes: ['card', 'card-sm'] },
 
   { nome: 'megane-interior', original: 'exec-62be33f6-a4f1-4b25-b7e9-f86abc47a69f.png', fy: 0.55, par: { x: 0, y: 0.4, l: 0.8 }, variantes: ['meia', 'card-sm', 'capa', 'mini', 'full'] },
-  { nome: 'porsche-traseira', original: 'exec-19871a79-e323-40b2-8408-e132e83eb77b.png', fy: 0.55, variantes: ['meia', 'mini', 'full'] },
-  { nome: 'porsche-interior', original: 'exec-658ca457-26bc-4134-985c-917979be15eb.png', fy: 0.55, variantes: ['card', 'card-sm', 'capa', 'mini', 'full'] },
+  { nome: 'porsche-traseira', original: 'exec-19871a79-e323-40b2-8408-e132e83eb77b.png', fy: 0.55, variantes: ['meia', 'card-sm', 'capa'] },
+  { nome: 'porsche-interior', original: 'exec-658ca457-26bc-4134-985c-917979be15eb.png', fy: 0.55, variantes: ['card', 'card-sm', 'capa'] },
+  { nome: 'megane-depois', original: 'exec-d3bb0038-5dbf-4da1-97be-678e3591f27a.png', fy: 0.5, variantes: ['card', 'card-sm'] },
 
-  { nome: 'farol-maquina', original: 'exec-20b4e562-cdf8-407b-9021-3ba1e56bdf95.png', fy: 0.36, variantes: ['card', 'card-sm', 'capa', 'mini', 'full'] },
-  { nome: 'farol-colaborador', original: 'exec-49ffee05-eba7-401f-98d8-631d32e6256d.png', fy: 0.45, variantes: ['mini', 'full'] },
+  { nome: 'farol-maquina', original: 'exec-20b4e562-cdf8-407b-9021-3ba1e56bdf95.png', fy: 0.36, variantes: ['card', 'card-sm', 'capa'] },
+  { nome: 'farol-colaborador', original: 'exec-49ffee05-eba7-401f-98d8-631d32e6256d.png', fy: 0.5, variantes: ['card', 'card-sm', 'capa'] },
 
-  // Antes e depois, cinco pares do mesmo carro. O alinhamento de cada um está
-  // no `par` (ver o topo).
+  // Antes e depois, os quatro pares da secção de resultados. O alinhamento de
+  // cada um está no `par` (ver o topo).
   // O farol: o mesmo, mais de lado no depois; ficam à mesma altura.
   { nome: 'farol-antes', original: 'exec-46de28ad-9d9e-40a7-97f5-54a17e5a332d.png', par: { x: 0, y: 0.145, l: 1 }, variantes: ['mini', 'full'] },
-  { nome: 'farol-depois', original: 'exec-b3621090-8806-4040-8971-948cb96bfa57.png', par: { x: 0, y: 0, l: 1 }, variantes: ['mini', 'full'] },
-  // Mégane visto da porta do condutor: sem bancos, e montado. O antes foi
-  // tirado de mais longe; aproxima-se o que dá sem perder a alcatifa suja.
-  { nome: 'megane-antes', original: 'exec-abf9cab0-cb51-40e9-8fb1-e90b781e0c9e.png', par: { x: 0.03, y: 0.08, l: 0.85 }, variantes: ['mini', 'full'] },
-  { nome: 'megane-depois', original: 'exec-d3bb0038-5dbf-4da1-97be-678e3591f27a.png', par: { x: 0, y: 0.17, l: 1 }, variantes: ['mini', 'full'] },
-  // O mesmo Mégane, a consola e o chão do condutor: a alavanca no mesmo sítio.
+  { nome: 'farol-depois', original: 'exec-b3621090-8806-4040-8971-948cb96bfa57.png', fy: 0.38, par: { x: 0, y: 0, l: 1 }, variantes: ['card', 'card-sm', 'capa', 'mini', 'full'] },
+  // Mégane, a consola e o chão do condutor: a alavanca no mesmo sítio. O
+  // depois é a megane-interior, mais acima.
   { nome: 'megane-consola-antes', original: 'exec-5a849776-82da-4b08-9659-58342a656ac0.png', par: { x: 0.3, y: 0.02, l: 0.7 }, variantes: ['mini', 'full'] },
-  // O depois deste par é a megane-interior, mais acima: `par` na miniatura.
   // Renault mais antigo, zona do condutor: o volante no mesmo sítio.
   { nome: 'renault-condutor-antes', original: 'exec-e5e55aea-c7fd-4116-b84c-1b6a97f6b7e4.png', par: { x: 0.28, y: 0.21, l: 0.72 }, variantes: ['mini', 'full'] },
-  { nome: 'renault-condutor-depois', original: 'exec-6635b541-9597-4e7a-b840-9916e61647ac.png', par: { x: 0.07, y: 0.16, l: 0.72 }, variantes: ['mini', 'full'] },
+  { nome: 'renault-condutor-depois', original: 'exec-6635b541-9597-4e7a-b840-9916e61647ac.png', fy: 0.5, par: { x: 0.07, y: 0.16, l: 0.72 }, variantes: ['card-sm', 'capa', 'mini', 'full'] },
   // E a zona do passageiro: o tablier e o porta-luvas à mesma altura.
   { nome: 'renault-passageiro-antes', original: 'exec-48e34a4d-cd47-4618-a864-463fdc8c468b.png', par: { x: 0, y: 0.09, l: 0.9 }, variantes: ['mini', 'full'] },
   { nome: 'renault-passageiro-depois', original: 'exec-b569c699-5a07-4284-92d0-57c3897452ac.png', par: { x: 0.1, y: 0.03, l: 0.9 }, variantes: ['mini', 'full'] },

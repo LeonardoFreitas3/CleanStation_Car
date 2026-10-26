@@ -59,9 +59,10 @@ const lavagem = (levelId, extra) => {
 
 export const SERVICES = [
   // ── LAVAGENS ──────────────────────────────────────────────────────────────
-  // As lavagens e os farois dianteiros ja tem fotografias da oficina; `imageSm`
-  // e a versao para os cartoes no telemovel. A Detalhada Interior ou Exterior
-  // mostra as duas areas lado a lado, uma por metade do cartao.
+  // Todos os cartoes tem fotografias da oficina, e nenhuma se repete nesta
+  // seccao (o servicePages.test confirma). `imageSm` e a versao para os
+  // cartoes no telemovel. A Detalhada Interior ou Exterior mostra as duas areas
+  // lado a lado, uma por metade do cartao.
   lavagem('simples', { id: 'lavagem-simples', icon: Droplets, image: fotoSrc('bmw-espuma', 'card'), imageSm: fotoSrc('bmw-espuma', 'card-sm') }),
   lavagem('premium', { id: 'lavagem-premium', icon: ShieldPlus, image: fotoSrc('bmw-frente', 'card'), imageSm: fotoSrc('bmw-frente', 'card-sm') }),
   lavagem('detalhada-parcial', { id: 'lavagem-detalhada-interior-ou-exterior', icon: Sparkles, image: fotoSrc('megane-interior', 'card-sm'), metades: [fotoSrc('megane-interior', 'meia'), fotoSrc('porsche-traseira', 'meia')] }),
@@ -81,7 +82,8 @@ export const SERVICES = [
     title: 'POLIMENTO DE 1 ETAPA',
     desc: 'Para devolver o brilho e atenuar marcas ligeiras de lavagem e pequenos defeitos. Inclui lavagem detalhada exterior.',
     icon: Wrench,
-    image: `${process.env.PUBLIC_URL}/img/polimento-sm.webp`,
+    image: fotoSrc('porsche-frente', 'card'),
+    imageSm: fotoSrc('porsche-frente', 'card-sm'),
     includes: [
       'Atenua marcas ligeiras e riscos superficiais',
       'Reduz hologramas',
@@ -97,7 +99,8 @@ export const SERVICES = [
     title: 'POLIMENTO DE CORREÇÃO AVANÇADA',
     desc: 'Várias etapas para riscos, marcas circulares e oxidação mais evidentes, respeitando os limites do verniz. Inclui lavagem detalhada exterior.',
     icon: Gem,
-    image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp`,
+    image: fotoSrc('farol-colaborador', 'card'),
+    imageSm: fotoSrc('farol-colaborador', 'card-sm'),
     includes: [
       'Reduz riscos e marcas circulares mais evidentes',
       'Corrige oxidação, até onde o verniz permite',
@@ -130,7 +133,8 @@ export const SERVICES = [
     title: 'POLIMENTO DE FARÓIS TRASEIROS (PAR)',
     desc: 'Recupera o aspeto das luzes traseiras, removendo opacidade e riscos superficiais.',
     icon: CircleDot,
-    image: `${process.env.PUBLIC_URL}/img/farois-traseiros-sm.webp`,
+    image: fotoSrc('farol-depois', 'card'),
+    imageSm: fotoSrc('farol-depois', 'card-sm'),
     includes: [
       'Remove desgaste e opacidade',
       'Atenua riscos superficiais',
@@ -151,7 +155,8 @@ export const SERVICES = [
     desc: 'Camada de proteção duradoura aplicada sobre a pintura, que cria uma barreira contra agressões externas.',
     price: 250,
     icon: ShieldCheck,
-    image: `${process.env.PUBLIC_URL}/img/proteção-sm.webp`,
+    image: fotoSrc('instalacoes', 'card'),
+    imageSm: fotoSrc('instalacoes', 'card-sm'),
     includes: [
       'Proteção contra os raios UV',
       'Proteção contra sujidade e químicos',
@@ -189,7 +194,8 @@ export const SERVICES = [
     desc: 'Duas lavagens com selante por mês, com prioridade na marcação',
     price: 60,
     icon: ShieldCheck,
-    image: `${process.env.PUBLIC_URL}/img/proteção-sm.webp`,
+    image: fotoSrc('bmw-volante', 'card'),
+    imageSm: fotoSrc('bmw-volante', 'card-sm'),
     includes: [
       'Duas lavagens com selante por mês',
       'Tudo o que inclui a Lavagem Simples, com selante',
@@ -204,7 +210,8 @@ export const SERVICES = [
     desc: 'Duas lavagens premium por mês, com prioridade na marcação',
     price: 125,
     icon: ShieldPlus,
-    image: `${process.env.PUBLIC_URL}/img/ceramica-longa-sm.webp`,
+    image: fotoSrc('bmw-interior', 'card'),
+    imageSm: fotoSrc('bmw-interior', 'card-sm'),
     includes: [
       'Duas lavagens premium por mês',
       'Tudo o que inclui a lavagem premium',
@@ -219,7 +226,8 @@ export const SERVICES = [
     desc: 'Duas lavagens detalhadas por mês, com prioridade na marcação',
     price: 330,
     icon: Car,
-    image: `${process.env.PUBLIC_URL}/img/detail-sm.webp`,
+    image: fotoSrc('megane-depois', 'card'),
+    imageSm: fotoSrc('megane-depois', 'card-sm'),
     includes: [
       'Duas lavagens detalhadas por mês',
       'Tudo o que inclui a lavagem detalhada',

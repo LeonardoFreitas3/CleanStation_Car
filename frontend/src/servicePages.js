@@ -23,14 +23,11 @@ import { EN_PAGES } from './servicePagesEn';
  * uma lista, ou parágrafos — os que existirem. Sem isto cada página inventava a
  * sua própria estrutura e a componente virava um monte de casos especiais.
  *
- * As fotografias são nomes do fotos.js, todas reais, da oficina:
- *   `foto`        o fundo do cabeçalho e a miniatura em "Outros serviços" — a
- *                 mesma do cartão da inicial, para quem carregou nele reconhecer
- *                 onde chegou. Sem ela fica a imagem antiga, do paginasSeo.json.
- *   `galeria`     as outras fotografias do serviço, sem repetir a `foto`.
- *   `antesDepois` pares do mesmo carro, `{ antes, depois }`. Vazio, a secção
- *                 não aparece — nada de molduras vazias nem imagens de banco.
- * O servicePages.test confirma que os ficheiros existem.
+ * `foto` é um nome do fotos.js, uma fotografia real da oficina: o fundo do
+ * cabeçalho e a miniatura em "Outros serviços". Nas páginas com cartão na
+ * inicial é a mesma do cartão, para quem carregou nele reconhecer onde chegou.
+ * O servicePages.test confirma que os ficheiros existem. Os antes e depois
+ * vivem numa secção só, na inicial (Resultados.jsx).
  */
 const PAGINAS = [
   {
@@ -41,7 +38,6 @@ const PAGINAS = [
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-simples',
     foto: 'bmw-espuma',
-    galeria: ['bmw-frente', 'bmw-interior', 'bmw-volante'],
     h1: 'Lavagem Automóvel em Braga',
     intro: [
       'Uma solução completa para a manutenção do teu veículo, com limpeza manual do exterior, cuidado do interior e selante na pintura.',
@@ -124,7 +120,6 @@ const PAGINAS = [
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-premium',
     foto: 'bmw-frente',
-    galeria: ['bmw-espuma', 'bmw-interior', 'bmw-volante'],
     h1: 'Lavagem Premium de Automóveis em Braga',
     intro: [
       'Um serviço pensado para quem procura um nível de limpeza superior ao de uma lavagem convencional.',
@@ -205,7 +200,6 @@ const PAGINAS = [
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-detalhada',
     foto: 'porsche-interior',
-    galeria: ['porsche-traseira', 'porsche-frente'],
     h1: 'Lavagem Detalhada de Automóveis em Braga',
     intro: [
       'O nosso serviço mais completo de limpeza automóvel, desenvolvido para uma recuperação profunda do interior e exterior do veículo.',
@@ -253,10 +247,6 @@ const PAGINAS = [
         ],
       },
     ],
-    antesDepois: [
-      { antes: 'megane-antes', depois: 'megane-depois' },
-      { antes: 'megane-consola-antes', depois: 'megane-interior' },
-    ],
     cta: 'Marcar Lavagem Detalhada Interior + Exterior',
     faq: [
       {
@@ -290,7 +280,6 @@ const PAGINAS = [
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-detalhada-interior-ou-exterior',
     foto: 'megane-interior',
-    galeria: ['porsche-traseira', 'megane-depois'],
     // O texto e o da Lavagem Detalhada, dividido pelas duas areas: nao se faz
     // aqui nada que la nao se faca.
     h1: 'Lavagem Detalhada Interior ou Exterior em Braga',
@@ -331,10 +320,6 @@ const PAGINAS = [
         paragrafos: ['A duração média é de aproximadamente 4 horas num carro, em qualquer das duas áreas. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação.'],
       },
     ],
-    antesDepois: [
-      { antes: 'renault-condutor-antes', depois: 'renault-condutor-depois' },
-      { antes: 'renault-passageiro-antes', depois: 'renault-passageiro-depois' },
-    ],
     cta: 'Marcar Lavagem Detalhada Interior ou Exterior',
     faq: [
       {
@@ -365,6 +350,7 @@ const PAGINAS = [
   // diferentes, e o polimento é orçamentado à vista.
   {
     slug: 'detalhe-automovel-braga',
+    foto: 'porsche-traseira',
     nome: 'Detalhe Automóvel',
     h1: 'Detalhe Automóvel em Braga',
     intro: [
@@ -437,6 +423,7 @@ const PAGINAS = [
 
   {
     slug: 'limpeza-interior-automovel-braga',
+    foto: 'renault-condutor-depois',
     nome: 'Limpeza Interior',
     h1: 'Limpeza Interior Automóvel em Braga',
     intro: [
@@ -498,13 +485,6 @@ const PAGINAS = [
         ],
       },
     ],
-    // Os quatro pares de interior: é a página onde o resultado mais conta.
-    antesDepois: [
-      { antes: 'megane-antes', depois: 'megane-depois' },
-      { antes: 'megane-consola-antes', depois: 'megane-interior' },
-      { antes: 'renault-condutor-antes', depois: 'renault-condutor-depois' },
-      { antes: 'renault-passageiro-antes', depois: 'renault-passageiro-depois' },
-    ],
     cta: 'Marcar limpeza',
     faq: [
       {
@@ -524,6 +504,7 @@ const PAGINAS = [
 
   {
     slug: 'polimento-automovel-braga',
+    foto: 'farol-depois',
     nome: 'Polimento Automóvel',
     // Os polimentos não se marcam online: o botão abre o WhatsApp, como a
     // ficha deles na página inicial.
@@ -595,7 +576,6 @@ const PAGINAS = [
         ],
       },
     ],
-    antesDepois: [],
     cta: 'Pedir orçamento por WhatsApp',
     faq: [
       {
@@ -619,6 +599,7 @@ const PAGINAS = [
 
   {
     slug: 'polimento-1-etapa-braga',
+    foto: 'porsche-frente',
     serviceId: 'polimento-1-etapa',
     nome: 'Polimento de 1 Etapa',
     whatsapp: true,
@@ -668,7 +649,6 @@ const PAGINAS = [
         ],
       },
     ],
-    antesDepois: [],
     cta: 'Pedir orçamento por WhatsApp',
     faq: [
       {
@@ -688,6 +668,7 @@ const PAGINAS = [
 
   {
     slug: 'correcao-pintura-braga',
+    foto: 'farol-colaborador',
     serviceId: 'polimento-avancado',
     nome: 'Polimento de Correção Avançada',
     whatsapp: true,
@@ -737,7 +718,6 @@ const PAGINAS = [
         ],
       },
     ],
-    antesDepois: [],
     cta: 'Pedir orçamento por WhatsApp',
     faq: [
       {
@@ -762,8 +742,6 @@ const PAGINAS = [
     // Cada cartão da inicial abre a sua secção: o id da secção, por cartão.
     ancoras: { 'farois-dianteiros': 'dianteiros', 'farois-traseiros': 'traseiros' },
     foto: 'farol-maquina',
-    galeria: ['farol-colaborador'],
-    antesDepois: [{ antes: 'farol-antes', depois: 'farol-depois' }],
     nome: 'Polimento de Faróis',
     whatsapp: true,
     ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos o estado dos faróis e damos-te o orçamento.',
@@ -830,6 +808,7 @@ const PAGINAS = [
 
   {
     slug: 'protecao-ceramica-braga',
+    foto: 'instalacoes',
     serviceId: 'ceramica',
     nome: 'Proteção Cerâmica Profissional',
     // Não se marca online: o botão abre o WhatsApp, como nos polimentos.
@@ -876,7 +855,6 @@ const PAGINAS = [
         ],
       },
     ],
-    antesDepois: [],
     cta: 'Pedir orçamento por WhatsApp',
     faq: [
       {
@@ -905,14 +883,14 @@ export const SERVICE_PAGES = PAGINAS.map((p) => {
   if (!seo) throw new Error(`Falta o SEO de ${p.slug} no paginasSeo.json`);
   const en = EN_PAGES[p.slug];
   if (!en) throw new Error(`Falta a traducao de ${p.slug} no servicePagesEn.js`);
-  // A página mostra o WebP; as pré-visualizações (og:image) levam o JPG, que é
-  // o que o WhatsApp e o Facebook leem sem surpresas.
+  // A página mostra a fotografia da oficina; as pré-visualizações (og:image)
+  // continuam a levar o JPG do paginasSeo.json.
   return {
     ...p, ...seo, en,
     ogImage: seo.image,
-    image: p.foto ? fotoSrc(p.foto, 'capa') : `${process.env.PUBLIC_URL}/img/${seo.image.replace(/\.jpg$/, '.webp')}`,
+    image: fotoSrc(p.foto, 'capa'),
     // Os cartões mostram a imagem a 300-400px: a de 1600 era o triplo do peso.
-    thumb: p.foto ? fotoSrc(p.foto, 'card-sm') : `${process.env.PUBLIC_URL}/img/${seo.image.replace(/\.jpg$/, '-sm.webp')}`,
+    thumb: fotoSrc(p.foto, 'card-sm'),
   };
 });
 
