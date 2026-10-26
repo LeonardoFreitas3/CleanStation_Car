@@ -34,8 +34,8 @@ export default function Home() {
         <Hero onBook={() => setBooking(true)} />
         <Testimonials />
         <Services />
-        <Resultados />
         <AboutSection />
+        <Resultados />
         <Process />
         <Faq />
         <ContactMap />

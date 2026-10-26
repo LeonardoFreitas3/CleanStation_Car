@@ -5,7 +5,7 @@ import Lightbox from './Lightbox';
 
 // Trabalhos reais, antes e depois. Uma secção só, na inicial, sem entrada no
 // menu nem botão a mandar para outro sítio: é para ver de passagem, a seguir
-// aos serviços. O recorte de cada par está acertado no gen-fotos.mjs para as
+// ao "Sobre nós". O recorte de cada par está acertado no gen-fotos.mjs para as
 // duas fotografias encaixarem.
 export const PARES = [
   { titulo: 'Polimento de faróis', tituloEn: 'Headlight polishing', antes: 'farol-antes', depois: 'farol-depois' },

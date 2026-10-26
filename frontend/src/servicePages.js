@@ -599,7 +599,7 @@ const PAGINAS = [
 
   {
     slug: 'polimento-1-etapa-braga',
-    foto: 'porsche-frente',
+    foto: 'instalacoes',
     serviceId: 'polimento-1-etapa',
     nome: 'Polimento de 1 Etapa',
     whatsapp: true,
@@ -808,7 +808,7 @@ const PAGINAS = [
 
   {
     slug: 'protecao-ceramica-braga',
-    foto: 'instalacoes',
+    foto: 'porsche-frente',
     serviceId: 'ceramica',
     nome: 'Proteção Cerâmica Profissional',
     // Não se marca online: o botão abre o WhatsApp, como nos polimentos.
