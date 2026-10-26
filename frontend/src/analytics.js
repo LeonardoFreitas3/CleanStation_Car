@@ -10,7 +10,7 @@
 // Só uma conversão de marcação, de propósito. Se o REACT_APP_ADS_CONVERSION
 // estiver definido, a conversão é enviada directamente ao Ads com o id da
 // reserva como transaction_id; nesse caso NÃO se importa o evento
-// booking_confirmed do GA4 para o Ads, senão conta duas vezes. Sem rótulo,
+// booking_completed do GA4 para o Ads, senão conta duas vezes. Sem rótulo,
 // importa-se o evento do GA4 e é o Ads que o desduplica.
 //
 // Consent Mode v2: a etiqueta só carrega depois de o visitante aceitar os
@@ -127,7 +127,7 @@ export function trackBookingConfirmed({ reference, value }) {
   }
   if (!window.gtag) return;
   const comum = { transaction_id: id, value, currency: 'EUR' };
-  if (GA_ID) window.gtag('event', 'booking_confirmed', comum);
+  if (GA_ID) window.gtag('event', 'booking_completed', comum);
   if (ADS_ID && ADS_CONVERSION) {
     window.gtag('event', 'conversion', { ...comum, send_to: `${ADS_ID}/${ADS_CONVERSION}` });
   }
@@ -145,7 +145,7 @@ function ouvirContactos() {
     const a = e.target.closest?.('a[href]');
     if (!a) return;
     const href = a.getAttribute('href') || '';
-    if (href.startsWith('https://wa.me/')) track('contact_whatsapp', { page_path: window.location.pathname });
-    else if (href.startsWith('tel:')) track('contact_phone', { page_path: window.location.pathname });
+    if (href.startsWith('https://wa.me/')) track('whatsapp_click', { page_path: window.location.pathname });
+    else if (href.startsWith('tel:')) track('phone_click', { page_path: window.location.pathname });
   }, { capture: true, passive: true });
 }

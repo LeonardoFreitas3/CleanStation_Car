@@ -148,6 +148,7 @@ export const EN_PAGES = {
         heading: 'Who it is for',
         paragrafos: [
           'For every kind of vehicle, and for customers who want a deeper, more detailed clean without going all the way to a full detail.',
+          'If the interior needs deep sanitising, with the seats removed, see the [Detailed Wash Interior + Exterior](/lavagem-detalhada-braga/).',
         ],
       },
     ],
@@ -221,6 +222,7 @@ export const EN_PAGES = {
         paragrafos: [
           'For vehicles that need a deep clean, and for customers who want the highest level of care and detail on their car.',
           'It is especially suited to vehicles with built-up dirt, interiors that need deep sanitising, or cars that have not had a detailed treatment in a long time.',
+          'The wash cleans and protects the paint, but it does not correct scratches or marks. For that, see our [car polishing in Braga](/polimento-automovel-braga/).',
         ],
       },
     ],
@@ -500,11 +502,21 @@ export const EN_PAGES = {
         nota: 'Includes a detailed exterior wash. See everything it includes in [Advanced Paint Correction in Braga](/correcao-pintura-braga/).',
       },
       {
+        id: 'comparar',
         heading: 'Which one to choose?',
-        grupos: [
-          { titulo: '1-Stage Polishing', items: ['To improve the shine and correct light defects.'] },
-          { titulo: 'Advanced Correction', items: ['For more damaged paint that needs deeper correction.'] },
-        ],
+        comparacao: {
+          colunas: [
+            { titulo: '1-Stage Polishing' },
+            { titulo: 'Advanced Correction' },
+          ],
+          linhas: [
+            { rotulo: 'Suited to', valores: ['Paint in good overall condition that lacks shine or has light wash marks', 'More marked paint, with visible scratches, swirls or oxidation'] },
+            { rotulo: 'Defects it treats', valores: ['Light marks, loss of shine and small defects', 'Scratches, swirl marks, oxidation and more visible defects'] },
+            { rotulo: 'Correction stages', valores: ['One', 'Several, according to the condition of the paint'] },
+            { rotulo: 'Result', valores: ['More shine and colour depth, with light marks softened', 'More visible defects reduced or removed, as far as the clear coat allows'] },
+            { rotulo: 'Includes', valores: ['Detailed exterior wash, decontamination, polishing, finish and protection', 'Detailed exterior wash, decontamination, multi-stage correction, refinement and final protection'] },
+          ],
+        },
         nota: 'The recommended level of correction is set after assessing the condition of the vehicle’s paint.',
       },
       {
@@ -517,11 +529,12 @@ export const EN_PAGES = {
       {
         heading: 'Related services',
         paragrafos: [
+          'To protect the paint once it has been corrected, see our [ceramic protection in Braga](/protecao-ceramica-braga/).',
           'For yellowed or hazy headlights, see our [headlight polishing in Braga](/polimento-farois-braga/). To keep the result, our [car wash in Braga](/lavagem-automovel-braga/) or [car detailing in Braga](/detalhe-automovel-braga/).',
         ],
       },
     ],
-    cta: 'Book an assessment',
+    cta: 'Get a quote on WhatsApp',
     faq: [
       {
         q: 'How much does car polishing cost?',
@@ -585,10 +598,11 @@ export const EN_PAGES = {
         heading: 'Other polishing services',
         paragrafos: [
           'For more damaged paint, with visible scratches, swirls or oxidation, see [Advanced Paint Correction in Braga](/correcao-pintura-braga/). All our polishing in [Car Polishing in Braga](/polimento-automovel-braga/).',
+          'To protect the paint after polishing, see our [ceramic protection in Braga](/protecao-ceramica-braga/).',
         ],
       },
     ],
-    cta: 'Book an assessment',
+    cta: 'Get a quote on WhatsApp',
     faq: [
       {
         q: 'What kind of paint is 1-Stage Polishing for?',
@@ -650,10 +664,11 @@ export const EN_PAGES = {
         heading: 'Other polishing services',
         paragrafos: [
           'To improve the shine and correct light defects, see [1-Stage Polishing in Braga](/polimento-1-etapa-braga/). All our polishing in [Car Polishing in Braga](/polimento-automovel-braga/).',
+          'To protect the paint after the correction, see our [ceramic protection in Braga](/protecao-ceramica-braga/).',
         ],
       },
     ],
-    cta: 'Book an assessment',
+    cta: 'Get a quote on WhatsApp',
     faq: [
       {
         q: 'When is advanced correction needed?',
@@ -749,6 +764,13 @@ export const EN_PAGES = {
     ],
     sections: [
       {
+        heading: 'What ceramic protection is',
+        paragrafos: [
+          'It is a layer applied over the paint that acts as a barrier against UV rays, dirt and chemicals. The paint gains shine, repels water and the car becomes easier to clean.',
+          'It protects the paint, but it does not make it scratch-proof.',
+        ],
+      },
+      {
         heading: "What's included",
         items: [
           'Protection against UV rays',
@@ -760,13 +782,20 @@ export const EN_PAGES = {
         ],
       },
       {
+        heading: 'Ceramic protection or sealant?',
+        paragrafos: [
+          'Sealant is the protection our washes apply to the paint: it adds shine, a hydrophobic effect and extra protection. It comes with the [Basic Wash](/lavagem-automovel-braga/) and, in a premium version, with the [Premium Wash](/lavagem-premium-braga/).',
+          'Ceramic protection is a separate service, with a layer designed to protect the paint for much longer.',
+        ],
+      },
+      {
         heading: 'Related services',
         paragrafos: [
           'See also our [car polishing in Braga](/polimento-automovel-braga/) and [car detailing in Braga](/detalhe-automovel-braga/).',
         ],
       },
     ],
-    cta: 'Get a quote',
+    cta: 'Get a quote on WhatsApp',
     faq: [
       {
         q: 'How much does ceramic protection cost?',

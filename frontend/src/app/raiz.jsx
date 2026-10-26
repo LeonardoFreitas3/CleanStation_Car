@@ -26,8 +26,8 @@ export const metadata = {
   other: {
     'geo.region': 'PT-03',
     'geo.placename': 'Braga',
-    'geo.position': '41.5454;-8.4265',
-    ICBM: '41.5454, -8.4265',
+    'geo.position': '41.54243;-8.42396',
+    ICBM: '41.54243, -8.42396',
   },
 };
 

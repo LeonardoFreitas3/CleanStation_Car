@@ -21,6 +21,13 @@ import { EN_PAGES } from './servicePagesEn';
  * Uma secção é sempre a mesma forma: um título, e depois uma frase de entrada,
  * uma lista, ou parágrafos — os que existirem. Sem isto cada página inventava a
  * sua própria estrutura e a componente virava um monte de casos especiais.
+ *
+ * `antesDepois` são as fotografias reais de antes e depois. Vazio, a secção não
+ * aparece — nada de molduras vazias nem imagens de banco. Para pôr uma: os
+ * dois ficheiros em public/img/antes-depois/ e uma linha
+ * `{ antes: 'x-antes.webp', depois: 'x-depois.webp', alt: 'Capot de um ...' }`
+ * (com `altEn` para o inglês). O servicePages.test confirma que os ficheiros
+ * existem.
  */
 const PAGINAS = [
   {
@@ -158,6 +165,7 @@ const PAGINAS = [
         heading: 'Para quem é indicada',
         paragrafos: [
           'Indicada para todo o tipo de veículos e para clientes que procuram uma limpeza mais profunda e detalhada, sem necessidade de recorrer ao serviço de detalhe completo.',
+          'Se o interior precisa de uma higienização a fundo, com remoção dos bancos, vê a [Lavagem Detalhada Interior + Exterior](/lavagem-detalhada-braga/).',
         ],
       },
     ],
@@ -232,9 +240,11 @@ const PAGINAS = [
         paragrafos: [
           'Indicada para veículos que necessitam de uma limpeza profunda e para clientes que procuram o nível máximo de cuidado e detalhe na limpeza do teu veículo.',
           'É especialmente indicada para veículos com sujidade acumulada, interiores que necessitam de uma higienização profunda ou veículos que não recebem um tratamento detalhado há bastante tempo.',
+          'A lavagem limpa e protege a pintura, mas não corrige riscos nem marcas. Para isso, vê o [polimento automóvel em Braga](/polimento-automovel-braga/).',
         ],
       },
     ],
+    antesDepois: [],
     cta: 'Marcar Lavagem Detalhada Interior + Exterior',
     faq: [
       {
@@ -307,6 +317,7 @@ const PAGINAS = [
         paragrafos: ['A duração média é de aproximadamente 4 horas num carro, em qualquer das duas áreas. SUV, monovolumes e carrinhas grandes demoram mais, e a estimativa aparece na marcação.'],
       },
     ],
+    antesDepois: [],
     cta: 'Marcar Lavagem Detalhada Interior ou Exterior',
     faq: [
       {
@@ -493,6 +504,12 @@ const PAGINAS = [
     // Os polimentos não se marcam online: o botão abre o WhatsApp, como a
     // ficha deles na página inicial.
     whatsapp: true,
+    // A mensagem que o dono pediu para os polimentos, em vez do "orçamento
+    // para: <serviço>" das outras páginas: convida a mandar fotografias.
+    mensagem: 'whatsapp.polish',
+    // Um terceiro botão a meio, depois da secção com este índice: quem leu a
+    // explicação não tem de descer até ao fim para pedir o orçamento.
+    ctaApos: 2,
     ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-te o orçamento.',
     h1: 'Polimento Automóvel em Braga',
     intro: [
@@ -518,12 +535,24 @@ const PAGINAS = [
         ],
         nota: 'Inclui lavagem detalhada exterior. Vê tudo o que inclui na [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/).',
       },
+      // O texto da tabela é o das páginas de cada polimento, resumido: nada que
+      // lá não esteja. O "desde" não se escreve aqui, vem do `servico` (mock.js).
       {
+        id: 'comparar',
         heading: 'Qual escolher?',
-        grupos: [
-          { titulo: 'Polimento 1 Etapa', items: ['Para melhorar o brilho e corrigir defeitos ligeiros.'] },
-          { titulo: 'Correção Avançada', items: ['Para pinturas mais danificadas que necessitam de uma correção mais profunda.'] },
-        ],
+        comparacao: {
+          colunas: [
+            { titulo: 'Polimento 1 Etapa', servico: 'polimento-1-etapa' },
+            { titulo: 'Correção Avançada', servico: 'polimento-avancado' },
+          ],
+          linhas: [
+            { rotulo: 'Indicado para', valores: ['Pintura em bom estado geral, com falta de brilho ou marcas ligeiras de lavagem', 'Pintura mais marcada, com riscos visíveis, swirls ou oxidação'] },
+            { rotulo: 'Defeitos que trata', valores: ['Marcas ligeiras, perda de brilho e pequenos defeitos', 'Riscos, marcas circulares, oxidação e defeitos mais evidentes'] },
+            { rotulo: 'Etapas de correção', valores: ['Uma', 'Várias, de acordo com o estado da pintura'] },
+            { rotulo: 'Resultado', valores: ['Mais brilho e profundidade de cor, com as marcas ligeiras atenuadas', 'Defeitos mais evidentes reduzidos ou removidos, até onde o verniz permite'] },
+            { rotulo: 'Inclui', valores: ['Lavagem detalhada exterior, descontaminação, polimento, acabamento e proteção', 'Lavagem detalhada exterior, descontaminação, correção em várias etapas, refinamento e proteção final'] },
+          ],
+        },
         nota: 'O nível de correção recomendado é definido após avaliação do estado da pintura do veículo.',
       },
       {
@@ -537,11 +566,13 @@ const PAGINAS = [
       {
         heading: 'Serviços relacionados',
         paragrafos: [
+          'Para proteger a pintura depois de corrigida, vê a [proteção cerâmica em Braga](/protecao-ceramica-braga/).',
           'Para faróis amarelados ou opacos, vê o nosso [polimento de faróis em Braga](/polimento-farois-braga/). Para manter o resultado, a [lavagem automóvel em Braga](/lavagem-automovel-braga/) ou o [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
         ],
       },
     ],
-    cta: 'Marcar avaliação',
+    antesDepois: [],
+    cta: 'Pedir orçamento por WhatsApp',
     faq: [
       {
         q: 'Quanto custa um polimento automóvel?',
@@ -567,6 +598,8 @@ const PAGINAS = [
     serviceId: 'polimento-1-etapa',
     nome: 'Polimento de 1 Etapa',
     whatsapp: true,
+    mensagem: 'whatsapp.polish',
+    ctaApos: 2,
     ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-te o orçamento.',
     // O botão secundário: comparar com o outro polimento, em vez de "ver
     // preços" de um serviço que não tem preço de tabela.
@@ -607,10 +640,12 @@ const PAGINAS = [
         heading: 'Outros polimentos',
         paragrafos: [
           'Para pinturas mais danificadas, com riscos visíveis, swirls ou oxidação, vê a [Correção Avançada de Pintura em Braga](/correcao-pintura-braga/). Todos os polimentos em [Polimento Automóvel em Braga](/polimento-automovel-braga/).',
+          'Para proteger a pintura depois do polimento, vê a [proteção cerâmica em Braga](/protecao-ceramica-braga/).',
         ],
       },
     ],
-    cta: 'Marcar avaliação',
+    antesDepois: [],
+    cta: 'Pedir orçamento por WhatsApp',
     faq: [
       {
         q: 'Para que tipo de pintura é o Polimento 1 Etapa?',
@@ -632,6 +667,8 @@ const PAGINAS = [
     serviceId: 'polimento-avancado',
     nome: 'Polimento de Correção Avançada',
     whatsapp: true,
+    mensagem: 'whatsapp.polish',
+    ctaApos: 2,
     ctaTexto: 'Envia-nos uma mensagem pelo WhatsApp. Avaliamos a pintura e damos-te o orçamento.',
     comparar: 'polimento-automovel-braga',
     h1: 'Correção Avançada de Pintura em Braga',
@@ -672,10 +709,12 @@ const PAGINAS = [
         heading: 'Outros polimentos',
         paragrafos: [
           'Para melhorar o brilho e corrigir defeitos ligeiros, vê o [Polimento 1 Etapa em Braga](/polimento-1-etapa-braga/). Todos os polimentos em [Polimento Automóvel em Braga](/polimento-automovel-braga/).',
+          'Para proteger a pintura depois da correção, vê a [proteção cerâmica em Braga](/protecao-ceramica-braga/).',
         ],
       },
     ],
-    cta: 'Marcar avaliação',
+    antesDepois: [],
+    cta: 'Pedir orçamento por WhatsApp',
     faq: [
       {
         q: 'Quando é preciso uma correção avançada?',
@@ -774,7 +813,17 @@ const PAGINAS = [
     intro: [
       'Camada de proteção duradoura aplicada sobre a pintura, que cria uma barreira contra agressões externas.',
     ],
+    // "O que é" e "Cerâmica ou selante?" dizem só o que a ficha e as lavagens
+    // já diziam. Preparação, manutenção e durabilidade ficam de fora até o dono
+    // confirmar o produto: não se escreve uma duração que não se conhece.
     sections: [
+      {
+        heading: 'O que é a proteção cerâmica',
+        paragrafos: [
+          'É uma camada aplicada sobre a pintura que fica a fazer de barreira contra os raios UV, a sujidade e os químicos. A pintura ganha brilho, repele a água e o carro fica mais fácil de limpar.',
+          'Protege a pintura, mas não a torna à prova de riscos.',
+        ],
+      },
       {
         heading: 'O que está incluído',
         items: [
@@ -787,13 +836,21 @@ const PAGINAS = [
         ],
       },
       {
+        heading: 'Proteção cerâmica ou selante?',
+        paragrafos: [
+          'O selante é a proteção que as nossas lavagens aplicam na pintura: dá brilho, efeito hidrofóbico e uma proteção adicional. Vem incluído na [Lavagem Simples](/lavagem-automovel-braga/) e, em versão premium, na [Lavagem Premium](/lavagem-premium-braga/).',
+          'A proteção cerâmica é um serviço à parte, com uma camada pensada para proteger a pintura durante muito mais tempo.',
+        ],
+      },
+      {
         heading: 'Serviços relacionados',
         paragrafos: [
           'Vê também o nosso [polimento automóvel em Braga](/polimento-automovel-braga/) e o [detalhe automóvel em Braga](/detalhe-automovel-braga/).',
         ],
       },
     ],
-    cta: 'Pedir orçamento',
+    antesDepois: [],
+    cta: 'Pedir orçamento por WhatsApp',
     faq: [
       {
         q: 'Quanto custa a proteção cerâmica?',

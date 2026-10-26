@@ -7,6 +7,8 @@ import { SERVICE_PAGES, PAGE_BY_SERVICE, PAGE_BY_SLUG, LIGACAO, conteudo, nomeDe
 import { SERVICES } from './mock';
 import { LEVEL_BY_ID, DURATIONS, formatDuration } from './booking/pricing';
 import SEO from './paginasSeo.json';
+import { existsSync } from 'fs';
+import { join } from 'path';
 
 // So as que tem nivel de lavagem tem preco, duracao e cartao na inicial.
 const COM_NIVEL = SERVICE_PAGES.filter((p) => p.levelId);
@@ -84,6 +86,45 @@ describe('paginas de servico', () => {
         const p = conteudo(PAGE_BY_SLUG[cadeia[i]], lingua);
         expect([cadeia[i], lingua, JSON.stringify(p.sections).includes(`(/${cadeia[i + 1]}/)`)]).toEqual([cadeia[i], lingua, true]);
       }
+    }
+  });
+
+  // A cadeia que o dono pediu em outubro de 2026, de serviço em serviço.
+  test('cada servico leva ao seguinte: simples, premium, detalhada, polimento, ceramica', () => {
+    const cadeia = ['lavagem-automovel-braga', 'lavagem-premium-braga', 'lavagem-detalhada-braga', 'polimento-automovel-braga', 'protecao-ceramica-braga'];
+    for (let i = 0; i < cadeia.length - 1; i += 1) {
+      for (const lingua of ['pt', 'en']) {
+        const p = conteudo(PAGE_BY_SLUG[cadeia[i]], lingua);
+        expect([cadeia[i], lingua, JSON.stringify(p.sections).includes(`(/${cadeia[i + 1]}/)`)]).toEqual([cadeia[i], lingua, true]);
+      }
+    }
+  });
+
+  // Uma fotografia escrita aqui e esquecida em public/ era uma imagem partida
+  // no meio da pagina.
+  test('as fotografias de antes e depois existem em public/img/antes-depois', () => {
+    for (const p of SERVICE_PAGES) {
+      for (const f of p.antesDepois ?? []) {
+        for (const ficheiro of [f.antes, f.depois]) {
+          expect([p.slug, ficheiro, existsSync(join(__dirname, '../public/img/antes-depois', ficheiro))]).toEqual([p.slug, ficheiro, true]);
+        }
+        expect(f.alt).toBeTruthy();
+      }
+    }
+  });
+
+  // A tabela dos polimentos: o ingles com as mesmas linhas e colunas, e cada
+  // coluna com um servico que tem preco, senao o "desde" saia "undefined€".
+  test('a comparacao dos polimentos tem o mesmo desenho nas duas linguas', () => {
+    for (const pagina of SERVICE_PAGES) {
+      pagina.sections.forEach((s, i) => {
+        if (!s.comparacao) return;
+        const en = pagina.en.sections[i].comparacao;
+        expect(en.colunas).toHaveLength(s.comparacao.colunas.length);
+        expect(en.linhas).toHaveLength(s.comparacao.linhas.length);
+        for (const c of s.comparacao.colunas) expect(SERVICES.find((x) => x.id === c.servico)?.price).toBeGreaterThan(0);
+        for (const l of [...s.comparacao.linhas, ...en.linhas]) expect(l.valores).toHaveLength(s.comparacao.colunas.length);
+      });
     }
   });
 

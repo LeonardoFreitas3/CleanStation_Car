@@ -134,7 +134,7 @@ export function businessSchema(lang) {
       addressRegion: 'Braga',
       addressCountry: 'PT',
     },
-    geo: { '@type': 'GeoCoordinates', latitude: 41.5454, longitude: -8.4265 },
+    geo: { '@type': 'GeoCoordinates', latitude: 41.54243, longitude: -8.42396 },
     hasMap: SITE.mapsShareUrl,
     areaServed: [
       { '@type': 'City', name: 'Braga' },
@@ -194,7 +194,7 @@ export function faqItems(lang) {
       },
       {
         q: 'Do I have to leave the car at Clean Station Car?',
-        a: 'Yes. The service is carried out at our premises in Braga. Any call-out is only by prior agreement.',
+        a: 'Yes. The service is carried out at our premises in Braga; we do not do call-outs.',
       },
       {
         q: 'Do you clean upholstery and seats?',
@@ -242,7 +242,7 @@ export function faqItems(lang) {
     },
     {
       q: 'Tenho de deixar o carro na Clean Station Car?',
-      a: 'Sim. O serviço é feito nas nossas instalações em Braga. Qualquer deslocação é só mediante acordo prévio.',
+      a: 'Sim. O serviço é feito nas nossas instalações em Braga; não fazemos deslocações.',
     },
     {
       q: 'Fazem lavagem de estofos e bancos?',

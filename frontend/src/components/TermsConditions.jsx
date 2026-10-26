@@ -19,7 +19,7 @@ export default function TermsConditions({ open, onClose }) {
         </p>
 
         <h2>2. Services Provided</h2>
-        <p>Clean Station Car provides car washing, interior cleaning and sanitising, polishing and paint protection with sealants, at the indicated premises or by previously agreed call-out.</p>
+        <p>Clean Station Car provides car washing, interior cleaning and sanitising, polishing and paint protection with sealants, at the indicated premises.</p>
 
         <h2>3. Bookings</h2>
         <ul>
@@ -70,7 +70,7 @@ export default function TermsConditions({ open, onClose }) {
       </p>
 
       <h2>2. Serviços Prestados</h2>
-      <p>A Clean Station Car presta serviços de lavagem automóvel, limpeza e higienização interior, polimento e proteção da pintura com selantes, nas instalações indicadas ou mediante deslocação acordada previamente.</p>
+      <p>A Clean Station Car presta serviços de lavagem automóvel, limpeza e higienização interior, polimento e proteção da pintura com selantes, nas instalações indicadas.</p>
 
       <h2>3. Marcações</h2>
       <ul>

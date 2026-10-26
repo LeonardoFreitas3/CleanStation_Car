@@ -74,8 +74,14 @@ export default function ServicoPagina({ slug }) {
   const botao = 'inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-4 text-xs tracking-[0.2em] uppercase font-bold transition';
   const secundario = 'inline-flex items-center gap-2 border border-white/25 hover:border-white/60 text-white/85 hover:text-white px-5 py-4 text-xs tracking-[0.2em] uppercase font-bold transition';
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${encodeURIComponent(
-    t(page.whatsapp ? 'whatsapp.quoteFor' : 'whatsapp.about', { servico: nomeDe(pagina, lang) }),
+    t(pagina.mensagem ?? (page.whatsapp ? 'whatsapp.quoteFor' : 'whatsapp.about'), { servico: nomeDe(pagina, lang) }),
   )}`;
+  const botaoWhatsapp = (
+    <a href={waUrl} target="_blank" rel="noreferrer" className={botao}>
+      <MessageCircle className="w-4 h-4" aria-hidden="true" />
+      {page.cta}
+    </a>
+  );
 
   // A ação principal e as de recurso, as mesmas em cima e em baixo. Numa
   // lavagem: marcar, ligar, escrever — sem "ver preços", a pedido do cliente: o
@@ -84,12 +90,7 @@ export default function ServicoPagina({ slug }) {
   // com o outro polimento, ou pede-se o orçamento, e liga-se.
   const acao = (
     <div className="flex flex-wrap items-center gap-3">
-      {page.whatsapp ? (
-        <a href={waUrl} target="_blank" rel="noreferrer" className={botao}>
-          <MessageCircle className="w-4 h-4" aria-hidden="true" />
-          {page.cta}
-        </a>
-      ) : (
+      {page.whatsapp ? botaoWhatsapp : (
         <button type="button" onClick={() => setBooking(true)} className={botao}>
           {lang === 'en' ? 'Book now' : 'Marcar agora'}
           <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -97,7 +98,7 @@ export default function ServicoPagina({ slug }) {
       )}
       {page.whatsapp ? (
         pagina.comparar && (
-          <Link href={rotaPagina(lang, pagina.comparar)} className={secundario}>
+          <Link href={rotaPagina(lang, pagina.comparar, '#comparar')} className={secundario}>
             <Scale className="w-4 h-4" aria-hidden="true" />
             {lang === 'en' ? 'Compare polishing' : 'Comparar polimentos'}
           </Link>
@@ -242,12 +243,20 @@ export default function ServicoPagina({ slug }) {
                 </div>
               )}
 
+              {sec.comparacao && (
+                <Comparacao dados={sec.comparacao} colunas={pagina.sections[i].comparacao.colunas} lang={lang} t={t} />
+              )}
+
               {sec.nota && (
                 <p className="text-white/50 text-sm mt-6 leading-relaxed max-w-2xl"><Texto lang={lang}>{sec.nota}</Texto></p>
               )}
+
+              {page.whatsapp && i === pagina.ctaApos && <div className="mt-8">{botaoWhatsapp}</div>}
             </section>
             );
           })}
+
+          {pagina.antesDepois?.length > 0 && <AntesDepois fotos={pagina.antesDepois} lang={lang} />}
 
           {/* ── Perguntas ─────────────────────────────────────────────────── */}
           <section>
@@ -354,6 +363,97 @@ function Texto({ children, lang }) {
     if (i % 4 === 1) return <Link key={i} href={`${prefixo(lang)}${partes[i + 2]}`} className="text-blue-400 hover:text-blue-300 underline underline-offset-4">{partes[i + 1]}</Link>;
     return i % 4 === 0 ? parte : null;
   });
+}
+
+/**
+ * Os polimentos lado a lado. Uma tabela no computador; no telemóvel três
+ * colunas de texto não cabem, e cada polimento passa a ser um cartão com as
+ * mesmas linhas. O "desde" vem das colunas da página portuguesa, que trazem o
+ * id do serviço — a tradução só troca o texto.
+ */
+function Comparacao({ dados, colunas, lang, t }) {
+  const desde = (j) => `${lang === 'en' ? 'From' : 'Desde'} ${precoServico(colunas[j].servico)}€ · ${t('services.quoteBased')}`;
+  const rotuloPreco = lang === 'en' ? 'Price' : 'Preço';
+  return (
+    <>
+      <table className="hidden sm:table w-full mt-6 text-sm border-collapse">
+        <thead>
+          <tr className="border-b border-white/15">
+            <th scope="col" className="w-1/5" />
+            {dados.colunas.map((c) => (
+              <th key={c.titulo} scope="col" className="text-left font-display text-white font-bold tracking-wider py-3 pr-4">{c.titulo}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {dados.linhas.map((l) => (
+            <tr key={l.rotulo} className="border-b border-white/10 align-top">
+              <th scope="row" className="text-left text-white/50 text-[10px] tracking-[0.2em] uppercase font-normal py-3 pr-4">{l.rotulo}</th>
+              {l.valores.map((v) => <td key={v} className="text-white/75 py-3 pr-4 leading-relaxed">{v}</td>)}
+            </tr>
+          ))}
+          <tr className="align-top">
+            <th scope="row" className="text-left text-white/50 text-[10px] tracking-[0.2em] uppercase font-normal py-3 pr-4">{rotuloPreco}</th>
+            {dados.colunas.map((c, j) => <td key={c.titulo} className="text-white py-3 pr-4 font-semibold">{desde(j)}</td>)}
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="sm:hidden mt-6 space-y-4">
+        {dados.colunas.map((c, j) => (
+          <div key={c.titulo} className="border border-white/10 bg-[#0e0e0e] rounded-md p-5">
+            <h3 className="font-display text-white font-bold tracking-wider">{c.titulo}</h3>
+            <p className="text-white text-sm font-semibold mt-1">{desde(j)}</p>
+            <dl className="mt-4 space-y-3">
+              {dados.linhas.map((l) => (
+                <div key={l.rotulo}>
+                  <dt className="text-white/50 text-[10px] tracking-[0.2em] uppercase">{l.rotulo}</dt>
+                  <dd className="text-white/75 text-sm mt-1 leading-relaxed">{l.valores[j]}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/**
+ * Fotografias reais de antes e depois. Só existe quando há fotografias: a
+ * página nunca mostra a moldura vazia. O quadro tem a proporção fixa para a
+ * página não saltar quando a imagem chega.
+ */
+function AntesDepois({ fotos, lang }) {
+  const en = lang === 'en';
+  return (
+    <section>
+      <h2 className="font-display text-white text-xl md:text-2xl font-black tracking-wide">
+        {en ? 'Before and after' : 'Antes e depois'}
+      </h2>
+      <span className="accent-bar mt-4 block" />
+      <div className="mt-6 space-y-6">
+        {fotos.map((f) => {
+          const alt = (en && f.altEn) || f.alt;
+          return (
+            <div key={f.depois} className="grid grid-cols-2 gap-2">
+              {[['antes', en ? 'Before' : 'Antes'], ['depois', en ? 'After' : 'Depois']].map(([k, rotulo]) => (
+                <figure key={k} className="relative aspect-[4/3] overflow-hidden rounded-md bg-[#0e0e0e]">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/img/antes-depois/${f[k]}`}
+                    alt={`${rotulo}: ${alt}`}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <figcaption className="absolute top-2 left-2 bg-black/70 text-white text-[10px] tracking-[0.2em] uppercase px-2 py-1">{rotulo}</figcaption>
+                </figure>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function Lista({ items }) {
