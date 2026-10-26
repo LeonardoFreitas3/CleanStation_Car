@@ -205,7 +205,7 @@ const PAGINAS = [
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-detalhada',
     foto: 'porsche-interior',
-    galeria: ['porsche-traseira', 'porsche-frente', 'megane-interior'],
+    galeria: ['porsche-traseira', 'porsche-frente'],
     h1: 'Lavagem Detalhada de Automóveis em Braga',
     intro: [
       'O nosso serviço mais completo de limpeza automóvel, desenvolvido para uma recuperação profunda do interior e exterior do veículo.',
@@ -253,7 +253,10 @@ const PAGINAS = [
         ],
       },
     ],
-    antesDepois: [{ antes: 'megane-antes', depois: 'megane-depois' }],
+    antesDepois: [
+      { antes: 'megane-antes', depois: 'megane-depois' },
+      { antes: 'megane-consola-antes', depois: 'megane-interior' },
+    ],
     cta: 'Marcar Lavagem Detalhada Interior + Exterior',
     faq: [
       {
@@ -494,6 +497,13 @@ const PAGINAS = [
           'Conhece também o nosso [polimento automóvel em Braga](/polimento-automovel-braga/).',
         ],
       },
+    ],
+    // Os quatro pares de interior: é a página onde o resultado mais conta.
+    antesDepois: [
+      { antes: 'megane-antes', depois: 'megane-depois' },
+      { antes: 'megane-consola-antes', depois: 'megane-interior' },
+      { antes: 'renault-condutor-antes', depois: 'renault-condutor-depois' },
+      { antes: 'renault-passageiro-antes', depois: 'renault-passageiro-depois' },
     ],
     cta: 'Marcar limpeza',
     faq: [

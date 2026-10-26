@@ -25,6 +25,7 @@ export const FOTOS = {
   'farol-depois': { alt: 'O mesmo farol transparente, depois do polimento', altEn: 'The same headlight, clear after polishing' },
   'megane-antes': { alt: 'Renault Mégane sem bancos, com a alcatifa suja', altEn: 'Renault Mégane with the seats out and a dirty carpet' },
   'megane-depois': { alt: 'O mesmo Renault Mégane com os bancos montados e o interior limpo', altEn: 'The same Renault Mégane with the seats back in and the interior clean' },
+  'megane-consola-antes': { alt: 'Consola e chão do condutor de um Renault Mégane sem bancos, com a alcatifa suja', altEn: 'Centre console and driver’s floor of a Renault Mégane with the seats out and a dirty carpet' },
   'renault-condutor-antes': { alt: 'Zona do condutor de um Renault, com o chão sujo', altEn: 'Driver’s area of a Renault, with a dirty floor' },
   'renault-condutor-depois': { alt: 'A mesma zona do condutor, limpa', altEn: 'The same driver’s area, clean' },
   'renault-passageiro-antes': { alt: 'Zona do passageiro de um Renault, com o chão sujo', altEn: 'Passenger’s area of a Renault, with a dirty floor' },
