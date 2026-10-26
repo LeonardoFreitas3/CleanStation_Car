@@ -599,7 +599,7 @@ const PAGINAS = [
 
   {
     slug: 'polimento-1-etapa-braga',
-    foto: 'instalacoes',
+    foto: 'porsche-frente',
     serviceId: 'polimento-1-etapa',
     nome: 'Polimento de 1 Etapa',
     whatsapp: true,

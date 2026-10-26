@@ -82,8 +82,9 @@ export const SERVICES = [
     title: 'POLIMENTO DE 1 ETAPA',
     desc: 'Para devolver o brilho e atenuar marcas ligeiras de lavagem e pequenos defeitos. Inclui lavagem detalhada exterior.',
     icon: Wrench,
-    image: fotoSrc('instalacoes', 'card'),
-    imageSm: fotoSrc('instalacoes', 'card-sm'),
+    // A mesma da protecao ceramica: o dono aceitou repetir aqui.
+    image: fotoSrc('porsche-frente', 'card'),
+    imageSm: fotoSrc('porsche-frente', 'card-sm'),
     includes: [
       'Atenua marcas ligeiras e riscos superficiais',
       'Reduz hologramas',

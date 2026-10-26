@@ -114,7 +114,8 @@ describe('paginas de servico', () => {
     }
   });
 
-  // Pedido do dono: na secção de serviços nenhuma fotografia se repete.
+  // Pedido do dono: na secção de serviços nenhuma fotografia se repete, com uma
+  // exceção que ele aceitou — o Porsche no polimento de 1 etapa e na cerâmica.
   test('os cartoes da inicial tem imagens que existem e nenhuma repetida', () => {
     const vistas = [];
     for (const s of SERVICES) {
@@ -123,7 +124,7 @@ describe('paginas de servico', () => {
       // A fotografia, sem a variante: card, card-sm e meia são a mesma.
       vistas.push(...new Set(imagens.map((src) => src.replace(/-(card-sm|card|meia).webp$/, ''))));
     }
-    const repetidas = vistas.filter((v, i) => vistas.indexOf(v) !== i);
+    const repetidas = vistas.filter((v, i) => vistas.indexOf(v) !== i && !v.endsWith('/porsche-frente'));
     expect(repetidas).toEqual([]);
   });
 
