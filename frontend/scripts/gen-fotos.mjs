@@ -35,16 +35,12 @@ const VARIANTES = {
   capa: { aspeto: 3 / 2, largura: 1200 }, // fundo do cabeçalho de cada página
   mini: { aspeto: 3 / 4, largura: 600 }, // galeria e antes/depois
   retrato: { aspeto: 4 / 5, largura: 960 }, // instalações, no computador
-  quadrado: { aspeto: 1, largura: 1000 }, // fundo do topo, no telemóvel
-  full: { largura: 1600 }, // em tamanho completo: no visualizador, e o fundo do topo
+  full: { largura: 1600 }, // em tamanho completo, no visualizador
 };
 
 // Cada fotografia aparece uma vez só na secção de serviços da inicial; fora
 // dela (cabeçalhos das páginas, oficina, resultados) pode repetir-se.
 const FOTOS = [
-  // O fundo do topo da inicial. Escura à esquerda, onde fica o texto; no
-  // telemóvel vai só o carro, num quadrado.
-  { nome: 'mustang', original: 'Foto de fundo.jpg', caixas: { quadrado: { x: 0.378, y: 0, l: 0.622 } }, variantes: ['full', 'quadrado'] },
   // A Detalhada Interior ou Exterior, uma por metade do cartão.
   { nome: 'volante-escova', original: 'Lavagem detalhada interior ou exterior/Lavagem detalhad interior ou exterior .PNG', fy: 0.45, variantes: ['meia', 'card-sm', 'capa'] },
   { nome: 'jante-escova', original: 'Lavagem detalhada interior ou exterior/Lavagem detalhada interior ou exterior .PNG', fy: 0.6, variantes: ['meia'] },
