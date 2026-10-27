@@ -37,7 +37,7 @@ const PAGINAS = [
     // levelId: um id que se muda em silencio partia o link sem dar erro, e o
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-simples',
-    foto: 'bmw-espuma',
+    foto: 'bmw-cinza-espuma',
     h1: 'Lavagem Automóvel em Braga',
     intro: [
       'Uma solução completa para a manutenção do teu veículo, com limpeza manual do exterior, cuidado do interior e selante na pintura.',
@@ -119,7 +119,7 @@ const PAGINAS = [
     // levelId: um id que se muda em silencio partia o link sem dar erro, e o
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-premium',
-    foto: 'bmw-frente',
+    foto: 'mustang-frente',
     h1: 'Lavagem Premium de Automóveis em Braga',
     intro: [
       'Um serviço pensado para quem procura um nível de limpeza superior ao de uma lavagem convencional.',
@@ -599,7 +599,7 @@ const PAGINAS = [
 
   {
     slug: 'polimento-1-etapa-braga',
-    foto: 'porsche-frente',
+    foto: 'polimento-pintura',
     serviceId: 'polimento-1-etapa',
     nome: 'Polimento de 1 Etapa',
     whatsapp: true,
@@ -668,7 +668,7 @@ const PAGINAS = [
 
   {
     slug: 'correcao-pintura-braga',
-    foto: 'farol-colaborador',
+    foto: 'bmw-frente',
     serviceId: 'polimento-avancado',
     nome: 'Polimento de Correção Avançada',
     whatsapp: true,

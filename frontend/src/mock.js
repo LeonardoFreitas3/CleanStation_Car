@@ -63,8 +63,8 @@ export const SERVICES = [
   // seccao (o servicePages.test confirma). `imageSm` e a versao para os
   // cartoes no telemovel. As duas Detalhadas mostram o interior e o exterior lado
   // a lado, uma fotografia por metade do cartao.
-  lavagem('simples', { id: 'lavagem-simples', icon: Droplets, image: fotoSrc('bmw-espuma', 'card'), imageSm: fotoSrc('bmw-espuma', 'card-sm') }),
-  lavagem('premium', { id: 'lavagem-premium', icon: ShieldPlus, image: fotoSrc('bmw-frente', 'card'), imageSm: fotoSrc('bmw-frente', 'card-sm') }),
+  lavagem('simples', { id: 'lavagem-simples', icon: Droplets, image: fotoSrc('bmw-cinza-espuma', 'card'), imageSm: fotoSrc('bmw-cinza-espuma', 'card-sm') }),
+  lavagem('premium', { id: 'lavagem-premium', icon: ShieldPlus, image: fotoSrc('mustang-frente', 'card'), imageSm: fotoSrc('mustang-frente', 'card-sm') }),
   lavagem('detalhada-parcial', { id: 'lavagem-detalhada-interior-ou-exterior', icon: Sparkles, image: fotoSrc('volante-escova', 'card-sm'), metades: [fotoSrc('volante-escova', 'meia'), fotoSrc('jante-escova', 'meia')] }),
   lavagem('detalhada', { id: 'lavagem-detalhada', icon: Car, image: fotoSrc('porsche-interior', 'card'), metades: [fotoSrc('porsche-interior', 'meia'), fotoSrc('porsche-frente', 'meia')] }),
 
@@ -82,9 +82,8 @@ export const SERVICES = [
     title: 'POLIMENTO DE 1 ETAPA',
     desc: 'Para devolver o brilho e atenuar marcas ligeiras de lavagem e pequenos defeitos. Inclui lavagem detalhada exterior.',
     icon: Wrench,
-    // A mesma da protecao ceramica: o dono aceitou repetir aqui.
-    image: fotoSrc('porsche-frente', 'card'),
-    imageSm: fotoSrc('porsche-frente', 'card-sm'),
+    image: fotoSrc('polimento-pintura', 'card'),
+    imageSm: fotoSrc('polimento-pintura', 'card-sm'),
     includes: [
       'Atenua marcas ligeiras e riscos superficiais',
       'Reduz hologramas',
@@ -100,8 +99,8 @@ export const SERVICES = [
     title: 'POLIMENTO DE CORREÇÃO AVANÇADA',
     desc: 'Várias etapas para riscos, marcas circulares e oxidação mais evidentes, respeitando os limites do verniz. Inclui lavagem detalhada exterior.',
     icon: Gem,
-    image: fotoSrc('farol-colaborador', 'card'),
-    imageSm: fotoSrc('farol-colaborador', 'card-sm'),
+    image: fotoSrc('bmw-frente', 'card'),
+    imageSm: fotoSrc('bmw-frente', 'card-sm'),
     includes: [
       'Reduz riscos e marcas circulares mais evidentes',
       'Corrige oxidação, até onde o verniz permite',
@@ -134,8 +133,8 @@ export const SERVICES = [
     title: 'POLIMENTO DE FARÓIS TRASEIROS (PAR)',
     desc: 'Recupera o aspeto das luzes traseiras, removendo opacidade e riscos superficiais.',
     icon: CircleDot,
-    image: fotoSrc('farol-depois', 'card'),
-    imageSm: fotoSrc('farol-depois', 'card-sm'),
+    image: fotoSrc('farol-colaborador', 'card'),
+    imageSm: fotoSrc('farol-colaborador', 'card-sm'),
     includes: [
       'Remove desgaste e opacidade',
       'Atenua riscos superficiais',

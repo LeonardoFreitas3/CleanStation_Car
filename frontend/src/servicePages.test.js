@@ -115,7 +115,8 @@ describe('paginas de servico', () => {
   });
 
   // Pedido do dono: na secção de serviços nenhuma fotografia se repete, com uma
-  // exceção que ele aceitou — o Porsche no polimento de 1 etapa e na cerâmica.
+  // exceção que ele aceitou — o Porsche de frente, na cerâmica e na metade
+  // exterior da Detalhada Interior + Exterior.
   test('os cartoes da inicial tem imagens que existem e nenhuma repetida', () => {
     const vistas = [];
     for (const s of SERVICES) {

@@ -19,8 +19,9 @@
 // o volante, o farol ou o tablier ficarem no mesmo sitio e ao mesmo tamanho
 // nas duas fotografias. A versao em tamanho completo fica inteira.
 //
-// As originais vem de mais de uma entrega (clean.rar e o zip "Site Clean
-// Station"): passam-se as pastas todas, e cada ficheiro procura-se nelas.
+// As originais vem de mais de uma entrega (clean.rar, o zip "Site Clean
+// Station" e tres fotografias mandadas a parte): passam-se as pastas todas, e
+// cada ficheiro procura-se nelas.
 //
 // Correr a partir de frontend/:  node scripts/gen-fotos.mjs <pasta> [<pasta>...]
 import sharp from 'sharp';
@@ -51,7 +52,10 @@ const FOTOS = [
   { nome: 'instalacoes', original: 'B8063F8E-DB72-48C4-B34F-C881BFBBD0DA.jpeg', fy: 0.55, variantes: ['retrato', 'card', 'card-sm', 'capa', 'full'] },
   { nome: 'entrada', original: '5C757988-ACED-4055-9A26-9DF02AB2DC5E.jpeg', fy: 0.5, variantes: ['card', 'full'] },
 
-  { nome: 'bmw-espuma', original: 'exec-1aae5891-d9b5-452f-b766-e88e8db16a69.png', fy: 0.62, variantes: ['card', 'card-sm', 'capa'] },
+  // Terceira entrega, com o nome do serviço a que se destinam.
+  { nome: 'bmw-cinza-espuma', original: 'Lavagem simples.webp', fy: 0.65, variantes: ['card', 'card-sm', 'capa'] },
+  { nome: 'mustang-frente', original: 'Lavagem premium.jpg', fy: 0.6, variantes: ['card', 'card-sm', 'capa'] },
+  { nome: 'polimento-pintura', original: 'Polimentos de 1 etapa.webp', fy: 0.55, variantes: ['card', 'card-sm', 'capa'] },
   { nome: 'bmw-frente', original: 'exec-803f184f-99f9-4206-bf9c-7d145ee3eba0.png', fy: 0.52, variantes: ['card', 'card-sm', 'capa'] },
   { nome: 'bmw-interior', original: 'exec-455ab8ad-9872-4ba2-b50d-7844100f9cd7.png', fy: 0.45, variantes: ['card', 'card-sm'] },
   { nome: 'bmw-volante', original: 'exec-5c236247-ebf9-4db0-a9f0-210704b20a01.png', fy: 0.5, variantes: ['card', 'card-sm'] },
