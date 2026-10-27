@@ -256,7 +256,7 @@ export const EN_PAGES = {
     title: 'Detailed Wash Interior or Exterior in Braga | Clean Station Car',
     description:
       'Detailed car wash in Braga on the interior only, with seat removal and sanitising, '
-      + 'or the exterior only, with paint decontamination. From €130.',
+      + 'or the exterior only, with paint decontamination. From €120.',
     h1: 'Detailed Wash Interior or Exterior in Braga',
     intro: [
       'The work of our Detailed Wash, only on the area you choose: the inside or the outside of the vehicle.',

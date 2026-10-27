@@ -37,12 +37,12 @@ const LEVELS: Record<string, Level> = {
   },
   'detalhada-interior': {
     label: 'Lavagem Detalhada Interior',
-    prices: { carro: 130, grande: 150, suv: 140 },
+    prices: { carro: 120, grande: 150, suv: 140 },
     durations: { carro: 240, grande: 360, suv: 300 },
   },
   'detalhada-exterior': {
     label: 'Lavagem Detalhada Exterior',
-    prices: { carro: 130, grande: 150, suv: 140 },
+    prices: { carro: 120, grande: 150, suv: 140 },
     durations: { carro: 240, grande: 360, suv: 300 },
   },
   detalhada: {

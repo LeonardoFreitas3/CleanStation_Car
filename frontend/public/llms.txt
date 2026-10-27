@@ -22,7 +22,7 @@ O preço depende do tipo de veículo. Valores em euros, com IVA incluído.
 |---|---|---|---|---|
 | Lavagem Simples (inclui selante) | 35 | 45 | 40 | 35 |
 | Lavagem Premium | 75 | 85 | 80 | — |
-| Lavagem Detalhada Interior ou Exterior | 130 | 150 | 140 | — |
+| Lavagem Detalhada Interior ou Exterior | 120 | 150 | 140 | — |
 | Lavagem Detalhada Interior + Exterior | 200 | 240 | 220 | — |
 
 A Lavagem Detalhada Interior ou Exterior inclui só a área escolhida na

@@ -13,7 +13,7 @@ describe('tabela de preços por tipo de veículo', () => {
   const TABELA = [
     ['simples',           35,  45,  40,  35],
     ['premium',           75,  85,  80,  undefined],
-    ['detalhada-parcial', 130, 150, 140, undefined],
+    ['detalhada-parcial', 120, 150, 140, undefined],
     ['detalhada',         200, 240, 220, undefined],
   ];
 

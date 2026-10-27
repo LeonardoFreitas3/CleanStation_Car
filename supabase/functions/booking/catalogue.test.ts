@@ -18,8 +18,8 @@ Deno.test('preço por tipo de veículo, igual à tabela', () => {
   const tabela: Array<[string, string, number]> = [
     ['carro', 'simples', 35], ['grande', 'simples', 45], ['suv', 'simples', 40], ['mota', 'simples', 35],
     ['carro', 'premium', 75], ['grande', 'premium', 85], ['suv', 'premium', 80],
-    ['carro', 'detalhada-interior', 130], ['grande', 'detalhada-interior', 150], ['suv', 'detalhada-interior', 140],
-    ['carro', 'detalhada-exterior', 130], ['grande', 'detalhada-exterior', 150], ['suv', 'detalhada-exterior', 140],
+    ['carro', 'detalhada-interior', 120], ['grande', 'detalhada-interior', 150], ['suv', 'detalhada-interior', 140],
+    ['carro', 'detalhada-exterior', 120], ['grande', 'detalhada-exterior', 150], ['suv', 'detalhada-exterior', 140],
     ['carro', 'detalhada', 200], ['grande', 'detalhada', 240], ['suv', 'detalhada', 220],
   ];
 

@@ -61,7 +61,7 @@ export const WASH_LEVELS = [
       { id: 'detalhada-interior', label: 'Interior', servico: 'Lavagem Detalhada Interior' },
       { id: 'detalhada-exterior', label: 'Exterior', servico: 'Lavagem Detalhada Exterior' },
     ],
-    prices: { carro: 130, grande: 150, suv: 140 },
+    prices: { carro: 120, grande: 150, suv: 140 },
   },
   {
     id: 'detalhada',
