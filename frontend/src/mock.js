@@ -61,12 +61,12 @@ export const SERVICES = [
   // ── LAVAGENS ──────────────────────────────────────────────────────────────
   // Todos os cartoes tem fotografias da oficina, e nenhuma se repete nesta
   // seccao (o servicePages.test confirma). `imageSm` e a versao para os
-  // cartoes no telemovel. A Detalhada Interior ou Exterior mostra as duas areas
-  // lado a lado, uma por metade do cartao.
+  // cartoes no telemovel. As duas Detalhadas mostram o interior e o exterior lado
+  // a lado, uma fotografia por metade do cartao.
   lavagem('simples', { id: 'lavagem-simples', icon: Droplets, image: fotoSrc('bmw-espuma', 'card'), imageSm: fotoSrc('bmw-espuma', 'card-sm') }),
   lavagem('premium', { id: 'lavagem-premium', icon: ShieldPlus, image: fotoSrc('bmw-frente', 'card'), imageSm: fotoSrc('bmw-frente', 'card-sm') }),
-  lavagem('detalhada-parcial', { id: 'lavagem-detalhada-interior-ou-exterior', icon: Sparkles, image: fotoSrc('megane-interior', 'card-sm'), metades: [fotoSrc('megane-interior', 'meia'), fotoSrc('porsche-traseira', 'meia')] }),
-  lavagem('detalhada', { id: 'lavagem-detalhada', icon: Car, image: fotoSrc('porsche-interior', 'card'), imageSm: fotoSrc('porsche-interior', 'card-sm') }),
+  lavagem('detalhada-parcial', { id: 'lavagem-detalhada-interior-ou-exterior', icon: Sparkles, image: fotoSrc('volante-escova', 'card-sm'), metades: [fotoSrc('volante-escova', 'meia'), fotoSrc('jante-escova', 'meia')] }),
+  lavagem('detalhada', { id: 'lavagem-detalhada', icon: Car, image: fotoSrc('porsche-interior', 'card'), metades: [fotoSrc('porsche-interior', 'meia'), fotoSrc('porsche-frente', 'meia')] }),
 
   // ── POLIMENTOS E CORREÇÕES ───────────────────────────────────────────────
   //

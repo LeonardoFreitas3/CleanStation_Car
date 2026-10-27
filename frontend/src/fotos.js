@@ -9,6 +9,9 @@
 // páginas pedem existem.
 
 export const FOTOS = {
+  mustang: { alt: 'Ford Mustang azul com riscas brancas na oficina da Clean Station Car, em Braga', altEn: 'Blue Ford Mustang with white stripes in the Clean Station Car workshop, in Braga' },
+  'volante-escova': { alt: 'Volante a ser limpo com um pincel', altEn: 'Steering wheel being cleaned with a brush' },
+  'jante-escova': { alt: 'Jante a ser limpa com um pincel', altEn: 'Wheel being cleaned with a brush' },
   'porsche-frente': { alt: 'Porsche cinzento na oficina, visto de frente e de lado', altEn: 'Grey Porsche in the workshop, seen from the front and side' },
   instalacoes: { alt: 'Oficina da Clean Station Car, com o chão azul e preto', altEn: 'Clean Station Car workshop, with its blue and black floor' },
   entrada: { alt: 'Entrada da oficina na Rua Conselheiro Lobato, junto ao letreiro Doctor Solution', altEn: 'Workshop entrance on Rua Conselheiro Lobato, next to the Doctor Solution sign' },

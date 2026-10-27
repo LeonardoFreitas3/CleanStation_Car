@@ -279,7 +279,7 @@ const PAGINAS = [
     // levelId: um id que se muda em silencio partia o link sem dar erro, e o
     // teste do servicePages confirma que este existe mesmo no mock.
     serviceId: 'lavagem-detalhada-interior-ou-exterior',
-    foto: 'megane-interior',
+    foto: 'volante-escova',
     // O texto e o da Lavagem Detalhada, dividido pelas duas areas: nao se faz
     // aqui nada que la nao se faca.
     h1: 'Lavagem Detalhada Interior ou Exterior em Braga',

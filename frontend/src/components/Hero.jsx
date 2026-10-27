@@ -2,11 +2,10 @@ import React from "react";
 import { MessageCircle, CalendarDays } from 'lucide-react';
 import { FEATURES, SITE } from "../mock";
 import { useLang } from "../i18n";
-
-const HERO_CAR = `${process.env.PUBLIC_URL}/img/banner`;
+import { fotoAlt, fotoSrc } from "../fotos";
 
 export default function Hero({ onBook }) {
-  const { t, tx } = useLang();
+  const { t, tx, lang } = useLang();
   const waMsg = encodeURIComponent(t('whatsapp.quote'));
   const waUrl = `https://wa.me/${SITE.phoneRaw}?text=${waMsg}`;
 
@@ -15,23 +14,28 @@ export default function Hero({ onBook }) {
       <div className="relative min-h-[100vh] flex flex-col">
         {/* Background */}
         <div className="absolute inset-0 z-0">
-          {/* No telemóvel vai a versão de 768px: a de 1536 era o maior
-              elemento da página a chegar três segundos depois. */}
+          {/* A fotografia da oficina, escura à esquerda, onde fica o texto. No
+              telemóvel vai só o carro, num quadrado de 986px: a inteira, a
+              1586, era o maior elemento da página e quase toda ficava fora do
+              ecrã. */}
           <picture>
-            <source media="(max-width: 767px)" srcSet={`${HERO_CAR}-sm.webp`} type="image/webp" />
-            <source srcSet={`${HERO_CAR}.webp`} type="image/webp" />
+            <source media="(max-width: 767px)" srcSet={fotoSrc('mustang', 'quadrado')} />
             <img
-              src={`${HERO_CAR}.jpg`}
-              alt="Automóvel após lavagem detalhada na Clean Station Car, em Braga"
+              src={fotoSrc('mustang', 'full')}
+              alt={fotoAlt('mustang', lang)}
+              width={1586}
+              height={992}
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: "65% 60%" }}
+              style={{ objectPosition: "70% 50%" }}
               loading="eager"
               fetchPriority="high"
             />
           </picture>
-          <div className="absolute pointer-events-none" style={{ left: "62%", top: "58%", transform: "translate(-50%, -50%)", width: "70%", height: "60%", background: "radial-gradient(ellipse at center, rgba(255,250,235,0.25) 0%, rgba(255,250,235,0.08) 30%, transparent 65%)", filter: "blur(50px)" }} />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-black/20" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_60%,_transparent_0%,_rgba(0,0,0,0.55)_70%,_#000_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/45 to-transparent" />
+          {/* No telemóvel o texto fica por cima do carro: escurece-se a metade
+              de cima, onde ele está. */}
+          <div className="absolute inset-x-0 top-0 h-3/4 bg-gradient-to-b from-black/70 via-black/40 to-transparent md:hidden" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_55%,_transparent_0%,_transparent_55%,_rgba(0,0,0,0.6)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-2/5 opacity-50 pointer-events-none" style={{ background: "radial-gradient(ellipse at 60% 100%, rgba(147,197,253,0.20) 0%, rgba(59,130,246,0.08) 35%, transparent 55%)", filter: "blur(30px)" }} />
         </div>
